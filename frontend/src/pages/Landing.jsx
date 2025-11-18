@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../App';
+import SignupModal from '../components/SignupModal';
 
 const Landing = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ buildings: 5, units: 206 });
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   useEffect(() => {
     checkAuth();

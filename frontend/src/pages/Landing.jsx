@@ -101,30 +101,42 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section - NYC Night Sky */}
-      <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background - Deep night sky with city lights */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-          {/* Simulated city lights bokeh */}
-          <div className="absolute inset-0 opacity-30">
-            {[...Array(20)].map((_, i) => (
+      <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[90vh] flex items-center">
+        {/* Background - NYC Skyline Image */}
+        <div className="absolute inset-0">
+          {/* Hero Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://customer-assets.emergentagent.com/job_nyc-nofee/artifacts/r3ox8vya_105ab7408ce711f0acaefb59b9276889.png')`
+            }}
+          />
+          
+          {/* Gradient Overlays for better text readability and depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-transparent to-slate-900/60" />
+          
+          {/* Animated light particles for extra splash */}
+          <div className="absolute inset-0 opacity-20">
+            {[...Array(15)].map((_, i) => (
               <div
                 key={i}
                 className="absolute rounded-full city-light-shimmer"
                 style={{
-                  width: Math.random() * 4 + 2 + 'px',
-                  height: Math.random() * 4 + 2 + 'px',
-                  background: i % 3 === 0 ? '#f59e0b' : i % 3 === 1 ? '#fbbf24' : '#dc2626',
+                  width: Math.random() * 6 + 3 + 'px',
+                  height: Math.random() * 6 + 3 + 'px',
+                  background: i % 2 === 0 ? '#f59e0b' : '#fbbf24',
                   left: Math.random() * 100 + '%',
                   top: Math.random() * 100 + '%',
-                  animationDelay: Math.random() * 2 + 's',
-                  boxShadow: `0 0 ${Math.random() * 20 + 10}px currentColor`
+                  animationDelay: Math.random() * 3 + 's',
+                  boxShadow: `0 0 ${Math.random() * 30 + 15}px currentColor`
                 }}
               />
             ))}
           </div>
           
           {/* Warm glow from bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-amber-500/10 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-amber-500/20 via-amber-500/5 to-transparent" />
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">

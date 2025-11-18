@@ -191,50 +191,50 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Buildings</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.total_buildings || 0}</p>
+                  <p className="text-sm text-slate-400">Total Buildings</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_buildings || buildings.length}</p>
                 </div>
-                <Building2 className="w-12 h-12 text-indigo-600" />
+                <Building2 className="w-12 h-12 text-amber-500" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Units</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.total_units || 0}</p>
+                  <p className="text-sm text-slate-400">Total Units</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_units || units.length}</p>
                 </div>
-                <Home className="w-12 h-12 text-purple-600" />
+                <Home className="w-12 h-12 text-amber-500" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Available Units</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.available_units || 0}</p>
+                  <p className="text-sm text-slate-400">Available Units</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.available_units || units.filter(u => u.is_available).length}</p>
                 </div>
-                <Badge className="bg-green-600 text-lg px-4 py-2">Active</Badge>
+                <Badge className="warm-gradient text-slate-900 text-lg px-4 py-2">Active</Badge>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Users</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.total_users || 0}</p>
+                  <p className="text-sm text-slate-400">Total Users</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_users || users.length}</p>
                 </div>
-                <Users className="w-12 h-12 text-blue-600" />
+                <Users className="w-12 h-12 text-amber-500" />
               </div>
             </CardContent>
           </Card>

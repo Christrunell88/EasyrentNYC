@@ -307,7 +307,7 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                 listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property|floor|plan|residence', re.I))
                 
                 for container in listing_containers:
-                try:
+                    try:
                     unit_data = {
                         'unit_number': '',
                         'rent': 0.0,

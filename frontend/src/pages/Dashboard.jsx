@@ -161,58 +161,60 @@ const Dashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <Card className="mb-8 shadow-lg border-0">
+        <Card className="mb-8 shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Bedrooms</label>
                 <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
-                  <SelectTrigger data-testid="bedrooms-filter">
+                  <SelectTrigger data-testid="bedrooms-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">Any</SelectItem>
-                    <SelectItem value="0">Studio</SelectItem>
-                    <SelectItem value="1">1 BR</SelectItem>
-                    <SelectItem value="2">2 BR</SelectItem>
-                    <SelectItem value="3">3 BR</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="any" className="text-slate-200">Any</SelectItem>
+                    <SelectItem value="0" className="text-slate-200">Studio</SelectItem>
+                    <SelectItem value="1" className="text-slate-200">1 BR</SelectItem>
+                    <SelectItem value="2" className="text-slate-200">2 BR</SelectItem>
+                    <SelectItem value="3" className="text-slate-200">3 BR</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Min Rent</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Min Rent</label>
                 <Input
                   type="number"
                   placeholder="$1,000"
                   value={minRent}
                   onChange={(e) => setMinRent(e.target.value)}
                   data-testid="min-rent-filter"
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Max Rent</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Max Rent</label>
                 <Input
                   type="number"
                   placeholder="$5,000"
                   value={maxRent}
                   onChange={(e) => setMaxRent(e.target.value)}
                   data-testid="max-rent-filter"
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Bathrooms</label>
                 <Select value={bathrooms || "any"} onValueChange={(val) => setBathrooms(val === "any" ? "" : val)}>
-                  <SelectTrigger data-testid="bathrooms-filter">
+                  <SelectTrigger data-testid="bathrooms-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">Any</SelectItem>
-                    <SelectItem value="1">1 Bath</SelectItem>
-                    <SelectItem value="1.5">1.5 Bath</SelectItem>
-                    <SelectItem value="2">2 Bath</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="any" className="text-slate-200">Any</SelectItem>
+                    <SelectItem value="1" className="text-slate-200">1 Bath</SelectItem>
+                    <SelectItem value="1.5" className="text-slate-200">1.5 Bath</SelectItem>
+                    <SelectItem value="2" className="text-slate-200">2 Bath</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -220,7 +222,7 @@ const Dashboard = () => {
             
             {(bedrooms || minRent || maxRent || bathrooms) && (
               <div className="mt-4">
-                <Button variant="outline" onClick={clearFilters} data-testid="clear-filters-btn">
+                <Button variant="outline" onClick={clearFilters} data-testid="clear-filters-btn" className="border-amber-500/30 text-amber-500 hover:bg-slate-700">
                   Clear Filters
                 </Button>
               </div>

@@ -1,18 +1,39 @@
 # NoFeesApts.com - Robots.txt
-# Allow all search engines to crawl
+# No-Fee Apartments in NYC & Northern New Jersey
 
+# Allow all major search engines
 User-agent: *
 Allow: /
 Allow: /dashboard
+Allow: /dashboard?*
 Allow: /auth
 Allow: /unit/*
+Allow: /favorites
 
-# Disallow admin and API endpoints
+# Disallow admin, API, and user-specific pages
 Disallow: /admin
+Disallow: /admin/*
 Disallow: /api/
+Disallow: /api/*
+Disallow: /*.json$
+Disallow: /*?session=*
+Disallow: /*?token=*
 
 # Sitemap location
 Sitemap: https://nofeesapts.com/sitemap.xml
 
-# Crawl delay (be nice to our servers)
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: Slurp
+Allow: /
 Crawl-delay: 1

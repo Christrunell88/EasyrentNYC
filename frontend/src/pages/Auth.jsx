@@ -125,7 +125,7 @@ const Auth = () => {
               <Building2 className="w-10 h-10 text-white" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold">Welcome to NoFeeApts</CardTitle>
+          <CardTitle className="text-3xl font-bold">Welcome to NoFeesApts.com</CardTitle>
           <CardDescription className="text-base">Sign in to find your perfect no-fee apartment</CardDescription>
         </CardHeader>
         <CardContent>

@@ -280,17 +280,17 @@ const Auth = () => {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-slate-600" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+                  <span className="bg-slate-800 px-2 text-slate-400">Or continue with</span>
                 </div>
               </div>
 
               <Button
                 onClick={handleGoogleLogin}
                 variant="outline"
-                className="w-full border-2"
+                className="w-full border-2 border-slate-600 bg-slate-700/50 hover:bg-slate-700 text-slate-200"
                 data-testid="google-signup-btn"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -316,10 +316,10 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm">
             <button
               onClick={() => navigate('/')}
-              className="text-indigo-600 hover:underline"
+              className="text-amber-500 hover:text-amber-400 hover:underline"
               data-testid="back-home-btn"
             >
               Back to Home

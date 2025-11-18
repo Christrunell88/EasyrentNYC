@@ -1,0 +1,319 @@
+"""Web crawler for apartment listings"""
+import logging
+from typing import List, Dict, Any
+import re
+from bs4 import BeautifulSoup
+from playwright.async_api import async_playwright
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from datetime import datetime, timezone
+from dotenv import load_dotenv
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+logger = logging.getLogger(__name__)
+
+# MongoDB connection
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
+
+async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
+    """Crawl fortysixfifty.com"""
+    units = []
+    
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=30000)
+            
+            content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(content, 'html.parser')
+            
+            # Look for apartment listings
+            # Note: This is a generic scraper - actual selectors need to be customized
+            listing_containers = soup.find_all(['div', 'article'], class_=re.compile(r'unit|apartment|listing|availability', re.I))
+            
+            for container in listing_containers:
+                try:
+                    unit_data = {
+                        'unit_number': '',
+                        'rent': 0.0,
+                        'bedrooms': 0,
+                        'bathrooms': 1.0,
+                        'images': [],
+                        'amenities': [],
+                        'description': ''
+                    }
+                    
+                    # Extract text content
+                    text = container.get_text(separator=' ', strip=True)
+                    
+                    # Try to find rent (look for $ followed by numbers)
+                    rent_match = re.search(r'\$([0-9,]+)', text)
+                    if rent_match:
+                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    # Try to find bedrooms
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                    if bed_match:
+                        unit_data['bedrooms'] = int(bed_match.group(1))
+                    elif re.search(r'studio', text, re.I):
+                        unit_data['bedrooms'] = 0
+                    
+                    # Try to find bathrooms
+                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                    if bath_match:
+                        unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    # Try to find unit number
+                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                    if unit_match:
+                        unit_data['unit_number'] = unit_match.group(1)
+                    
+                    # Get images
+                    images = container.find_all('img')
+                    for img in images:
+                        src = img.get('src') or img.get('data-src')
+                        if src and 'http' in src:
+                            unit_data['images'].append(src)
+                    
+                    if unit_data['rent'] > 0:
+                        units.append(unit_data)
+                
+                except Exception as e:
+                    logger.error(f"Error parsing unit: {e}")
+                    continue
+    
+    except Exception as e:
+        logger.error(f"Error crawling fortysixfifty: {e}")
+    
+    return units
+
+async def crawl_twotrees(url: str) -> List[Dict[str, Any]]:
+    """Crawl twotreesny.com"""
+    units = []
+    
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=30000)
+            
+            content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(content, 'html.parser')
+            
+            listing_containers = soup.find_all(['div', 'article'], class_=re.compile(r'unit|apartment|listing|availability', re.I))
+            
+            for container in listing_containers:
+                try:
+                    unit_data = {
+                        'unit_number': '',
+                        'rent': 0.0,
+                        'bedrooms': 0,
+                        'bathrooms': 1.0,
+                        'images': [],
+                        'amenities': [],
+                        'description': ''
+                    }
+                    
+                    text = container.get_text(separator=' ', strip=True)
+                    
+                    rent_match = re.search(r'\$([0-9,]+)', text)
+                    if rent_match:
+                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                    if bed_match:
+                        unit_data['bedrooms'] = int(bed_match.group(1))
+                    elif re.search(r'studio', text, re.I):
+                        unit_data['bedrooms'] = 0
+                    
+                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                    if bath_match:
+                        unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                    if unit_match:
+                        unit_data['unit_number'] = unit_match.group(1)
+                    
+                    images = container.find_all('img')
+                    for img in images:
+                        src = img.get('src') or img.get('data-src')
+                        if src and 'http' in src:
+                            unit_data['images'].append(src)
+                    
+                    if unit_data['rent'] > 0:
+                        units.append(unit_data)
+                
+                except Exception as e:
+                    logger.error(f"Error parsing unit: {e}")
+                    continue
+    
+    except Exception as e:
+        logger.error(f"Error crawling twotrees: {e}")
+    
+    return units
+
+async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
+    """Generic crawler for other sites"""
+    units = []
+    
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=30000)
+            
+            content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(content, 'html.parser')
+            
+            listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property', re.I))
+            
+            for container in listing_containers:
+                try:
+                    unit_data = {
+                        'unit_number': '',
+                        'rent': 0.0,
+                        'bedrooms': 0,
+                        'bathrooms': 1.0,
+                        'images': [],
+                        'amenities': [],
+                        'description': ''
+                    }
+                    
+                    text = container.get_text(separator=' ', strip=True)
+                    
+                    rent_match = re.search(r'\$([0-9,]+)', text)
+                    if rent_match:
+                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                    if bed_match:
+                        unit_data['bedrooms'] = int(bed_match.group(1))
+                    elif re.search(r'studio', text, re.I):
+                        unit_data['bedrooms'] = 0
+                    
+                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                    if bath_match:
+                        unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                    if unit_match:
+                        unit_data['unit_number'] = unit_match.group(1)
+                    else:
+                        # Generate unit number if not found
+                        unit_data['unit_number'] = f"Unit-{len(units)+1}"
+                    
+                    images = container.find_all('img')
+                    for img in images:
+                        src = img.get('src') or img.get('data-src')
+                        if src and 'http' in src:
+                            unit_data['images'].append(src)
+                    
+                    # Get description
+                    desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
+                    if desc_elem:
+                        unit_data['description'] = desc_elem.get_text(strip=True)[:500]
+                    
+                    if unit_data['rent'] > 0:
+                        units.append(unit_data)
+                
+                except Exception as e:
+                    logger.error(f"Error parsing unit: {e}")
+                    continue
+    
+    except Exception as e:
+        logger.error(f"Error crawling site: {e}")
+    
+    return units
+
+async def crawl_building(building_id: str):
+    """Crawl a specific building and update units"""
+    building = await db.buildings.find_one({'id': building_id})
+    if not building:
+        logger.error(f"Building {building_id} not found")
+        return
+    
+    url = building['source_url']
+    logger.info(f"Crawling {building['name']} at {url}")
+    
+    # Determine which crawler to use based on URL
+    if 'fortysixfifty' in url:
+        units_data = await crawl_fortysixfifty(url)
+    elif 'twotrees' in url:
+        units_data = await crawl_twotrees(url)
+    else:
+        units_data = await crawl_generic_site(url)
+    
+    logger.info(f"Found {len(units_data)} units for {building['name']}")
+    
+    # Update or create units
+    for unit_data in units_data:
+        # Check if unit exists
+        existing = await db.units.find_one({
+            'building_id': building_id,
+            'unit_number': unit_data['unit_number']
+        })
+        
+        if existing:
+            # Update existing unit
+            update_data = {
+                'rent': unit_data['rent'],
+                'bedrooms': unit_data['bedrooms'],
+                'bathrooms': unit_data['bathrooms'],
+                'images': unit_data['images'],
+                'amenities': unit_data['amenities'],
+                'description': unit_data.get('description', ''),
+                'is_available': True,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.units.update_one(
+                {'id': existing['id']},
+                {'$set': update_data}
+            )
+        else:
+            # Create new unit
+            import uuid
+            new_unit = {
+                'id': str(uuid.uuid4()),
+                'building_id': building_id,
+                'unit_number': unit_data['unit_number'],
+                'rent': unit_data['rent'],
+                'bedrooms': unit_data['bedrooms'],
+                'bathrooms': unit_data['bathrooms'],
+                'images': unit_data['images'],
+                'amenities': unit_data['amenities'],
+                'description': unit_data.get('description', ''),
+                'is_available': True,
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.units.insert_one(new_unit)
+    
+    # Update building last_crawled
+    await db.buildings.update_one(
+        {'id': building_id},
+        {'$set': {'last_crawled': datetime.now(timezone.utc).isoformat()}}
+    )
+
+async def crawl_all_buildings():
+    """Crawl all buildings"""
+    buildings = await db.buildings.find({}).to_list(1000)
+    logger.info(f"Crawling {len(buildings)} buildings")
+    
+    for building in buildings:
+        try:
+            await crawl_building(building['id'])
+        except Exception as e:
+            logger.error(f"Error crawling building {building['name']}: {e}")
+            continue

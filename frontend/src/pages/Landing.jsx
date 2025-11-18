@@ -166,21 +166,21 @@ const Landing = () => {
             </p>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-5 justify-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center mb-16 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
               <Button
                 data-testid="get-started-btn"
                 onClick={handleGetStarted}
                 size="lg"
-                className="text-lg px-12 py-7 warm-gradient hover:shadow-2xl hover:shadow-amber-500/40 text-slate-900 font-bold rounded-xl transition-all duration-300 btn-warm"
+                className="text-xl px-16 py-8 warm-gradient hover:shadow-2xl hover:shadow-amber-500/60 text-slate-900 font-bold rounded-2xl transition-all duration-300 hover:scale-105 shadow-2xl"
               >
-                <Search className="w-5 h-5 mr-2" />
+                <Search className="w-6 h-6 mr-3" />
                 Find Your View
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-6 h-6 ml-3" />
               </Button>
             </div>
 
             {/* Stats Bar - City lights inspired */}
-            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto glass-window border border-amber-500/10 rounded-2xl p-8">
+            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto glass-window border border-amber-500/20 rounded-2xl p-10 backdrop-blur-md shadow-2xl shadow-amber-500/10 animate-in fade-in slide-in-from-bottom duration-1000 delay-500">
               <div className="text-center">
                 <div className="text-5xl font-bold warm-gradient-text mb-2">{stats.units}+</div>
                 <div className="text-sm text-slate-400 uppercase tracking-wider">No-Fee Homes</div>

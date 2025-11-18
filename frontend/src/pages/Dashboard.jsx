@@ -250,11 +250,11 @@ const Dashboard = () => {
             {units.map((unit) => (
               <Card
                 key={unit.id}
-                className="overflow-hidden hover:shadow-xl transition-all cursor-pointer border-0 shadow-lg"
+                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all cursor-pointer border border-amber-500/20 bg-slate-800/50 backdrop-blur-sm"
                 onClick={() => navigate(`/unit/${unit.id}`)}
                 data-testid={`unit-card-${unit.id}`}
               >
-                <div className="relative h-48 bg-gray-200">
+                <div className="relative h-48 bg-slate-700">
                   {unit.images && unit.images.length > 0 ? (
                     <img
                       src={unit.images[0]}
@@ -262,8 +262,8 @@ const Dashboard = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
-                      <Building2 className="w-16 h-16 text-indigo-300" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-700">
+                      <Building2 className="w-16 h-16 text-amber-500/30" />
                     </div>
                   )}
                   
@@ -272,26 +272,26 @@ const Dashboard = () => {
                       e.stopPropagation();
                       toggleFavorite(unit.id);
                     }}
-                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    className="absolute top-3 right-3 w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
                     data-testid={`favorite-btn-${unit.id}`}
                   >
                     <Heart
-                      className={`w-5 h-5 ${favorites.has(unit.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                      className={`w-5 h-5 ${favorites.has(unit.id) ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
                     />
                   </button>
                   
-                  <Badge className="absolute bottom-3 left-3 bg-indigo-600">
+                  <Badge className="absolute bottom-3 left-3 warm-gradient text-slate-900 font-semibold">
                     No Fee
                   </Badge>
                 </div>
                 
                 <CardContent className="p-5">
                   <div className="mb-3">
-                    <h3 className="font-semibold text-lg text-gray-900">{unit.building?.name}</h3>
-                    <p className="text-sm text-gray-600">{unit.building?.neighborhood}, {unit.building?.city}</p>
+                    <h3 className="font-semibold text-lg text-slate-100">{unit.building?.name}</h3>
+                    <p className="text-sm text-slate-400">{unit.building?.neighborhood}, {unit.building?.city}</p>
                   </div>
                   
-                  <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 mb-3 text-sm text-slate-400">
                     <div className="flex items-center gap-1">
                       <BedDouble className="w-4 h-4" />
                       <span>{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}</span>
@@ -303,11 +303,11 @@ const Dashboard = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-2xl font-bold text-indigo-600">
+                    <div className="flex items-center gap-1 text-2xl font-bold warm-gradient-text">
                       <DollarSign className="w-6 h-6" />
                       <span>{unit.rent.toLocaleString()}</span>
                     </div>
-                    <span className="text-sm text-gray-500">/month</span>
+                    <span className="text-sm text-slate-400">/month</span>
                   </div>
                 </CardContent>
               </Card>

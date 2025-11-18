@@ -331,6 +331,40 @@ const Landing = () => {
           <p className="text-sm text-slate-500 mt-2">NYC & Northern New Jersey • No Broker Fees Ever</p>
         </div>
       </footer>
+
+      {/* Sticky CTA Banner - Only show if not authenticated */}
+      {!isAuthenticated && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500">
+          <div className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 shadow-2xl shadow-amber-500/50 border-t-2 border-amber-400">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                    <Sparkles className="w-5 h-5 text-slate-900 animate-pulse" />
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
+                      FREE SIGN UP FOR FULL ACCESS
+                    </h3>
+                  </div>
+                  <p className="text-sm sm:text-base text-slate-800 font-medium">
+                    Save favorites • Schedule viewings • Get instant alerts on 208+ no-fee apartments
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setShowSignupModal(true)}
+                  size="lg"
+                  className="bg-slate-900 hover:bg-slate-800 text-amber-500 font-bold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 whitespace-nowrap"
+                >
+                  Join Free Now
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Signup Modal */}
+      <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)} />
     </div>
   );
 };

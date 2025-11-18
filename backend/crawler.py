@@ -440,6 +440,8 @@ async def crawl_building(building_id: str):
     # Determine which crawler to use based on URL
     if 'fortysixfifty' in url:
         units_data = await crawl_fortysixfifty(url)
+    elif 'mercedeshouseny' in url:
+        units_data = await crawl_mercedes_house(url)
     elif 'twotrees' in url:
         units_data = await crawl_twotrees(url)
     else:

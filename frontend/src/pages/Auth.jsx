@@ -143,10 +143,12 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login" data-testid="login-tab">Login</TabsTrigger>
-              <TabsTrigger value="signup" data-testid="signup-tab">Sign Up</TabsTrigger>
-            </TabsList>
+            {!isAdminMode && (
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-700/50">
+                <TabsTrigger value="login" data-testid="login-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Login</TabsTrigger>
+                <TabsTrigger value="signup" data-testid="signup-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Sign Up</TabsTrigger>
+              </TabsList>
+            )}
 
             <TabsContent value="login" data-testid="login-content">
               <form onSubmit={handleEmailLogin} className="space-y-4">

@@ -48,60 +48,90 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
             
             soup = BeautifulSoup(content, 'html.parser')
             
-            # Look for apartment listings
-            # Note: This is a generic scraper - actual selectors need to be customized
-            listing_containers = soup.find_all(['div', 'article'], class_=re.compile(r'unit|apartment|listing|availability', re.I))
+            # Parse table-based availability widget (rosenyc.com format)
+            tables = soup.find_all('table')
             
-            for container in listing_containers:
-                try:
-                    unit_data = {
-                        'unit_number': '',
-                        'rent': 0.0,
-                        'bedrooms': 0,
-                        'bathrooms': 1.0,
-                        'images': [],
-                        'amenities': [],
-                        'description': ''
-                    }
-                    
-                    # Extract text content
-                    text = container.get_text(separator=' ', strip=True)
-                    
-                    # Try to find rent (look for $ followed by numbers)
-                    rent_match = re.search(r'\$([0-9,]+)', text)
-                    if rent_match:
-                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
-                    
-                    # Try to find bedrooms
-                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
-                    if bed_match:
-                        unit_data['bedrooms'] = int(bed_match.group(1))
-                    elif re.search(r'studio', text, re.I):
-                        unit_data['bedrooms'] = 0
-                    
-                    # Try to find bathrooms
-                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
-                    if bath_match:
-                        unit_data['bathrooms'] = float(bath_match.group(1))
-                    
-                    # Try to find unit number
-                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
-                    if unit_match:
-                        unit_data['unit_number'] = unit_match.group(1)
-                    
-                    # Get images
-                    images = container.find_all('img')
-                    for img in images:
-                        src = img.get('src') or img.get('data-src')
-                        if src and 'http' in src:
-                            unit_data['images'].append(src)
-                    
-                    if unit_data['rent'] > 0:
-                        units.append(unit_data)
-                
-                except Exception as e:
-                    logger.error(f"Error parsing unit: {e}")
+            for table in tables:
+                rows = table.find_all('tr')
+                if len(rows) < 2:
                     continue
+                
+                # Check if first row has availability headers
+                header_row = rows[0]
+                headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
+                
+                # Skip if not an availability table
+                if not any(h in headers for h in ['unit', 'rent', 'bedroom']):
+                    continue
+                
+                # Parse data rows
+                for row in rows[1:]:
+                    try:
+                        cells = row.find_all(['td', 'th'])
+                        if len(cells) < 4:
+                            continue
+                        
+                        unit_data = {
+                            'unit_number': '',
+                            'rent': 0.0,
+                            'bedrooms': 0,
+                            'bathrooms': 1.0,
+                            'square_feet': None,
+                            'images': [],
+                            'amenities': [],
+                            'description': '',
+                            'available_date': 'Immediate'
+                        }
+                        
+                        # Map cells to data based on headers
+                        for idx, cell in enumerate(cells):
+                            text = cell.get_text(strip=True)
+                            header = headers[idx] if idx < len(headers) else ''
+                            
+                            # Unit number
+                            if 'unit' in header or idx == 0:
+                                if text and text.isdigit() or re.match(r'^[A-Z0-9-]+$', text):
+                                    unit_data['unit_number'] = text
+                            
+                            # Rent
+                            if 'rent' in header or '$' in text:
+                                rent_match = re.search(r'\$([0-9,]+)', text)
+                                if rent_match:
+                                    unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                            
+                            # Bedrooms
+                            if 'bedroom' in header or 'br' in header:
+                                if 'studio' in text.lower():
+                                    unit_data['bedrooms'] = 0
+                                else:
+                                    bed_match = re.search(r'(\d+)', text)
+                                    if bed_match:
+                                        unit_data['bedrooms'] = int(bed_match.group(1))
+                            
+                            # Bathrooms
+                            if 'bathroom' in header or 'ba' in header:
+                                bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
+                                if bath_match:
+                                    unit_data['bathrooms'] = float(bath_match.group(1))
+                            
+                            # Square feet
+                            if 'sq' in header or 'sq.' in text.lower():
+                                sqft_match = re.search(r'(\d+)', text)
+                                if sqft_match:
+                                    unit_data['square_feet'] = int(sqft_match.group(1))
+                            
+                            # Availability date
+                            if 'availability' in header:
+                                if text and text != 'Immediate':
+                                    unit_data['available_date'] = text
+                        
+                        # Only add if we have minimum required data
+                        if unit_data['unit_number'] and unit_data['rent'] > 0:
+                            units.append(unit_data)
+                    
+                    except Exception as e:
+                        logger.error(f"Error parsing row: {e}")
+                        continue
     
     except Exception as e:
         logger.error(f"Error crawling fortysixfifty: {e}")

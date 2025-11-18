@@ -14,6 +14,9 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminEmail] = useState('placesfirm@gmail.com');
+  const [adminPassword] = useState('Checkers080/?');
 
   // Process OAuth session_id from URL
   useEffect(() => {

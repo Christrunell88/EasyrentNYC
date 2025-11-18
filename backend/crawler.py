@@ -308,56 +308,56 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                 
                 for container in listing_containers:
                     try:
-                    unit_data = {
-                        'unit_number': '',
-                        'rent': 0.0,
-                        'bedrooms': 0,
-                        'bathrooms': 1.0,
-                        'images': [],
-                        'amenities': [],
-                        'description': ''
-                    }
+                        unit_data = {
+                            'unit_number': '',
+                            'rent': 0.0,
+                            'bedrooms': 0,
+                            'bathrooms': 1.0,
+                            'images': [],
+                            'amenities': [],
+                            'description': ''
+                        }
+                        
+                        text = container.get_text(separator=' ', strip=True)
+                        
+                        rent_match = re.search(r'\$([0-9,]+)', text)
+                        if rent_match:
+                            unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                        
+                        bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                        if bed_match:
+                            unit_data['bedrooms'] = int(bed_match.group(1))
+                        elif re.search(r'studio', text, re.I):
+                            unit_data['bedrooms'] = 0
+                        
+                        bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                        if bath_match:
+                            unit_data['bathrooms'] = float(bath_match.group(1))
+                        
+                        unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                        if unit_match:
+                            unit_data['unit_number'] = unit_match.group(1)
+                        else:
+                            # Generate unit number if not found
+                            unit_data['unit_number'] = f"Unit-{len(units)+1}"
+                        
+                        images = container.find_all('img')
+                        for img in images:
+                            src = img.get('src') or img.get('data-src')
+                            if src and 'http' in src:
+                                unit_data['images'].append(src)
+                        
+                        # Get description
+                        desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
+                        if desc_elem:
+                            unit_data['description'] = desc_elem.get_text(strip=True)[:500]
+                        
+                        if unit_data['rent'] > 0:
+                            units.append(unit_data)
                     
-                    text = container.get_text(separator=' ', strip=True)
-                    
-                    rent_match = re.search(r'\$([0-9,]+)', text)
-                    if rent_match:
-                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
-                    
-                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
-                    if bed_match:
-                        unit_data['bedrooms'] = int(bed_match.group(1))
-                    elif re.search(r'studio', text, re.I):
-                        unit_data['bedrooms'] = 0
-                    
-                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
-                    if bath_match:
-                        unit_data['bathrooms'] = float(bath_match.group(1))
-                    
-                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
-                    if unit_match:
-                        unit_data['unit_number'] = unit_match.group(1)
-                    else:
-                        # Generate unit number if not found
-                        unit_data['unit_number'] = f"Unit-{len(units)+1}"
-                    
-                    images = container.find_all('img')
-                    for img in images:
-                        src = img.get('src') or img.get('data-src')
-                        if src and 'http' in src:
-                            unit_data['images'].append(src)
-                    
-                    # Get description
-                    desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
-                    if desc_elem:
-                        unit_data['description'] = desc_elem.get_text(strip=True)[:500]
-                    
-                    if unit_data['rent'] > 0:
-                        units.append(unit_data)
-                
-                except Exception as e:
-                    logger.error(f"Error parsing unit: {e}")
-                    continue
+                    except Exception as e:
+                        logger.error(f"Error parsing unit: {e}")
+                        continue
     
     except Exception as e:
         logger.error(f"Error crawling site: {e}")

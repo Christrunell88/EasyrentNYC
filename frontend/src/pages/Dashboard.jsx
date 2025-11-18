@@ -113,7 +113,7 @@ const Dashboard = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">NoFeeApts</h1>
+              <h1 className="text-2xl font-bold text-gray-900">NoFeesApts.com</h1>
             </div>
             
             <div className="flex items-center gap-4">

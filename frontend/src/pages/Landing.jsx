@@ -383,15 +383,73 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="bg-slate-950 border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg warm-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <Building2 className="w-6 h-6 text-slate-900" />
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* Brand */}
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg warm-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
+                  <Building2 className="w-6 h-6 text-slate-900" />
+                </div>
+                <span className="text-xl font-semibold warm-gradient-text">NoFeesApts.com</span>
+              </div>
+              <p className="text-sm text-slate-400">Your first apartment awaits.</p>
+              <p className="text-sm text-slate-500 mt-2">NYC & Northern New Jersey</p>
             </div>
-            <span className="text-xl font-semibold warm-gradient-text">NoFeesApts.com</span>
+            
+            {/* Quick Links */}
+            <div className="text-center">
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={handleGetStarted}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Browse Apartments
+                </button>
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setShowSignupModal(true)}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
+            </div>
+            
+            {/* Contact */}
+            <div className="text-center md:text-right">
+              <h3 className="text-white font-semibold mb-4">Contact Us</h3>
+              <div className="space-y-2">
+                <a
+                  href="mailto:placesfirm@gmail.com"
+                  className="block text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  placesfirm@gmail.com
+                </a>
+                <a
+                  href="tel:+16464088048"
+                  className="block text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  646-408-8048
+                </a>
+                <p className="text-xs text-slate-500 mt-4">
+                  Available Mon-Fri, 9AM-6PM EST
+                </p>
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-slate-400">© 2025 NoFeesApts.com. Your first apartment awaits.</p>
-          <p className="text-sm text-slate-500 mt-2">NYC & Northern New Jersey • No Broker Fees Ever</p>
+          
+          <div className="border-t border-slate-800 pt-8 text-center">
+            <p className="text-sm text-slate-500">
+              © 2025 NoFeesApts.com. All rights reserved. • No Broker Fees Ever
+            </p>
+          </div>
         </div>
       </footer>
 

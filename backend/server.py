@@ -248,18 +248,13 @@ async def signup(input: SignupInput, response: Response):
 @api_router.post("/auth/login")
 async def login(input: LoginInput, response: Response):
     """JWT-based login with email/password"""
-    logger.info(f"Login attempt for email: {input.email}")
     user_doc = await db.users.find_one({'email': input.email})
     if not user_doc:
-        logger.warning(f"User not found: {input.email}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     user = User(**user_doc)
     
-    password_valid = verify_password(input.password, user.password_hash) if user.password_hash else False
-    logger.info(f"Password valid: {password_valid}, has_hash: {bool(user.password_hash)}")
-    
-    if not user.password_hash or not password_valid:
+    if not user.password_hash or not verify_password(input.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Create session

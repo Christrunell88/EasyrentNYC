@@ -144,12 +144,88 @@
           "@context": "https://schema.org",
           "@type": "WebSite",
           "name": "NoFeesApts.com",
+          "alternateName": "No Fees Apartments",
           "url": "https://nofeesapts.com",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://nofeesapts.com/dashboard?search={search_term_string}",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://nofeesapts.com/dashboard?search={search_term_string}"
+            },
             "query-input": "required name=search_term_string"
           }
+        }
+        </script>
+        
+        <!-- Structured Data - FAQ -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is a no-fee apartment?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A no-fee apartment means you don't have to pay a broker fee when renting. Typically, NYC broker fees range from $3,000-$5,000. With no-fee apartments, you save thousands of dollars."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How many no-fee apartments are available?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "NoFeesApts.com currently lists 268+ verified no-fee apartments across NYC (Manhattan, Brooklyn, Queens, Bronx) and Northern New Jersey (Harrison). Our listings are updated daily."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are these apartments really no fee?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! All apartments on NoFeesApts.com are verified no-fee listings. You can rent directly from the building without paying any broker fees."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How much can I save with a no-fee apartment?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can save $3,000-$5,000+ by renting a no-fee apartment instead of paying a broker fee. That's money you can use for furniture, moving costs, or your first month's rent."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is NoFeesApts.com free to use?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! NoFeesApts.com is 100% free for renters. Sign up free, browse all listings, save favorites, and contact buildings directly at no cost."
+              }
+            }
+          ]
+        }
+        </script>
+        
+        <!-- Structured Data - BreadcrumbList -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://nofeesapts.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "No Fee Apartments",
+              "item": "https://nofeesapts.com/dashboard"
+            }
+          ]
         }
         </script>
         

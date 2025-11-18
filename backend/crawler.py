@@ -304,10 +304,9 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             
             # If no units from tables, try div-based parsing
             if not units:
-            
-            listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property', re.I))
-            
-            for container in listing_containers:
+                listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property|floor|plan|residence', re.I))
+                
+                for container in listing_containers:
                 try:
                     unit_data = {
                         'unit_number': '',

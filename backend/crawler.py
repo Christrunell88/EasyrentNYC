@@ -21,7 +21,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
-    """Crawl fortysixfifty.com"""
+    """Crawl fortysixfifty.com - handles iframe-based availability widget"""
     units = []
     
     try:
@@ -30,7 +30,20 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             
-            content = await page.content()
+            # Wait for iframe to load
+            await page.wait_for_timeout(3000)
+            
+            # Look for rosenyc iframe (common availability widget)
+            frames = page.frames
+            iframe_content = None
+            for frame in frames:
+                if 'rosenyc.com' in frame.url:
+                    logger.info(f"Found availability iframe: {frame.url}")
+                    iframe_content = await frame.content()
+                    break
+            
+            # Use iframe content if found, otherwise use main page
+            content = iframe_content if iframe_content else await page.content()
             await browser.close()
             
             soup = BeautifulSoup(content, 'html.parser')

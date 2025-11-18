@@ -232,18 +232,18 @@ const Dashboard = () => {
 
         {/* Results */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Available Apartments <span className="text-gray-500">({units.length})</span>
+          <h2 className="text-2xl font-bold text-slate-100">
+            Available Apartments <span className="warm-gradient-text">({units.length})</span>
           </h2>
         </div>
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-xl text-gray-600">Loading apartments...</div>
+            <div className="text-xl text-amber-500">Loading apartments...</div>
           </div>
         ) : units.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-xl text-gray-600">No apartments found. Try adjusting your filters.</div>
+            <div className="text-xl text-slate-400">No apartments found. Try adjusting your filters.</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="units-grid">

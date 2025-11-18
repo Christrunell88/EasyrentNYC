@@ -198,6 +198,55 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* How to Find Apartments - Quick Guide */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800/50 border-y border-amber-500/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-5 py-2 bg-amber-500/10 border border-amber-500/30 rounded-full mb-6">
+            <Search className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-semibold text-amber-400">Start Your Search Now</span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Ready to Find Your Apartment?
+          </h2>
+          <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+            Sign up free to access <span className="warm-gradient-text font-semibold">208+ verified no-fee listings</span>. 
+            Use our smart filters to search by neighborhood, price, bedrooms, and more.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+            <Button
+              onClick={() => setShowSignupModal(true)}
+              size="lg"
+              className="warm-gradient hover:shadow-xl hover:shadow-amber-500/40 text-slate-900 font-bold px-10 py-6 text-lg"
+            >
+              Browse All Apartments
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <span className="text-slate-400 text-sm">or</span>
+            <Button
+              onClick={handleGetStarted}
+              variant="outline"
+              size="lg"
+              className="border-amber-500/30 text-amber-500 hover:bg-slate-700 px-10 py-6 text-lg font-semibold"
+            >
+              Sign In to Dashboard
+            </Button>
+          </div>
+          
+          <p className="text-sm text-slate-500">
+            Questions? Contact us at{' '}
+            <a href="mailto:placesfirm@gmail.com" className="text-amber-500 hover:text-amber-400 font-medium">
+              placesfirm@gmail.com
+            </a>
+            {' '}or{' '}
+            <a href="tel:+16464088048" className="text-amber-500 hover:text-amber-400 font-medium">
+              646-408-8048
+            </a>
+          </p>
+        </div>
+      </section>
+
       {/* The Moment Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 first-moment">
         <div className="max-w-7xl mx-auto">

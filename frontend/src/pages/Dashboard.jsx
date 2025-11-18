@@ -183,12 +183,12 @@ const Dashboard = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
-                <Select value={bathrooms} onValueChange={setBathrooms}>
+                <Select value={bathrooms || "any"} onValueChange={(val) => setBathrooms(val === "any" ? "" : val)}>
                   <SelectTrigger data-testid="bathrooms-filter">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="any">Any</SelectItem>
                     <SelectItem value="1">1 Bath</SelectItem>
                     <SelectItem value="1.5">1.5 Bath</SelectItem>
                     <SelectItem value="2">2 Bath</SelectItem>

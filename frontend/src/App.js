@@ -150,6 +150,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/session" element={<SessionHandler />} />
+            <Route path="/location/:location" element={<LocationPage />} />
             <Route
               path="/dashboard"
               element={

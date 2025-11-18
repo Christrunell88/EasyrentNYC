@@ -143,17 +143,46 @@ const AdminPanel = () => {
     );
   }
 
+  const exportToCSV = () => {
+    const headers = ['Building Name', 'Address', 'City', 'State', 'Zip', 'Neighborhood', 'Source URL', 'Contact Email', 'Contact Phone'];
+    const rows = buildings.map(b => [
+      b.name,
+      b.address,
+      b.city,
+      b.state,
+      b.zip_code,
+      b.neighborhood,
+      b.source_url,
+      'placesfirm@gmail.com',
+      '646-408-8048'
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `building-directory-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('Building directory exported!');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="glass-window border-b border-amber-500/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate('/dashboard')} data-testid="back-dashboard-btn">
+            <Button variant="ghost" onClick={() => navigate('/dashboard')} data-testid="back-dashboard-btn" className="text-slate-300 hover:text-amber-500">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
+            <h1 className="text-2xl font-bold warm-gradient-text">Admin Panel</h1>
             <div className="w-32" />
           </div>
         </div>

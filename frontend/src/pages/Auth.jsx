@@ -126,16 +126,20 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+      <Card className="w-full max-w-md shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center">
-              <Building2 className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 rounded-2xl warm-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Building2 className="w-10 h-10 text-slate-900" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold">Welcome to NoFeesApts.com</CardTitle>
-          <CardDescription className="text-base">Sign in to find your perfect no-fee apartment</CardDescription>
+          <CardTitle className="text-3xl font-bold warm-gradient-text">
+            {isAdminMode ? 'Admin Login' : 'Welcome to NoFeesApts.com'}
+          </CardTitle>
+          <CardDescription className="text-base text-slate-300">
+            {isAdminMode ? 'Sign in to access the admin panel' : 'Sign in to find your perfect no-fee apartment'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">

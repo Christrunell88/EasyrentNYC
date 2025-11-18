@@ -206,7 +206,7 @@ async def crawl_twotrees(url: str) -> List[Dict[str, Any]]:
     return units
 
 async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
-    """Generic crawler for other sites"""
+    """Generic crawler for other sites - checks tables first, then divs"""
     units = []
     
     try:
@@ -215,10 +215,95 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             
-            content = await page.content()
+            # Wait for dynamic content
+            await page.wait_for_timeout(3000)
+            
+            # Check for iframes first
+            frames = page.frames
+            iframe_content = None
+            for frame in frames:
+                if frame.url != 'about:blank' and 'google' not in frame.url and frame.url != url:
+                    try:
+                        iframe_content = await frame.content()
+                        logger.info(f"Using iframe content from: {frame.url}")
+                        break
+                    except:
+                        continue
+            
+            content = iframe_content if iframe_content else await page.content()
             await browser.close()
             
             soup = BeautifulSoup(content, 'html.parser')
+            
+            # First try table-based parsing
+            tables = soup.find_all('table')
+            if tables:
+                for table in tables:
+                    rows = table.find_all('tr')
+                    if len(rows) < 2:
+                        continue
+                    
+                    header_row = rows[0]
+                    headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
+                    
+                    if not any(h in headers for h in ['unit', 'rent', 'bedroom', 'bed', 'price']):
+                        continue
+                    
+                    for row in rows[1:]:
+                        try:
+                            cells = row.find_all(['td', 'th'])
+                            if len(cells) < 3:
+                                continue
+                            
+                            unit_data = {
+                                'unit_number': '',
+                                'rent': 0.0,
+                                'bedrooms': 0,
+                                'bathrooms': 1.0,
+                                'square_feet': None,
+                                'images': [],
+                                'amenities': [],
+                                'description': '',
+                                'available_date': 'Immediate'
+                            }
+                            
+                            for idx, cell in enumerate(cells):
+                                text = cell.get_text(strip=True)
+                                header = headers[idx] if idx < len(headers) else ''
+                                
+                                if 'unit' in header or idx == 0:
+                                    if text and (text.isdigit() or re.match(r'^[A-Z0-9-]+$', text)):
+                                        unit_data['unit_number'] = text
+                                
+                                if 'rent' in header or 'price' in header or '$' in text:
+                                    rent_match = re.search(r'\$([0-9,]+)', text)
+                                    if rent_match:
+                                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                                
+                                if 'bedroom' in header or 'bed' in header or 'br' in header:
+                                    if 'studio' in text.lower():
+                                        unit_data['bedrooms'] = 0
+                                    else:
+                                        bed_match = re.search(r'(\d+)', text)
+                                        if bed_match:
+                                            unit_data['bedrooms'] = int(bed_match.group(1))
+                                
+                                if 'bathroom' in header or 'bath' in header or 'ba' in header:
+                                    bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
+                                    if bath_match:
+                                        unit_data['bathrooms'] = float(bath_match.group(1))
+                            
+                            if unit_data['rent'] > 0:
+                                if not unit_data['unit_number']:
+                                    unit_data['unit_number'] = f"Unit-{len(units)+1}"
+                                units.append(unit_data)
+                        
+                        except Exception as e:
+                            logger.error(f"Error parsing table row: {e}")
+                            continue
+            
+            # If no units from tables, try div-based parsing
+            if not units:
             
             listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property', re.I))
             

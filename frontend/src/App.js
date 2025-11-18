@@ -15,8 +15,10 @@ const API = `${BACKEND_URL}/api`;
 
 export { API };
 
-// Auth context
-export const useAuth = () => {
+// Auth context with React Context
+const AuthContext = React.createContext(null);
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -45,7 +47,19 @@ export const useAuth = () => {
     }
   };
   
-  return { user, loading, checkAuth, logout };
+  return (
+    <AuthContext.Provider value={{ user, loading, checkAuth, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
 };
 
 // Protected route

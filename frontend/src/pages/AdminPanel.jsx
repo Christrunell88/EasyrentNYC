@@ -241,14 +241,15 @@ const AdminPanel = () => {
         </div>
 
         {/* Tabs */}
-        <Card className="shadow-lg border-0">
-          <Tabs defaultValue="buildings" className="w-full">
+        <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
+          <Tabs defaultValue="directory" className="w-full">
             <CardHeader>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="buildings" data-testid="buildings-tab">Buildings</TabsTrigger>
-                <TabsTrigger value="units" data-testid="units-tab">Units</TabsTrigger>
-                <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
-                <TabsTrigger value="contacts" data-testid="contacts-tab">Contacts</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5 bg-slate-700/50">
+                <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Building Directory</TabsTrigger>
+                <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
+                <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
+                <TabsTrigger value="users" data-testid="users-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Users</TabsTrigger>
+                <TabsTrigger value="contacts" data-testid="contacts-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Contacts</TabsTrigger>
               </TabsList>
             </CardHeader>
             

@@ -25,9 +25,28 @@ const Dashboard = () => {
   const [bathrooms, setBathrooms] = useState('');
 
   useEffect(() => {
+    fetchUser();
     fetchUnits();
     fetchFavorites();
   }, [bedrooms, minRent, maxRent, bathrooms]);
+  
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  };
+  
+  const logout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const fetchUnits = async () => {
     try {

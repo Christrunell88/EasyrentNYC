@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const [user, setUser] = useState(null);
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState(new Set());

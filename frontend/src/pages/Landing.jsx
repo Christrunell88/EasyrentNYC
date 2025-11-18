@@ -94,7 +94,7 @@ const Landing = () => {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
-          Why Choose NoFeeApts?
+          Why Choose NoFeesApts.com?
         </h2>
         
         <div className="grid md:grid-cols-3 gap-8">

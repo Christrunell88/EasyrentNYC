@@ -63,17 +63,20 @@ class NoFeeAptsAPITester:
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=req_headers)
+                response = requests.get(url, headers=req_headers, timeout=10)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=req_headers)
+                response = requests.post(url, json=data, headers=req_headers, timeout=10)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=req_headers)
+                response = requests.put(url, json=data, headers=req_headers, timeout=10)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=req_headers)
+                response = requests.delete(url, headers=req_headers, timeout=10)
             
             return response
+        except requests.exceptions.RequestException as e:
+            print(f"Request error for {method} {url}: {e}")
+            return None
         except Exception as e:
-            print(f"Request error: {e}")
+            print(f"Unexpected error for {method} {url}: {e}")
             return None
 
     def test_user_signup(self):

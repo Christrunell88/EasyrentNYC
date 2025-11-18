@@ -138,6 +138,69 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     
     return units
 
+async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
+    """Crawl mercedeshouseny.com - custom parser for their format"""
+    units = []
+    
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=30000)
+            
+            # Wait for dynamic content to load
+            await page.wait_for_timeout(5000)
+            
+            content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(content, 'html.parser')
+            all_text = soup.get_text()
+            
+            # Mercedes House uses pattern: "Bedroom Type#UnitNumber|$Price"
+            # Examples: "Studio#2004|$3817", "1 Bedroom#1617|$4331"
+            pattern = re.findall(
+                r'(Studio|[\d]+\s*Bedroom[s]?)[^\d#]*#?(\d+)[^\d\$]*\$([0-9,]+)',
+                all_text,
+                re.I
+            )
+            
+            for match in pattern:
+                try:
+                    bedroom_type = match[0].strip()
+                    unit_number = match[1].strip()
+                    rent = float(match[2].replace(',', ''))
+                    
+                    # Parse bedroom count
+                    if 'studio' in bedroom_type.lower():
+                        bedrooms = 0
+                    else:
+                        bed_match = re.search(r'(\d+)', bedroom_type)
+                        bedrooms = int(bed_match.group(1)) if bed_match else 1
+                    
+                    unit_data = {
+                        'unit_number': unit_number,
+                        'rent': rent,
+                        'bedrooms': bedrooms,
+                        'bathrooms': 1.0,  # Default, not specified
+                        'square_feet': None,
+                        'images': [],
+                        'amenities': [],
+                        'description': f"{bedroom_type} apartment",
+                        'available_date': 'Immediate'
+                    }
+                    
+                    units.append(unit_data)
+                
+                except Exception as e:
+                    logger.error(f"Error parsing Mercedes unit: {e}")
+                    continue
+    
+    except Exception as e:
+        logger.error(f"Error crawling Mercedes House: {e}")
+    
+    return units
+
 async def crawl_twotrees(url: str) -> List[Dict[str, Any]]:
     """Crawl twotreesny.com"""
     units = []

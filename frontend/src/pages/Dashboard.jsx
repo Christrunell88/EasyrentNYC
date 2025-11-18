@@ -145,12 +145,12 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
-                <Select value={bedrooms} onValueChange={setBedrooms}>
+                <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
                   <SelectTrigger data-testid="bedrooms-filter">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="any">Any</SelectItem>
                     <SelectItem value="0">Studio</SelectItem>
                     <SelectItem value="1">1 BR</SelectItem>
                     <SelectItem value="2">2 BR</SelectItem>

@@ -121,6 +121,7 @@ const Dashboard = () => {
                 variant="ghost"
                 onClick={() => navigate('/favorites')}
                 data-testid="nav-favorites-btn"
+                className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
               >
                 <Heart className="w-5 h-5 mr-2" />
                 Favorites
@@ -131,6 +132,7 @@ const Dashboard = () => {
                   variant="ghost"
                   onClick={() => navigate('/admin')}
                   data-testid="nav-admin-btn"
+                  className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
                 >
                   <Settings className="w-5 h-5 mr-2" />
                   Admin
@@ -139,14 +141,14 @@ const Dashboard = () => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" data-testid="user-menu-btn">
+                  <Button variant="ghost" size="icon" data-testid="user-menu-btn" className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50">
                     <User className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="font-medium">{user?.name}</DropdownMenuItem>
-                  <DropdownMenuItem className="text-sm text-gray-500">{user?.email}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout} data-testid="logout-btn">
+                <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                  <DropdownMenuItem className="font-medium text-slate-200">{user?.name}</DropdownMenuItem>
+                  <DropdownMenuItem className="text-sm text-slate-400">{user?.email}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout} data-testid="logout-btn" className="text-slate-300 hover:text-amber-500">
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </DropdownMenuItem>

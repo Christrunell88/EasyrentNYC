@@ -18,8 +18,14 @@ const Auth = () => {
   const [adminEmail] = useState('placesfirm@gmail.com');
   const [adminPassword] = useState('Checkers080/?');
 
-  // Process OAuth session_id from URL
+  // Process OAuth session_id from URL and check for admin mode
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const adminParam = searchParams.get('admin');
+    if (adminParam === 'true') {
+      setIsAdminMode(true);
+    }
+
     const hash = location.hash;
     if (hash.includes('session_id')) {
       const params = new URLSearchParams(hash.substring(1));

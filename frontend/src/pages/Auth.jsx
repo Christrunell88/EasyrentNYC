@@ -151,34 +151,38 @@ const Auth = () => {
             <TabsContent value="login" data-testid="login-content">
               <form onSubmit={handleEmailLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
+                  <Label htmlFor="login-email" className="text-slate-200">Email</Label>
                   <Input
                     id="login-email"
                     name="email"
                     type="email"
                     placeholder="you@example.com"
+                    defaultValue={isAdminMode ? adminEmail : ''}
                     required
                     data-testid="login-email-input"
+                    className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">Password</Label>
+                  <Label htmlFor="login-password" className="text-slate-200">Password</Label>
                   <Input
                     id="login-password"
                     name="password"
                     type="password"
                     placeholder="••••••••"
+                    defaultValue={isAdminMode ? adminPassword : ''}
                     required
                     data-testid="login-password-input"
+                    className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
                   disabled={isLoading}
                   data-testid="email-login-btn"
                 >
-                  {isLoading ? 'Logging in...' : 'Login with Email'}
+                  {isLoading ? 'Logging in...' : (isAdminMode ? 'Admin Login' : 'Login with Email')}
                 </Button>
               </form>
 

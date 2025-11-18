@@ -77,6 +77,14 @@ const Landing = () => {
                     Sign In
                   </Button>
                   <Button
+                    variant="ghost"
+                    onClick={() => navigate('/auth?admin=true')}
+                    className="text-amber-400 hover:text-amber-500 hover:bg-slate-800/50 border border-amber-500/30"
+                    data-testid="admin-btn"
+                  >
+                    Admin
+                  </Button>
+                  <Button
                     onClick={() => navigate('/auth')}
                     className="warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold px-6"
                     data-testid="get-started-nav-btn"

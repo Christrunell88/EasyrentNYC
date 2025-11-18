@@ -287,8 +287,15 @@ const Dashboard = () => {
                 
                 <CardContent className="p-5">
                   <div className="mb-3">
-                    <h3 className="font-semibold text-lg text-slate-100">{unit.building?.name}</h3>
-                    <p className="text-sm text-slate-400">{unit.building?.neighborhood}, {unit.building?.city}</p>
+                    <h3 className="font-semibold text-lg text-slate-100">
+                      {user?.is_admin ? unit.building?.name : 'No-Fee Apartment'}
+                    </h3>
+                    <p className="text-sm text-slate-400">
+                      {unit.building?.neighborhood}, {unit.building?.city}
+                    </p>
+                    {user?.is_admin && (
+                      <p className="text-xs text-slate-500 mt-1">{unit.building?.address}</p>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-4 mb-3 text-sm text-slate-400">

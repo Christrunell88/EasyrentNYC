@@ -139,28 +139,30 @@ const Landing = () => {
           <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-amber-500/20 via-amber-500/5 to-transparent" />
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10 w-full">
           <div className="text-center max-w-5xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2 glass-window border border-amber-500/20 rounded-full mb-8">
-              <Eye className="w-4 h-4 text-amber-500" />
-              <span className="text-sm font-medium text-amber-500">Your First View of the City</span>
+            <div className="inline-flex items-center gap-2 px-6 py-3 glass-window border border-amber-500/30 rounded-full mb-8 backdrop-blur-md shadow-xl shadow-amber-500/20 animate-in fade-in slide-in-from-top duration-700">
+              <Eye className="w-5 h-5 text-amber-500" />
+              <span className="text-base font-semibold text-amber-400">Your First View of the City</span>
             </div>
             
-            {/* Main Heading - Playfair Display for elegance */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
-              <span className="block text-white mb-3">Your First Apartment.</span>
-              <span className="block warm-gradient-text skyline-shadow">
+            {/* Main Heading - Enhanced with stronger shadows */}
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 leading-tight animate-in fade-in slide-in-from-bottom duration-1000">
+              <span className="block text-white mb-4 drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)'}}>
+                Your First Apartment.
+              </span>
+              <span className="block warm-gradient-text drop-shadow-2xl" style={{textShadow: '0 4px 30px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.3)'}}>
                 Your New Beginning.
               </span>
             </h1>
             
-            {/* Subheading */}
-            <p className="text-xl sm:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            {/* Subheading - Enhanced readability */}
+            <p className="text-xl sm:text-2xl text-slate-100 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-lg animate-in fade-in slide-in-from-bottom duration-1000 delay-200" style={{textShadow: '0 2px 10px rgba(0,0,0,0.8)'}}>
               Stand at your window. Watch your city come alive.
               <br />
-              <span className="text-amber-500 font-medium">{stats.units}+ apartments</span> waiting for that moment.
-              <span className="block mt-2 text-lg text-slate-400">No broker fees. Just your dreams and the skyline.</span>
+              <span className="text-amber-400 font-bold">{stats.units}+ apartments</span> waiting for that moment.
+              <span className="block mt-3 text-lg text-slate-200 font-medium">No broker fees. Just your dreams and the skyline.</span>
             </p>
             
             {/* CTA Buttons */}

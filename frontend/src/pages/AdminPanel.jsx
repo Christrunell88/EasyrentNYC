@@ -254,6 +254,59 @@ const AdminPanel = () => {
             </CardHeader>
             
             <CardContent>
+              {/* Building Directory Tab - Export to Google Sheets */}
+              <TabsContent value="directory">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100">Complete Building Directory</h3>
+                      <p className="text-sm text-slate-400">All building addresses and contact information for export</p>
+                    </div>
+                    <Button onClick={exportToCSV} className="warm-gradient text-slate-900 font-semibold" data-testid="export-csv-btn">
+                      Export to CSV
+                    </Button>
+                  </div>
+
+                  <div className="bg-slate-700/50 border border-amber-500/20 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-amber-500 mb-2">Contact Information</h4>
+                    <div className="space-y-1 text-slate-300">
+                      <p>Email: <span className="text-amber-400 font-medium">placesfirm@gmail.com</span></p>
+                      <p>Phone: <span className="text-amber-400 font-medium">646-408-8048</span></p>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-slate-700">
+                          <TableHead className="text-slate-300">Building Name</TableHead>
+                          <TableHead className="text-slate-300">Full Address</TableHead>
+                          <TableHead className="text-slate-300">Neighborhood</TableHead>
+                          <TableHead className="text-slate-300">City, State</TableHead>
+                          <TableHead className="text-slate-300">Zip</TableHead>
+                          <TableHead className="text-slate-300">Total Units</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {buildings.map((building) => {
+                          const buildingUnits = units.filter(u => u.building_id === building.id);
+                          return (
+                            <TableRow key={building.id} className="border-slate-700">
+                              <TableCell className="font-medium text-slate-100">{building.name}</TableCell>
+                              <TableCell className="text-slate-300">{building.address}</TableCell>
+                              <TableCell className="text-slate-300">{building.neighborhood}</TableCell>
+                              <TableCell className="text-slate-300">{building.city}, {building.state}</TableCell>
+                              <TableCell className="text-slate-300">{building.zip_code}</TableCell>
+                              <TableCell className="text-amber-500 font-semibold">{buildingUnits.length}</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </TabsContent>
+
               {/* Buildings Tab */}
               <TabsContent value="buildings">
                 <div className="mb-4">

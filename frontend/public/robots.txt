@@ -1,0 +1,18 @@
+# NoFeesApts.com - Robots.txt
+# Allow all search engines to crawl
+
+User-agent: *
+Allow: /
+Allow: /dashboard
+Allow: /auth
+Allow: /unit/*
+
+# Disallow admin and API endpoints
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://nofeesapts.com/sitemap.xml
+
+# Crawl delay (be nice to our servers)
+Crawl-delay: 1

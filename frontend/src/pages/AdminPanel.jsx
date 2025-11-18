@@ -361,21 +361,21 @@ const AdminPanel = () => {
                 
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Address</TableHead>
-                      <TableHead>City</TableHead>
-                      <TableHead>Last Crawled</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="border-slate-700">
+                      <TableHead className="text-slate-300">Name</TableHead>
+                      <TableHead className="text-slate-300">Address</TableHead>
+                      <TableHead className="text-slate-300">City</TableHead>
+                      <TableHead className="text-slate-300">Last Crawled</TableHead>
+                      <TableHead className="text-slate-300">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {buildings.map((building) => (
-                      <TableRow key={building.id}>
-                        <TableCell className="font-medium">{building.name}</TableCell>
-                        <TableCell>{building.address}</TableCell>
-                        <TableCell>{building.city}, {building.state}</TableCell>
-                        <TableCell>
+                      <TableRow key={building.id} className="border-slate-700">
+                        <TableCell className="font-medium text-slate-100">{building.name}</TableCell>
+                        <TableCell className="text-slate-300">{building.address}</TableCell>
+                        <TableCell className="text-slate-300">{building.city}, {building.state}</TableCell>
+                        <TableCell className="text-slate-300">
                           {building.last_crawled
                             ? new Date(building.last_crawled).toLocaleDateString()
                             : 'Never'}
@@ -387,6 +387,7 @@ const AdminPanel = () => {
                               variant="outline"
                               onClick={() => handleCrawlBuilding(building.id)}
                               data-testid={`crawl-building-${building.id}`}
+                              className="border-amber-500/30 text-amber-500 hover:bg-slate-700"
                             >
                               <RefreshCw className="w-4 h-4" />
                             </Button>
@@ -395,6 +396,7 @@ const AdminPanel = () => {
                               variant="destructive"
                               onClick={() => handleDeleteBuilding(building.id)}
                               data-testid={`delete-building-${building.id}`}
+                              className="bg-red-900/50 hover:bg-red-900"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

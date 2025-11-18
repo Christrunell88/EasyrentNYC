@@ -62,11 +62,23 @@ export const useAuth = () => {
   return context;
 };
 
-// Protected route
+// Protected route - simplified version that doesn't block on loading
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { user, loading } = useAuth();
+  const [authCheck, setAuthCheck] = React.useState({ loading: true, user: null });
   
-  if (loading) {
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+        setAuthCheck({ loading: false, user: response.data });
+      } catch (error) {
+        setAuthCheck({ loading: false, user: null });
+      }
+    };
+    checkAuth();
+  }, []);
+  
+  if (authCheck.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-xl text-gray-600">Loading...</div>
@@ -74,11 +86,11 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     );
   }
   
-  if (!user) {
+  if (!authCheck.user) {
     return <Navigate to="/auth" replace />;
   }
   
-  if (requireAdmin && !user.is_admin) {
+  if (requireAdmin && !authCheck.user.is_admin) {
     return <Navigate to="/dashboard" replace />;
   }
   

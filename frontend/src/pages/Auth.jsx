@@ -232,7 +232,7 @@ const Auth = () => {
             <TabsContent value="signup" data-testid="signup-content">
               <form onSubmit={handleEmailSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Label htmlFor="signup-name" className="text-slate-200">Full Name</Label>
                   <Input
                     id="signup-name"
                     name="name"
@@ -240,10 +240,11 @@ const Auth = () => {
                     placeholder="John Doe"
                     required
                     data-testid="signup-name-input"
+                    className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email" className="text-slate-200">Email</Label>
                   <Input
                     id="signup-email"
                     name="email"
@@ -251,10 +252,11 @@ const Auth = () => {
                     placeholder="you@example.com"
                     required
                     data-testid="signup-email-input"
+                    className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
+                  <Label htmlFor="signup-password" className="text-slate-200">Password</Label>
                   <Input
                     id="signup-password"
                     name="password"
@@ -263,11 +265,12 @@ const Auth = () => {
                     required
                     minLength={6}
                     data-testid="signup-password-input"
+                    className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
                   disabled={isLoading}
                   data-testid="email-signup-btn"
                 >

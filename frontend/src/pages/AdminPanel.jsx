@@ -235,7 +235,7 @@ const AdminPanel = () => {
                     <p className="text-4xl font-bold text-white">{analyticsData.totalSignins || users.length * 3}</p>
                     <p className="text-xs text-purple-300 mt-1">Today: {analyticsData.todaySignins || Math.floor(users.length * 0.2)}</p>
                   </div>
-                  <LogOut className="w-12 h-12 text-purple-400 transform rotate-180" />
+                  <LogIn className="w-12 h-12 text-purple-400" />
                 </div>
               </CardContent>
             </Card>

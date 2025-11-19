@@ -20,6 +20,14 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [contacts, setContacts] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState({
+    totalVisitors: 0,
+    totalSignups: 0,
+    totalSignins: 0,
+    todayVisitors: 0,
+    todaySignups: 0,
+    todaySignins: 0
+  });
   const [loading, setLoading] = useState(true);
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
   const [unitDialogOpen, setUnitDialogOpen] = useState(false);

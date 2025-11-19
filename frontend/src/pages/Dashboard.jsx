@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings } from 'lucide-react';
+import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings, Eye } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const Dashboard = () => {

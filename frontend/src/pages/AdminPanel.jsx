@@ -311,6 +311,140 @@ const AdminPanel = () => {
             </CardHeader>
             
             <CardContent>
+              {/* All Units Dashboard Tab */}
+              <TabsContent value="dashboard">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100">Complete Unit Inventory</h3>
+                      <p className="text-sm text-slate-400">All apartments with full details, pricing, and contact information</p>
+                    </div>
+                    <Button onClick={exportToCSV} className="warm-gradient text-slate-900 font-semibold" data-testid="export-units-csv-btn">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export All Units
+                    </Button>
+                  </div>
+
+                  {/* Contact Info Banner */}
+                  <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/30 rounded-lg p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full warm-gradient flex items-center justify-center">
+                        <MapPin className="w-6 h-6 text-slate-900" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-amber-400 mb-1">Master Contact Information</h4>
+                        <div className="flex gap-6 text-slate-300 text-sm">
+                          <span>📧 placesfirm@gmail.com</span>
+                          <span>📱 646-408-8048</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Units Table */}
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-slate-700">
+                          <TableHead className="text-slate-300">Building</TableHead>
+                          <TableHead className="text-slate-300">Address</TableHead>
+                          <TableHead className="text-slate-300">Unit #</TableHead>
+                          <TableHead className="text-slate-300">Price</TableHead>
+                          <TableHead className="text-slate-300">Beds</TableHead>
+                          <TableHead className="text-slate-300">Baths</TableHead>
+                          <TableHead className="text-slate-300">Size (sqft)</TableHead>
+                          <TableHead className="text-slate-300">Neighborhood</TableHead>
+                          <TableHead className="text-slate-300">Available</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {units.map((unit) => {
+                          const building = buildings.find(b => b.id === unit.building_id);
+                          return (
+                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
+                              <TableCell className="font-medium text-slate-100">
+                                {building?.name || 'Unknown'}
+                              </TableCell>
+                              <TableCell className="text-slate-300 text-sm">
+                                {building?.address}, {building?.city}, {building?.state}
+                              </TableCell>
+                              <TableCell className="text-slate-300 font-mono">
+                                {unit.unit_number}
+                              </TableCell>
+                              <TableCell className="text-amber-500 font-bold">
+                                ${unit.rent?.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                <div className="flex items-center gap-1">
+                                  <BedDouble className="w-4 h-4" />
+                                  {unit.bedrooms === 0 ? 'Studio' : unit.bedrooms}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                <div className="flex items-center gap-1">
+                                  <Bath className="w-4 h-4" />
+                                  {unit.bathrooms}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                <div className="flex items-center gap-1">
+                                  <Maximize className="w-4 h-4" />
+                                  {unit.square_feet || 'N/A'}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-slate-400 text-sm">
+                                {building?.neighborhood}
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={unit.is_available ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}>
+                                  {unit.is_available ? 'Yes' : 'No'}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-4 gap-4 mt-6">
+                    <Card className="bg-slate-700/50 border-slate-600">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold warm-gradient-text">
+                          {units.filter(u => u.bedrooms === 0).length}
+                        </p>
+                        <p className="text-xs text-slate-400">Studios</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-slate-700/50 border-slate-600">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold warm-gradient-text">
+                          {units.filter(u => u.bedrooms === 1).length}
+                        </p>
+                        <p className="text-xs text-slate-400">1 Bedrooms</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-slate-700/50 border-slate-600">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold warm-gradient-text">
+                          {units.filter(u => u.bedrooms === 2).length}
+                        </p>
+                        <p className="text-xs text-slate-400">2 Bedrooms</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-slate-700/50 border-slate-600">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold warm-gradient-text">
+                          ${units.length > 0 ? Math.round(units.reduce((sum, u) => sum + (u.rent || 0), 0) / units.length).toLocaleString() : 0}
+                        </p>
+                        <p className="text-xs text-slate-400">Avg Rent</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </TabsContent>
+
               {/* Building Directory Tab - Export to Google Sheets */}
               <TabsContent value="directory">
                 <div className="space-y-6">

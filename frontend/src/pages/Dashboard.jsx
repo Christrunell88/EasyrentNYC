@@ -250,10 +250,26 @@ const Dashboard = () => {
             {units.map((unit) => (
               <Card
                 key={unit.id}
-                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all cursor-pointer border border-amber-500/20 bg-slate-800/50 backdrop-blur-sm"
-                onClick={() => navigate(`/unit/${unit.id}`)}
+                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all cursor-pointer border border-amber-500/20 bg-slate-800/50 backdrop-blur-sm relative"
+                onClick={() => user ? navigate(`/unit/${unit.id}`) : navigate('/auth')}
                 data-testid={`unit-card-${unit.id}`}
               >
+                {/* Overlay for non-authenticated users */}
+                {!user && (
+                  <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full warm-gradient flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-slate-900" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">Sign Up to View Full Details</h3>
+                      <p className="text-slate-300 mb-4">See building name, address, and contact info</p>
+                      <Button className="warm-gradient text-slate-900 font-semibold" onClick={(e) => {e.stopPropagation(); navigate('/auth');}}>
+                        Sign Up Free
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              
                 <div className="relative h-48 bg-slate-700">
                   {unit.images && unit.images.length > 0 ? (
                     <img

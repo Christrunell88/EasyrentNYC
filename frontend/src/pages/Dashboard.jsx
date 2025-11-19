@@ -288,14 +288,22 @@ const Dashboard = () => {
                 <CardContent className="p-5">
                   <div className="mb-3">
                     <h3 className="font-semibold text-lg text-slate-100">
-                      {user?.is_admin ? unit.building?.name : 'No-Fee Apartment'}
+                      {user ? (user.is_admin ? unit.building?.name : 'No-Fee Apartment') : (
+                        <span className="filter blur-sm">Premium Building Name</span>
+                      )}
                     </h3>
                     <p className="text-sm text-slate-400">
-                      {unit.building?.neighborhood}, {unit.building?.city}
+                      {user ? (
+                        <>
+                          {unit.building?.neighborhood}, {unit.building?.city}
+                          {user.is_admin && (
+                            <span className="block text-xs text-slate-500 mt-1">{unit.building?.address}</span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="filter blur-sm">Building Address • Neighborhood</span>
+                      )}
                     </p>
-                    {user?.is_admin && (
-                      <p className="text-xs text-slate-500 mt-1">{unit.building?.address}</p>
-                    )}
                   </div>
                   
                   <div className="flex items-center gap-4 mb-3 text-sm text-slate-400">

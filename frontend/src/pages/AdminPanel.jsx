@@ -298,10 +298,11 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
-          <Tabs defaultValue="directory" className="w-full">
+          <Tabs defaultValue="dashboard" className="w-full">
             <CardHeader>
-              <TabsList className="grid w-full grid-cols-5 bg-slate-700/50">
-                <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Building Directory</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-6 bg-slate-700/50">
+                <TabsTrigger value="dashboard" data-testid="dashboard-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">All Units</TabsTrigger>
+                <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
                 <TabsTrigger value="users" data-testid="users-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Users</TabsTrigger>

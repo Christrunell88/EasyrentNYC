@@ -452,6 +452,21 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                                     if bath_match:
                                         unit_data['bathrooms'] = float(bath_match.group(1))
                             
+                            # Extract images from table row
+                            images = row.find_all('img')
+                            for img in images:
+                                src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
+                                if src:
+                                    if src.startswith('//'):
+                                        src = 'https:' + src
+                                    elif src.startswith('/') and not src.startswith('http'):
+                                        from urllib.parse import urlparse
+                                        parsed_url = urlparse(url)
+                                        src = f"{parsed_url.scheme}://{parsed_url.netloc}{src}"
+                                    
+                                    if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
+                                        unit_data['images'].append(src)
+                            
                             if unit_data['rent'] > 0:
                                 if not unit_data['unit_number']:
                                     unit_data['unit_number'] = f"Unit-{len(units)+1}"

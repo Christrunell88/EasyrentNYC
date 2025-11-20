@@ -358,7 +358,7 @@ class CrawlerTester:
             await self.test_database_integrity()
             
             # Test image URL accessibility
-            self.test_image_url_accessibility()
+            await self.test_image_url_accessibility()
             
             # Test error handling
             await self.test_crawler_error_handling()

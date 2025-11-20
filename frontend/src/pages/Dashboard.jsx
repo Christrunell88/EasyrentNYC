@@ -58,15 +58,51 @@ const Dashboard = () => {
       
       const response = await axios.get(`${API}/units?${params.toString()}`, { withCredentials: true });
       
-      // Sort units by rent (lowest to highest)
-      const sortedUnits = response.data.sort((a, b) => a.rent - b.rent);
-      setUnits(sortedUnits);
+      // Distribute apartments from different buildings evenly to show variety
+      const diversifiedUnits = diversifyListings(response.data);
+      setUnits(diversifiedUnits);
     } catch (error) {
       console.error('Error fetching units:', error);
       toast.error('Failed to load apartments');
     } finally {
       setLoading(false);
     }
+  };
+
+  const diversifyListings = (units) => {
+    // Group units by building
+    const buildingGroups = {};
+    units.forEach(unit => {
+      const buildingId = unit.building?.id || 'unknown';
+      if (!buildingGroups[buildingId]) {
+        buildingGroups[buildingId] = [];
+      }
+      buildingGroups[buildingId].push(unit);
+    });
+
+    // Sort units within each building by price
+    Object.keys(buildingGroups).forEach(buildingId => {
+      buildingGroups[buildingId].sort((a, b) => a.rent - b.rent);
+    });
+
+    // Interleave units from different buildings (round-robin)
+    const diversified = [];
+    const buildingArrays = Object.values(buildingGroups);
+    let hasMore = true;
+    let index = 0;
+
+    while (hasMore) {
+      hasMore = false;
+      buildingArrays.forEach(buildingUnits => {
+        if (index < buildingUnits.length) {
+          diversified.push(buildingUnits[index]);
+          hasMore = true;
+        }
+      });
+      index++;
+    }
+
+    return diversified;
   };
 
   const fetchFavorites = async () => {

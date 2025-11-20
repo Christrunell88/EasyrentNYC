@@ -88,7 +88,15 @@ const Auth = () => {
     try {
       await axios.post(`${API}/auth/signup`, data, { withCredentials: true });
       toast.success('Account created successfully!');
-      navigate('/dashboard');
+      
+      // Check if there's a redirect destination stored
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Signup failed');
     } finally {

@@ -290,7 +290,15 @@ const Dashboard = () => {
               <Card
                 key={unit.id}
                 className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all cursor-pointer border border-amber-500/20 bg-slate-800/50 backdrop-blur-sm relative"
-                onClick={() => user ? navigate(`/unit/${unit.id}`) : navigate('/auth')}
+                onClick={() => {
+                  if (user) {
+                    navigate(`/unit/${unit.id}`);
+                  } else {
+                    // Store the intended destination
+                    sessionStorage.setItem('redirectAfterLogin', `/unit/${unit.id}`);
+                    navigate('/auth');
+                  }
+                }}
                 data-testid={`unit-card-${unit.id}`}
               >
                 {/* Overlay for non-authenticated users */}

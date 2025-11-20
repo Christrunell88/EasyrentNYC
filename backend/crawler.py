@@ -268,6 +268,102 @@ async def crawl_twotrees(url: str) -> List[Dict[str, Any]]:
     
     return units
 
+async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
+    """Crawl harrisonyards.com - uses RealPage/LeaseStar widget"""
+    units = []
+    
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=30000)
+            
+            # Wait longer for RealPage floor plan widget to load
+            await page.wait_for_timeout(5000)
+            
+            content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(content, 'html.parser')
+            
+            # Find all floor plan cards - RealPage uses specific structure
+            floor_plan_cards = soup.find_all(['div', 'article'], class_=re.compile(r'rpfp-card|floorplan|floor-plan', re.I))
+            
+            for card in floor_plan_cards:
+                try:
+                    unit_data = {
+                        'unit_number': '',
+                        'rent': 0.0,
+                        'bedrooms': 0,
+                        'bathrooms': 1.0,
+                        'square_feet': None,
+                        'images': [],
+                        'amenities': [],
+                        'description': '',
+                        'available_date': 'Immediate'
+                    }
+                    
+                    text = card.get_text(separator=' ', strip=True)
+                    
+                    # Extract rent
+                    rent_match = re.search(r'\$([0-9,]+)', text)
+                    if rent_match:
+                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    # Extract bedrooms
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                    if bed_match:
+                        unit_data['bedrooms'] = int(bed_match.group(1))
+                    elif re.search(r'studio', text, re.I):
+                        unit_data['bedrooms'] = 0
+                    
+                    # Extract bathrooms
+                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                    if bath_match:
+                        unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    # Extract square feet
+                    sqft_match = re.search(r'(\d+)\s*(?:sq|sqft|sf)', text, re.I)
+                    if sqft_match:
+                        unit_data['square_feet'] = int(sqft_match.group(1))
+                    
+                    # Extract unit number (often in a specific attribute or class)
+                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                    if unit_match:
+                        unit_data['unit_number'] = unit_match.group(1)
+                    else:
+                        # Generate unit number based on bedroom count
+                        unit_data['unit_number'] = f"Unit-{unit_data['bedrooms']}BR-{len(units)+1}"
+                    
+                    # Extract images - LeaseStar API pattern
+                    images = card.find_all('img')
+                    for img in images:
+                        src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
+                        if src:
+                            # Clean up URL
+                            if src.startswith('//'):
+                                src = 'https:' + src
+                            elif src.startswith('/'):
+                                src = 'https://harrisonyards.com' + src
+                            
+                            # Include images from LeaseStar API or other valid sources
+                            if 'myleasestar.com' in src or 'realpage.com' in src or src.startswith('https://'):
+                                unit_data['images'].append(src)
+                    
+                    # Only add if we have minimum data
+                    if unit_data['rent'] > 0:
+                        units.append(unit_data)
+                        logger.info(f"Found Harrison Yards unit: {unit_data['unit_number']} - ${unit_data['rent']} - {len(unit_data['images'])} images")
+                
+                except Exception as e:
+                    logger.error(f"Error parsing Harrison Yards card: {e}")
+                    continue
+    
+    except Exception as e:
+        logger.error(f"Error crawling Harrison Yards: {e}")
+    
+    return units
+
 async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
     """Generic crawler for other sites - checks tables first, then divs"""
     units = []
@@ -279,7 +375,7 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             await page.goto(url, wait_until='networkidle', timeout=30000)
             
             # Wait for dynamic content
-            await page.wait_for_timeout(3000)
+            await page.wait_for_timeout(5000)
             
             # Check for iframes first
             frames = page.frames

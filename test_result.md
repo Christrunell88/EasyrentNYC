@@ -107,11 +107,14 @@ backend:
     file: "/app/backend/crawler.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Created specific crawl_harrison_yards() function to extract images from RealPage/LeaseStar widget. Successfully scrapes images from capi.myleasestar.com CDN. Tested manually and verified 59/60 Harrison Yards units now have real images."
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed. Harrison Yards crawler function extracts 60 units with 59 having real LeaseStar images from capi.myleasestar.com. All image URLs tested and accessible with valid HTTP 200 responses. Database contains exactly 60 Harrison Yards units with 59 having real images. Function handles errors gracefully and data structure is valid."
   
   - task: "Generic image scraping for all websites"
     implemented: true

@@ -57,7 +57,10 @@ const Dashboard = () => {
       if (bathrooms) params.append('bathrooms', bathrooms);
       
       const response = await axios.get(`${API}/units?${params.toString()}`, { withCredentials: true });
-      setUnits(response.data);
+      
+      // Sort units by rent (lowest to highest)
+      const sortedUnits = response.data.sort((a, b) => a.rent - b.rent);
+      setUnits(sortedUnits);
     } catch (error) {
       console.error('Error fetching units:', error);
       toast.error('Failed to load apartments');

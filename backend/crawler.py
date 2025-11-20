@@ -502,9 +502,19 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                         
                         images = container.find_all('img')
                         for img in images:
-                            src = img.get('src') or img.get('data-src')
-                            if src and 'http' in src:
-                                unit_data['images'].append(src)
+                            src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
+                            if src:
+                                # Clean up URL
+                                if src.startswith('//'):
+                                    src = 'https:' + src
+                                elif src.startswith('/') and not src.startswith('http'):
+                                    from urllib.parse import urlparse
+                                    parsed_url = urlparse(url)
+                                    src = f"{parsed_url.scheme}://{parsed_url.netloc}{src}"
+                                
+                                # Only add valid image URLs
+                                if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
+                                    unit_data['images'].append(src)
                         
                         # Get description
                         desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))

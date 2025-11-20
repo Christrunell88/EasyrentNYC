@@ -36,7 +36,8 @@ async def main():
         
         soup = BeautifulSoup(content, 'html.parser')
         
-        # Find all images
+        # Find all images - need to wait for JS-loaded content
+        # Two Trees uses Nestio for property management, images are from nestiostatic.com
         all_images = []
         
         for img in soup.find_all('img'):
@@ -48,10 +49,10 @@ async def main():
                 elif src.startswith('/'):
                     src = 'https://www.twotreesny.com' + src
                 
-                # Filter out logos, icons, thumbnails
-                if src.startswith('https://') and not any(x in src.lower() for x in ['logo', 'icon', 'favicon']):
-                    # Include images from Two Trees CDN or site
-                    if 'twotrees' in src.lower() or 'cloudinary' in src or 'imgix' in src:
+                # Filter out logos, icons, SVGs
+                if src.startswith('https://') and not any(x in src.lower() for x in ['logo', 'icon', 'favicon', '.svg']):
+                    # Include images from Nestio CDN (actual unit photos) or other image hosts
+                    if 'nestiostatic.com' in src or 'cloudinary' in src or 'imgix' in src or '.jpg' in src or '.png' in src:
                         all_images.append(src)
         
         # Also check for background images in style attributes

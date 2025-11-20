@@ -167,3 +167,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Fixed image scraping issue. Created specific Harrison Yards crawler that successfully extracts images from LeaseStar API. Improved generic crawler for better image extraction. Cleaned up 122 old placeholder units. Harrison Yards now has 59/60 units with real images. Dashboard verified to display real apartment photos. Need testing agent to verify crawler functions work correctly for all buildings and that image URLs are valid and accessible."
+  - agent: "testing"
+    message: "Completed comprehensive crawler testing. All crawler functions working correctly. Harrison Yards: 60 units total, 59 with real LeaseStar images. Database integrity verified: 287 total units, 66 with images, 61 with real non-Unsplash images. No duplicate units found. Old placeholder units successfully cleaned up. Image URLs tested and accessible. Generic crawler tested on 5 buildings successfully. All backend APIs working correctly."

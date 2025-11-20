@@ -550,6 +550,8 @@ async def crawl_building(building_id: str):
         units_data = await crawl_mercedes_house(url)
     elif 'twotrees' in url:
         units_data = await crawl_twotrees(url)
+    elif 'harrisonyards' in url:
+        units_data = await crawl_harrison_yards(url)
     else:
         units_data = await crawl_generic_site(url)
     

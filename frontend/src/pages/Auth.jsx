@@ -68,7 +68,15 @@ const Auth = () => {
         }
       );
       toast.success('Login successful!');
-      navigate('/dashboard');
+      
+      // Check if there's a redirect destination stored
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('OAuth error:', error);
       toast.error('Authentication failed');

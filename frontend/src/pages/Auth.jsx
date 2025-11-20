@@ -42,7 +42,15 @@ const Auth = () => {
   const checkAuth = async () => {
     try {
       await axios.get(`${API}/auth/me`, { withCredentials: true });
-      navigate('/dashboard');
+      
+      // Check if there's a redirect destination stored
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       // Not authenticated, stay on auth page
     }

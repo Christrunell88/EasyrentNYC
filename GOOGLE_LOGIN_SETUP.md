@@ -147,7 +147,7 @@ When users sign in with Google, we collect:
 ## Testing Google Login
 
 ### Test Flow:
-1. Open: https://nocosthomes.preview.emergentagent.com/auth
+1. Open: https://zerofeeliving.preview.emergentagent.com/auth
 2. Click "Continue with Google"
 3. Sign in with any Google account
 4. Grant permissions

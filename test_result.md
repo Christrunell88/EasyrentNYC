@@ -118,15 +118,18 @@ backend:
   
   - task: "Generic image scraping for all websites"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/crawler.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Improved crawl_generic_site() to better extract images from multiple sources (img tags, data-src, data-lazy-src, background-image styles). Handles relative URLs and filters out logos/icons. Not yet tested on all sites."
+      - working: true
+        agent: "testing"
+        comment: "Generic crawler tested successfully on 5 buildings (4650 Center Blvd, Brooklyn Commons, Mercedes House, Waterline Square, Claridges). Function executes without errors and handles various HTML structures. Improved image extraction working correctly with multiple data sources. Error handling tested with invalid URLs - functions gracefully handle failures."
   
   - task: "Cleanup old placeholder units"
     implemented: true

@@ -262,27 +262,18 @@ class CrawlerTester:
             self.log_test("Database Integrity Test", False, f"Error: {str(e)}")
             return False
 
-    def test_image_url_accessibility(self):
+    async def test_image_url_accessibility(self):
         """Test that image URLs are actually accessible"""
         print("\n🖼️ Testing Image URL Accessibility")
         
         try:
             # Get sample image URLs from database
+            units = await self.db.units.find({'building_id': self.harrison_yards_id}).to_list(100)
             sample_images = []
-            
-            # Get images from Harrison Yards units
-            async def get_sample_images():
-                units = await self.db.units.find({'building_id': self.harrison_yards_id}).to_list(100)
-                images = []
-                for unit in units:
-                    for img in unit.get('images', []):
-                        if img.startswith('http') and len(images) < 10:
-                            images.append(img)
-                return images
-            
-            # Run async function
-            loop = asyncio.get_event_loop()
-            sample_images = loop.run_until_complete(get_sample_images())
+            for unit in units:
+                for img in unit.get('images', []):
+                    if img.startswith('http') and len(sample_images) < 10:
+                        sample_images.append(img)
             
             if not sample_images:
                 self.log_test("Image URL Accessibility - Sample Images", False, "No image URLs found to test")

@@ -278,8 +278,14 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             
-            # Wait longer for RealPage floor plan widget to load
-            await page.wait_for_timeout(5000)
+            # Wait for the floor plan widget to fully load
+            await page.wait_for_timeout(8000)
+            
+            # Wait for specific floor plan elements to be visible
+            try:
+                await page.wait_for_selector('.rpfp-card, .rpfp-card-details', timeout=5000)
+            except:
+                logger.warning("Floor plan cards did not load in time, proceeding anyway")
             
             content = await page.content()
             await browser.close()
@@ -287,7 +293,9 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
             soup = BeautifulSoup(content, 'html.parser')
             
             # Find all floor plan cards - RealPage uses specific structure
-            floor_plan_cards = soup.find_all(['div', 'article'], class_=re.compile(r'rpfp-card|floorplan|floor-plan', re.I))
+            floor_plan_cards = soup.find_all('div', class_=re.compile(r'rpfp-card', re.I))
+            
+            logger.info(f"Found {len(floor_plan_cards)} floor plan cards")
             
             for card in floor_plan_cards:
                 try:
@@ -305,10 +313,17 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
                     
                     text = card.get_text(separator=' ', strip=True)
                     
-                    # Extract rent
-                    rent_match = re.search(r'\$([0-9,]+)', text)
-                    if rent_match:
-                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    # Extract rent - look for price in specific elements
+                    price_elem = card.find(['span', 'div'], class_=re.compile(r'price|rent|rate', re.I))
+                    if price_elem:
+                        rent_match = re.search(r'\$([0-9,]+)', price_elem.get_text())
+                        if rent_match:
+                            unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    else:
+                        # Fallback to text search
+                        rent_match = re.search(r'\$([0-9,]+)', text)
+                        if rent_match:
+                            unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
                     
                     # Extract bedrooms
                     bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
@@ -327,28 +342,50 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
                     if sqft_match:
                         unit_data['square_feet'] = int(sqft_match.group(1))
                     
-                    # Extract unit number (often in a specific attribute or class)
-                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
-                    if unit_match:
-                        unit_data['unit_number'] = unit_match.group(1)
-                    else:
-                        # Generate unit number based on bedroom count
-                        unit_data['unit_number'] = f"Unit-{unit_data['bedrooms']}BR-{len(units)+1}"
+                    # Extract unit number - look in data attributes or specific elements
+                    unit_num_elem = card.find(['span', 'div'], class_=re.compile(r'unit|name|title', re.I))
+                    if unit_num_elem:
+                        unit_text = unit_num_elem.get_text(strip=True)
+                        unit_match = re.search(r'([A-Z0-9-]+)', unit_text)
+                        if unit_match:
+                            unit_data['unit_number'] = unit_match.group(1)
                     
-                    # Extract images - LeaseStar API pattern
+                    if not unit_data['unit_number']:
+                        # Generate unit number based on bedroom count
+                        bed_type = "Studio" if unit_data['bedrooms'] == 0 else f"{unit_data['bedrooms']}BR"
+                        unit_data['unit_number'] = f"{bed_type}-{len(units)+1}"
+                    
+                    # Extract images - look in multiple places
+                    # 1. Direct img tags
                     images = card.find_all('img')
                     for img in images:
-                        src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
+                        src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
                         if src:
                             # Clean up URL
                             if src.startswith('//'):
                                 src = 'https:' + src
-                            elif src.startswith('/'):
+                            elif src.startswith('/') and not src.startswith('http'):
                                 src = 'https://harrisonyards.com' + src
                             
-                            # Include images from LeaseStar API or other valid sources
-                            if 'myleasestar.com' in src or 'realpage.com' in src or src.startswith('https://'):
-                                unit_data['images'].append(src)
+                            # Include images from LeaseStar API or other valid sources, exclude icons/logos
+                            if src.startswith('https://') and not any(x in src.lower() for x in ['icon', 'logo', 'spinner', 'browser']):
+                                if src not in unit_data['images']:
+                                    unit_data['images'].append(src)
+                    
+                    # 2. Check for background images in style attributes
+                    for elem in card.find_all(style=re.compile(r'background-image')):
+                        style = elem.get('style', '')
+                        bg_match = re.search(r'url\(["\']?([^"\']+)["\']?\)', style)
+                        if bg_match:
+                            src = bg_match.group(1)
+                            if src.startswith('//'):
+                                src = 'https:' + src
+                            elif src.startswith('/') and not src.startswith('http'):
+                                src = 'https://harrisonyards.com' + src
+                            
+                            if src.startswith('https://') and 'myleasestar.com' in src:
+                                if src not in unit_data['images']:
+                                    unit_data['images'].append(src)
                     
                     # Only add if we have minimum data
                     if unit_data['rent'] > 0:

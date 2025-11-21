@@ -626,13 +626,26 @@ async def remove_favorite(unit_id: str, user: User = Depends(require_auth)):
 # ============ CONTACT ROUTES ============
 
 @api_router.post("/contact")
-async def contact_about_unit(input: ContactInput, user: User = Depends(require_auth)):
-    """Submit contact request for a unit"""
+async def contact_about_unit(
+    input: ContactInput, 
+    background_tasks: BackgroundTasks,
+    user: User = Depends(require_auth)
+):
+    """Submit contact request for a unit and send email notification"""
     # Check unit exists
-    unit = await db.units.find_one({'id': input.unit_id})
+    unit = await db.units.find_one({'id': input.unit_id}, {"_id": 0})
     if not unit:
         raise HTTPException(status_code=404, detail="Unit not found")
     
+    # Get building info for better email context
+    building = None
+    if unit.get('building_id'):
+        building = await db.buildings.find_one(
+            {'id': unit['building_id']}, 
+            {"_id": 0}
+        )
+    
+    # Create contact request record
     contact = ContactRequest(
         user_id=user.id,
         **input.model_dump()
@@ -641,7 +654,29 @@ async def contact_about_unit(input: ContactInput, user: User = Depends(require_a
     contact_dict['created_at'] = contact_dict['created_at'].isoformat()
     await db.contact_requests.insert_one(contact_dict)
     
-    return {'message': 'Contact request submitted'}
+    # Send email notification in background
+    if EMAIL_SERVICE_AVAILABLE:
+        # Prepare apartment unit info for email
+        unit_info = f"{unit.get('unit_number', 'N/A')}"
+        if building:
+            unit_info += f" at {building.get('name', 'Unknown Building')}"
+        
+        background_tasks.add_task(
+            send_contact_email,
+            name=input.name,
+            user_email=input.email,
+            phone=input.phone,
+            apartment_unit=unit_info,
+            message=input.message
+        )
+        logger.info(f"Email notification queued for contact request from {input.email}")
+    else:
+        logger.warning("Email service not available - notification not sent")
+    
+    return {
+        'message': 'Contact request submitted',
+        'email_sent': EMAIL_SERVICE_AVAILABLE
+    }
 
 @api_router.get("/contact")
 async def get_contact_requests(user: User = Depends(require_admin)):

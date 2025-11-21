@@ -39,6 +39,8 @@ dist
 backend/gmail_credentials.json
 backend/token.pickle
 backend/client_secret*.json
+*.pickle
+*token.pickle*
 
 # Logs and debug files
 npm-debug.log*
@@ -83,6 +85,14 @@ agenthub/agents/youtube/db
 
 # Mobile development
 android-sdk/ -e 
+# Environment files
+*.env
+*.env.*
+-e 
+# Environment files
+*.env
+*.env.*
+-e 
 # Environment files
 *.env
 *.env.*

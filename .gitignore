@@ -35,6 +35,11 @@ dist
 *token.json*
 *credentials.json*
 
+# Gmail API credentials and tokens
+backend/gmail_credentials.json
+backend/token.pickle
+backend/client_secret*.json
+
 # Logs and debug files
 npm-debug.log*
 yarn-debug.log*

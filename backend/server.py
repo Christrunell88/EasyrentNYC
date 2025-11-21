@@ -16,15 +16,6 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-# Import Gmail email service
-try:
-    from email_service import send_contact_email
-    EMAIL_SERVICE_AVAILABLE = True
-    logger.info("Gmail email service imported successfully")
-except Exception as e:
-    EMAIL_SERVICE_AVAILABLE = False
-    logger.warning(f"Gmail email service not available: {e}")
-
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -44,6 +35,17 @@ api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Import Gmail email service (after logger is initialized)
+EMAIL_SERVICE_AVAILABLE = False
+send_contact_email = None
+try:
+    from email_service import send_contact_email
+    EMAIL_SERVICE_AVAILABLE = True
+    logger.info("Gmail email service imported successfully")
+except Exception as e:
+    EMAIL_SERVICE_AVAILABLE = False
+    logger.warning(f"Gmail email service not available (will be available after credentials added): {e}")
 
 # ============ MODELS ============
 

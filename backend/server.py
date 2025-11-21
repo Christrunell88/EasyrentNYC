@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query, BackgroundTasks
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -15,6 +15,15 @@ import jwt
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
+# Import Gmail email service
+try:
+    from email_service import send_contact_email
+    EMAIL_SERVICE_AVAILABLE = True
+    logger.info("Gmail email service imported successfully")
+except Exception as e:
+    EMAIL_SERVICE_AVAILABLE = False
+    logger.warning(f"Gmail email service not available: {e}")
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

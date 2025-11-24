@@ -332,26 +332,11 @@ const Dashboard = () => {
               
                 <div className="relative h-48 bg-slate-700">
                   {unit.images && unit.images.length > 0 ? (
-                    <>
-                      <img
-                        src={unit.images[0]}
-                        alt={`Unit ${unit.unit_number}`}
-                        className="w-full h-full object-cover"
-                      />
-                      {/* Show "Pics Coming Soon" overlay for placeholder images */}
-                      {unit.images[0].includes('photo-1556912173-46c336c7fd55') && (
-                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center">
-                          <div className="text-center px-4">
-                            <div className="text-2xl font-bold text-white drop-shadow-lg mb-1">
-                              Pics Coming Soon
-                            </div>
-                            <div className="text-sm text-slate-300">
-                              Real photos arriving soon
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </>
+                    <img
+                      src={unit.images[0]}
+                      alt={`Unit ${unit.unit_number}`}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-700">
                       <Building2 className="w-16 h-16 text-amber-500/30" />

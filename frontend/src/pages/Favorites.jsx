@@ -66,17 +66,21 @@ const Favorites = () => {
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-xl text-gray-600">Loading favorites...</div>
+            <div className="text-xl text-slate-300">Loading favorites...</div>
           </div>
         ) : favorites.length === 0 ? (
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
             <CardContent className="p-12 text-center">
-              <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No favorites yet</h3>
-              <p className="text-gray-600 mb-6">
+              <Heart className="w-16 h-16 text-amber-500/30 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-slate-100 mb-2">No favorites yet</h3>
+              <p className="text-slate-300 mb-6">
                 Start exploring apartments and add them to your favorites!
               </p>
-              <Button onClick={() => navigate('/dashboard')} data-testid="start-searching-btn">
+              <Button 
+                onClick={() => navigate('/dashboard')} 
+                data-testid="start-searching-btn"
+                className="warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+              >
                 Start Searching
               </Button>
             </CardContent>

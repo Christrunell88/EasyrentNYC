@@ -86,30 +86,31 @@ const UnitDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="text-xl text-slate-300">Loading...</div>
       </div>
     );
   }
 
   if (!unit) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-xl text-gray-600 mb-4">Apartment not found</div>
-        <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
+        <div className="text-xl text-slate-300 mb-4">Apartment not found</div>
+        <Button onClick={() => navigate('/dashboard')} className="warm-gradient text-slate-900">Back to Dashboard</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-slate-800/90 backdrop-blur-sm border-b border-amber-500/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/dashboard')}
             data-testid="back-to-dashboard-btn"
+            className="text-slate-200 hover:text-amber-500"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Search
@@ -119,13 +120,13 @@ const UnitDetails = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-testid="unit-details">
         {/* Image Gallery */}
-        <Card className="mb-8 overflow-hidden shadow-2xl border-0">
+        <Card className="mb-8 overflow-hidden shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
           {unit.images && unit.images.length > 0 ? (
             <Carousel className="w-full">
               <CarouselContent>
                 {unit.images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <div className="h-96 bg-gray-200">
+                    <div className="h-96 bg-slate-700">
                       <img
                         src={image}
                         alt={`Unit ${unit.unit_number} - ${index + 1}`}
@@ -135,12 +136,12 @@ const UnitDetails = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-4" />
-              <CarouselNext className="right-4" />
+              <CarouselPrevious className="left-4 bg-slate-800/90 border-amber-500/30 text-amber-500" />
+              <CarouselNext className="right-4 bg-slate-800/90 border-amber-500/30 text-amber-500" />
             </Carousel>
           ) : (
-            <div className="h-96 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-              <Building2 className="w-24 h-24 text-indigo-300" />
+            <div className="h-96 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+              <Building2 className="w-24 h-24 text-amber-500/30" />
             </div>
           )}
         </Card>
@@ -149,43 +150,43 @@ const UnitDetails = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info */}
-            <Card className="shadow-lg border-0">
+            <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-slate-100 mb-2">
                       {unit.building?.name}
                     </h1>
-                    <div className="flex items-center text-gray-600 mb-2">
-                      <MapPin className="w-5 h-5 mr-2" />
+                    <div className="flex items-center text-slate-300 mb-2">
+                      <MapPin className="w-5 h-5 mr-2 text-amber-500" />
                       <span>{unit.building?.address}, {unit.building?.city}, {unit.building?.state}</span>
                     </div>
-                    <p className="text-gray-600">Unit {unit.unit_number}</p>
+                    <p className="text-slate-400">Unit {unit.unit_number}</p>
                   </div>
-                  <Badge className="bg-indigo-600 text-lg px-4 py-2">No Fee</Badge>
+                  <Badge className="warm-gradient text-slate-900 text-lg px-4 py-2 font-semibold">No Fee</Badge>
                 </div>
 
-                <div className="flex items-center gap-8 py-6 border-y border-gray-200">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <BedDouble className="w-6 h-6 text-indigo-600" />
+                <div className="flex items-center gap-8 py-6 border-y border-amber-500/20">
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <BedDouble className="w-6 h-6 text-amber-500" />
                     <span className="text-xl font-semibold">
                       {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} Bedrooms`}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Bath className="w-6 h-6 text-indigo-600" />
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <Bath className="w-6 h-6 text-amber-500" />
                     <span className="text-xl font-semibold">{unit.bathrooms} Bathrooms</span>
                   </div>
                 </div>
 
                 <div className="mt-6">
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-4xl font-bold text-indigo-600">${unit.rent.toLocaleString()}</span>
-                    <span className="text-xl text-gray-600">/month</span>
+                    <span className="text-4xl font-bold warm-gradient-text">${unit.rent.toLocaleString()}</span>
+                    <span className="text-xl text-slate-400">/month</span>
                   </div>
                   {unit.available_date && (
-                    <div className="flex items-center text-gray-600 mt-2">
-                      <Calendar className="w-5 h-5 mr-2" />
+                    <div className="flex items-center text-slate-300 mt-2">
+                      <Calendar className="w-5 h-5 mr-2 text-amber-500" />
                       <span>Available: {unit.available_date}</span>
                     </div>
                   )}
@@ -195,22 +196,22 @@ const UnitDetails = () => {
 
             {/* Description */}
             {unit.description && (
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-                  <p className="text-gray-700 leading-relaxed">{unit.description}</p>
+                  <h2 className="text-2xl font-bold text-slate-100 mb-4">Description</h2>
+                  <p className="text-slate-300 leading-relaxed">{unit.description}</p>
                 </CardContent>
               </Card>
             )}
 
             {/* Amenities */}
             {unit.amenities && unit.amenities.length > 0 && (
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Amenities</h2>
+                  <h2 className="text-2xl font-bold text-slate-100 mb-4">Amenities</h2>
                   <div className="flex flex-wrap gap-2">
                     {unit.amenities.map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="px-4 py-2 text-sm">
+                      <Badge key={index} variant="secondary" className="px-4 py-2 text-sm bg-slate-700/50 text-slate-200 border border-amber-500/20">
                         {amenity}
                       </Badge>
                     ))}
@@ -222,12 +223,12 @@ const UnitDetails = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <Card className="shadow-lg border-0 sticky top-4">
+            <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm sticky top-24">
               <CardContent className="p-6 space-y-4">
                 <Button
                   onClick={toggleFavorite}
                   variant={isFavorite ? "default" : "outline"}
-                  className="w-full"
+                  className={isFavorite ? "w-full bg-red-500 hover:bg-red-600 text-white" : "w-full border-amber-500/30 text-slate-200 hover:bg-slate-700"}
                   data-testid="toggle-favorite-btn"
                 >
                   <Heart className={`w-5 h-5 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
@@ -236,33 +237,33 @@ const UnitDetails = () => {
 
                 <Dialog open={contactOpen} onOpenChange={setContactOpen}>
                   <DialogTrigger asChild>
-                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700" data-testid="contact-btn">
+                    <Button className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-btn">
                       <Send className="w-5 h-5 mr-2" />
                       Contact About Unit
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100">
                     <DialogHeader>
-                      <DialogTitle>Contact About This Unit</DialogTitle>
-                      <DialogDescription>
+                      <DialogTitle className="text-slate-100">Contact About This Unit</DialogTitle>
+                      <DialogDescription className="text-slate-300">
                         Send a message to inquire about this apartment. We'll get back to you soon!
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleContact} className="space-y-4">
                       <div>
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" required data-testid="contact-name-input" />
+                        <Label htmlFor="name" className="text-slate-200">Name</Label>
+                        <Input id="name" name="name" required data-testid="contact-name-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" required data-testid="contact-email-input" />
+                        <Label htmlFor="email" className="text-slate-200">Email</Label>
+                        <Input id="email" name="email" type="email" required data-testid="contact-email-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
                       </div>
                       <div>
-                        <Label htmlFor="phone">Phone (Optional)</Label>
-                        <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" />
+                        <Label htmlFor="phone" className="text-slate-200">Phone (Optional)</Label>
+                        <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
                       </div>
                       <div>
-                        <Label htmlFor="message">Message</Label>
+                        <Label htmlFor="message" className="text-slate-200">Message</Label>
                         <Textarea
                           id="message"
                           name="message"
@@ -270,22 +271,23 @@ const UnitDetails = () => {
                           placeholder="I'm interested in this unit..."
                           required
                           data-testid="contact-message-input"
+                          className="bg-slate-700 border-amber-500/20 text-slate-100 placeholder:text-slate-400"
                         />
                       </div>
-                      <Button type="submit" className="w-full" data-testid="contact-submit-btn">
+                      <Button type="submit" className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-submit-btn">
                         Send Message
                       </Button>
                     </form>
                   </DialogContent>
                 </Dialog>
 
-                <div className="pt-4 border-t">
-                  <h3 className="font-semibold text-gray-900 mb-2">Building Details</h3>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <p><strong>Address:</strong> {unit.building?.address}</p>
-                    <p><strong>Neighborhood:</strong> {unit.building?.neighborhood}</p>
-                    <p><strong>City:</strong> {unit.building?.city}, {unit.building?.state}</p>
-                    <p><strong>Zip:</strong> {unit.building?.zip_code}</p>
+                <div className="pt-4 border-t border-amber-500/20">
+                  <h3 className="font-semibold text-slate-100 mb-2">Building Details</h3>
+                  <div className="space-y-2 text-sm text-slate-300">
+                    <p><strong className="text-amber-500">Address:</strong> {unit.building?.address}</p>
+                    <p><strong className="text-amber-500">Neighborhood:</strong> {unit.building?.neighborhood}</p>
+                    <p><strong className="text-amber-500">City:</strong> {unit.building?.city}, {unit.building?.state}</p>
+                    <p><strong className="text-amber-500">Zip:</strong> {unit.building?.zip_code}</p>
                   </div>
                 </div>
               </CardContent>

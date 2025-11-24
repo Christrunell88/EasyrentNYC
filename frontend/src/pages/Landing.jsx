@@ -159,10 +159,8 @@ const Landing = () => {
             
             {/* Subheading - Enhanced readability */}
             <p className="text-xl sm:text-2xl text-slate-100 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-lg animate-in fade-in slide-in-from-bottom duration-1000 delay-200" style={{textShadow: '0 2px 10px rgba(0,0,0,0.8)'}}>
-              Stand at your window. Watch your city come alive.
-              <br />
-              <span className="text-amber-400 font-bold">{stats.units}+ apartments</span> waiting for that moment.
-              <span className="block mt-3 text-lg text-slate-200 font-medium">No broker fees. Just your dreams and the skyline.</span>
+              <span className="text-amber-400 font-bold">{stats.units}+ no-fee apartments</span> in NYC and Northern New Jersey.
+              <span className="block mt-3 text-lg text-slate-200 font-medium">No broker fees. No hidden costs. Just your perfect home.</span>
             </p>
             
             {/* CTA Buttons */}

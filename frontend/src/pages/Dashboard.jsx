@@ -69,10 +69,22 @@ const Dashboard = () => {
     }
   };
 
+  const hasRealImages = (unit) => {
+    // Check if unit has real images (not placeholder/unsplash)
+    if (!unit.images || unit.images.length === 0) return false;
+    const firstImage = unit.images[0];
+    // Filter out Unsplash placeholders
+    return !firstImage.includes('unsplash.com') && !firstImage.includes('photo-1556912173');
+  };
+
   const diversifyListings = (units) => {
-    // Group units by building
+    // Separate units with real images and without
+    const unitsWithImages = units.filter(hasRealImages);
+    const unitsWithoutImages = units.filter(unit => !hasRealImages(unit));
+
+    // Group units with images by building
     const buildingGroups = {};
-    units.forEach(unit => {
+    unitsWithImages.forEach(unit => {
       const buildingId = unit.building?.id || 'unknown';
       if (!buildingGroups[buildingId]) {
         buildingGroups[buildingId] = [];
@@ -102,6 +114,7 @@ const Dashboard = () => {
       index++;
     }
 
+    // Only return units with real images - filter out placeholder units completely
     return diversified;
   };
 

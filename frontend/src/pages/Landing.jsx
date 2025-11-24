@@ -5,6 +5,7 @@ import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye } 
 import axios from 'axios';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
+import Logo from '@/components/Logo';
 
 const Landing = () => {
   const navigate = useNavigate();

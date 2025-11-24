@@ -380,7 +380,7 @@ const Landing = () => {
             {/* Brand */}
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start mb-4">
-                <Logo size="default" variant="full" />
+                <Logo size="default" />
               </div>
               <p className="text-sm text-slate-400">Your first apartment awaits.</p>
               <p className="text-sm text-slate-500 mt-2">NYC & Northern New Jersey</p>

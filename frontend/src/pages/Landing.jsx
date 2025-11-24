@@ -51,14 +51,7 @@ const Landing = () => {
       <nav className="fixed top-0 w-full z-50 glass-window border-b border-amber-500/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg warm-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <Building2 className="w-6 h-6 text-slate-900" />
-              </div>
-              <span className="text-xl font-semibold warm-gradient-text">
-                NoFeesApts.com
-              </span>
-            </div>
+            <Logo size="default" variant="full" />
             
             <div className="flex items-center gap-4">
               {isAuthenticated ? (

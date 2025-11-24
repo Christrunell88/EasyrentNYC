@@ -379,11 +379,8 @@ const Landing = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             {/* Brand */}
             <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg warm-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
-                  <Building2 className="w-6 h-6 text-slate-900" />
-                </div>
-                <span className="text-xl font-semibold warm-gradient-text">NoFeesApts.com</span>
+              <div className="flex items-center justify-center md:justify-start mb-4">
+                <Logo size="default" variant="full" />
               </div>
               <p className="text-sm text-slate-400">Your first apartment awaits.</p>
               <p className="text-sm text-slate-500 mt-2">NYC & Northern New Jersey</p>

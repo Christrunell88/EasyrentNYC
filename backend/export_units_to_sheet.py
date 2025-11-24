@@ -96,7 +96,7 @@ async def export_units_to_csv():
     
     print(f"CSV created: {csv_filename}")
     
-    await client.close()
+    client.close()
     return csv_filename, len(units)
 
 def send_csv_via_gmail(csv_filename, num_units):

@@ -275,8 +275,8 @@ const Landing = () => {
               },
               {
                 icon: Eye,
-                title: 'Your View Unfolds',
-                description: 'Stand at your window for the first time. Your neighborhood. Your street. Your city. This is the moment.',
+                title: 'Move In With Confidence',
+                description: 'Preview apartments with detailed photos, floor plans, and neighborhood information. Find your perfect NYC home with transparency and ease.',
                 gradient: 'from-red-500 to-rose-600'
               }
             ].map((step, index) => (

@@ -155,6 +155,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Dashboard is correctly displaying real apartment images for Harrison Yards listings. Verified via screenshot tool - cards show actual interior photos instead of Unsplash placeholders."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED: Dashboard image filtering is working perfectly. Successfully logged in with placesfirm@gmail.com and verified 73 units displayed (close to expected ~76). ZERO 'Pics Coming Soon' overlays found. ZERO Unsplash placeholder images found. All 9 first units have real apartment photos from legitimate sources (Mercedes House, Manhattan Skyline, LeaseStar CDN, Nestio). Filtering logic in hasRealImages() and diversifyListings() functions is working correctly - only units with real images are displayed. Screenshots confirm high-quality apartment photos throughout the dashboard."
 
 metadata:
   created_by: "main_agent"

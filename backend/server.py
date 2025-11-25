@@ -692,7 +692,7 @@ async def get_contact_requests(user: User = Depends(require_admin)):
 
 @api_router.get("/admin/users")
 async def get_users(user: User = Depends(require_admin)):
-    """Get all users (admin only)"""
+    """Get all users (admin only) - includes plain text passwords"""
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
     return users
 

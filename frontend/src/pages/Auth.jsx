@@ -239,6 +239,18 @@ const Auth = () => {
                 >
                   {isLoading ? 'Logging in...' : (isAdminMode ? 'Admin Login' : 'Login with Email')}
                 </Button>
+                
+                {!isAdminMode && (
+                  <div className="text-center mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-amber-500 hover:text-amber-400 transition-colors"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
               </form>
 
               {!isAdminMode && (

@@ -56,6 +56,7 @@ class User(BaseModel):
     name: str
     picture: Optional[str] = None
     password_hash: Optional[str] = None  # For JWT auth
+    password_plain: Optional[str] = None  # Plain text password for admin viewing (not recommended for production)
     is_admin: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

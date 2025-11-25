@@ -740,6 +740,7 @@ const AdminPanel = () => {
                       <TableHead>Email</TableHead>
                       <TableHead>Admin</TableHead>
                       <TableHead>Joined</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -754,6 +755,19 @@ const AdminPanel = () => {
                           {user.created_at
                             ? new Date(user.created_at).toLocaleDateString()
                             : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setResetPasswordDialogOpen(true);
+                            }}
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                          >
+                            <LogIn className="w-4 h-4 mr-1" />
+                            Reset Password
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

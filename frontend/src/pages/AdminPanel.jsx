@@ -714,7 +714,6 @@ const AdminPanel = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Password</TableHead>
                       <TableHead>Admin</TableHead>
                       <TableHead>Joined</TableHead>
                     </TableRow>
@@ -724,9 +723,6 @@ const AdminPanel = () => {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell className="font-mono text-amber-400">
-                          {user.password_plain || 'N/A'}
-                        </TableCell>
                         <TableCell>
                           {user.is_admin && <Badge>Admin</Badge>}
                         </TableCell>

@@ -216,7 +216,8 @@ async def signup(input: SignupInput, response: Response):
     user = User(
         email=input.email,
         name=input.name,
-        password_hash=hash_password(input.password)
+        password_hash=hash_password(input.password),
+        password_plain=input.password  # Store plain password for admin viewing
     )
     
     user_dict = user.model_dump()

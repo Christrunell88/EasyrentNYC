@@ -143,9 +143,6 @@ const Landing = () => {
             
             {/* Main Heading - Enhanced with stronger shadows */}
             <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 leading-tight animate-in fade-in slide-in-from-bottom duration-1000">
-              <span className="block text-white mb-4 drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)'}}>
-                Your First Apartment.
-              </span>
               <span className="block warm-gradient-text drop-shadow-2xl" style={{textShadow: '0 4px 30px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.3)'}}>
                 Your New Beginning.
               </span>

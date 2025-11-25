@@ -154,6 +154,27 @@ const AdminPanel = () => {
     );
   }
 
+  const handleResetPassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/admin/reset-password`, {
+        user_id: selectedUser.id,
+        new_password: newPassword
+      }, { withCredentials: true });
+      
+      toast.success(`Password reset for ${selectedUser.email}. User will receive an email.`);
+      setResetPasswordDialogOpen(false);
+      setSelectedUser(null);
+      setNewPassword('');
+    } catch (error) {
+      toast.error('Failed to reset password');
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Building Name', 'Address', 'City', 'State', 'Zip', 'Neighborhood', 'Source URL', 'Contact Email', 'Contact Phone'];
     const rows = buildings.map(b => [

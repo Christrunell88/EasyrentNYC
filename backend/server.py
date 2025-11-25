@@ -126,6 +126,17 @@ class LoginInput(BaseModel):
     email: str
     password: str
 
+class ForgotPasswordInput(BaseModel):
+    email: str
+
+class ResetPasswordInput(BaseModel):
+    token: str
+    new_password: str
+
+class AdminResetPasswordInput(BaseModel):
+    user_id: str
+    new_password: str
+
 class BuildingInput(BaseModel):
     name: str
     address: str

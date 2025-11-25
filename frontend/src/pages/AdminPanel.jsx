@@ -805,6 +805,50 @@ const AdminPanel = () => {
             </CardContent>
           </Tabs>
         </Card>
+
+        {/* Reset Password Dialog */}
+        <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+          <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100">Reset User Password</DialogTitle>
+              <DialogDescription className="text-slate-300">
+                Set a new password for {selectedUser?.email}. The user will receive an email with their new password.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password" className="text-slate-200">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="text"
+                  placeholder="Enter new password (min 6 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setResetPasswordDialogOpen(false);
+                    setSelectedUser(null);
+                    setNewPassword('');
+                  }}
+                  variant="outline"
+                  className="flex-1 border-slate-600 text-slate-200 hover:bg-slate-700"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleResetPassword}
+                  className="flex-1 warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+                >
+                  Reset Password
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

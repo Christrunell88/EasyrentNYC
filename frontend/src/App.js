@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Toaster, toast } from 'sonner';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import UnitDetails from './pages/UnitDetails';
 import Favorites from './pages/Favorites';

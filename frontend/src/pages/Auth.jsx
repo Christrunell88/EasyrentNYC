@@ -393,6 +393,47 @@ const Auth = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Forgot Password Dialog */}
+      <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+        <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-slate-100">Reset Your Password</DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Enter your email address and we'll send you a link to reset your password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="forgot-email" className="text-slate-200">Email</Label>
+              <Input
+                id="forgot-email"
+                type="email"
+                placeholder="you@example.com"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowForgotPassword(false)}
+                variant="outline"
+                className="flex-1 border-slate-600 text-slate-200 hover:bg-slate-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleForgotPassword}
+                disabled={isLoading}
+                className="flex-1 warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+              >
+                {isLoading ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

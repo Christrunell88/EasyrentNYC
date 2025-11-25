@@ -31,6 +31,9 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
   const [unitDialogOpen, setUnitDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     fetchData();

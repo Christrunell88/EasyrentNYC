@@ -17,6 +17,8 @@ const Auth = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [adminEmail] = useState('placesfirm@gmail.com');
   const [adminPassword] = useState('Checkers080/?');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
 
   // Process OAuth session_id from URL and check for admin mode
   useEffect(() => {

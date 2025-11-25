@@ -313,6 +313,161 @@ async def login(input: LoginInput, response: Response):
         'session_token': session_token
     }
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(input: ForgotPasswordInput):
+    """Send password reset email to user"""
+    user_doc = await db.users.find_one({'email': input.email})
+    
+    # Always return success to prevent email enumeration
+    if not user_doc:
+        logger.info(f"Password reset requested for non-existent email: {input.email}")
+        return {'message': 'If the email exists, a password reset link has been sent'}
+    
+    user = User(**user_doc)
+    
+    # Generate reset token
+    reset_token = str(uuid.uuid4())
+    reset_expiry = datetime.now(timezone.utc) + timedelta(hours=1)  # Token valid for 1 hour
+    
+    # Store reset token
+    await db.password_resets.insert_one({
+        'user_id': user.id,
+        'token': reset_token,
+        'expires_at': reset_expiry.isoformat(),
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'used': False
+    })
+    
+    # Send email with reset link
+    try:
+        if EMAIL_SERVICE_AVAILABLE:
+            from email_service import get_gmail_service
+            import base64
+            from email.mime.text import MIMEText
+            
+            service = get_gmail_service()
+            reset_url = f"https://feefree-rentals.preview.emergentagent.com/reset-password?token={reset_token}"
+            
+            # Create email
+            message = MIMEText(f"""
+Hello {user.name or 'User'},
+
+You requested a password reset for your NoFeesApts.com account.
+
+Click the link below to reset your password (valid for 1 hour):
+{reset_url}
+
+If you didn't request this, please ignore this email.
+
+Best regards,
+NoFeesApts.com Team
+            """)
+            
+            message['to'] = user.email
+            message['subject'] = 'Password Reset - NoFeesApts.com'
+            
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+            service.users().messages().send(
+                userId='me',
+                body={'raw': raw_message}
+            ).execute()
+            
+            logger.info(f"Password reset email sent to {user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {e}")
+    
+    return {'message': 'If the email exists, a password reset link has been sent'}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(input: ResetPasswordInput):
+    """Reset password using token"""
+    # Find reset token
+    reset_doc = await db.password_resets.find_one({
+        'token': input.token,
+        'used': False
+    })
+    
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(reset_doc['expires_at'])
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    # Update user password
+    new_password_hash = hash_password(input.new_password)
+    await db.users.update_one(
+        {'id': reset_doc['user_id']},
+        {'$set': {'password_hash': new_password_hash}}
+    )
+    
+    # Mark token as used
+    await db.password_resets.update_one(
+        {'token': input.token},
+        {'$set': {'used': True}}
+    )
+    
+    logger.info(f"Password reset successful for user {reset_doc['user_id']}")
+    
+    return {'message': 'Password reset successful'}
+
+@api_router.post("/admin/reset-password")
+async def admin_reset_password(input: AdminResetPasswordInput, admin: User = Depends(require_admin)):
+    """Admin endpoint to reset any user's password"""
+    # Check if user exists
+    user_doc = await db.users.find_one({'id': input.user_id})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user = User(**user_doc)
+    
+    # Update password
+    new_password_hash = hash_password(input.new_password)
+    await db.users.update_one(
+        {'id': input.user_id},
+        {'$set': {'password_hash': new_password_hash}}
+    )
+    
+    logger.info(f"Admin {admin.email} reset password for user {user.email}")
+    
+    # Send email notification to user
+    try:
+        if EMAIL_SERVICE_AVAILABLE:
+            from email_service import get_gmail_service
+            import base64
+            from email.mime.text import MIMEText
+            
+            service = get_gmail_service()
+            
+            message = MIMEText(f"""
+Hello {user.name or 'User'},
+
+Your NoFeesApts.com password has been reset by an administrator.
+
+Your new temporary password is: {input.new_password}
+
+Please log in and change your password immediately.
+
+Best regards,
+NoFeesApts.com Team
+            """)
+            
+            message['to'] = user.email
+            message['subject'] = 'Your Password Has Been Reset - NoFeesApts.com'
+            
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+            service.users().messages().send(
+                userId='me',
+                body={'raw': raw_message}
+            ).execute()
+            
+            logger.info(f"Password reset notification sent to {user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset notification: {e}")
+    
+    return {'message': f'Password reset successfully for {user.email}'}
+
 @api_router.post("/auth/session")
 async def create_session_from_oauth(request: Request, response: Response):
     """Process Emergent OAuth session_id"""

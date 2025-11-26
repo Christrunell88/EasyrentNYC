@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ArrowLeft, Building2, BedDouble, Bath, DollarSign, Heart, MapPin, Calendar, Send, Share2 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import ShareDialog from '@/components/ShareDialog';
+import SEO from '@/components/SEO';
 
 const UnitDetails = () => {
   const { id } = useParams();

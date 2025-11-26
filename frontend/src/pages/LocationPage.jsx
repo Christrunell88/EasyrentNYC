@@ -177,6 +177,35 @@ const LocationPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-900">
+      <SEO
+        title={currentLocation.title}
+        description={currentLocation.description}
+        keywords={currentLocation.seoKeywords}
+        ogType="website"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          "name": "NoFeesApts.com",
+          "description": currentLocation.description,
+          "url": `https://nofeesapts.com/location/${location}`,
+          "areaServed": {
+            "@type": "City",
+            "name": currentLocation.name
+          },
+          "priceRange": currentLocation.avgRent,
+          "availableLanguage": ["en"],
+          "makesOffer": {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Apartment",
+              "name": `No Fee Apartments in ${currentLocation.name}`
+            },
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          }
+        }}
+      />
+      
       {/* Header */}
       <header className="glass-window border-b border-amber-500/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

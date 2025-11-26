@@ -6,6 +6,7 @@ import axios from 'axios';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
 import Logo from '@/components/Logo';
+import SEO from '@/components/SEO';
 
 const Landing = () => {
   const navigate = useNavigate();

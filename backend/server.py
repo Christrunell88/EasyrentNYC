@@ -857,6 +857,147 @@ async def get_contact_requests(user: User = Depends(require_admin)):
     contacts = await db.contact_requests.find({}, {"_id": 0}).sort('created_at', -1).to_list(1000)
     return contacts
 
+@api_router.post("/share-unit")
+async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
+    """Share apartment unit via email"""
+    # Get unit details
+    unit = await db.units.find_one({'id': input.unit_id}, {"_id": 0})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    # Get building info
+    building = None
+    if unit.get('building_id'):
+        building = await db.buildings.find_one({'id': unit['building_id']}, {"_id": 0})
+    
+    # Send share email
+    try:
+        if EMAIL_SERVICE_AVAILABLE:
+            from email_service import get_gmail_service
+            import base64
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            service = get_gmail_service()
+            
+            # Prepare unit details
+            building_name = building.get('name', 'NYC Apartment') if building else 'NYC Apartment'
+            address = building.get('address', '') if building else ''
+            neighborhood = building.get('neighborhood', '') if building else ''
+            unit_number = unit.get('unit_number', '')
+            bedrooms = 'Studio' if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bedroom"
+            bathrooms = unit.get('bathrooms', 0)
+            rent = unit.get('rent', 0)
+            unit_url = f"https://feefree-rentals.preview.emergentagent.com/unit/{unit['id']}"
+            
+            # Get first image
+            image_url = unit.get('images', [])[0] if unit.get('images') else None
+            
+            # Create HTML email
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+        .content {{ background-color: #f8f9fa; padding: 30px; border: 1px solid #e0e0e0; }}
+        .apartment-card {{ background: white; border-radius: 10px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+        .apartment-image {{ width: 100%; height: 300px; object-fit: cover; }}
+        .apartment-details {{ padding: 20px; }}
+        .price {{ font-size: 32px; font-weight: bold; color: #f59e0b; margin: 10px 0; }}
+        .badge {{ display: inline-block; background: #ef4444; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; }}
+        .details {{ display: flex; gap: 20px; margin: 15px 0; }}
+        .detail-item {{ font-size: 16px; color: #666; }}
+        .cta-button {{ display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }}
+        .message {{ background: #fff3cd; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; }}
+        .footer {{ text-align: center; padding: 20px; color: #999; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">🏢 NoFeesApts.com</h1>
+            <p style="margin: 10px 0 0 0;">Your friend shared an apartment with you!</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi there!</p>
+            <p><strong>{user.name or user.email}</strong> thought you might be interested in this no-fee apartment:</p>
+            
+            {f'<div class="message"><p>{input.message}</p></div>' if input.message else ''}
+            
+            <div class="apartment-card">
+                {f'<img src="{image_url}" alt="Apartment" class="apartment-image" />' if image_url else ''}
+                <div class="apartment-details">
+                    <span class="badge">NO FEE</span>
+                    <h2 style="margin: 10px 0; color: #1f2937;">{building_name}</h2>
+                    <p style="color: #666; margin: 5px 0;">{address}</p>
+                    {f'<p style="color: #666; margin: 5px 0;">{neighborhood}</p>' if neighborhood else ''}
+                    
+                    <div class="price">${rent:,}/month</div>
+                    
+                    <div class="details">
+                        <span class="detail-item">🛏️ {bedrooms}</span>
+                        <span class="detail-item">🚿 {bathrooms} Bath</span>
+                        {f'<span class="detail-item">📍 Unit {unit_number}</span>' if unit_number else ''}
+                    </div>
+                    
+                    <p style="margin: 20px 0 10px 0; font-weight: bold;">Why This is Special:</p>
+                    <ul style="color: #666; margin: 0; padding-left: 20px;">
+                        <li>✨ NO BROKER FEES - Save thousands!</li>
+                        <li>🏙️ Prime {neighborhood if neighborhood else 'NYC'} location</li>
+                        <li>📸 Real photos, not stock images</li>
+                        <li>⚡ Move-in ready</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{unit_url}" class="cta-button">View Full Details →</a>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                Browse more no-fee apartments in NYC and Northern New Jersey at <a href="https://feefree-rentals.preview.emergentagent.com" style="color: #f59e0b;">NoFeesApts.com</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            This email was sent because {user.name or user.email} shared an apartment with you from NoFeesApts.com<br>
+            © 2025 NoFeesApts.com • No Broker Fees Ever
+        </div>
+    </div>
+</body>
+</html>
+            """
+            
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f"Check out this {bedrooms} apartment at {building_name} - No Broker Fees!"
+            msg['From'] = os.getenv("GMAIL_SENDER_EMAIL", "placesfirm@gmail.com")
+            msg['To'] = input.recipient_email
+            
+            # Attach HTML content
+            html_part = MIMEText(html_content, 'html')
+            msg.attach(html_part)
+            
+            # Send email
+            raw_message = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+            service.users().messages().send(
+                userId='me',
+                body={'raw': raw_message}
+            ).execute()
+            
+            logger.info(f"Unit {unit['id']} shared by {user.email} to {input.recipient_email}")
+            
+            return {'message': 'Apartment shared successfully!'}
+        else:
+            raise HTTPException(status_code=503, detail="Email service unavailable")
+    except Exception as e:
+        logger.error(f"Failed to share unit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send email")
+
 # ============ ADMIN ROUTES ============
 
 @api_router.get("/admin/users")

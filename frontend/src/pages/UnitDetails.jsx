@@ -228,6 +228,15 @@ const UnitDetails = () => {
             <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm sticky top-24">
               <CardContent className="p-6 space-y-4">
                 <Button
+                  onClick={() => setShareOpen(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  data-testid="share-btn"
+                >
+                  <Share2 className="w-5 h-5 mr-2" />
+                  Share This Apartment
+                </Button>
+
+                <Button
                   onClick={toggleFavorite}
                   variant={isFavorite ? "default" : "outline"}
                   className={isFavorite ? "w-full bg-red-500 hover:bg-red-600 text-white" : "w-full border-amber-500/30 text-slate-200 hover:bg-slate-700"}

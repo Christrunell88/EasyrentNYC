@@ -446,6 +446,43 @@ const Landing = () => {
               </div>
             </div>
             
+            {/* Locations */}
+            <div className="text-center">
+              <h3 className="text-white font-semibold mb-4">Locations</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => navigate('/location/manhattan')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Manhattan
+                </button>
+                <button
+                  onClick={() => navigate('/location/brooklyn')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Brooklyn
+                </button>
+                <button
+                  onClick={() => navigate('/location/queens')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Queens
+                </button>
+                <button
+                  onClick={() => navigate('/location/jersey-city')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Jersey City
+                </button>
+                <button
+                  onClick={() => navigate('/location/hoboken')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Hoboken
+                </button>
+              </div>
+            </div>
+            
             {/* Contact */}
             <div className="text-center md:text-right">
               <h3 className="text-white font-semibold mb-4">Contact Us</h3>

@@ -102,9 +102,9 @@ async def generate_sitemap():
     print(f"📊 Statistics:")
     print(f"   - Static pages: {len(static_pages)}")
     print(f"   - Unit pages: {len(units)}")
-    print(f"   - City pages: {len(cities)}")
-    print(f"   - Neighborhood pages: {len(neighborhoods)}")
-    print(f"   - Total URLs: {len(static_pages) + len(units) + len(cities) + len(neighborhoods)}")
+    print(f"   - Key location pages: {len(key_locations)}")
+    print(f"   - Dynamic location pages: {len(cities.union(neighborhoods) - set(key_locations))}")
+    print(f"   - Total URLs: {len(static_pages) + len(units) + len(key_locations) + len(cities.union(neighborhoods) - set(key_locations))}")
     print(f"📁 Saved to: {sitemap_path}")
 
 if __name__ == "__main__":

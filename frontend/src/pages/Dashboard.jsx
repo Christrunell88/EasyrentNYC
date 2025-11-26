@@ -342,18 +342,32 @@ const Dashboard = () => {
                     </div>
                   )}
                   
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(unit.id);
-                    }}
-                    className="absolute top-3 right-3 w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
-                    data-testid={`favorite-btn-${unit.id}`}
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${favorites.has(unit.id) ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
-                    />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedUnit(unit);
+                        setShareDialogOpen(true);
+                      }}
+                      className="w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
+                      data-testid={`share-btn-${unit.id}`}
+                    >
+                      <Share2 className="w-5 h-5 text-slate-300" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(unit.id);
+                      }}
+                      className="w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
+                      data-testid={`favorite-btn-${unit.id}`}
+                    >
+                      <Heart
+                        className={`w-5 h-5 ${favorites.has(unit.id) ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
+                      />
+                    </button>
+                  </div>
                   
                   <Badge className="absolute bottom-3 left-3 warm-gradient text-slate-900 font-semibold">
                     No Fee

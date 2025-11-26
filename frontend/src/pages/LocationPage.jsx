@@ -25,7 +25,7 @@ const LocationPage = () => {
         'Central Park and waterfront access'
       ],
       avgRent: '$3,200 - $4,500',
-      image: 'https://images.unsplash.com/photo-1546436836-07a91091f160'
+      seoKeywords: 'no fee apartments manhattan, manhattan apartments no broker fee, upper west side apartments, upper east side rentals'
     },
     brooklyn: {
       name: 'Brooklyn',
@@ -39,7 +39,7 @@ const LocationPage = () => {
         'Waterfront parks and Brooklyn Bridge Park'
       ],
       avgRent: '$2,400 - $3,800',
-      image: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25'
+      seoKeywords: 'no fee apartments brooklyn, brooklyn apartments no broker fee, williamsburg apartments, dumbo rentals'
     },
     queens: {
       name: 'Queens',
@@ -53,11 +53,67 @@ const LocationPage = () => {
         'Family-friendly with excellent schools'
       ],
       avgRent: '$1,800 - $3,200',
-      image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000'
+      seoKeywords: 'no fee apartments queens, queens apartments no broker fee, long island city apartments, astoria rentals'
+    },
+    'long-island-city': {
+      name: 'Long Island City',
+      title: 'No Fee Apartments in Long Island City, Queens',
+      description: 'Discover Long Island City\'s newest no-fee apartments. Minutes from Manhattan with modern amenities and stunning skyline views. No broker fees.',
+      neighborhoods: ['Hunters Point', 'Court Square', 'Dutch Kills', 'Astoria Heights'],
+      highlights: [
+        'One stop to Manhattan (7, E, M, G trains)',
+        'Modern high-rise buildings with amenities',
+        'Waterfront parks and East River views',
+        'Rapidly growing arts and dining scene'
+      ],
+      avgRent: '$2,200 - $3,600',
+      seoKeywords: 'no fee apartments long island city, lic apartments no broker fee, hunters point apartments'
+    },
+    williamsburg: {
+      name: 'Williamsburg',
+      title: 'No Fee Apartments in Williamsburg, Brooklyn',
+      description: 'Find trendy Williamsburg apartments with no broker fees. Brooklyn\'s hottest neighborhood for young professionals and creatives. Zero fees guaranteed.',
+      neighborhoods: ['North Williamsburg', 'South Williamsburg', 'East Williamsburg', 'Northside'],
+      highlights: [
+        'Hip neighborhood with vibrant nightlife',
+        'L train to Manhattan in 10 minutes',
+        'Trendy restaurants, bars, and music venues',
+        'Waterfront parks and Brooklyn Brewery'
+      ],
+      avgRent: '$2,600 - $4,200',
+      seoKeywords: 'no fee apartments williamsburg, williamsburg brooklyn apartments no broker fee, north williamsburg rentals'
+    },
+    'jersey-city': {
+      name: 'Jersey City',
+      title: 'No Fee Apartments in Jersey City, NJ',
+      description: 'Jersey City offers affordable NYC-area living with no broker fees. Quick PATH train access to Manhattan. Modern apartments at lower prices.',
+      neighborhoods: ['Downtown Jersey City', 'Newport', 'Journal Square', 'Paulus Hook', 'Hamilton Park'],
+      highlights: [
+        '10-20 minute PATH train to Manhattan',
+        'Stunning NYC skyline views',
+        'Lower taxes and cost of living',
+        'Family-friendly with great schools'
+      ],
+      avgRent: '$2,000 - $3,400',
+      seoKeywords: 'no fee apartments jersey city, jersey city apartments no broker fee, downtown jersey city rentals'
+    },
+    hoboken: {
+      name: 'Hoboken',
+      title: 'No Fee Apartments in Hoboken, NJ',
+      description: 'Charming Hoboken apartments with no broker fees. Easy NYC commute via PATH train. Vibrant downtown area with restaurants and nightlife.',
+      neighborhoods: ['Downtown Hoboken', 'Uptown Hoboken', 'Waterfront', 'Castle Point'],
+      highlights: [
+        '15-minute PATH train to Manhattan',
+        'Walkable downtown with restaurants and bars',
+        'Beautiful waterfront parks with NYC views',
+        'Safe, family-friendly community'
+      ],
+      avgRent: '$2,200 - $3,600',
+      seoKeywords: 'no fee apartments hoboken, hoboken apartments no broker fee, hoboken nj rentals'
     },
     harrison: {
-      name: 'Harrison, NJ',
-      title: 'No Fee Apartments in Harrison, New Jersey',
+      name: 'Harrison',
+      title: 'No Fee Apartments in Harrison, NJ',
       description: 'Just minutes from Manhattan, Harrison NJ offers modern apartments with no broker fees. Perfect for NYC commuters seeking more space and lower rent.',
       neighborhoods: ['Downtown Harrison', 'Harrison Waterfront', 'PATH Station Area'],
       highlights: [
@@ -67,7 +123,35 @@ const LocationPage = () => {
         'Red Bull Arena and waterfront parks'
       ],
       avgRent: '$2,200 - $3,500',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00'
+      seoKeywords: 'no fee apartments harrison nj, harrison new jersey apartments no broker fee'
+    },
+    weehawken: {
+      name: 'Weehawken',
+      title: 'No Fee Apartments in Weehawken, NJ',
+      description: 'Weehawken offers stunning NYC views and no-fee apartments. Quick NYC Ferry or bus commute to Manhattan. Premium living without broker fees.',
+      neighborhoods: ['Waterfront', 'The Heights', 'Lincoln Harbor', 'Boulevard East'],
+      highlights: [
+        'Spectacular NYC skyline views',
+        'NYC Ferry and express bus service',
+        'Quiet, residential atmosphere',
+        'Premium amenities and modern buildings'
+      ],
+      avgRent: '$2,400 - $3,800',
+      seoKeywords: 'no fee apartments weehawken, weehawken nj apartments no broker fee, weehawken waterfront rentals'
+    },
+    bronx: {
+      name: 'Bronx',
+      title: 'No Fee Apartments in The Bronx, NYC',
+      description: 'Find affordable Bronx apartments with no broker fees. Great value with easy access to Manhattan. Family-friendly neighborhoods with parks and culture.',
+      neighborhoods: ['Riverdale', 'Concourse', 'Fordham', 'Pelham Bay', 'Mott Haven', 'South Bronx'],
+      highlights: [
+        'Most affordable NYC borough',
+        'Direct subway access to Manhattan',
+        'Home to Yankee Stadium and Bronx Zoo',
+        'Growing arts scene and waterfront parks'
+      ],
+      avgRent: '$1,600 - $2,800',
+      seoKeywords: 'no fee apartments bronx, bronx apartments no broker fee, south bronx rentals'
     }
   };
 

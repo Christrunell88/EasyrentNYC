@@ -72,18 +72,20 @@ async def generate_sitemap():
         sitemap_xml += '    <priority>0.8</priority>\n'
         sitemap_xml += '  </url>\n'
     
-    # Location pages
-    for city in cities:
+    # Location pages - Key locations (high priority)
+    for location in key_locations:
         sitemap_xml += '  <url>\n'
-        sitemap_xml += f'    <loc>{base_url}/location/{city}</loc>\n'
+        sitemap_xml += f'    <loc>{base_url}/location/{location}</loc>\n'
         sitemap_xml += f'    <lastmod>{today}</lastmod>\n'
-        sitemap_xml += '    <changefreq>weekly</changefreq>\n'
-        sitemap_xml += '    <priority>0.7</priority>\n'
+        sitemap_xml += '    <changefreq>daily</changefreq>\n'
+        sitemap_xml += '    <priority>0.9</priority>\n'
         sitemap_xml += '  </url>\n'
     
-    for neighborhood in neighborhoods:
+    # Dynamic location pages from database
+    all_locations = cities.union(neighborhoods) - set(key_locations)
+    for location in all_locations:
         sitemap_xml += '  <url>\n'
-        sitemap_xml += f'    <loc>{base_url}/location/{neighborhood}</loc>\n'
+        sitemap_xml += f'    <loc>{base_url}/location/{location}</loc>\n'
         sitemap_xml += f'    <lastmod>{today}</lastmod>\n'
         sitemap_xml += '    <changefreq>weekly</changefreq>\n'
         sitemap_xml += '    <priority>0.7</priority>\n'

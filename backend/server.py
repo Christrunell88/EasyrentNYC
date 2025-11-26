@@ -1023,6 +1023,20 @@ async def trigger_crawl(building_id: str, user: User = Depends(require_admin)):
         logger.error(f"Crawl error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@api_router.post("/admin/crawl-all")
+async def trigger_crawl_all(background_tasks: BackgroundTasks, user: User = Depends(require_admin)):
+    """Manually trigger crawl for all buildings (admin only)"""
+    from crawler import crawl_all_buildings
+    
+    try:
+        # Run crawl in background to avoid timeout
+        background_tasks.add_task(crawl_all_buildings)
+        return {'message': 'Crawl started for all buildings', 'status': 'running'}
+    except Exception as e:
+        logger.error(f"Crawl all error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/admin/stats")
 async def get_stats(user: User = Depends(require_admin)):
     """Get platform statistics (admin only)"""

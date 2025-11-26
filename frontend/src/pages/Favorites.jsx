@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Building2, BedDouble, Bath, DollarSign, Heart } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 const Favorites = () => {
   const navigate = useNavigate();

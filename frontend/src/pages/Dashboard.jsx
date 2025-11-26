@@ -419,6 +419,16 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Share Dialog */}
+      {selectedUnit && (
+        <ShareDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          unit={selectedUnit}
+          building={selectedUnit.building}
+        />
+      )}
     </div>
   );
 };

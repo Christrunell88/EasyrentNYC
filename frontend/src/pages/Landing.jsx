@@ -48,6 +48,43 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 overflow-hidden">
+      <SEO
+        title="No Broker Fee Apartments NYC & NJ"
+        description={`Find your perfect apartment with zero broker fees. Browse ${stats.units}+ verified no-fee listings in NYC and Northern New Jersey. Real photos, real apartments, real savings.`}
+        keywords="no fee apartments NYC, no broker fee apartments, NYC apartments, Northern New Jersey apartments, rent apartments NYC, no fee rentals, Manhattan apartments, Brooklyn apartments, Queens apartments"
+        url="/"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          "name": "NoFeesApts.com",
+          "description": "No broker fee apartment listings in NYC and Northern New Jersey",
+          "url": "https://feefree-rentals.preview.emergentagent.com",
+          "logo": "https://feefree-rentals.preview.emergentagent.com/logo.png",
+          "address": {
+            "@type": "PostalAddress",
+            "addressRegion": "NY",
+            "addressCountry": "US"
+          },
+          "areaServed": [
+            {
+              "@type": "City",
+              "name": "New York City"
+            },
+            {
+              "@type": "State",
+              "name": "New Jersey"
+            }
+          ],
+          "numberOfUnits": stats.units,
+          "priceRange": "$2,800 - $5,445",
+          "offers": {
+            "@type": "Offer",
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "USD"
+          }
+        }}
+      />
+      
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 glass-window border-b border-amber-500/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

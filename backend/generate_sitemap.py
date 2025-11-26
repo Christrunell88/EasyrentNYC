@@ -49,6 +49,12 @@ async def generate_sitemap():
         {'url': '/favorites', 'priority': '0.6', 'changefreq': 'weekly'},
     ]
     
+    # Key location pages (always include these)
+    key_locations = [
+        'manhattan', 'brooklyn', 'queens', 'long-island-city', 'williamsburg',
+        'jersey-city', 'hoboken', 'harrison', 'weehawken', 'bronx'
+    ]
+    
     for page in static_pages:
         sitemap_xml += '  <url>\n'
         sitemap_xml += f'    <loc>{base_url}{page["url"]}</loc>\n'

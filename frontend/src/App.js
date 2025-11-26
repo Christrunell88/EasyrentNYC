@@ -144,9 +144,10 @@ const SessionHandler = () => {
 
 function App() {
   return (
-    <div className="App">
-      <Toaster position="top-center" richColors />
-      <BrowserRouter>
+    <HelmetProvider>
+      <div className="App">
+        <Toaster position="top-center" richColors />
+        <BrowserRouter>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />

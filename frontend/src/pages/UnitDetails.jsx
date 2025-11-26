@@ -306,6 +306,16 @@ const UnitDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Share Dialog */}
+      {unit && (
+        <ShareDialog
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          unit={unit}
+          building={unit.building}
+        />
+      )}
     </div>
   );
 };

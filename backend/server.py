@@ -137,6 +137,11 @@ class AdminResetPasswordInput(BaseModel):
     user_id: str
     new_password: str
 
+class ShareUnitInput(BaseModel):
+    unit_id: str
+    recipient_email: str
+    message: Optional[str] = None
+
 class BuildingInput(BaseModel):
     name: str
     address: str

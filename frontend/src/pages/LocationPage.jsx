@@ -157,11 +157,7 @@ const LocationPage = () => {
 
   const currentLocation = locationData[location] || locationData.manhattan;
 
-  useEffect(() => {
-    fetchLocationStats();
-  }, [location]);
-
-  const fetchLocationStats = async () => {
+  const fetchLocationStats = React.useCallback(async () => {
     try {
       const response = await axios.get(`${API}/units?city=${currentLocation.name}`, { withCredentials: true });
       const units = response.data;
@@ -173,7 +169,11 @@ const LocationPage = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  };
+  }, [currentLocation.name]);
+
+  useEffect(() => {
+    fetchLocationStats();
+  }, [location, fetchLocationStats]);
 
   return (
     <div className="min-h-screen bg-slate-900">

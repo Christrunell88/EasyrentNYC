@@ -655,10 +655,64 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/linden</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/manhattan</loc>
     <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/brooklyn</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/queens</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/long-island-city</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/williamsburg</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/jersey-city</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/hoboken</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/harrison</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/weehawken</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/bronx</loc>
+    <lastmod>2025-11-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://direct-rent-nyc.preview.emergentagent.com/location/jamaica</loc>
@@ -667,31 +721,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/harrison</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/east-village</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/brooklyn</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/dumbo</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/new-york</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/murray-hill</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/queens</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/long-island-city</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/linden</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -703,25 +751,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/linden</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/west-village</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/jamaica</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/chelsea</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/soho</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/kips-bay</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/harrison</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/downtown-brooklyn</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -739,49 +787,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/kips-bay</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/new-york</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/west-village</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/dumbo</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/downtown-brooklyn</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/chelsea</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/murray-hill</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/long-island-city</loc>
-    <lastmod>2025-11-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/east-village</loc>
+    <loc>https://direct-rent-nyc.preview.emergentagent.com/location/soho</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

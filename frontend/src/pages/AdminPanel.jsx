@@ -205,6 +205,25 @@ const AdminPanel = () => {
     toast.success('Building directory exported!');
   };
 
+  const handleCrawlAll = async () => {
+    setCrawling(true);
+    try {
+      const response = await axios.post(`${API}/admin/crawl-all`, {}, { withCredentials: true });
+      toast.success('Crawling started for all buildings! This will run in the background and may take several minutes.');
+      
+      // Refresh data after a delay to show updated units
+      setTimeout(() => {
+        fetchData();
+        toast.info('Data refreshed. Check back in a few minutes for complete results.');
+      }, 30000); // Refresh after 30 seconds
+    } catch (error) {
+      console.error('Crawl error:', error);
+      toast.error('Failed to start crawl');
+    } finally {
+      setCrawling(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Header */}

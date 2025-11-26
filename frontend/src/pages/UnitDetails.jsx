@@ -104,8 +104,59 @@ const UnitDetails = () => {
     );
   }
 
+  const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} Bedroom`;
+  const buildingName = unit.building?.name || 'NYC Apartment';
+  const neighborhood = unit.building?.neighborhood || unit.building?.city || 'NYC';
+  
   return (
     <div className="min-h-screen bg-slate-900">
+      <SEO
+        title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
+        description={`No broker fee ${bedroomText.toLowerCase()} apartment in ${neighborhood}. $${unit.rent.toLocaleString()}/month, ${unit.bathrooms} bath. ${unit.description || 'Move-in ready with modern amenities.'}`}
+        keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}, rent apartment ${unit.building?.city}, no broker fee`}
+        url={`/unit/${unit.id}`}
+        image={unit.images && unit.images.length > 0 ? unit.images[0] : null}
+        type="product"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Apartment",
+          "name": `${bedroomText} at ${buildingName}`,
+          "description": unit.description || `${bedroomText} apartment with ${unit.bathrooms} bathroom in ${neighborhood}`,
+          "image": unit.images || [],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": unit.building?.address,
+            "addressLocality": unit.building?.city,
+            "addressRegion": unit.building?.state,
+            "postalCode": unit.building?.zip_code,
+            "addressCountry": "US"
+          },
+          "numberOfRooms": unit.bedrooms + 1,
+          "numberOfBedrooms": unit.bedrooms,
+          "numberOfBathroomsTotal": unit.bathrooms,
+          "floorSize": {
+            "@type": "QuantitativeValue",
+            "value": unit.square_feet || 0,
+            "unitText": "sqft"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": unit.rent,
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "seller": {
+              "@type": "RealEstateAgent",
+              "name": "NoFeesApts.com"
+            }
+          },
+          "amenityFeature": (unit.amenities || []).map(amenity => ({
+            "@type": "LocationFeatureSpecification",
+            "name": amenity
+          }))
+        }}
+      />
+      
       {/* Header */}
       <header className="bg-slate-800/90 backdrop-blur-sm border-b border-amber-500/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

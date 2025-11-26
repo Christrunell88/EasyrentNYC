@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Building2, MapPin, DollarSign, TrendingUp, ArrowRight, Home } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../App';
+import SEO from '../components/SEO';
 
 const LocationPage = () => {
   const { location } = useParams();

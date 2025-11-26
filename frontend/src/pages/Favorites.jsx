@@ -44,6 +44,13 @@ const Favorites = () => {
 
   return (
     <div className="min-h-screen bg-slate-900">
+      <SEO
+        title="My Favorite Apartments"
+        description={`View your ${favorites.length} saved no-fee apartments in NYC & NJ. Compare your favorites and schedule viewings. Never lose track of your dream apartment.`}
+        keywords="saved apartments, favorite listings, saved searches, apartment wishlist"
+        url="/favorites"
+      />
+      
       {/* Header */}
       <header className="bg-slate-800/90 backdrop-blur-sm border-b border-amber-500/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

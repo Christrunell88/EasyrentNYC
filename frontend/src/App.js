@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '@/App.css';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import axios from 'axios';
 import { Toaster, toast } from 'sonner';
 import Landing from './pages/Landing';

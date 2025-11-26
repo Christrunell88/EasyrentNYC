@@ -373,6 +373,45 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Popular Locations */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">Find Apartments by Location</h2>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+              Browse no-fee apartments in NYC's most popular neighborhoods and surrounding areas
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {[
+              { name: 'Manhattan', url: '/location/manhattan' },
+              { name: 'Brooklyn', url: '/location/brooklyn' },
+              { name: 'Queens', url: '/location/queens' },
+              { name: 'Long Island City', url: '/location/long-island-city' },
+              { name: 'Williamsburg', url: '/location/williamsburg' },
+              { name: 'Jersey City', url: '/location/jersey-city' },
+              { name: 'Hoboken', url: '/location/hoboken' },
+              { name: 'Harrison', url: '/location/harrison' },
+              { name: 'Weehawken', url: '/location/weehawken' },
+              { name: 'Bronx', url: '/location/bronx' }
+            ].map((location) => (
+              <button
+                key={location.name}
+                onClick={() => navigate(location.url)}
+                className="glass-window border border-amber-500/20 rounded-xl p-6 hover:border-amber-500/40 transition-all group text-center"
+              >
+                <MapPin className="w-8 h-8 text-amber-500 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-slate-100 group-hover:text-amber-400 transition-colors">
+                  {location.name}
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">View Apartments →</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA - Emotional */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-slate-800" />

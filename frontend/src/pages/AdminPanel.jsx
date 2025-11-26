@@ -34,6 +34,7 @@ const AdminPanel = () => {
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
+  const [crawling, setCrawling] = useState(false);
 
   useEffect(() => {
     fetchData();

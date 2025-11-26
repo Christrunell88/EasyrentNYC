@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState(new Set());
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState(null);
   
   // Filters
   const [bedrooms, setBedrooms] = useState('');

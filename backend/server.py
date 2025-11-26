@@ -351,7 +351,7 @@ async def forgot_password(input: ForgotPasswordInput):
             from email.mime.text import MIMEText
             
             service = get_gmail_service()
-            reset_url = f"https://feefree-rentals.preview.emergentagent.com/reset-password?token={reset_token}"
+            reset_url = f"https://direct-rent-nyc.preview.emergentagent.com/reset-password?token={reset_token}"
             
             # Create email
             message = MIMEText(f"""
@@ -888,7 +888,7 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
             bedrooms = 'Studio' if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bedroom"
             bathrooms = unit.get('bathrooms', 0)
             rent = unit.get('rent', 0)
-            unit_url = f"https://feefree-rentals.preview.emergentagent.com/unit/{unit['id']}"
+            unit_url = f"https://direct-rent-nyc.preview.emergentagent.com/unit/{unit['id']}"
             
             # Get first image
             image_url = unit.get('images', [])[0] if unit.get('images') else None
@@ -959,7 +959,7 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
             </div>
             
             <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                Browse more no-fee apartments in NYC and Northern New Jersey at <a href="https://feefree-rentals.preview.emergentagent.com" style="color: #f59e0b;">NoFeesApts.com</a>
+                Browse more no-fee apartments in NYC and Northern New Jersey at <a href="https://direct-rent-nyc.preview.emergentagent.com" style="color: #f59e0b;">NoFeesApts.com</a>
             </p>
         </div>
         

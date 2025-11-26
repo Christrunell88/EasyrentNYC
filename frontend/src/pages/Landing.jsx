@@ -58,8 +58,8 @@ const Landing = () => {
           "@type": "RealEstateAgent",
           "name": "NoFeesApts.com",
           "description": "No broker fee apartment listings in NYC and Northern New Jersey",
-          "url": "https://feefree-rentals.preview.emergentagent.com",
-          "logo": "https://feefree-rentals.preview.emergentagent.com/logo.png",
+          "url": "https://direct-rent-nyc.preview.emergentagent.com",
+          "logo": "https://direct-rent-nyc.preview.emergentagent.com/logo.png",
           "address": {
             "@type": "PostalAddress",
             "addressRegion": "NY",

@@ -147,13 +147,16 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "LIVE SITE TESTING RESULTS: Tested authentication on https://nofeesapts.com. WORKING ENDPOINTS: POST /api/auth/login (proper 401 for invalid credentials), POST /api/auth/forgot-password (200 with message), GET /api/auth/me (401 when unauthenticated), POST /api/auth/logout (200 with message). CRITICAL FAILURES: 1) GET /api/auth/google returns 404 - Google OAuth endpoint not implemented in backend, 2) No CORS headers configured - Access-Control-Allow-Origin missing, may cause frontend authentication issues. Email/password authentication structure is working correctly but Google OAuth integration is missing from backend implementation."
+      - working: false
+        agent: "testing"
+        comment: "CONFIRMED ROOT CAUSE OF SIGN-IN FAILURE: CORS policy is blocking ALL authentication requests from https://nofeesapts.com to backend. Console errors show 'Access-Control-Allow-Origin header is present on the requested resource'. Tested with user-provided credentials (chris.trunell@gmail.com / TestPassword123!) - form submission works, network requests are made, but responses are blocked by browser due to missing CORS headers. Google OAuth redirects correctly but authentication cannot complete due to same CORS issue. Password reset also fails with CORS blocking. Backend must add CORS configuration allowing https://nofeesapts.com origin to fix all authentication flows."
 
 frontend:
   - task: "Display real apartment images on listing cards"

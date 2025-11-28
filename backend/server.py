@@ -351,7 +351,9 @@ async def forgot_password(input: ForgotPasswordInput):
             from email.mime.text import MIMEText
             
             service = get_gmail_service()
-            reset_url = f"https://direct-rent-nyc.preview.emergentagent.com/reset-password?token={reset_token}"
+            # Use the actual domain from environment or default to the live domain
+            base_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+            reset_url = f"{base_url}/reset-password?token={reset_token}"
             
             # Create email
             message = MIMEText(f"""

@@ -147,7 +147,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -157,6 +157,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CONFIRMED ROOT CAUSE OF SIGN-IN FAILURE: CORS policy is blocking ALL authentication requests from https://nofeesapts.com to backend. Console errors show 'Access-Control-Allow-Origin header is present on the requested resource'. Tested with user-provided credentials (chris.trunell@gmail.com / TestPassword123!) - form submission works, network requests are made, but responses are blocked by browser due to missing CORS headers. Google OAuth redirects correctly but authentication cannot complete due to same CORS issue. Password reset also fails with CORS blocking. Backend must add CORS configuration allowing https://nofeesapts.com origin to fix all authentication flows."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BACKEND URL MISMATCH DISCOVERED: Frontend at https://nofeesapts.com is making requests to https://direct-rent-nyc.emergent.host/api/* but our backend is at https://direct-rent-nyc.preview.emergentagent.com. The emergent.host URL appears to be a different service/proxy without proper CORS configuration. TESTED: 1) Email/Password Login - FAILED with CORS errors, 2) Google OAuth - SUCCESS (redirects to auth.emergentagent.com), 3) Password Reset - FAILED with CORS errors. ROOT CAUSE: Production frontend is configured with wrong backend URL. SOLUTION NEEDED: Either configure the emergent.host proxy to allow CORS from https://nofeesapts.com OR update the production frontend to use the correct backend URL (https://direct-rent-nyc.preview.emergentagent.com)."
 
 frontend:
   - task: "Display real apartment images on listing cards"

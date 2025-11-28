@@ -143,6 +143,18 @@ backend:
         agent: "main"
         comment: "Created script to remove old auto-generated units (Unit-0BR-X format) with placeholder/no images. Cleaned up 122 old units successfully."
 
+  - task: "Authentication endpoints on live site"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "LIVE SITE TESTING RESULTS: Tested authentication on https://nofeesapts.com. WORKING ENDPOINTS: POST /api/auth/login (proper 401 for invalid credentials), POST /api/auth/forgot-password (200 with message), GET /api/auth/me (401 when unauthenticated), POST /api/auth/logout (200 with message). CRITICAL FAILURES: 1) GET /api/auth/google returns 404 - Google OAuth endpoint not implemented in backend, 2) No CORS headers configured - Access-Control-Allow-Origin missing, may cause frontend authentication issues. Email/password authentication structure is working correctly but Google OAuth integration is missing from backend implementation."
+
 frontend:
   - task: "Display real apartment images on listing cards"
     implemented: true

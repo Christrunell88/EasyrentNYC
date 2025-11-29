@@ -677,15 +677,23 @@ async def get_units(
         building_ids = [b['id'] for b in buildings]
         units = [u for u in units if u['building_id'] in building_ids]
     
-    # Get building info for each unit
-    for unit in units:
-        building = await db.buildings.find_one({'id': unit['building_id']}, {"_id": 0})
-        unit['building'] = building
+    # Get building info for each unit - optimized to avoid N+1 queries
+    if units:
+        # Get all unique building IDs
+        building_ids = list(set(u['building_id'] for u in units if u.get('building_id')))
+        # Fetch all buildings in one query
+        buildings = await db.buildings.find({'id': {'$in': building_ids}}, {"_id": 0}).to_list(len(building_ids))
+        # Create a map for quick lookup
+        buildings_map = {b['id']: b for b in buildings}
         
-        if isinstance(unit.get('created_at'), str):
-            unit['created_at'] = datetime.fromisoformat(unit['created_at'])
-        if isinstance(unit.get('updated_at'), str):
-            unit['updated_at'] = datetime.fromisoformat(unit['updated_at'])
+        # Attach buildings to units
+        for unit in units:
+            unit['building'] = buildings_map.get(unit['building_id'])
+            
+            if isinstance(unit.get('created_at'), str):
+                unit['created_at'] = datetime.fromisoformat(unit['created_at'])
+            if isinstance(unit.get('updated_at'), str):
+                unit['updated_at'] = datetime.fromisoformat(unit['updated_at'])
     
     return units
 

@@ -890,7 +890,9 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
             bedrooms = 'Studio' if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bedroom"
             bathrooms = unit.get('bathrooms', 0)
             rent = unit.get('rent', 0)
-            unit_url = f"https://direct-rent-nyc.preview.emergentagent.com/unit/{unit['id']}"
+            # Use environment variable for frontend URL
+            frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+            unit_url = f"{frontend_url}/unit/{unit['id']}"
             
             # Get first image
             image_url = unit.get('images', [])[0] if unit.get('images') else None

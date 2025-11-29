@@ -1069,6 +1069,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def create_indexes():
+    """Create database indexes for query optimization"""
+    try:
+        # Units collection indexes
+        await db.units.create_index([("building_id", 1)])
+        await db.units.create_index([("is_available", 1)])
+        await db.units.create_index([("bedrooms", 1)])
+        await db.units.create_index([("rent", 1)])
+        
+        # Favorites collection indexes
+        await db.favorites.create_index([("user_id", 1)])
+        await db.favorites.create_index([("unit_id", 1)])
+        await db.favorites.create_index([("user_id", 1), ("unit_id", 1)], unique=True)
+        
+        # Buildings collection indexes
+        await db.buildings.create_index([("neighborhood", 1)])
+        await db.buildings.create_index([("city", 1)])
+        
+        # User sessions indexes
+        await db.user_sessions.create_index([("session_token", 1)], unique=True)
+        await db.user_sessions.create_index([("expires_at", 1)])
+        
+        # Password resets indexes
+        await db.password_resets.create_index([("token", 1)], unique=True)
+        await db.password_resets.create_index([("expires_at", 1)])
+        
+        logger.info("Database indexes created successfully")
+    except Exception as e:
+        logger.warning(f"Index creation warning (may already exist): {e}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()

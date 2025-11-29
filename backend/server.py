@@ -764,15 +764,26 @@ async def get_favorites(user: User = Depends(require_auth)):
     """Get user's favorite units"""
     favorites = await db.favorites.find({'user_id': user.id}, {"_id": 0}).to_list(1000)
     
-    # Get unit details
+    # Get unit details - optimized to avoid N+1 queries
     result = []
-    for fav in favorites:
-        unit = await db.units.find_one({'id': fav['unit_id']}, {"_id": 0})
-        if unit:
-            building = await db.buildings.find_one({'id': unit['building_id']}, {"_id": 0})
-            unit['building'] = building
-            result.append({
-                'favorite_id': fav['id'],
+    if favorites:
+        # Batch fetch units
+        unit_ids = [f['unit_id'] for f in favorites]
+        units = await db.units.find({'id': {'$in': unit_ids}}, {"_id": 0}).to_list(len(unit_ids))
+        units_map = {u['id']: u for u in units}
+        
+        # Batch fetch buildings
+        building_ids = list(set(u['building_id'] for u in units if u.get('building_id')))
+        buildings = await db.buildings.find({'id': {'$in': building_ids}}, {"_id": 0}).to_list(len(building_ids))
+        buildings_map = {b['id']: b for b in buildings}
+        
+        # Combine results
+        for fav in favorites:
+            unit = units_map.get(fav['unit_id'])
+            if unit:
+                unit['building'] = buildings_map.get(unit['building_id'])
+                result.append({
+                    'favorite_id': fav['id'],
                 'unit': unit
             })
     

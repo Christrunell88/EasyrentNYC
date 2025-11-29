@@ -784,8 +784,8 @@ async def get_favorites(user: User = Depends(require_auth)):
                 unit['building'] = buildings_map.get(unit['building_id'])
                 result.append({
                     'favorite_id': fav['id'],
-                'unit': unit
-            })
+                    'unit': unit
+                })
     
     return result
 

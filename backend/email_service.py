@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 
 # Gmail API configuration
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-CREDENTIALS_FILE = '/app/backend/gmail_credentials.json'
-TOKEN_FILE = '/app/backend/token.pickle'
+# Use relative paths from current file location
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_FILE = os.environ.get('GMAIL_CREDENTIALS_FILE', os.path.join(ROOT_DIR, 'gmail_credentials.json'))
+TOKEN_FILE = os.environ.get('GMAIL_TOKEN_FILE', os.path.join(ROOT_DIR, 'token.pickle'))
 
 
 def get_gmail_service():

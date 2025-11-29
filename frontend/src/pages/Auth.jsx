@@ -16,8 +16,6 @@ const Auth = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [adminEmail] = useState('placesfirm@gmail.com');
-  const [adminPassword] = useState('Checkers080/?');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
 

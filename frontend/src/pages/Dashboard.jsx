@@ -347,6 +347,14 @@ const Dashboard = () => {
           <div className="text-center py-20">
             <div className="text-xl text-slate-400">No apartments found. Try adjusting your filters.</div>
           </div>
+        ) : viewMode === 'map' ? (
+          <div className="mb-8">
+            <ApartmentMap 
+              apartments={units} 
+              center={{ lat: 40.7128, lng: -74.0060 }}
+              zoom={11}
+            />
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="units-grid">
             {units.map((unit) => (

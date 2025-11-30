@@ -224,7 +224,7 @@ const Auth = () => {
                     name="password"
                     type="password"
                     placeholder="••••••••"
-                    defaultValue={isAdminMode ? adminPassword : ''}
+                    defaultValue=""
                     required
                     data-testid="login-password-input"
                     className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"

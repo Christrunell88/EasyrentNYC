@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [favorites, setFavorites] = useState(new Set());
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
   
   // Filters
   const [bedrooms, setBedrooms] = useState('');

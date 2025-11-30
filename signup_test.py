@@ -101,7 +101,7 @@ class SignupTester:
             self.log_test("Valid Signup Test", False, "No response received")
             return False
         
-        if response.status_code == 201:
+        if response.status_code == 200:  # Backend returns 200, not 201
             try:
                 result = response.json()
                 if 'user' in result and result['user'].get('email') == self.test_email:

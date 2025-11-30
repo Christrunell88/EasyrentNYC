@@ -1,6 +1,6 @@
 """
 Geocoding service to convert addresses to latitude/longitude coordinates.
-Uses Nominatim (OpenStreetMap) API - free and no API key required.
+Uses Google Geocoding API with the Maps API key.
 """
 
 import asyncio
@@ -8,17 +8,18 @@ import aiohttp
 import logging
 from typing import Optional, Tuple
 from urllib.parse import quote
+import os
 
 logger = logging.getLogger(__name__)
 
-# Nominatim API endpoint (free, no API key needed)
-NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+# Google Geocoding API endpoint
+GOOGLE_GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
 
-# Rate limiting: Nominatim requires max 1 request per second
-RATE_LIMIT_DELAY = 1.0  # seconds between requests
+# Get API key from environment
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', 'AIzaSyC7JZ2Lgd1DwV04BtmrVDkWL6rdc-PHkVQ')
 
-# User agent (required by Nominatim)
-USER_AGENT = "NoFeesApts/1.0 (apartment listing platform)"
+# Rate limiting: Google allows 50 requests per second
+RATE_LIMIT_DELAY = 0.05  # seconds between requests
 
 
 async def geocode_address(

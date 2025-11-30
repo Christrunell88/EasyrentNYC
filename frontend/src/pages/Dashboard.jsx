@@ -311,11 +311,32 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Results */}
-        <div className="mb-6">
+        {/* Results Header with View Toggle */}
+        <div className="mb-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-slate-100">
             Available Apartments <span className="warm-gradient-text">({units.length})</span>
           </h2>
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setViewMode('list')}
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              className={viewMode === 'list' ? 'warm-gradient text-slate-900' : 'border-amber-500/30 text-amber-500 hover:bg-slate-700'}
+            >
+              <Building2 className="w-4 h-4 mr-2" />
+              List View
+            </Button>
+            <Button
+              onClick={() => setViewMode('map')}
+              variant={viewMode === 'map' ? 'default' : 'outline'}
+              size="sm"
+              className={viewMode === 'map' ? 'warm-gradient text-slate-900' : 'border-amber-500/30 text-amber-500 hover:bg-slate-700'}
+            >
+              <Map className="w-4 h-4 mr-2" />
+              Map View
+            </Button>
+          </div>
         </div>
 
         {loading ? (

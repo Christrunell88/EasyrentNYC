@@ -77,6 +77,8 @@ class Building(BaseModel):
     state: str
     zip_code: str
     source_url: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     last_crawled: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

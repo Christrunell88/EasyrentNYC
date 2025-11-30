@@ -187,13 +187,16 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/pages/AdminPanel.jsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "CRITICAL FAILURE: Admin panel completely inaccessible due to React application not loading on production site. JavaScript bundle (/static/js/main.b379d820.js) exists and contains React code but fails to execute. Symptoms: 'You need to enable JavaScript to run this app' message, React/ReactDOM undefined, no component rendering. Admin routes redirect correctly (/admin -> /auth) but auth page non-functional. Admin login impossible - no working form elements. This affects entire application, not just admin panel. ROOT CAUSE: JavaScript execution failure on live site - possible CSP, build, or deployment issue."
+      - working: false
+        agent: "testing"
+        comment: "URGENT ADMIN LOGIN TESTING COMPLETED: React application is now loading correctly (major improvement), admin login form is functional and displays properly. CRITICAL ISSUE IDENTIFIED: Admin login fails due to backend URL mismatch and CORS configuration. FINDINGS: ✅ React app loads successfully, ✅ Admin login form renders and accepts input, ✅ Form submission works (POST request made), ❌ Login request goes to wrong backend URL (https://direct-rent-nyc.emergent.host/api/auth/login), ❌ CORS error: 'Access to XMLHttpRequest blocked by CORS policy: No Access-Control-Allow-Origin header present', ❌ Network request fails with net::ERR_FAILED. ROOT CAUSE: Production frontend configured with incorrect backend URL. The frontend should use https://direct-rent-nyc.preview.emergentagent.com but is making requests to https://direct-rent-nyc.emergent.host. SOLUTION NEEDED: Update production frontend environment variables to use correct backend URL OR configure CORS on the emergent.host proxy to allow https://nofeesapts.com origin."
 
 metadata:
   created_by: "main_agent"

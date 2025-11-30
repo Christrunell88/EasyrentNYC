@@ -202,8 +202,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Admin panel access and functionality"
+  stuck_tasks:
+    - "Admin panel access and functionality"
   test_all: false
   test_priority: "high_first"
 

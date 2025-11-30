@@ -166,13 +166,17 @@ async def batch_geocode_buildings(buildings: list, batch_size: int = 10) -> dict
 if __name__ == "__main__":
     # Test geocoding
     async def test():
-        # Test address
+        # Test address - Mercedes House
         coords = await geocode_address(
-            address="350 West 42nd Street",
+            address="550 W 54th Street",
             city="New York",
             state="NY",
-            zip_code="10036"
+            zip_code="10019"
         )
         print(f"Test result: {coords}")
+        
+        if coords:
+            print(f"Latitude: {coords[0]}")
+            print(f"Longitude: {coords[1]}")
     
     asyncio.run(test())

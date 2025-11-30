@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings, Eye, Share2 } from 'lucide-react';
+import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings, Eye, Share2, Map } from 'lucide-react';
 import Logo from '@/components/Logo';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
+import ApartmentMap from '@/components/ApartmentMap';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const Dashboard = () => {

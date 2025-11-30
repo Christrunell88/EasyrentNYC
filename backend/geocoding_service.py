@@ -29,7 +29,7 @@ async def geocode_address(
     zip_code: str = None
 ) -> Optional[Tuple[float, float]]:
     """
-    Geocode an address to get latitude and longitude.
+    Geocode an address to get latitude and longitude using Google Geocoding API.
     
     Args:
         address: Street address
@@ -56,23 +56,17 @@ async def geocode_address(
         # Add rate limiting delay
         await asyncio.sleep(RATE_LIMIT_DELAY)
         
-        # Make request to Nominatim
+        # Make request to Google Geocoding API
         params = {
-            "q": full_address,
-            "format": "json",
-            "limit": 1,
-            "countrycodes": "us"  # Limit to United States
-        }
-        
-        headers = {
-            "User-Agent": USER_AGENT
+            "address": full_address,
+            "key": GOOGLE_MAPS_API_KEY,
+            "region": "us"  # Bias results to United States
         }
         
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                NOMINATIM_URL, 
-                params=params, 
-                headers=headers,
+                GOOGLE_GEOCODING_URL, 
+                params=params,
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:
                 
@@ -82,17 +76,22 @@ async def geocode_address(
                 
                 data = await response.json()
                 
-                if not data or len(data) == 0:
+                if data.get("status") != "OK":
+                    logger.warning(f"Geocoding status {data.get('status')} for: {full_address}")
+                    return None
+                
+                if not data.get("results"):
                     logger.warning(f"No geocoding results for: {full_address}")
                     return None
                 
                 # Get first result
-                result = data[0]
-                lat = float(result["lat"])
-                lon = float(result["lon"])
+                result = data["results"][0]
+                location = result["geometry"]["location"]
+                lat = float(location["lat"])
+                lng = float(location["lng"])
                 
-                logger.info(f"✅ Geocoded: {full_address} -> ({lat}, {lon})")
-                return (lat, lon)
+                logger.info(f"✅ Geocoded: {full_address} -> ({lat}, {lng})")
+                return (lat, lng)
                 
     except asyncio.TimeoutError:
         logger.error(f"Geocoding timeout for: {full_address}")

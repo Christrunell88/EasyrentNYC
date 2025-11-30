@@ -211,7 +211,7 @@ const Auth = () => {
                     name="email"
                     type="email"
                     placeholder="you@example.com"
-                    defaultValue={isAdminMode ? adminEmail : ''}
+                    defaultValue=""
                     required
                     data-testid="login-email-input"
                     className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"

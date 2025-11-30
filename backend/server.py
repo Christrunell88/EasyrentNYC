@@ -982,7 +982,7 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
             </div>
             
             <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                Browse more no-fee apartments in NYC and Northern New Jersey at <a href="https://direct-rent-nyc.preview.emergentagent.com" style="color: #f59e0b;">NoFeesApts.com</a>
+                Browse more no-fee apartments in NYC and Northern New Jersey at <a href="{frontend_url}" style="color: #f59e0b;">NoFeesApts.com</a>
             </p>
         </div>
         

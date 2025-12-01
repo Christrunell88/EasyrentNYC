@@ -75,66 +75,44 @@ const Auth = () => {
 
   const handleEmailSignup = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const formData = new FormData(e.target);
-    const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      password: formData.get('password')
-    };
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const password = formData.get('password');
 
-    try {
-      await axios.post(`${API}/auth/signup`, data, { withCredentials: true });
+    const result = await signup(email, password, name);
+
+    if (result.success) {
       toast.success('Account created successfully!');
-      
-      // Track signup event
       trackSignup('email');
       
-      // Check if there's a redirect destination stored
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Signup failed');
-    } finally {
-      setIsLoading(false);
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectPath || '/dashboard');
+    } else {
+      toast.error(result.error || 'Signup failed');
     }
   };
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const formData = new FormData(e.target);
-    const data = {
-      email: formData.get('email'),
-      password: formData.get('password')
-    };
+    const email = formData.get('email');
+    const password = formData.get('password');
 
-    try {
-      await axios.post(`${API}/auth/login`, data, { withCredentials: true });
+    const result = await login(email, password);
+
+    if (result.success) {
       toast.success('Login successful!');
-      
-      // Track login event
       trackLogin('email');
       
-      // Check if there's a redirect destination stored
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
-    } finally {
-      setIsLoading(false);
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectPath || '/dashboard');
+    } else {
+      toast.error(result.error || 'Login failed');
     }
   };
 

@@ -143,12 +143,30 @@ const SessionHandler = () => {
   );
 };
 
+// Page view tracker component
+const PageViewTracker = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Track page view on route change
+    trackPageView(location.pathname + location.search, document.title);
+  }, [location]);
+  
+  return null;
+};
+
 function App() {
+  // Initialize Google Analytics on app load
+  useEffect(() => {
+    initGA();
+  }, []);
+  
   return (
     <HelmetProvider>
       <div className="App">
         <Toaster position="top-center" richColors />
         <BrowserRouter>
+        <PageViewTracker />
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />

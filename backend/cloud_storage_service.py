@@ -123,14 +123,15 @@ async def upload_apartment_image(
             blob_path = f"{folder}/{image_id}_{size_name}.jpg"
             blob = bucket.blob(blob_path)
             
-            # Upload
-            blob.upload_from_file(optimized, content_type='image/jpeg')
-            
-            # Make public
-            blob.make_public()
+            # Upload with public access (using predefinedAcl for uniform bucket-level access)
+            blob.upload_from_file(
+                optimized, 
+                content_type='image/jpeg',
+                predefined_acl='publicRead'
+            )
             
             # Get public URL
-            urls[size_name] = blob.public_url
+            urls[size_name] = f"https://storage.googleapis.com/{BUCKET_NAME}/{blob_path}"
             
             logger.info(f"✅ Uploaded {size_name}: {blob_path}")
         

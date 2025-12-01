@@ -419,9 +419,28 @@ class ProductionAuthTester:
         """Test logout functionality"""
         print(f"\n🚪 Testing Logout")
         
+        # Test logout with signup user token
+        if 'signup' in self.session_tokens:
+            response = self.make_request('POST', 'auth/logout', session_token=self.session_tokens["signup"])
+            
+            if response and response.status_code == 200:
+                try:
+                    result = response.json()
+                    if 'message' in result:
+                        self.log_test("Signup User Logout", True, f"Logout successful: {result['message']}", response.status_code)
+                        # Remove the token since we logged out
+                        del self.session_tokens['signup']
+                        return True
+                    else:
+                        self.log_test("Signup User Logout", False, "No message in response", response.status_code, result)
+                except json.JSONDecodeError:
+                    self.log_test("Signup User Logout", False, "Invalid JSON response", response.status_code, response.text[:200])
+            else:
+                self.log_test("Signup User Logout", False, "Logout failed", response.status_code if response else None)
+        
+        # Test logout with regular user token if available
         if 'user' in self.session_tokens:
-            headers = {'Authorization': f'Bearer {self.session_tokens["user"]}'}
-            response = self.make_request('POST', 'auth/logout', headers=headers)
+            response = self.make_request('POST', 'auth/logout', session_token=self.session_tokens["user"])
             
             if response and response.status_code == 200:
                 try:
@@ -437,8 +456,9 @@ class ProductionAuthTester:
                     self.log_test("User Logout", False, "Invalid JSON response", response.status_code, response.text[:200])
             else:
                 self.log_test("User Logout", False, "Logout failed", response.status_code if response else None)
-        else:
-            self.log_test("User Logout", False, "No user session token available")
+        
+        if 'signup' not in self.session_tokens and 'user' not in self.session_tokens:
+            self.log_test("Logout", False, "No user session tokens available for logout test")
         
         return False
 

@@ -139,6 +139,9 @@ const Auth = () => {
       await axios.post(`${API}/auth/login`, data, { withCredentials: true });
       toast.success('Login successful!');
       
+      // Track login event
+      trackLogin('email');
+      
       // Check if there's a redirect destination stored
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {

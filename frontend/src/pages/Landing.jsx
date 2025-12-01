@@ -471,6 +471,18 @@ const Landing = () => {
                   Browse Apartments
                 </button>
                 <button
+                  onClick={() => navigate('/blog')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  Blog & Guides
+                </button>
+                <button
+                  onClick={() => navigate('/faq')}
+                  className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
+                >
+                  FAQ
+                </button>
+                <button
                   onClick={() => navigate('/auth')}
                   className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
                 >

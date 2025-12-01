@@ -33,7 +33,15 @@ const UnitDetails = () => {
   const fetchUnit = async () => {
     try {
       const response = await axios.get(`${API}/units/${id}`, { withCredentials: true });
-      setUnit(response.data);
+      const unitData = response.data;
+      setUnit(unitData);
+      
+      // Track apartment view
+      trackApartmentView(
+        unitData.id, 
+        unitData.building?.name || 'Unknown Building',
+        unitData.rent
+      );
     } catch (error) {
       console.error('Error fetching unit:', error);
       toast.error('Failed to load apartment');

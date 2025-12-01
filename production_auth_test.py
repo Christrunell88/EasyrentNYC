@@ -59,7 +59,7 @@ class ProductionAuthTester:
             "response_data": response_data
         })
 
-    def make_request(self, method, endpoint, data=None, headers=None, cookies=None):
+    def make_request(self, method, endpoint, data=None, headers=None, cookies=None, session_token=None):
         """Make HTTP request with proper error handling"""
         url = f"{self.api_url}/{endpoint}"
         
@@ -67,20 +67,30 @@ class ProductionAuthTester:
         req_headers = {
             'Content-Type': 'application/json',
             'Origin': self.production_url,
-            'Referer': f"{self.production_url}/auth"
+            'Referer': f"{self.production_url}/auth",
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         if headers:
             req_headers.update(headers)
         
+        # Add session token if provided
+        if session_token:
+            req_headers['Authorization'] = f'Bearer {session_token}'
+        
+        # Create session for cookie handling
+        session = requests.Session()
+        if cookies:
+            session.cookies.update(cookies)
+        
         try:
             if method == 'GET':
-                response = requests.get(url, headers=req_headers, cookies=cookies, timeout=15)
+                response = session.get(url, headers=req_headers, timeout=15)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=req_headers, cookies=cookies, timeout=15)
+                response = session.post(url, json=data, headers=req_headers, timeout=15)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=req_headers, cookies=cookies, timeout=15)
+                response = session.put(url, json=data, headers=req_headers, timeout=15)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=req_headers, cookies=cookies, timeout=15)
+                response = session.delete(url, headers=req_headers, timeout=15)
             
             return response
         except requests.exceptions.Timeout:

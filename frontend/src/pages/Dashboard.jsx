@@ -150,6 +150,12 @@ const Dashboard = () => {
         await axios.post(`${API}/favorites/${unitId}`, {}, { withCredentials: true });
         setFavorites(prev => new Set(prev).add(unitId));
         toast.success('Added to favorites');
+        
+        // Track favorite addition
+        const unit = units.find(u => u.id === unitId);
+        if (unit) {
+          trackApartmentFavorite(unitId, unit.building?.name || 'Unknown Building');
+        }
       }
     } catch (error) {
       toast.error('Failed to update favorites');

@@ -88,6 +88,9 @@ const Auth = () => {
   };
 
   const handleGoogleLogin = () => {
+    // Track Google OAuth attempt
+    trackLogin('google');
+    
     const redirectUrl = `${window.location.origin}/auth`;
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };

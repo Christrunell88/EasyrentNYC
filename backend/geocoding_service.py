@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 # Google Geocoding API endpoint
 GOOGLE_GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
 
-# Get API key from environment
-GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', 'AIzaSyC7JZ2Lgd1DwV04BtmrVDkWL6rdc-PHkVQ')
+# Get API key from environment (use separate backend key for geocoding)
+GOOGLE_GEOCODING_API_KEY = os.environ.get('GOOGLE_GEOCODING_API_KEY', 'AIzaSyBrQhCg03SDWgvQLXF820CMnWycF709RxQ')
 
 # Rate limiting: Google allows 50 requests per second
 RATE_LIMIT_DELAY = 0.05  # seconds between requests

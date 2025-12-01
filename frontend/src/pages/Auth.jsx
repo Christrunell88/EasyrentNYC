@@ -107,6 +107,9 @@ const Auth = () => {
       await axios.post(`${API}/auth/signup`, data, { withCredentials: true });
       toast.success('Account created successfully!');
       
+      // Track signup event
+      trackSignup('email');
+      
       // Check if there's a redirect destination stored
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {

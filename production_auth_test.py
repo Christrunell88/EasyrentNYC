@@ -278,6 +278,49 @@ class ProductionAuthTester:
             self.log_test("User Signup", False, f"Signup failed. {cors_details}", response.status_code, error_data)
             return False
 
+    def test_signup_user_login(self):
+        """Test login with the user we just created via signup"""
+        print(f"\n🔑 Testing Login with Signup User: {self.test_signup_email}")
+        
+        data = {
+            "email": self.test_signup_email,
+            "password": self.test_signup_password
+        }
+        
+        response = self.make_request('POST', 'auth/login', data)
+        
+        if response:
+            cors_headers = self.check_cors_headers(response)
+            cors_details = f"CORS Headers: {cors_headers}"
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if 'session_token' in result and 'user' in result:
+                        self.session_tokens['signup_login'] = result['session_token']
+                        cookies = response.cookies
+                        session_cookie = cookies.get('session_token')
+                        
+                        details = f"Signup user login successful. Session token received. Cookie set: {bool(session_cookie)}. {cors_details}"
+                        self.log_test("Signup User Login", True, details, response.status_code, result)
+                        return True
+                    else:
+                        self.log_test("Signup User Login", False, f"Missing session_token or user in response. {cors_details}", response.status_code, result)
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Signup User Login", False, f"Invalid JSON response. {cors_details}", response.status_code, response.text[:200])
+                    return False
+            else:
+                try:
+                    error_data = response.json()
+                except:
+                    error_data = response.text[:200]
+                self.log_test("Signup User Login", False, f"Login failed. {cors_details}", response.status_code, error_data)
+                return False
+        else:
+            self.log_test("Signup User Login", False, "No response received")
+            return False
+
     def test_session_validation(self):
         """Test session validation with /auth/me"""
         print(f"\n🔍 Testing Session Validation")

@@ -186,6 +186,18 @@ frontend:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED: Dashboard image filtering is working perfectly. Successfully logged in with placesfirm@gmail.com and verified 73 units displayed (close to expected ~76). ZERO 'Pics Coming Soon' overlays found. ZERO Unsplash placeholder images found. All 9 first units have real apartment photos from legitimate sources (Mercedes House, Manhattan Skyline, LeaseStar CDN, Nestio). Filtering logic in hasRealImages() and diversifyListings() functions is working correctly - only units with real images are displayed. Screenshots confirm high-quality apartment photos throughout the dashboard."
 
+  - task: "Google Maps integration on dashboard Map View"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/ApartmentMap.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL GOOGLE MAPS FAILURE IDENTIFIED: Map View button exists and is clickable, but Google Maps API returns AuthFailure error. Error message displayed: 'Error: AuthFailure - A problem with your API key prevents the map from rendering correctly. Please make sure the value of the APIProvider.apiKey prop is correct.' Map container renders with proper dimensions (1216x600px) but shows error instead of map. Current API key (AIzaSyC7JZ2Lgd1DwV04BtmrVDkWL6rdc-PHkVQ) is invalid, expired, or improperly configured. No Google Maps API requests detected in network tab. SOLUTION NEEDED: 1) Create new Google Maps API key in Google Cloud Console, 2) Enable Maps JavaScript API, 3) Configure domain restrictions for https://nofeesapts.com, 4) Ensure billing is enabled, 5) Update REACT_APP_GOOGLE_MAPS_API_KEY environment variable. This blocks the entire Map View feature critical for user experience."
+
   - task: "Admin panel access and functionality"
     implemented: true
     working: false

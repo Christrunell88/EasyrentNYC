@@ -65,36 +65,28 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 const SessionHandler = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const processSession = useAuthStore((state) => state.processSession);
   
   useEffect(() => {
-    const processSession = async () => {
+    const handleSession = async () => {
       const hash = location.hash;
       const params = new URLSearchParams(hash.substring(1));
       const sessionId = params.get('session_id');
       
       if (sessionId) {
-        try {
-          await axios.post(
-            `${API}/auth/session`,
-            {},
-            {
-              headers: { 'X-Session-ID': sessionId },
-              withCredentials: true
-            }
-          );
-          
-          // Clear hash and redirect to dashboard
+        const result = await processSession(sessionId);
+        
+        if (result.success) {
           window.location.href = '/dashboard';
-        } catch (error) {
-          console.error('Session processing error:', error);
-          toast.error('Authentication failed');
+        } else {
+          toast.error(result.error || 'Authentication failed');
           navigate('/auth');
         }
       }
     };
     
-    processSession();
-  }, [location, navigate]);
+    handleSession();
+  }, [location, navigate, processSession]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

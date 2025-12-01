@@ -196,10 +196,10 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
-                  disabled={isLoading}
+                  disabled={loading}
                   data-testid="email-login-btn"
                 >
-                  {isLoading ? 'Logging in...' : (isAdminMode ? 'Admin Login' : 'Login with Email')}
+                  {loading ? 'Logging in...' : (isAdminMode ? 'Admin Login' : 'Login with Email')}
                 </Button>
                 
                 {!isAdminMode && (
@@ -298,10 +298,10 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
-                  disabled={isLoading}
+                  disabled={loading}
                   data-testid="email-signup-btn"
                 >
-                  {isLoading ? 'Creating account...' : 'Sign Up with Email'}
+                  {loading ? 'Creating account...' : 'Sign Up with Email'}
                 </Button>
               </form>
 
@@ -386,10 +386,10 @@ const Auth = () => {
               </Button>
               <Button
                 onClick={handleForgotPassword}
-                disabled={isLoading}
+                disabled={loading}
                 className="flex-1 warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
               >
-                {isLoading ? 'Sending...' : 'Send Reset Link'}
+                {loading ? 'Sending...' : 'Send Reset Link'}
               </Button>
             </div>
           </div>

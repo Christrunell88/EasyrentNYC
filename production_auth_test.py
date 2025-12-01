@@ -59,8 +59,8 @@ class ProductionAuthTester:
             "response_data": response_data
         })
 
-    def make_request(self, method, endpoint, data=None, headers=None, cookies=None, session_token=None):
-        """Make HTTP request with proper error handling"""
+    def make_request(self, method, endpoint, data=None, headers=None, cookies=None, session_token=None, retries=2):
+        """Make HTTP request with proper error handling and retry logic"""
         url = f"{self.api_url}/{endpoint}"
         
         # Set up headers
@@ -77,34 +77,53 @@ class ProductionAuthTester:
         if session_token:
             req_headers['Authorization'] = f'Bearer {session_token}'
         
-        # Create session for cookie handling
-        session = requests.Session()
-        if cookies:
-            session.cookies.update(cookies)
+        for attempt in range(retries + 1):
+            try:
+                # Create session for cookie handling
+                session = requests.Session()
+                if cookies:
+                    session.cookies.update(cookies)
+                
+                if method == 'GET':
+                    response = session.get(url, headers=req_headers, timeout=20)
+                elif method == 'POST':
+                    response = session.post(url, json=data, headers=req_headers, timeout=20)
+                elif method == 'PUT':
+                    response = session.put(url, json=data, headers=req_headers, timeout=20)
+                elif method == 'DELETE':
+                    response = session.delete(url, headers=req_headers, timeout=20)
+                
+                return response
+                
+            except requests.exceptions.Timeout:
+                if attempt < retries:
+                    print(f"⏰ Timeout for {method} {url} (attempt {attempt + 1}/{retries + 1}), retrying...")
+                    time.sleep(2)
+                    continue
+                else:
+                    print(f"⏰ Final timeout for {method} {url}")
+                    return None
+            except requests.exceptions.ConnectionError as e:
+                if attempt < retries:
+                    print(f"🔌 Connection error for {method} {url} (attempt {attempt + 1}/{retries + 1}), retrying...")
+                    time.sleep(2)
+                    continue
+                else:
+                    print(f"🔌 Final connection error for {method} {url}: {e}")
+                    return None
+            except requests.exceptions.RequestException as e:
+                if attempt < retries:
+                    print(f"📡 Request error for {method} {url} (attempt {attempt + 1}/{retries + 1}), retrying...")
+                    time.sleep(2)
+                    continue
+                else:
+                    print(f"📡 Final request error for {method} {url}: {e}")
+                    return None
+            except Exception as e:
+                print(f"💥 Unexpected error for {method} {url}: {e}")
+                return None
         
-        try:
-            if method == 'GET':
-                response = session.get(url, headers=req_headers, timeout=15)
-            elif method == 'POST':
-                response = session.post(url, json=data, headers=req_headers, timeout=15)
-            elif method == 'PUT':
-                response = session.put(url, json=data, headers=req_headers, timeout=15)
-            elif method == 'DELETE':
-                response = session.delete(url, headers=req_headers, timeout=15)
-            
-            return response
-        except requests.exceptions.Timeout:
-            print(f"⏰ Timeout for {method} {url}")
-            return None
-        except requests.exceptions.ConnectionError as e:
-            print(f"🔌 Connection error for {method} {url}: {e}")
-            return None
-        except requests.exceptions.RequestException as e:
-            print(f"📡 Request error for {method} {url}: {e}")
-            return None
-        except Exception as e:
-            print(f"💥 Unexpected error for {method} {url}: {e}")
-            return None
+        return None
 
     def check_cors_headers(self, response):
         """Check if CORS headers are properly set"""

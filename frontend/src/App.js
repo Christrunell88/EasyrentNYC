@@ -170,9 +170,8 @@ function App() {
               }
             />
           </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </div>
+        </BrowserRouter>
+      </div>
     </HelmetProvider>
   );
 }

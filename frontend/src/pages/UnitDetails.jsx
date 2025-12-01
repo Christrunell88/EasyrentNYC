@@ -14,6 +14,7 @@ import { ArrowLeft, Building2, BedDouble, Bath, DollarSign, Heart, MapPin, Calen
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
+import { trackApartmentView, trackContactForm } from '../utils/analytics';
 
 const UnitDetails = () => {
   const { id } = useParams();

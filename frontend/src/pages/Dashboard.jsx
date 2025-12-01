@@ -26,6 +26,13 @@ const Dashboard = () => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
   
+  // Track map view when it changes
+  useEffect(() => {
+    if (viewMode === 'map') {
+      trackMapView();
+    }
+  }, [viewMode]);
+  
   // Filters
   const [bedrooms, setBedrooms] = useState('');
   const [minRent, setMinRent] = useState('');

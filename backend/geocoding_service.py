@@ -59,7 +59,7 @@ async def geocode_address(
         # Make request to Google Geocoding API
         params = {
             "address": full_address,
-            "key": GOOGLE_MAPS_API_KEY,
+            "key": GOOGLE_GEOCODING_API_KEY,
             "region": "us"  # Bias results to United States
         }
         

@@ -709,13 +709,23 @@ async def crawl_building(building_id: str):
             'unit_number': unit_data['unit_number']
         })
         
+        # Generate unit ID (use existing or create new)
+        unit_id = existing['id'] if existing else str(__import__('uuid').uuid4())
+        
+        # Process images (upload to GCS if enabled)
+        processed_images = await process_images_for_unit(
+            unit_data['images'],
+            building_id,
+            unit_id
+        )
+        
         if existing:
             # Update existing unit
             update_data = {
                 'rent': unit_data['rent'],
                 'bedrooms': unit_data['bedrooms'],
                 'bathrooms': unit_data['bathrooms'],
-                'images': unit_data['images'],
+                'images': processed_images,
                 'amenities': unit_data['amenities'],
                 'description': unit_data.get('description', ''),
                 'is_available': True,
@@ -727,15 +737,14 @@ async def crawl_building(building_id: str):
             )
         else:
             # Create new unit
-            import uuid
             new_unit = {
-                'id': str(uuid.uuid4()),
+                'id': unit_id,
                 'building_id': building_id,
                 'unit_number': unit_data['unit_number'],
                 'rent': unit_data['rent'],
                 'bedrooms': unit_data['bedrooms'],
                 'bathrooms': unit_data['bathrooms'],
-                'images': unit_data['images'],
+                'images': processed_images,
                 'amenities': unit_data['amenities'],
                 'description': unit_data.get('description', ''),
                 'is_available': True,

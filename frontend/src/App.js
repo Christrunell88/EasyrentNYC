@@ -12,6 +12,7 @@ import UnitDetails from './pages/UnitDetails';
 import Favorites from './pages/Favorites';
 import AdminPanel from './pages/AdminPanel';
 import LocationPage from './pages/LocationPage';
+import { initGA, trackPageView } from './utils/analytics';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;

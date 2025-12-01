@@ -209,8 +209,10 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Authentication endpoints on live site"
     - "Admin panel access and functionality"
   stuck_tasks:
+    - "Authentication endpoints on live site"
     - "Admin panel access and functionality"
   test_all: false
   test_priority: "high_first"

@@ -519,6 +519,9 @@ class ProductionAuthTester:
         # Test signup functionality
         self.test_user_signup()
         
+        # Test login with signup user
+        self.test_signup_user_login()
+        
         # Test session management
         self.test_session_validation()
         self.test_session_endpoint()

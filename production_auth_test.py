@@ -565,11 +565,29 @@ class ProductionAuthTester:
         else:
             self.log_test("Protected Route (/admin/users) - No Auth", False, "No response received")
 
+    def test_connectivity(self):
+        """Test basic connectivity to the API"""
+        print(f"\n🌐 Testing Basic Connectivity")
+        
+        # Test a simple endpoint that should always work
+        response = self.make_request('GET', 'units?limit=1')
+        if response and response.status_code == 200:
+            self.log_test("Basic Connectivity", True, "API is accessible", response.status_code)
+            return True
+        else:
+            self.log_test("Basic Connectivity", False, "Cannot reach API", response.status_code if response else None)
+            return False
+
     def run_comprehensive_auth_tests(self):
         """Run all authentication tests"""
         print("🚀 Starting Comprehensive Production Authentication Tests")
         print(f"🌐 Testing against: {self.production_url}")
         print("=" * 80)
+        
+        # Test basic connectivity first
+        if not self.test_connectivity():
+            print("❌ Cannot establish basic connectivity to API. Aborting tests.")
+            return 1
         
         # Test protected routes without auth first
         self.test_protected_routes_without_auth()

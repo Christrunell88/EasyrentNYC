@@ -122,7 +122,6 @@ const Auth = () => {
       return;
     }
 
-    setIsLoading(true);
     try {
       await axios.post(`${API}/auth/forgot-password`, { email: forgotEmail });
       toast.success('Password reset link sent! Check your email.');
@@ -130,12 +129,10 @@ const Auth = () => {
       setForgotEmail('');
     } catch (error) {
       toast.error('Failed to send reset link');
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-xl text-gray-600">Loading...</div>

@@ -11,14 +11,21 @@ import axios from 'axios';
 import { API } from '../App';
 import { Building2 } from 'lucide-react';
 import { trackLogin, trackSignup } from '../utils/analytics';
+import useAuthStore from '../store/authStore';
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
+
+  // Zustand store actions
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+  const login = useAuthStore((state) => state.login);
+  const signup = useAuthStore((state) => state.signup);
+  const processSession = useAuthStore((state) => state.processSession);
 
   // Process OAuth session_id from URL and check for admin mode
   useEffect(() => {
@@ -33,57 +40,28 @@ const Auth = () => {
       const params = new URLSearchParams(hash.substring(1));
       const sessionId = params.get('session_id');
       if (sessionId) {
-        processOAuthSession(sessionId);
+        handleOAuthSession(sessionId);
       }
-    } else {
-      // Check if already authenticated
-      checkAuth();
-    }
-  }, [location]);
-
-  const checkAuth = async () => {
-    try {
-      await axios.get(`${API}/auth/me`, { withCredentials: true });
-      
-      // Check if there's a redirect destination stored
+    } else if (user) {
+      // Already authenticated, redirect
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      // Not authenticated, stay on auth page
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectPath || '/dashboard');
     }
-  };
+  }, [location, user, navigate]);
 
-  const processOAuthSession = async (sessionId) => {
-    setIsLoading(true);
-    try {
-      await axios.post(
-        `${API}/auth/session`,
-        {},
-        {
-          headers: { 'X-Session-ID': sessionId },
-          withCredentials: true
-        }
-      );
+  const handleOAuthSession = async (sessionId) => {
+    const result = await processSession(sessionId);
+    
+    if (result.success) {
       toast.success('Login successful!');
+      trackLogin('google');
       
-      // Check if there's a redirect destination stored
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      console.error('OAuth error:', error);
-      toast.error('Authentication failed');
-    } finally {
-      setIsLoading(false);
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectPath || '/dashboard');
+    } else {
+      toast.error(result.error || 'Authentication failed');
     }
   };
 

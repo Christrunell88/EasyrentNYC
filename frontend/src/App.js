@@ -140,6 +140,9 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/session" element={<SessionHandler />} />
             <Route path="/location/:location" element={<LocationPage />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route
               path="/dashboard"
               element={

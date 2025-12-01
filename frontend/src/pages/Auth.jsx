@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../App';
 import { Building2 } from 'lucide-react';
+import { trackLogin, trackSignup } from '../utils/analytics';
 
 const Auth = () => {
   const navigate = useNavigate();

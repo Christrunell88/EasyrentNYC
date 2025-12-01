@@ -384,10 +384,8 @@ class ProductionAuthTester:
             self.log_test("Admin Endpoints", False, "No admin session token available")
             return False
         
-        headers = {'Authorization': f'Bearer {self.session_tokens["admin"]}'}
-        
         # Test admin users endpoint
-        response = self.make_request('GET', 'admin/users', headers=headers)
+        response = self.make_request('GET', 'admin/users', session_token=self.session_tokens["admin"])
         if response and response.status_code == 200:
             try:
                 users = response.json()
@@ -401,7 +399,7 @@ class ProductionAuthTester:
             self.log_test("Admin Get Users", False, "Failed to get users", response.status_code if response else None)
         
         # Test admin stats endpoint
-        response = self.make_request('GET', 'admin/stats', headers=headers)
+        response = self.make_request('GET', 'admin/stats', session_token=self.session_tokens["admin"])
         if response and response.status_code == 200:
             try:
                 stats = response.json()

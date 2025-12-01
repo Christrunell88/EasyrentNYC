@@ -468,17 +468,37 @@ class ProductionAuthTester:
         
         # Test /auth/me without token
         response = self.make_request('GET', 'auth/me')
-        if response and response.status_code == 401:
-            self.log_test("Protected Route (/auth/me) - No Auth", True, "Correctly requires authentication", response.status_code)
+        if response:
+            if response.status_code == 401:
+                try:
+                    result = response.json()
+                    if 'detail' in result and 'authenticated' in result['detail'].lower():
+                        self.log_test("Protected Route (/auth/me) - No Auth", True, "Correctly requires authentication", response.status_code)
+                    else:
+                        self.log_test("Protected Route (/auth/me) - No Auth", True, "Returns 401 as expected", response.status_code, result)
+                except:
+                    self.log_test("Protected Route (/auth/me) - No Auth", True, "Returns 401 as expected", response.status_code)
+            else:
+                self.log_test("Protected Route (/auth/me) - No Auth", False, "Should return 401", response.status_code)
         else:
-            self.log_test("Protected Route (/auth/me) - No Auth", False, "Should require authentication", response.status_code if response else None)
+            self.log_test("Protected Route (/auth/me) - No Auth", False, "No response received")
         
         # Test admin endpoint without token
         response = self.make_request('GET', 'admin/users')
-        if response and response.status_code == 401:
-            self.log_test("Protected Route (/admin/users) - No Auth", True, "Correctly requires authentication", response.status_code)
+        if response:
+            if response.status_code == 401:
+                try:
+                    result = response.json()
+                    if 'detail' in result and 'authenticated' in result['detail'].lower():
+                        self.log_test("Protected Route (/admin/users) - No Auth", True, "Correctly requires authentication", response.status_code)
+                    else:
+                        self.log_test("Protected Route (/admin/users) - No Auth", True, "Returns 401 as expected", response.status_code, result)
+                except:
+                    self.log_test("Protected Route (/admin/users) - No Auth", True, "Returns 401 as expected", response.status_code)
+            else:
+                self.log_test("Protected Route (/admin/users) - No Auth", False, "Should return 401", response.status_code)
         else:
-            self.log_test("Protected Route (/admin/users) - No Auth", False, "Should require authentication", response.status_code if response else None)
+            self.log_test("Protected Route (/admin/users) - No Auth", False, "No response received")
 
     def run_comprehensive_auth_tests(self):
         """Run all authentication tests"""

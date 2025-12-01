@@ -9,6 +9,8 @@ import os
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from pathlib import Path
+import aiohttp
+from cloud_storage_service import upload_apartment_image
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,6 +21,96 @@ logger = logging.getLogger(__name__)
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Toggle for GCS image upload (set to True to use GCS, False to use original URLs)
+USE_GCS_FOR_IMAGES = os.environ.get('USE_GCS_FOR_IMAGES', 'true').lower() == 'true'
+
+
+async def download_and_upload_to_gcs(
+    image_url: str,
+    building_id: str,
+    unit_id: str,
+    session: aiohttp.ClientSession
+) -> str:
+    """
+    Download image from URL and upload to GCS.
+    
+    Args:
+        image_url: Source image URL
+        building_id: Building ID
+        unit_id: Unit ID
+        session: aiohttp session for downloading
+    
+    Returns:
+        GCS public URL or original URL if upload fails
+    """
+    try:
+        # Download image
+        async with session.get(image_url, timeout=aiohttp.ClientTimeout(total=20)) as response:
+            if response.status != 200:
+                logger.warning(f"Failed to download image: HTTP {response.status}")
+                return image_url
+            
+            content_type = response.headers.get('content-type', '')
+            if 'image' not in content_type.lower():
+                logger.warning(f"URL doesn't appear to be an image: {content_type}")
+                return image_url
+            
+            image_bytes = await response.read()
+        
+        # Upload to GCS
+        result = await upload_apartment_image(
+            image_file=image_bytes,
+            building_id=building_id,
+            unit_id=unit_id
+        )
+        
+        # Return medium-sized image URL
+        gcs_url = result['urls']['medium']
+        logger.info(f"✅ Uploaded to GCS: {image_url[:50]}... -> {gcs_url[:50]}...")
+        return gcs_url
+        
+    except Exception as e:
+        logger.warning(f"Failed to upload image to GCS: {str(e)}, keeping original URL")
+        return image_url
+
+
+async def process_images_for_unit(
+    image_urls: List[str],
+    building_id: str,
+    unit_id: str
+) -> List[str]:
+    """
+    Process image URLs: either keep original or upload to GCS.
+    
+    Args:
+        image_urls: List of source image URLs
+        building_id: Building ID
+        unit_id: Unit ID
+    
+    Returns:
+        List of processed image URLs (GCS or original)
+    """
+    if not USE_GCS_FOR_IMAGES or not image_urls:
+        return image_urls
+    
+    processed_urls = []
+    
+    # Create session for downloading
+    async with aiohttp.ClientSession() as session:
+        for image_url in image_urls:
+            # Skip if already a GCS URL
+            if 'storage.googleapis.com' in image_url or 'nofeesapts-images' in image_url:
+                processed_urls.append(image_url)
+                continue
+            
+            # Download and upload to GCS
+            gcs_url = await download_and_upload_to_gcs(
+                image_url, building_id, unit_id, session
+            )
+            processed_urls.append(gcs_url)
+    
+    return processed_urls
 
 async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     """Crawl fortysixfifty.com - handles iframe-based availability widget"""

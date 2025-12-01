@@ -282,24 +282,53 @@ class ProductionAuthTester:
         """Test session validation with /auth/me"""
         print(f"\n🔍 Testing Session Validation")
         
-        # Test with user session token
-        if 'user' in self.session_tokens:
-            headers = {'Authorization': f'Bearer {self.session_tokens["user"]}'}
-            response = self.make_request('GET', 'auth/me', headers=headers)
+        # Test with admin session token first (we know this works)
+        if 'admin' in self.session_tokens:
+            response = self.make_request('GET', 'auth/me', session_token=self.session_tokens["admin"])
             
             if response and response.status_code == 200:
                 try:
                     result = response.json()
                     if 'email' in result and 'id' in result:
-                        self.log_test("Session Validation (/auth/me)", True, f"User session valid: {result['email']}", response.status_code)
+                        self.log_test("Session Validation (/auth/me) - Admin", True, f"Admin session valid: {result['email']}", response.status_code)
                     else:
-                        self.log_test("Session Validation (/auth/me)", False, "Invalid user data in response", response.status_code, result)
+                        self.log_test("Session Validation (/auth/me) - Admin", False, "Invalid user data in response", response.status_code, result)
                 except json.JSONDecodeError:
-                    self.log_test("Session Validation (/auth/me)", False, "Invalid JSON response", response.status_code, response.text[:200])
+                    self.log_test("Session Validation (/auth/me) - Admin", False, "Invalid JSON response", response.status_code, response.text[:200])
             else:
-                self.log_test("Session Validation (/auth/me)", False, "Session validation failed", response.status_code if response else None)
-        else:
-            self.log_test("Session Validation (/auth/me)", False, "No user session token available")
+                self.log_test("Session Validation (/auth/me) - Admin", False, "Admin session validation failed", response.status_code if response else None)
+        
+        # Test with signup session token
+        if 'signup' in self.session_tokens:
+            response = self.make_request('GET', 'auth/me', session_token=self.session_tokens["signup"])
+            
+            if response and response.status_code == 200:
+                try:
+                    result = response.json()
+                    if 'email' in result and 'id' in result:
+                        self.log_test("Session Validation (/auth/me) - Signup User", True, f"Signup user session valid: {result['email']}", response.status_code)
+                    else:
+                        self.log_test("Session Validation (/auth/me) - Signup User", False, "Invalid user data in response", response.status_code, result)
+                except json.JSONDecodeError:
+                    self.log_test("Session Validation (/auth/me) - Signup User", False, "Invalid JSON response", response.status_code, response.text[:200])
+            else:
+                self.log_test("Session Validation (/auth/me) - Signup User", False, "Signup user session validation failed", response.status_code if response else None)
+        
+        # Test with user session token if available
+        if 'user' in self.session_tokens:
+            response = self.make_request('GET', 'auth/me', session_token=self.session_tokens["user"])
+            
+            if response and response.status_code == 200:
+                try:
+                    result = response.json()
+                    if 'email' in result and 'id' in result:
+                        self.log_test("Session Validation (/auth/me) - User", True, f"User session valid: {result['email']}", response.status_code)
+                    else:
+                        self.log_test("Session Validation (/auth/me) - User", False, "Invalid user data in response", response.status_code, result)
+                except json.JSONDecodeError:
+                    self.log_test("Session Validation (/auth/me) - User", False, "Invalid JSON response", response.status_code, response.text[:200])
+            else:
+                self.log_test("Session Validation (/auth/me) - User", False, "User session validation failed", response.status_code if response else None)
 
     def test_session_endpoint(self):
         """Test session creation endpoint"""

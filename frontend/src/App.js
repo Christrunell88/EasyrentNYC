@@ -11,6 +11,9 @@ import UnitDetails from './pages/UnitDetails';
 import Favorites from './pages/Favorites';
 import AdminPanel from './pages/AdminPanel';
 import LocationPage from './pages/LocationPage';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import FAQ from './pages/FAQ';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
 

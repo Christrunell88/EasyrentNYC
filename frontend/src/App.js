@@ -107,6 +107,17 @@ const PageViewTracker = () => {
   return null;
 };
 
+// Initialize auth on app load
+const AuthInitializer = () => {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+  
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+  
+  return null;
+};
+
 function App() {
   // Initialize Google Analytics on app load
   useEffect(() => {
@@ -118,8 +129,8 @@ function App() {
       <div className="App">
         <Toaster position="top-center" richColors />
         <BrowserRouter>
-        <PageViewTracker />
-        <AuthProvider>
+          <PageViewTracker />
+          <AuthInitializer />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />

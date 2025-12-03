@@ -133,8 +133,8 @@ const Dashboard = () => {
       index++;
     }
 
-    // Only return units with real images - filter out placeholder units completely
-    return diversified;
+    // Prepend featured units at the top, then diversified units
+    return [...featuredUnits, ...diversified];
   };
 
   const fetchFavorites = async () => {

@@ -402,12 +402,12 @@ const Dashboard = () => {
                   </div>
                 )}
               
-                <div className="relative h-48 bg-slate-700">
+                <div className="relative h-48 bg-slate-900">
                   {unit.images && unit.images.length > 0 ? (
                     <img
                       src={unit.images[0]}
                       alt={`Unit ${unit.unit_number}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-700">

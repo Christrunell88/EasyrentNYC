@@ -64,41 +64,6 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Social Media Share Buttons */}
-          <div className="space-y-3">
-            <Label className="text-slate-200">Share on Social Media</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={handleShareFacebook}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Facebook className="w-4 h-4 mr-2" />
-                Facebook
-              </Button>
-              <Button
-                onClick={handleShareTwitter}
-                className="w-full bg-sky-500 hover:bg-sky-600 text-white"
-              >
-                <Twitter className="w-4 h-4 mr-2" />
-                Twitter
-              </Button>
-              <Button
-                onClick={handleShareLinkedIn}
-                className="w-full bg-blue-700 hover:bg-blue-800 text-white"
-              >
-                <Linkedin className="w-4 h-4 mr-2" />
-                LinkedIn
-              </Button>
-              <Button
-                onClick={handleShareWhatsApp}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
-            </div>
-          </div>
-
           {/* Copy Link */}
           <div className="space-y-2">
             <Label className="text-slate-200">Copy Link</Label>

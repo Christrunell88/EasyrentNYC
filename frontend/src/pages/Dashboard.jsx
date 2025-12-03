@@ -419,6 +419,15 @@ const Dashboard = () => {
                     </div>
                   )}
                   
+                  {/* Featured Badge */}
+                  {unit.featured && (
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold px-3 py-1 text-sm shadow-lg">
+                        ⭐ FEATURED
+                      </Badge>
+                    </div>
+                  )}
+                  
                   {/* Action Buttons */}
                   <div className="absolute top-3 right-3 flex gap-2">
                     <button

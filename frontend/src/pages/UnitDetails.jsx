@@ -189,11 +189,11 @@ const UnitDetails = () => {
               <CarouselContent>
                 {unit.images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <div className="h-96 bg-slate-700">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                       <img
                         src={image}
                         alt={`Unit ${unit.unit_number} - ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-contain bg-slate-900"
                       />
                     </div>
                   </CarouselItem>

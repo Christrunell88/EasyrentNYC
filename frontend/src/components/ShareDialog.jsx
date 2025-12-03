@@ -83,7 +83,7 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
           </div>
 
           {/* Email Share */}
-          <div className="space-y-3 pt-4 border-t border-slate-600">
+          <div className="space-y-3 pt-2">
             <Label className="text-slate-200 flex items-center gap-2">
               <Mail className="w-4 h-4" />
               Send via Email

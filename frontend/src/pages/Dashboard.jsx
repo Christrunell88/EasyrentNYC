@@ -93,9 +93,13 @@ const Dashboard = () => {
   };
 
   const diversifyListings = (units) => {
-    // Separate units with real images and without
-    const unitsWithImages = units.filter(hasRealImages);
-    const unitsWithoutImages = units.filter(unit => !hasRealImages(unit));
+    // Separate featured units first
+    const featuredUnits = units.filter(unit => unit.featured);
+    const nonFeaturedUnits = units.filter(unit => !unit.featured);
+    
+    // Separate units with real images and without (only for non-featured)
+    const unitsWithImages = nonFeaturedUnits.filter(hasRealImages);
+    const unitsWithoutImages = nonFeaturedUnits.filter(unit => !hasRealImages(unit));
 
     // Group units with images by building
     const buildingGroups = {};

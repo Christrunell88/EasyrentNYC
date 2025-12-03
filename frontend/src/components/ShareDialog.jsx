@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../App';
-import { Facebook, Twitter, Linkedin, Mail, Link2, MessageCircle, Copy, Check } from 'lucide-react';
+import { Mail, Copy, Check } from 'lucide-react';
 
 const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   const [emailTo, setEmailTo] = useState('');

@@ -401,7 +401,7 @@ const Dashboard = () => {
             {units.map((unit) => (
               <Card
                 key={unit.id}
-                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all cursor-pointer border border-amber-500/20 bg-slate-800/50 backdrop-blur-sm relative"
+                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/30 hover:scale-[1.02] transition-all duration-300 cursor-pointer border border-amber-500/30 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm relative group"
                 onClick={() => {
                   if (user) {
                     navigate(`/unit/${unit.id}`);

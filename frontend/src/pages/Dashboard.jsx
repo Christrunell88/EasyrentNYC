@@ -429,7 +429,7 @@ const Dashboard = () => {
                   </div>
                 )}
               
-                <div className="relative h-48 bg-slate-900">
+                <div className="relative h-48 bg-slate-950 ring-1 ring-amber-500/10 group-hover:ring-amber-500/30 transition-all duration-300">
                   {unit.images && unit.images.length > 0 ? (
                     <img
                       src={unit.images[0]}

@@ -277,7 +277,7 @@ async def signup(input: SignupInput, response: Response):
     }
 
 @api_router.post("/auth/login")
-async def login(input: LoginInput, response: Response):
+async def login(input: LoginInput, response: Response, request: Request):
     """JWT-based login with email/password"""
     user_doc = await db.users.find_one({'email': input.email})
     if not user_doc:

@@ -261,7 +261,7 @@ async def signup(input: SignupInput, response: Response):
         value=session_token,
         httponly=True,
         secure=False,  # Allow HTTP cookies for localhost development
-        samesite='lax',
+        samesite='none',  # Allow cross-origin cookies for localhost
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'
     )
@@ -307,7 +307,7 @@ async def login(input: LoginInput, response: Response):
         value=session_token,
         httponly=True,
         secure=False,  # Allow HTTP cookies for localhost development
-        samesite='lax',
+        samesite='none',  # Allow cross-origin cookies for localhost
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'
     )
@@ -534,7 +534,7 @@ async def create_session_from_oauth(request: Request, response: Response):
         value=session_token,
         httponly=True,
         secure=False,  # Allow HTTP cookies for localhost development
-        samesite='lax',
+        samesite='none',  # Allow cross-origin cookies for localhost
         max_age=7 * 24 * 60 * 60,
         path='/'
     )

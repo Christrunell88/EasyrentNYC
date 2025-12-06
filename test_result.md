@@ -196,6 +196,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE AUTHENTICATION TESTING COMPLETED AS REQUESTED: Tested Sign Up and Google Sign In flows on http://localhost:3000/auth. SIGN UP FLOW: ✅ Successfully created user with unique email (testuser1764981717@example.com), ✅ Auto-redirect to dashboard after signup, ✅ Welcome message shows user's name 'Welcome back, Test', ✅ User menu button present, ✅ Logout works correctly. GOOGLE OAUTH: ✅ 'Continue with Google' button present on both Login/Signup tabs, ✅ Redirects correctly to auth.emergentagent.com OAuth flow, ✅ No console errors during OAuth initiation. ERROR HANDLING: ✅ Duplicate email validation shows 'Email already registered' error, ✅ Invalid email format prevented by browser validation, ✅ Empty field validation working. BACKEND VERIFICATION: Backend logs confirm POST /api/auth/signup returns 200 OK for valid signups and 400 Bad Request for duplicates. All authentication methods ready for deployment."
 
+  - task: "Google OAuth session validation endpoint fix"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL GOOGLE OAUTH FLOW FAILURE IDENTIFIED: Comprehensive debugging reveals that Google OAuth flow works correctly through step 4 (redirect to auth.emergentagent.com and back to app with session_id), but fails at step 5 when backend tries to validate session_id. ROOT CAUSE: Backend makes request to https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data which returns 404 Not Found. Backend logs show 'OAuth error: 404 Client Error: Not Found'. This causes session validation to fail with 'Invalid session_id' error, preventing users from completing Google OAuth login. TECHNICAL DETAILS: ✅ Frontend OAuth redirect works (https://auth.emergentagent.com/?redirect=http%3A%2F%2Flocalhost%3A3000%2Fauth), ✅ SessionHandler processes session_id from URL hash, ✅ POST /api/auth/session request made with X-Session-ID header, ❌ Backend validation endpoint URL is incorrect/moved/down, ❌ Session validation fails with 404 error, ❌ User sees 'Invalid session_id' toast and cannot login. IMMEDIATE ACTION: Verify correct Emergent OAuth validation endpoint URL, check if endpoint moved, or use web search to find current API documentation."
+
 frontend:
   - task: "Display real apartment images on listing cards"
     implemented: true

@@ -12,6 +12,7 @@ const useAuthStore = create(
       user: null,
       loading: true,
       error: null,
+      sessionToken: null,
 
       // Actions
       setUser: (user) => set({ user, error: null }),

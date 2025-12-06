@@ -259,9 +259,11 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"
     - "Admin panel access and functionality"
   stuck_tasks:
+    - "Google OAuth session validation endpoint fix"
     - "Admin panel access and functionality"
     - "Google Maps integration on dashboard Map View"
   test_all: false

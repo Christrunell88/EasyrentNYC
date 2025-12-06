@@ -260,7 +260,7 @@ async def signup(input: SignupInput, response: Response):
         key='session_token',
         value=session_token,
         httponly=True,
-        secure=True,
+        secure=False,  # Allow HTTP cookies for localhost development
         samesite='lax',
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'
@@ -306,7 +306,7 @@ async def login(input: LoginInput, response: Response):
         key='session_token',
         value=session_token,
         httponly=True,
-        secure=True,
+        secure=False,  # Allow HTTP cookies for localhost development
         samesite='lax',
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'
@@ -533,7 +533,7 @@ async def create_session_from_oauth(request: Request, response: Response):
         key='session_token',
         value=session_token,
         httponly=True,
-        secure=True,
+        secure=False,  # Allow HTTP cookies for localhost development
         samesite='lax',
         max_age=7 * 24 * 60 * 60,
         path='/'

@@ -44,6 +44,13 @@ const useAuthStore = create(
             { email, password },
             { withCredentials: true }
           );
+          
+          // For localhost development, manually set the session token cookie
+          // since cross-origin cookies don't work reliably
+          if (response.data.session_token && window.location.hostname === 'localhost') {
+            document.cookie = `session_token=${response.data.session_token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+          }
+          
           set({ 
             user: response.data.user, 
             loading: false, 

@@ -248,10 +248,8 @@ metadata:
 test_plan:
   current_focus:
     - "Google Maps integration on dashboard Map View"
-    - "Authentication endpoints on live site"
     - "Admin panel access and functionality"
   stuck_tasks:
-    - "Authentication endpoints on live site"
     - "Admin panel access and functionality"
     - "Google Maps integration on dashboard Map View"
   test_all: false

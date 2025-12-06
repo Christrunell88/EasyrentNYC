@@ -11,11 +11,11 @@ function getCookie(name) {
 // Add request interceptor to include session token for localhost development
 axios.interceptors.request.use(
   (config) => {
-    // For localhost development, add session token from cookie as header
+    // For localhost development, add session token from cookie as Authorization header
     if (window.location.hostname === 'localhost') {
       const sessionToken = getCookie('session_token');
       if (sessionToken) {
-        config.headers['X-Session-Token'] = sessionToken;
+        config.headers['Authorization'] = `Bearer ${sessionToken}`;
       }
     }
     return config;

@@ -589,3 +589,83 @@ The configured axios instance (`axiosConfig.js`) includes:
 ✅ Visible in API endpoint
 ✅ Building already part of automated crawling system
 
+
+---
+
+## New Listing Added - Malt Drive Modern Apartments (December 8, 2024)
+
+### Malt Drive - Loft-Style Studio Apartment
+
+**Building Information:**
+- **Name:** Malt Drive Modern Apartments
+- **Address:** 2-21 Malt Drive, Long Island City, NY 11101
+- **Neighborhood:** Long Island City (Hunter's Point South)
+- **Source URL:** https://maltdrive.com
+- **Building ID:** ba762f06-d1bf-4d09-a18b-4c87e70c6159
+- **Status:** NEW building added to database ✨
+
+**Unit Details:**
+- **Unit ID:** 9ae045ed-1d25-4ab2-9a8d-6587cd26e8f6
+- **Unit Number:** 205
+- **Rent:** $3,610/month (Gross) | $3,159/month (Net Effective with concessions)
+- **Type:** Studio (Loft-Style)
+- **Bathrooms:** 1
+- **Status:** Available Now
+- **Images:** 10 high-quality photos
+- **Amenities:** 13 premium features including:
+  - Soaring High Ceilings (14+ Ft)
+  - In-Unit Washer/Dryer
+  - Linear Kitchen
+  - Northern Exposure
+  - Solar Shades
+  - Rooftop Pool & Sundeck
+  - Fitness Center
+  - Lounge/Party Room
+  - Hunter's Point South Park Access
+  - Waterfront Location
+
+**Special Offers:**
+- Up to 3 months free on 24-month lease
+- 1 month OP (Owner Pays)
+- Half month security deposit for well-qualified applicants
+- Net effective rent: $3,159/month (with concessions)
+
+**Description Highlights:**
+- Must-see loft-like studio with soaring 14+ ft ceilings
+- Beautiful linear kitchen
+- In-home washer/dryer (rare for studio!)
+- Ample closet space
+- Northern exposure with natural light
+- Hunter's Point South waterfront location
+- Modern luxury building with rooftop amenities
+
+**Database Impact:**
+- Total Buildings: 19 → 20
+- Total Units: 107 → 108
+- Total Available Units: 108
+
+**Crawler Status:**
+- ⚠️ **NEW building source**: maltdrive.com
+- 📝 **TODO**: Add maltdrive.com to crawler configuration
+- 🌐 Building URL: https://maltdrive.com
+- 📍 This is a standalone building site (not part of existing sources)
+
+**Neighborhood Info:**
+- Location: Hunter's Point South, Long Island City
+- Transit: Close to 7 train, E/M trains, NYC Ferry
+- One stop to Midtown Manhattan
+- Waterfront park access
+- Growing neighborhood with new developments
+
+**Verification:**
+✅ Building successfully added to database
+✅ Unit successfully added to database
+✅ Visible in API endpoint
+✅ All images and amenities properly stored
+⚠️ New source - maltdrive.com needs to be added to crawler
+
+**Next Steps:**
+- Add maltdrive.com to crawler configuration
+- Building will be automatically crawled every 48 hours once added
+- Monitor for additional units at this location
+

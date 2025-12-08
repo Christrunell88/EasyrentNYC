@@ -243,12 +243,6 @@ const Landing = () => {
               Sign In
             </Button>
           </div>
-            </a>
-            {' '}or{' '}
-            <a href="tel:+16464088048" className="text-amber-500 hover:text-amber-400 font-medium">
-              646-408-8048
-            </a>
-          </p>
         </div>
       </section>
 

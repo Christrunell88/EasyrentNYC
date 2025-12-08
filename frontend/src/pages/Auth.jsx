@@ -43,10 +43,14 @@ const Auth = () => {
         handleOAuthSession(sessionId);
       }
     } else if (user) {
-      // Already authenticated, redirect
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      sessionStorage.removeItem('redirectAfterLogin');
-      navigate(redirectPath || '/dashboard');
+      // Already authenticated, redirect based on user type
+      if (user.is_admin) {
+        navigate('/admin');
+      } else {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath || '/dashboard');
+      }
     }
   }, [location, user, navigate]);
 

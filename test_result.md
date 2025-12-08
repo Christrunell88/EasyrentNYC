@@ -460,3 +460,76 @@ Facebook's Graph API doesn't accept URLs from certain domains. The service was d
 ✅ Accessible via API endpoint
 ✅ All images and amenities properly stored
 
+
+---
+
+## Frontend Authentication Hardening - December 8, 2024
+
+### Issue: Inconsistent Axios Instance Usage
+
+**Problem:**
+Multiple components were importing plain `axios` instead of the configured instance from `axiosConfig.js`. This meant that authentication headers weren't being properly attached for localhost development, potentially causing authentication issues.
+
+**Components Audited:**
+- ✅ Dashboard.jsx
+- ✅ AdminPanel.jsx (already correct)
+- ✅ UnitDetails.jsx
+- ✅ ShareDialog.jsx
+- ✅ Favorites.jsx
+- ✅ LocationPage.jsx
+- ✅ Landing.jsx
+- ✅ ResetPassword.jsx
+- ✅ SignupModal.jsx
+- ✅ ApartmentMap.jsx (no axios calls)
+- ✅ Auth.jsx (correctly uses plain axios for public endpoints)
+
+**Changes Made:**
+
+1. **Dashboard.jsx** - Updated to use `axios from '../utils/axiosConfig'`
+   - All API calls now use configured axios with auth interceptor
+   - Already using `useAuthStore` hook correctly ✅
+
+2. **UnitDetails.jsx** - Updated to use configured axios
+   - All authenticated API calls properly handled
+   - No local auth state ✅
+
+3. **ShareDialog.jsx** - Updated to use configured axios
+   - Email sharing API call now uses auth interceptor
+   - No local auth state ✅
+
+4. **Favorites.jsx** - Updated to use configured axios
+   - Favorites fetching and toggling now properly authenticated
+
+5. **LocationPage.jsx** - Updated to use configured axios
+   - Unit fetching by location properly authenticated
+
+6. **Landing.jsx** - Updated to use configured axios
+   - Auth check endpoint properly handled
+
+7. **ResetPassword.jsx** - Updated to use configured axios
+   - Password reset endpoint properly handled
+
+8. **SignupModal.jsx** - Updated to use configured axios
+   - Signup endpoint properly handled
+
+**Authentication State Management:**
+- ✅ All components consistently use `useAuthStore` from Zustand
+- ✅ No local auth state (`useState`) found in any component
+- ✅ AdminPanel.jsx relies on ProtectedRoute (correct pattern)
+- ✅ Global axios instance with interceptor now used everywhere
+
+**Axios Interceptor Benefits:**
+The configured axios instance (`axiosConfig.js`) includes:
+- Automatic session token injection for localhost development
+- Consistent authentication header management
+- Centralized request/response handling
+
+**Testing Needed:**
+- Verify all authenticated API calls work correctly
+- Test favorites functionality
+- Test sharing functionality
+- Test location-based filtering
+- Confirm no regression in authentication flows
+
+**Status:** ✅ COMPLETE
+

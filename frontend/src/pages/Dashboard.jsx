@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { API, useAuth } from '../App';
+import { API } from '../App';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,10 +15,13 @@ import SEO from '@/components/SEO';
 import ApartmentMap from '@/components/ApartmentMap';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { trackApartmentView, trackApartmentFavorite, trackMapView, trackFilterUsage } from '../utils/analytics';
+import useAuthStore from '../store/authStore';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  // Use Zustand store for user state
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState(new Set());

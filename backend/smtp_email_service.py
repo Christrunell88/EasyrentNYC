@@ -225,6 +225,72 @@ class SMTPEmailService:
         """
         
         return self.send_email(user_email, subject, body)
+    
+    def send_welcome_email(
+        self,
+        user_email: str,
+        user_name: str
+    ) -> bool:
+        """Send welcome email to new user"""
+        
+        subject = "Welcome to NoFeesApts.com - Start Your No-Fee Apartment Search! 🎉"
+        
+        body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 32px;">🏢 Welcome to NoFeesApts!</h1>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb;">
+                    <h2 style="color: #1e293b; margin-top: 0;">Hi {user_name}! 👋</h2>
+                    
+                    <p style="font-size: 16px;">Thank you for joining <strong>NoFeesApts.com</strong> — your trusted source for finding quality apartments in NYC and Northern New Jersey without paying broker fees!</p>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                        <h3 style="color: #1e293b; margin-top: 0;">🎯 What You Can Do Now:</h3>
+                        <ul style="color: #475569; line-height: 1.8;">
+                            <li>🔍 <strong>Search hundreds of apartments</strong> — all with zero broker fees</li>
+                            <li>💰 <strong>Save thousands</strong> — no hidden costs or surprise fees</li>
+                            <li>❤️ <strong>Save favorites</strong> — keep track of apartments you love</li>
+                            <li>📅 <strong>Schedule viewings</strong> — request tours directly through our platform</li>
+                            <li>🔔 <strong>Get instant alerts</strong> — be the first to know about new listings</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="color: #1e293b; margin-top: 0;">💡 Pro Tips:</h3>
+                        <p style="margin: 5px 0; color: #64748b;">✨ Use our advanced filters to narrow down your perfect apartment</p>
+                        <p style="margin: 5px 0; color: #64748b;">📍 Explore different neighborhoods to find your ideal location</p>
+                        <p style="margin: 5px 0; color: #64748b;">⚡ Act fast on new listings — no-fee apartments go quickly!</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://rentdirect-6.preview.emergentagent.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+                            Start Searching Now →
+                        </a>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                    
+                    <p style="color: #64748b; font-size: 14px; text-align: center;">
+                        <strong>Need Help?</strong><br>
+                        We're here for you! Reply to this email or contact us at<br>
+                        <a href="mailto:placesfirm@gmail.com" style="color: #f59e0b; text-decoration: none;">placesfirm@gmail.com</a>
+                    </p>
+                    
+                    <p style="color: #64748b; font-size: 14px; text-align: center; margin-top: 20px;">
+                        Happy apartment hunting! 🏠<br>
+                        <strong>The NoFeesApts Team</strong>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return self.send_email(user_email, subject, body)
 
 
 # Create singleton instance

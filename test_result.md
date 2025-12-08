@@ -401,3 +401,62 @@ Facebook's Graph API doesn't accept URLs from certain domains. The service was d
 
 **Status:** ✅ IMPLEMENTED (requires testing with actual Facebook posting)
 
+
+---
+
+## New Listing Added - December 8, 2024
+
+### 205 East 59 Street - Penthouse Apartment
+
+**Building Information:**
+- **Name:** 205 East 59 Street
+- **Address:** 205 East 59 Street, New York, NY 10022
+- **Neighborhood:** Upper East Side
+- **Source URL:** https://manhattanskyline.com/buildings/upper-east-side/205-e-59-st
+- **Building ID:** bd1cface-d4e5-4110-8242-1d266ee0e64f
+
+**Unit Details:**
+- **Unit ID:** 19b9026d-a5ad-46f8-a98a-dd900caf8f30
+- **Unit Number:** Penthouse
+- **Rent:** $18,500/month
+- **Bedrooms:** 3
+- **Bathrooms:** 3.5
+- **Status:** Available Now
+- **Images:** 11 high-quality photos
+- **Amenities:** 25 features including:
+  - Terrace & Balcony
+  - 21-foot ceilings
+  - Gas fireplace
+  - Washer/dryer in unit
+  - Walk-in closets
+  - Doorman & Concierge (24-hour)
+  - Fitness Center
+  - Roof Deck
+  - Pet Friendly with Puppy Park
+
+**Description Highlights:**
+- Masterfully-designed penthouse with loft-like home
+- Dramatic floor-to-ceiling windows
+- Stunning views of the 59th Street Bridge
+- Viking appliances in kitchen
+- Master bedroom with private balcony and terrace
+- Full-service white-glove condominium
+- Only three homes per floor
+
+**Database Impact:**
+- Total Buildings: 18 → 19
+- Total Units: 105 → 106
+- Total Available Units: 106
+
+**Crawler Status:**
+- Source website (manhattanskyline.com) is already being crawled
+- This building will be included in future automated crawls
+- 8 other buildings from Manhattan Skyline are already in the system
+
+**Verification:**
+✅ Building successfully added to database
+✅ Unit successfully added to database
+✅ Visible in admin panel (106 total units shown)
+✅ Accessible via API endpoint
+✅ All images and amenities properly stored
+

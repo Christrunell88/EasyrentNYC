@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import Logo from '@/components/Logo';
 

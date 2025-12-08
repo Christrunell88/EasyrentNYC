@@ -344,7 +344,7 @@ const UnitDetails = () => {
                       {/* Schedule Viewing Section */}
                       <div className="border border-amber-500/30 rounded-lg p-4 bg-slate-700/30">
                         <div className="flex items-center gap-2 mb-3">
-                          <CalendarIcon className="w-4 h-4 text-amber-400" />
+                          <Calendar className="w-4 h-4 text-amber-400" />
                           <Label className="text-amber-400 font-semibold">Schedule a Viewing</Label>
                         </div>
                         

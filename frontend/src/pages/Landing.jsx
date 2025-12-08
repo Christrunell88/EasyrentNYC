@@ -199,19 +199,16 @@ const Landing = () => {
               </Button>
             </div>
 
-            {/* Stats Bar - City lights inspired */}
-            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto glass-window border border-amber-500/20 rounded-2xl p-10 backdrop-blur-md shadow-2xl shadow-amber-500/10 animate-in fade-in slide-in-from-bottom duration-1000 delay-500">
+            {/* Stats Bar - Minimal and clean */}
+            <div className="flex gap-6 justify-center items-center max-w-2xl mx-auto glass-window border border-amber-500/20 rounded-xl px-8 py-6 backdrop-blur-md shadow-2xl shadow-amber-500/10 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
               <div className="text-center">
-                <div className="text-5xl font-bold warm-gradient-text mb-2">{stats.units}+</div>
-                <div className="text-sm text-slate-400 uppercase tracking-wider">No-Fee Homes</div>
+                <div className="text-3xl font-bold warm-gradient-text">{stats.units}+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Apartments</div>
               </div>
-              <div className="text-center border-x border-slate-700/50">
-                <div className="text-5xl font-bold warm-gradient-text mb-2">{stats.buildings}+</div>
-                <div className="text-sm text-slate-400 uppercase tracking-wider">NYC Buildings</div>
-              </div>
+              <div className="h-10 w-px bg-slate-700/50"></div>
               <div className="text-center">
-                <div className="text-5xl font-bold warm-gradient-text mb-2">$0</div>
-                <div className="text-sm text-slate-400 uppercase tracking-wider">Broker Fees</div>
+                <div className="text-3xl font-bold warm-gradient-text">$0</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Fees</div>
               </div>
             </div>
           </div>

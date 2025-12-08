@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import { Mail, Copy, Check } from 'lucide-react';
 

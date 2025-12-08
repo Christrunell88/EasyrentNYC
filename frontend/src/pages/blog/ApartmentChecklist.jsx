@@ -62,7 +62,8 @@ const ApartmentChecklist = () => {
           </div>
 
           <h3 className=\"text-2xl font-bold text-gray-900 mt-6 mb-3\">Required Documents</h3>
-          <ul className=\"list-disc list-inside space-y-2 text-gray-700 mb-4\">\n            <li>Last 2-3 pay stubs</li>
+          <ul className=\"list-disc list-inside space-y-2 text-gray-700 mb-4\">
+            <li>Last 2-3 pay stubs</li>
             <li>Last 2 years of tax returns</li>
             <li>Bank statements (last 2-3 months)</li>
             <li>Employment verification letter</li>

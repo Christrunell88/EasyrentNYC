@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Building2, MapPin, DollarSign, TrendingUp, ArrowRight, Home } from 'lucide-react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SEO from '../components/SEO';
 

@@ -9,6 +9,42 @@ import { Helmet } from 'react-helmet-async';
 
 const blogPosts = [
   {
+    id: 'guide',
+    slug: 'guide-to-no-fee-apartments',
+    title: 'Ultimate Guide to Finding No-Fee Apartments in NYC (2024-2025)',
+    excerpt: 'Discover how to find no-fee apartments in NYC and save thousands on broker fees. Complete guide to NYC apartment hunting with expert tips and neighborhood insights.',
+    author: 'NoFeesApts Team',
+    date: 'December 2024',
+    readTime: '10 min read',
+    category: 'Guides',
+    tags: ['no-fee', 'apartment hunting', 'nyc', 'broker fees'],
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80'
+  },
+  {
+    id: 'neighborhoods',
+    slug: 'best-neighborhoods',
+    title: 'Top 10 NYC Neighborhoods for No-Fee Apartments in 2024',
+    excerpt: 'Not all NYC neighborhoods are equal when it comes to no-fee apartments. Compare the top 10 areas with rent prices, transit scores, and lifestyle recommendations.',
+    author: 'NoFeesApts Team',
+    date: 'December 2024',
+    readTime: '8 min read',
+    category: 'Neighborhoods',
+    tags: ['neighborhoods', 'no-fee', 'comparison', 'manhattan', 'brooklyn', 'queens'],
+    image: 'https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?w=800&q=80'
+  },
+  {
+    id: 'checklist',
+    slug: 'apartment-checklist',
+    title: 'NYC Apartment Hunting Checklist: What to Know Before You Rent',
+    excerpt: 'Renting in NYC requires preparation. This comprehensive checklist covers documents, viewing tips, lease terms, red flags, and tenant rights.',
+    author: 'NoFeesApts Team',
+    date: 'December 2024',
+    readTime: '12 min read',
+    category: 'Tips & Advice',
+    tags: ['checklist', 'apartment hunting', 'tenant rights', 'lease'],
+    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
     id: '1',
     slug: 'ultimate-guide-no-fee-apartments-nyc-2025',
     title: 'The Ultimate Guide to Finding No-Fee Apartments in NYC (2025)',

@@ -282,11 +282,9 @@ test_plan:
   current_focus:
     - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"
-    - "Admin panel access and functionality"
   stuck_tasks:
     - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"
-    - "Admin panel access and functionality"
   test_all: false
   test_priority: "high_first"
 

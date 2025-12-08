@@ -333,6 +333,8 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Fixed image scraping issue. Created specific Harrison Yards crawler that successfully extracts images from LeaseStar API. Improved generic crawler for better image extraction. Cleaned up 122 old placeholder units. Harrison Yards now has 59/60 units with real images. Dashboard verified to display real apartment photos. Need testing agent to verify crawler functions work correctly for all buildings and that image URLs are valid and accessible."
+  - agent: "testing"
+    message: "GOOGLE OAUTH INFINITE LOOP FIX TESTING COMPLETED SUCCESSFULLY: Comprehensive testing confirms the infinite loop fix is working perfectly. The critical issue has been resolved - session_id is now properly removed from URL after processing using window.history.replaceState, preventing the useEffect from re-triggering and causing infinite /auth/session API calls. VERIFIED: ✅ OAuth redirect working correctly, ✅ session_id removal working consistently, ✅ No infinite loop detected, ✅ Proper error handling with toast messages, ✅ Auth page functionality intact. The fix using useCallback for OAuth handler and restructured useEffect is working as intended. Users can now safely use Google OAuth without browser freezing or repeated API calls."
   - agent: "main"
     message: "Welcome email feature implemented and ready for testing. Backend sends welcome emails via SMTP service when new users sign up. Need testing agent to verify: 1) Signup flow works correctly, 2) User redirected to dashboard after signup, 3) Backend logs show welcome email queued and sent, 4) Email contains proper congratulatory message and platform features overview."
   - agent: "testing"

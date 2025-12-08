@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 
 const SignupModal = ({ isOpen, onClose }) => {

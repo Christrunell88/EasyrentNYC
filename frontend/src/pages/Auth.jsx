@@ -60,15 +60,7 @@ const Auth = () => {
     if (result.success) {
       toast.success('Login successful!');
       trackLogin('google');
-      
-      // Redirect admin users to admin panel, regular users to dashboard
-      if (result.user.is_admin) {
-        navigate('/admin');
-      } else {
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath || '/dashboard');
-      }
+      // Navigation will be handled by useEffect when user state updates
     } else {
       toast.error(result.error || 'Authentication failed');
     }

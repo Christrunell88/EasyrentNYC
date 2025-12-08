@@ -36,16 +36,15 @@ api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import Gmail email service (after logger is initialized)
+# Import SMTP email service
 EMAIL_SERVICE_AVAILABLE = False
-send_contact_email = None
 try:
-    from email_service import send_contact_email
+    from smtp_email_service import smtp_service
     EMAIL_SERVICE_AVAILABLE = True
-    logger.info("Gmail email service imported successfully")
+    logger.info("SMTP email service loaded successfully")
 except Exception as e:
     EMAIL_SERVICE_AVAILABLE = False
-    logger.warning(f"Gmail email service not available (will be available after credentials added): {e}")
+    logger.warning(f"Email service not available: {str(e)}")
 
 # ============ MODELS ============
 

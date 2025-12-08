@@ -7,6 +7,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv('/app/backend/.env')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

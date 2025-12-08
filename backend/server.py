@@ -173,6 +173,10 @@ class ContactInput(BaseModel):
     name: str
     email: str
     phone: Optional[str] = None
+    preferred_date: Optional[str] = None
+    preferred_time: Optional[str] = None
+    alternative_date: Optional[str] = None
+    alternative_time: Optional[str] = None
 
 # ============ AUTH HELPERS ============
 

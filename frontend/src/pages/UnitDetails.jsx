@@ -420,7 +420,7 @@ const UnitDetails = () => {
                         />
                       </div>
                       <Button type="submit" className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-submit-btn">
-                        <CalendarIcon className="w-4 h-4 mr-2" />
+                        <Calendar className="w-4 h-4 mr-2" />
                         Request Viewing
                       </Button>
                     </form>

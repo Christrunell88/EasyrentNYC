@@ -12,16 +12,20 @@ const faqs = [
     category: 'About No-Fee Apartments',
     questions: [
       {
-        question: 'What does "no-fee" mean?',
-        answer: 'A no-fee apartment means you don\'t have to pay a broker fee to rent the apartment. Typically in NYC, broker fees can be 12-15% of your annual rent (that\'s $3,000-$5,000+ for most apartments). With no-fee apartments, the landlord either pays the broker directly or lists the apartment without a broker.'
+        question: 'What exactly is a "no-fee" apartment?',
+        answer: 'A no-fee apartment is a rental where the landlord or building management pays the broker\'s commission instead of the tenant. In a typical broker-fee rental, tenants pay 12-15% of the annual rent (often one month\'s rent or more) directly to the broker. With no-fee apartments, you avoid this cost entirely.'
       },
       {
-        question: 'Are no-fee apartments lower quality?',
-        answer: 'Absolutely not! No-fee apartments span all price ranges and quality levels. Many luxury buildings and new developments offer no-fee rentals as a competitive advantage. The "no-fee" designation simply refers to who pays the broker \u2013 not the quality of the apartment.'
+        question: 'How much can I save with a no-fee apartment?',
+        answer: 'Savings vary based on the rent amount, but typically you\'ll save one to two months\' rent:\n\u2022 On a $3,000/month apartment: Save $3,000-$6,000\n\u2022 On a $4,000/month apartment: Save $4,000-$8,000\n\u2022 On a $5,000/month apartment: Save $5,000-$10,000'
       },
       {
-        question: 'Why do some apartments have broker fees and others don\'t?',
-        answer: 'It depends on how competitive the rental market is and the landlord\'s marketing strategy. Buildings with high demand (luxury buildings, popular neighborhoods) often don\'t need brokers. Smaller landlords or older buildings may use brokers to find tenants and pass that cost to renters.'
+        question: 'Are no-fee apartments lower quality than broker-fee apartments?',
+        answer: 'No! No-fee apartments are simply properties where the landlord has chosen to pay the broker commission (or rent directly without a broker). You\'ll find no-fee options across all price ranges and quality levels, from budget-friendly studios to luxury penthouses.'
+      },
+      {
+        question: 'Why do some landlords pay the broker fee while others don\'t?',
+        answer: 'Landlords typically pay broker fees for several reasons:\n\u2022 They own multiple properties and use a management company\n\u2022 The building has its own leasing office\n\u2022 They want to attract more qualified tenants\n\u2022 The rental market is slower and they need to incentivize renters\n\u2022 They\'re managing the property themselves without a broker'
       }
     ]
   },
@@ -29,20 +33,70 @@ const faqs = [
     category: 'Finding & Applying',
     questions: [
       {
-        question: 'How do I know if an apartment listing is truly "no-fee"?',
-        answer: 'Always verify directly with the listing source. On NoFeesApts.com, we verify every listing before publishing. When contacting landlords directly, ask: "Is there any broker fee, application fee, or administrative fee I would need to pay?" Get it in writing before viewing.'
+        question: 'How do I find legitimate no-fee apartments?',
+        answer: 'Use specialized no-fee sites like NoFeesApts.com, look for "For Rent By Owner" (FRBO) listings, contact building management companies directly, and check with large residential complexes. Be wary of listings marked "CYOF" (Collect Your Own Fee)\u2014these often still charge broker fees.'
+      },
+      {
+        question: 'What is "CYOF" and should I avoid it?',
+        answer: 'CYOF stands for "Collect Your Own Fee." While it may appear in no-fee search results, it actually means the broker expects YOU to pay their fee. Always ask directly: "Who pays the broker fee?" before scheduling a viewing.'
+      },
+      {
+        question: 'Do I still need to pay application fees for no-fee apartments?',
+        answer: 'Yes. No-fee refers specifically to the broker fee. You\'ll still typically pay:\n\u2022 Application fee: $20-$100 per applicant\n\u2022 Credit check fee (often included in application fee)\n\u2022 First month\'s rent\n\u2022 Security deposit (usually 1 month\'s rent)\n\u2022 Move-in fees (if applicable)'
       },
       {
         question: 'What documents do I need to apply for a no-fee apartment?',
-        answer: 'Most landlords require: \n\u2022 Credit report (score above 700 preferred)\n\u2022 Proof of income (2-3 months of pay stubs showing 40x monthly rent annually)\n\u2022 Bank statements (2-3 months)\n\u2022 Photo ID (driver\'s license or passport)\n\u2022 References from previous landlords\n\u2022 Employment verification letter'
+        answer: 'Standard application requirements include:\n\u2022 Government-issued photo ID (driver\'s license or passport)\n\u2022 Proof of income (last 2-3 pay stubs)\n\u2022 Tax returns (last 1-2 years)\n\u2022 Bank statements (last 2-3 months)\n\u2022 Employment verification letter\n\u2022 Previous landlord references\n\u2022 Personal references'
       },
       {
-        question: 'How quickly do I need to act on a no-fee apartment listing?',
-        answer: 'Very quickly! Good no-fee apartments in NYC go within 24-72 hours of being listed. Have your documents ready, schedule viewings immediately, and be prepared to submit your application same-day if you love the apartment.'
+        question: 'What are the income requirements for NYC apartments?',
+        answer: 'Most NYC landlords require:\n\u2022 40x rule: Annual income of at least 40 times the monthly rent\n\u2022 Example: For $3,000/month rent, you need $120,000 annual income\n\u2022 If you don\'t meet this, you can use a guarantor (who needs 80x monthly rent) or a third-party guarantor service'
       },
       {
-        question: 'Can I negotiate rent on a no-fee apartment?',
-        answer: 'It depends on market conditions and how long the apartment has been available. You have more leverage in winter months, for units available for 30+ days, or if you can offer to sign a longer lease. Always ask politely \u2013 the worst they can say is no!'
+        question: 'Can I negotiate the rent on a no-fee apartment?',
+        answer: 'Yes! Just because it\'s no-fee doesn\'t mean the rent is fixed. You can negotiate: monthly rent amount (especially in off-peak seasons), free month (first or last month free), reduced security deposit, longer lease term for lower monthly rate, and move-in date flexibility.'
+      }
+    ]
+  },
+  {
+    category: 'Lease Terms & Moving In',
+    questions: [
+      {
+        question: 'How long are typical NYC apartment leases?',
+        answer: 'Most NYC leases are 12 months, but you may find:\n\u2022 6-month leases (often at a premium)\n\u2022 9-month leases (less common)\n\u2022 18-24 month leases (sometimes offered with incentives)\n\u2022 Month-to-month (rare and usually more expensive)'
+      },
+      {
+        question: 'What\'s included in my rent?',
+        answer: 'This varies by building, but typically:\n\u2022 Usually included: Water, heat (during winter)\n\u2022 Sometimes included: Hot water, gas\n\u2022 Rarely included: Electricity, internet, cable\n\u2022 Always ask what utilities are included before signing'
+      },
+      {
+        question: 'How much is a security deposit in NYC?',
+        answer: 'Typically one month\'s rent for buildings with 6+ units. May be higher for luxury buildings or if you have pets. Must be held in an interest-bearing account (buildings with 6+ units). Must be returned within 14 days of move-out with itemized deductions.'
+      },
+      {
+        question: 'What happens if I need to break my lease?',
+        answer: 'Breaking a lease early typically involves: paying rent until landlord finds a new tenant, possible early termination fee (usually 1-2 months\' rent), and loss of security deposit in some cases. Check your lease for specific terms\u2014some have "buyout" clauses.'
+      },
+      {
+        question: 'Can I sublet my NYC apartment?',
+        answer: 'New York State law gives tenants the right to sublet with landlord\'s permission. Must get written permission from landlord, landlord can refuse for valid reasons, typically allowed for up to 2 years, you remain responsible for the apartment. Check your lease\u2014some buildings have stricter rules.'
+      }
+    ]
+  },
+  {
+    category: 'Neighborhoods & Lifestyle',
+    questions: [
+      {
+        question: 'Which NYC neighborhoods have the most no-fee apartments?',
+        answer: 'Top neighborhoods for no-fee apartments:\n\u2022 Manhattan: Upper East Side, Chelsea, Financial District, Murray Hill\n\u2022 Brooklyn: Williamsburg, Downtown Brooklyn, DUMBO\n\u2022 Queens: Long Island City, Astoria\n\nGenerally, areas with newer developments and large management companies have more no-fee options.'
+      },
+      {
+        question: 'When is the best time to look for an apartment in NYC?',
+        answer: 'Best times for deals: Winter (December-February) with less competition and more concessions, mid-month when most people move month-end, and off-peak seasons in fall and early spring.\n\nMost competitive times: May-September (peak moving season), end of month (everyone wants same move-in dates), and August-September for college students.'
+      },
+      {
+        question: 'How quickly do NYC apartments get rented?',
+        answer: 'The NYC rental market moves fast. Good apartments can rent within 24-48 hours. Popular neighborhoods during peak season (spring/summer) are fastest. Have your application materials ready to submit immediately. Be prepared to make decisions quickly\u2014but not impulsively.'
       }
     ]
   },

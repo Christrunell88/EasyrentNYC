@@ -127,7 +127,11 @@ class SMTPEmailService:
         unit_number: str,
         rent: float,
         bedrooms: int,
-        bathrooms: float
+        bathrooms: float,
+        preferred_date: Optional[str] = None,
+        preferred_time: Optional[str] = None,
+        alternative_date: Optional[str] = None,
+        alternative_time: Optional[str] = None
     ) -> bool:
         """Send confirmation email to user"""
         

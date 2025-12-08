@@ -86,10 +86,14 @@ const UnitDetails = () => {
         name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
-        message: formData.get('message')
+        message: formData.get('message'),
+        preferred_date: formData.get('preferred_date'),
+        preferred_time: formData.get('preferred_time'),
+        alternative_date: formData.get('alternative_date'),
+        alternative_time: formData.get('alternative_time')
       }, { withCredentials: true });
       
-      toast.success('Contact request submitted!');
+      toast.success('Contact request submitted! We will reach out to confirm your viewing time.');
       setContactOpen(false);
     } catch (error) {
       toast.error('Failed to submit request');

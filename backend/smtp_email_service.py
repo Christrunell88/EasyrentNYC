@@ -163,6 +163,8 @@ class SMTPEmailService:
                     <p style="white-space: pre-wrap;">{message}</p>
                 </div>
                 
+                {self._format_viewing_schedule(preferred_date, preferred_time, alternative_date, alternative_time)}
+                
                 <p>We typically respond within 24 hours. If you have any urgent questions, please feel free to contact us directly.</p>
                 
                 <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">

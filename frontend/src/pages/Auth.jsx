@@ -57,9 +57,14 @@ const Auth = () => {
       toast.success('Login successful!');
       trackLogin('google');
       
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      sessionStorage.removeItem('redirectAfterLogin');
-      navigate(redirectPath || '/dashboard');
+      // Redirect admin users to admin panel, regular users to dashboard
+      if (result.user.is_admin) {
+        navigate('/admin');
+      } else {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath || '/dashboard');
+      }
     } else {
       toast.error(result.error || 'Authentication failed');
     }

@@ -27,8 +27,17 @@ const Auth = () => {
   const signup = useAuthStore((state) => state.signup);
   const processSession = useAuthStore((state) => state.processSession);
 
+  // Check for admin mode parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const adminParam = searchParams.get('admin');
+    if (adminParam === 'true') {
+      setIsAdminMode(true);
+    }
+  }, [location.search]);
+
   // Handle OAuth session processing
-  const handleOAuthSession = async (sessionId) => {
+  const handleOAuthSession = useCallback(async (sessionId) => {
     const result = await processSession(sessionId);
     
     if (result.success) {
@@ -46,16 +55,10 @@ const Auth = () => {
     } else {
       toast.error(result.error || 'Authentication failed');
     }
-  };
+  }, [processSession, navigate]);
 
-  // Process OAuth session_id from URL and check for admin mode
+  // Process OAuth session_id from URL
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const adminParam = searchParams.get('admin');
-    if (adminParam === 'true') {
-      setIsAdminMode(true);
-    }
-
     const hash = location.hash;
     if (hash.includes('session_id')) {
       const params = new URLSearchParams(hash.substring(1));
@@ -75,7 +78,7 @@ const Auth = () => {
         navigate(redirectPath || '/dashboard');
       }
     }
-  }, [location, user, navigate, handleOAuthSession]);
+  }, [location.hash, user, navigate, handleOAuthSession]);
 
   const handleGoogleLogin = () => {
     // Track Google OAuth attempt

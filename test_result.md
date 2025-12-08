@@ -284,7 +284,6 @@ metadata:
 test_plan:
   current_focus: []
   stuck_tasks:
-    - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"
   test_all: false
   test_priority: "high_first"

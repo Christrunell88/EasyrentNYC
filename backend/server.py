@@ -233,7 +233,7 @@ def verify_password(password: str, hashed: str) -> bool:
 # ============ AUTH ROUTES ============
 
 @api_router.post("/auth/signup")
-async def signup(input: SignupInput, response: Response):
+async def signup(input: SignupInput, response: Response, background_tasks: BackgroundTasks):
     """JWT-based signup with email/password"""
     existing = await db.users.find_one({'email': input.email})
     if existing:
@@ -272,6 +272,15 @@ async def signup(input: SignupInput, response: Response):
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'
     )
+    
+    # Send welcome email in background
+    if EMAIL_SERVICE_AVAILABLE:
+        background_tasks.add_task(
+            smtp_service.send_welcome_email,
+            user_email=user.email,
+            user_name=user.name
+        )
+        logger.info(f"Welcome email queued for new user: {user.email}")
     
     return {
         'user': {

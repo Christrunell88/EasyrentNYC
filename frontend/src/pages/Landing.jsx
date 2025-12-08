@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye, MapPin } from 'lucide-react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
 import Logo from '@/components/Logo';

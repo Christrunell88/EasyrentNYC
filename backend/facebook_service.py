@@ -125,35 +125,85 @@ class FacebookService:
         self,
         photo_url: str
     ) -> Dict[str, Any]:
-        """Upload a photo without publishing it immediately."""
+        """
+        Upload a photo without publishing it immediately.
+        Downloads the image first if it's not from a well-known CDN.
+        """
         async with httpx.AsyncClient(timeout=30.0) as client:
-            payload = {
-                "url": photo_url,
-                "published": False,
-                "temporary": True,
-            }
+            # Check if we need to download the image first
+            needs_download = (
+                'customer-assets.emergentagent.com' in photo_url or
+                'emergentagent.com' in photo_url
+            )
             
-            endpoint = f"{self.base_url}/{self.page_id}/photos"
-            params = self._get_common_params()
-            
-            try:
-                response = await client.post(
-                    endpoint,
-                    data=payload,
-                    params=params
-                )
-                response.raise_for_status()
-                data = response.json()
+            if needs_download:
+                # Download and upload as multipart
+                try:
+                    logger.info(f"Downloading image for upload from {photo_url}")
+                    img_response = await client.get(photo_url, timeout=30.0)
+                    img_response.raise_for_status()
+                    image_data = img_response.content
+                    
+                    content_type = img_response.headers.get('content-type', 'image/jpeg')
+                    
+                    endpoint = f"{self.base_url}/{self.page_id}/photos"
+                    params = self._get_common_params()
+                    
+                    files = {
+                        'source': ('image.jpg', image_data, content_type)
+                    }
+                    data = {
+                        'published': False,
+                        'temporary': True
+                    }
+                    
+                    response = await client.post(
+                        endpoint,
+                        files=files,
+                        data=data,
+                        params=params
+                    )
+                    response.raise_for_status()
+                    result = response.json()
+                    
+                    if "error" in result:
+                        raise Exception(f"Facebook API error: {result['error'].get('message', 'Unknown error')}")
+                    
+                    logger.info(f"Uploaded photo successfully (downloaded). Photo ID: {result.get('id')}")
+                    return result
+                    
+                except Exception as e:
+                    logger.error(f"Failed to download and upload photo: {str(e)}")
+                    raise Exception(f"Failed to download and upload photo: {str(e)}")
+            else:
+                # Use URL method for well-known CDNs
+                payload = {
+                    "url": photo_url,
+                    "published": False,
+                    "temporary": True,
+                }
                 
-                if "error" in data:
-                    raise Exception(f"Facebook API error: {data['error'].get('message', 'Unknown error')}")
+                endpoint = f"{self.base_url}/{self.page_id}/photos"
+                params = self._get_common_params()
                 
-                logger.info(f"Uploaded photo successfully. Photo ID: {data.get('id')}")
-                return data
-                
-            except httpx.HTTPError as e:
-                logger.error(f"HTTP error uploading photo: {str(e)}")
-                raise Exception(f"Failed to upload photo: {str(e)}")
+                try:
+                    response = await client.post(
+                        endpoint,
+                        data=payload,
+                        params=params
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    if "error" in data:
+                        raise Exception(f"Facebook API error: {data['error'].get('message', 'Unknown error')}")
+                    
+                    logger.info(f"Uploaded photo successfully. Photo ID: {data.get('id')}")
+                    return data
+                    
+                except httpx.HTTPError as e:
+                    logger.error(f"HTTP error uploading photo: {str(e)}")
+                    raise Exception(f"Failed to upload photo: {str(e)}")
     
     async def post_with_multiple_photos(
         self,

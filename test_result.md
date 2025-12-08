@@ -314,6 +314,18 @@ test_plan:
         agent: "testing"
         comment: "COMPREHENSIVE APPOINTMENT SCHEDULING TESTING COMPLETED SUCCESSFULLY: Fixed critical CalendarIcon import issue that was causing JavaScript errors. VERIFIED FUNCTIONALITY: ✅ Login flow with regular user (chris.trunell@gmail.com) works perfectly, ✅ Unit details navigation from dashboard working correctly, ✅ Contact form modal opens successfully, ✅ ALL SCHEDULING UI ELEMENTS PRESENT: Schedule a Viewing header with calendar icon, Preferred Date picker (type=date), Preferred Time dropdown (Morning/Afternoon/Evening), Alternative time section with clock icon, Alternative Date picker, Alternative Time dropdown, Request Viewing button with calendar icon, ✅ Amber/gold styling applied correctly to scheduling section, ✅ Form submission successful with scheduling data (Preferred: 2025-12-15 afternoon, Alternative: 2025-12-22 morning), ✅ Success message displayed: 'Contact request submitted! We will reach out to confirm your viewing time.', ✅ Modal closes properly after submission, ✅ BACKEND VERIFICATION: Contact request saved to MongoDB with all scheduling fields (preferred_date, preferred_time, alternative_date, alternative_time), ✅ Screenshot taken showing complete scheduling UI. APPOINTMENT SCHEDULING FEATURE IS FULLY WORKING as specified in requirements."
 
+  - task: "Welcome email feature testing for new user signup"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Auth.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Welcome email feature implemented. Backend sends congratulatory email to new users via SMTP service when they sign up. Email includes platform features overview, pro tips, and 'Start Searching Now' button. Ready for comprehensive testing of signup flow, dashboard redirect, and backend email logging verification."
+
 agent_communication:
   - agent: "main"
     message: "Fixed image scraping issue. Created specific Harrison Yards crawler that successfully extracts images from LeaseStar API. Improved generic crawler for better image extraction. Cleaned up 122 old placeholder units. Harrison Yards now has 59/60 units with real images. Dashboard verified to display real apartment photos. Need testing agent to verify crawler functions work correctly for all buildings and that image URLs are valid and accessible."

@@ -851,22 +851,46 @@ async def contact_about_unit(
     contact_dict['created_at'] = contact_dict['created_at'].isoformat()
     await db.contact_requests.insert_one(contact_dict)
     
-    # Send email notification in background
+    # Send email notifications in background
     if EMAIL_SERVICE_AVAILABLE:
-        # Prepare apartment unit info for email
-        unit_info = f"{unit.get('unit_number', 'N/A')}"
-        if building:
-            unit_info += f" at {building.get('name', 'Unknown Building')}"
+        building_name = building.get('name', 'Unknown Building') if building else 'Unknown Building'
+        building_address = building.get('address', 'N/A') if building else 'N/A'
+        unit_number = unit.get('unit_number', 'N/A')
+        rent = unit.get('rent', 0)
+        bedrooms = unit.get('bedrooms', 0)
+        bathrooms = unit.get('bathrooms', 0)
         
+        # Send notification to admin
         background_tasks.add_task(
-            send_contact_email,
-            name=input.name,
+            smtp_service.send_inquiry_notification,
+            admin_email='placesfirm@gmail.com',
+            user_name=input.name,
             user_email=input.email,
-            phone=input.phone,
-            apartment_unit=unit_info,
-            message=input.message
+            user_phone=input.phone,
+            message=input.message,
+            building_name=building_name,
+            building_address=building_address,
+            unit_number=unit_number,
+            rent=rent,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms
         )
-        logger.info(f"Email notification queued for contact request from {input.email}")
+        
+        # Send confirmation to user
+        background_tasks.add_task(
+            smtp_service.send_inquiry_confirmation,
+            user_email=input.email,
+            user_name=input.name,
+            message=input.message,
+            building_name=building_name,
+            building_address=building_address,
+            unit_number=unit_number,
+            rent=rent,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms
+        )
+        
+        logger.info(f"Email notifications queued for contact request from {input.email}")
     else:
         logger.warning("Email service not available - notification not sent")
     

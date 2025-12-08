@@ -370,7 +370,7 @@ const Auth = () => {
           <DialogHeader>
             <DialogTitle className="text-slate-100">Reset Your Password</DialogTitle>
             <DialogDescription className="text-slate-300">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we&apos;ll send you a link to reset your password.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">

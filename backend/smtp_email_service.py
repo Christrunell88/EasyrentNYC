@@ -160,7 +160,7 @@ class SMTPEmailService:
                 <p style="color: #64748b; font-size: 14px;">
                     <strong>NoFeesApts Team</strong><br>
                     <a href="mailto:placesfirm@gmail.com" style="color: #f59e0b; text-decoration: none;">placesfirm@gmail.com</a><br>
-                    <a href="https://zerofeerentals.preview.emergentagent.com" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
+                    <a href="https://rentdirect-6.preview.emergentagent.com" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
                 </p>
             </div>
         </body>

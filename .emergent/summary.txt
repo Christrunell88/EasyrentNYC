@@ -14,104 +14,121 @@ The user wants to build a web application called NoFeesApts.com that functions s
 - **Image Hosting:** Use a cloud solution like Google Cloud Storage.
 - **Analytics:** Integrate Google Analytics to track user behavior.
 - **Admin Panel:** An admin-only section to view listings, analytics, and trigger crawls.
+- **Facebook Integration:** Ability to post listings to a Facebook business page.
+- **Contact Form Notifications:** When a user submits a contact form, an email notification should be sent to the admin, and a confirmation email should be sent to the user.
+- **Appointment Scheduling:** Add a simple date/time picker to the contact form on each listing page to allow users to request a tour.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a feature-rich full-stack platform (FastAPI, React, MongoDB) that has been deployed to . All major user-requested features have been implemented in the code, including user authentication (JWT & Google), a favorites system, SEO enhancements, a manual crawl trigger, Google Maps integration with geocoded data, Google Cloud Storage setup, and Google Analytics (GA4) event tracking. All critical deployment and authentication bugs have been fixed in the codebase. However, the live site is experiencing a configuration issue with a newly added feature.
+A comprehensive full-stack application (React/Zustand, FastAPI, MongoDB) with a wide range of features. The session successfully resolved several high-priority issues and added new functionality. The admin login redirect is now fixed, frontend authentication has been hardened by refactoring all API calls to use a global Axios instance, and a new SMTP-based email service now sends notifications for contact form submissions. The agent also implemented extensive SEO content by creating three detailed blog posts and a comprehensive FAQ page. The landing page has been redesigned for a cleaner, more minimalist look. Additionally, the agent has added multiple new apartment listings and buildings to the database as requested by the user.
 
 **Last working item**:
-- **Last item agent was working:** The user deployed the application and confirmed most features were working, but reported Maps not working. The agent investigated the live site and diagnosed a Google Maps API . The root cause is likely a configuration issue in the user's Google Cloud project, such as billing not being enabled (a requirement for the Maps JavaScript API), or incorrect API key restrictions.
-- **Status:** USER VERIFICATION PENDING
-- **Agent Testing Done:** Y
-- **Which testing method agent to use?** User must manually check their Google Cloud Console. After they confirm the fix, the agent should use the screenshot tool on the  page to verify the map is rendering.
+- **Last item agent was working:** Implementing an appointment scheduling feature. The agent added a date and time picker to the contact form on the  page. The frontend UI for this feature is complete.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** Both.
+    - **Frontend:** Use the screenshot tool to visually verify the new date and time pickers render correctly on the listing detail page's contact form.
+    - **Backend:** Use a  or  command to submit the contact form with the new  and  fields and verify the backend processes them without errors. Also, manually check the received emails (admin notification and user confirmation) to ensure the appointment details are included.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** Google Maps Not Working on Live Site (P0)
-- **Issue 2:** Sub-optimal Frontend Authentication (P2)
+- **Issue 1:** Complete the Schedule an Appointment feature (P0)
+- **Issue 2:** Google OAuth login is broken (P1)
+- **Issue 3:** Facebook posts with non-GCS image URLs need verification (P2)
 
 **Issues Detail:**
-- **Issue 1: Google Maps Not Working on Live Site**
-    - **Attempted fixes:** The agent has diagnosed the problem as an  related to the frontend Google Maps API key. The code itself is correct.
+- **Issue 1: Complete the Schedule an Appointment feature**
+    - **Attempted fixes:** The frontend UI has been created in .
     - **Next debug checklist:**
-        1.  Instruct the user to log into their Google Cloud Console.
-        2.  Guide them to the **Billing** section and ensure a billing account is linked to the project.
-        3.  Have them check the **APIs & Services > Credentials** page, select the frontend API key (the one with HTTP referrer restrictions), and verify that Maps JavaScript API is enabled under API restrictions.
-        4.  Once the user confirms the settings are correct, take a screenshot of  and toggle to the Map View to confirm it loads.
-    - **Why fix this issue and what will be achieved with the fix?** The interactive map is a core feature for users to visualize apartment locations. Fixing it is critical for user experience.
+        1.  Modify the  endpoint in  to accept the new  and  fields from the request body.
+        2.  Update the  function in  to include the requested appointment date and time in both the admin notification email and the user confirmation email.
+        3.  Restart the backend service.
+        4.  Test the end-to-end flow.
+    - **Why fix this issue and what will be achieved with the fix?** This will complete a user-requested feature, allowing potential tenants to easily request viewing times, making the platform more interactive and business-friendly.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Both
+    - **Blocked on other issue:** None
+
+- **Issue 2: Google OAuth login is broken**
+    - **Attempted fixes:** Diagnosed that the backend uses a hardcoded, incorrect demo URL for session validation.
+    - **Next debug checklist:**
+        1.  This is blocked pending information from the user/Emergent support. The user has confirmed they've contacted support but have not received a response.
+        2.  Once the correct URL is received, replace the hardcoded URL in  around line 492.
+    - **Why fix this issue and what will be achieved with the fix?** Restores a core authentication feature for users who prefer signing in with Google.
     - **Status:** BLOCKED
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Frontend
-    - **Blocked on other issue:** User action required to fix their Google Cloud configuration.
-- **Issue 2: Sub-optimal Frontend Authentication**
-    - **Attempted fixes:** None. This is a known technical debt item from a previous fork.
+    - **Should Test frontend/backend/both after fix?** Both
+    - **Blocked on other issue:** Waiting for correct endpoint URL from Emergent support.
+
+- **Issue 3: Facebook posts with non-GCS image URLs need verification**
+    - **Attempted fixes:** The agent modified  to download images into memory and upload them as multipart data instead of passing a URL.
     - **Next debug checklist:**
-        1.  Re-evaluate the original  hook and context implementation to understand the root cause of the race condition.
-        2.  Consider replacing the simple Context with a more robust state management library like Zustand or Redux Toolkit.
-    - **Why fix this issue and what will be achieved with the fix?** To build a scalable and maintainable authentication system that follows React best practices, improving long-term stability.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Frontend
-    - **Blocked on other issue:** No
+        1.  Create a test script that calls the  endpoint.
+        2.  Use a unit that has an image URL from a source *other than* GCS (e.g., ).
+        3.  Execute the script and verify that the post is successfully created on the user's Facebook page with the image.
+    - **Why fix this issue and what will be achieved with the fix?** Verifying this fix will ensure all listings, regardless of their image source, can be posted to Facebook, increasing the feature's reliability.
+    - **Status:** TESTING PENDING
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Backend
+    - **Blocked on other issue:** None
 
 **In progress Task List**:
-- None.
+- **Task 1: Complete the Schedule an Appointment feature**
+    - **Where to resume:** . The frontend changes are done; the backend now needs to be updated to handle the new scheduling data.
+    - **What will be achieved with this?** A fully functional appointment request system integrated into the contact form.
+    - **Status:** IN PROGRESS
+    - **Should Test frontend/backend/both after fix?** Both
+    - **Blocked on something:** None
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-  - **P1:** Migrate apartment images to Google Cloud Storage. The service is set up and connected, but the application logic needs to be updated to upload new images and serve existing ones from GCS.
+  - **P1:** Image re-ordering to prioritize interior photos for listings.
 - **Future Tasks:**
-  - **P2:** Create and publish SEO-optimized blog articles and an FAQ page.
   - **P2:** Enhance location-specific pages with more content (photos, local amenities, transit info).
   - **P3:** Implement a backlink-building strategy.
-  - **P3:** Refactor the frontend authentication logic into a proper state management solution (resolves Issue #2).
   - **P3:** Create a Google Business Profile for NoFeesApts.
 
 **Completed work in this session**
-- **Critical Deployment & Auth Fixes:** Resolved all deployment blockers, including critical CORS errors, by correctly configuring the backend to allow credentials from . Fixed hardcoded frontend URLs that were pointing to the wrong (preview) backend environment.
-- **Google Maps Integration:** Integrated an interactive map on the dashboard. Added lat/lng to data models, created a geocoding service, and successfully geocoded 92 units. Resolved API key restrictions by creating separate frontend and backend keys.
-- **Google Cloud Storage Setup:** Guided the user to create a GCS bucket () and service account. Integrated the credentials and service into the backend, ready for image migration.
-- **Google Analytics (GA4) Integration:** Integrated GA4 with automatic page view tracking and custom event tracking for key actions like login, signup, adding favorites, and using filters.
-- **Authentication System Hardening:** Re-authenticated the Gmail API to restore password reset email functionality. Comprehensively tested and verified the entire authentication system (signup, login, Google OAuth, password reset) is functional in the code.
+- **Admin Login Redirect Fix:** Resolved the P0 issue where admin users were incorrectly redirected to the user dashboard instead of .
+- **Frontend Authentication Hardening:** Audited and refactored multiple frontend components (, , , etc.) to consistently use the global Axios instance with auth interceptors, preventing lost authentication states.
+- **Contact Form Email Notifications:** Implemented a new SMTP-based email service () using a Gmail App Password. It now sends an email to the admin and a confirmation to the user upon form submission.
+- **SEO Content Implementation:** Researched, wrote, and implemented over 9,500 words of SEO-optimized content, creating three new blog post pages and completely overhauling the FAQ page.
+- **Landing Page Redesign:** Simplified the landing page hero section, stats bar, and feature descriptions for a cleaner, more minimalist design.
+- **New Listing Additions:** Added three new listings and two new buildings/crawling sources (, , ) to the database via user requests.
+- **Facebook Image Post Fix:** Updated the Facebook service to download and re-upload images from non-GCS URLs, though this fix is pending verification.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1:** The frontend authentication flow remains a temporary workaround and is considered technical debt (Tracked as Sub-optimal Frontend Authentication).
+- **Gmail OAuth Credential Expiration:** The original  which used the Gmail API with OAuth is now broken because the credentials expired. While it has been replaced by an SMTP service, this original service will remain broken unless the OAuth flow is re-authorized.
 
 **Known issue recurrence from previous fork**
-- None.
+- **Sub-optimal Frontend Authentication:** This was a major focus of the session. A comprehensive hardening pass was completed by ensuring all authenticated API calls use the correct Axios instance. While this should improve stability, authentication remains a sensitive area of the application.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **CORS for Credentialed Requests:** Fixed a critical bug by understanding that  is incompatible with credentialed frontend requests (). The solution was to specify the exact origin () and set  in FastAPI's CORS middleware.
-- **Google Cloud Services:**
-    - **API Key Strategy:** Implemented a two-key strategy: a frontend key with HTTP referrer restrictions for the Maps JavaScript API, and a backend key with no restrictions for the server-side Geocoding API.
-    - **Cloud Storage:** Configured server-side access to a GCS bucket using a service account and JSON credentials.
-    - **GA4:** Integrated  for comprehensive analytics tracking.
-- **Deployment Environments:** Debugged issues arising from differences between  and  environments, particularly hardcoded URLs in frontend  files.
+- **Frontend State Management:** Zustand for global auth state.
+- **API Authentication:** Axios interceptors for automatically attaching auth tokens.
+- **Email Service:** Migrated from a broken Gmail API (OAuth) implementation to a simpler and more reliable **SMTP** implementation using a Gmail App Password.
+- **SEO Content:** Generated and implemented long-form blog and FAQ content.
+- **Dynamic Web Crawling:** Confirmed the crawler is designed to dynamically fetch crawl targets from the  collection in the database, simplifying the addition of new sources.
 
 **key DB schema**
-- **units:** Added , .
-- **buildings:** Added , .
+- **contact_requests:** This collection is now the source for user messages viewed in the admin panel. The schema will implicitly need to support  and .
+- **users:**  field is critical for the admin redirect logic.
 
 **changes in tech stack**
--  (backend)
--  (backend script dependency)
--  (frontend)
--  (frontend)
--  (backend)
+- No significant changes, but  is now a key backend dependency for email.
 
-**All files**
+**All files of reference**
 - **Created:**
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - , 
+  - , , 
+  - , , 
+  - , 
 - **Updated:**
   - 
   - 
@@ -121,53 +138,71 @@ The application is a feature-rich full-stack platform (FastAPI, React, MongoDB) 
   - 
   - 
   - 
+  - 
+  - , , , 
+  - 
 
 **Areas that need refactoring**:
-- The frontend authentication logic should be refactored into a proper state management library to resolve known technical debt.
+- **Dead Code Removal:** The old  uses expired OAuth credentials and has been replaced. It should be removed to avoid confusion.
+- **Script Consolidation:** The one-off  scripts in the  directory should be consolidated or moved to a  subdirectory to clean up the project root.
 
 **key api endpoints**
-- : Triggers a crawl of all buildings.
+- : Significantly updated to trigger SMTP emails to both admin and user. It needs to be further updated to handle  and .
+- : Used by the admin panel to display user messages.
+- : Verified to correctly return the  flag.
 
 **Critical Info for New Agent**
-- **The current blocker is a user-side configuration issue.** The Google Map on the live site is failing with an . The most likely cause is that **billing is not enabled** on the user's Google Cloud project. You must guide the user to verify this and other API key settings in their GCP console before proceeding.
-- **The codebase is production-ready.** All known authentication, deployment, and CORS issues have been fixed. The live site should be fully functional once the user resolves the Google Cloud billing/configuration issue.
-- **The project uses THREE separate Google Cloud credentials/keys:**
-    1.  **Frontend Maps Key:** For Maps JavaScript API. Has HTTP referrer restrictions.
-    2.  **Backend Geocoding Key:** For Geocoding API. Has no restrictions.
-    3.  **Gmail API Credentials:** OAuth  for sending emails.
-- **Production vs. Development:** The live site uses a separate production database (MongoDB Atlas) and configuration. Do not assume changes to the local dev database will affect the live site.
+- **Scheduling Feature is Half-Done:** The immediate task is to complete the Schedule an Appointment feature. The frontend UI is done, but the backend needs to be updated to process and email the new date/time fields.
+- **Google OAuth is BLOCKED:** Do not attempt to fix the Google login. It is waiting on an external dependency (a correct URL from Emergent Support).
+- **New Email Service:** A new, working SMTP email service is live in . It relies on  and  in the  file. The old OAuth service is broken.
+- **Facebook Fix Needs Testing:** A fix was implemented for posting images to Facebook, but it was never tested. This should be verified before closing the issue.
 
 **documents created in this job**
 - 
 - 
 - 
 - 
+- 
 
-**Last 5 User Messages and any pending user messages**
-1.  **User:** Stated they were in Google Connected Tags and asked for the ID.
-    - **Status:** Completed. The agent correctly advised the user to skip this step as it relates to Google Tag Manager, which is not being used.
-2.  **User:** Asked if sitemaps have been configured.
-    - **Status:** Completed. The agent confirmed that sitemaps are fully configured, generated, and were already submitted to Google Search Console by the user earlier in the session.
-3.  **User:** Asked for the next best step for functionality and user experience.
-    - **Status:** Completed. The agent advised that the critical next step was to deploy the app to get all the fixes and new features live.
-4.  **User:** I just re-deployed.
-    - **Status:** Completed. The agent acknowledged the deployment and provided a test plan for the user to execute once it was finished.
-5.  **User:** Everything looks good so far. Maps not working
-    - **Status:** IN PROGRESS. This is the current P0 issue. The agent has diagnosed it as a Google Cloud configuration problem on the user's end and is waiting for the user to check their settings.
+**Last 10 User Messages and any pending user messages**
+1.  **User:** Asks to implement email notifications for the contact form. **Status:** Completed.
+2.  **User:** Provides the Gmail App Password for the SMTP service. **Status:** Completed.
+3.  **User:** Confirms the app password instructions from Google. **Status:** Completed.
+4.  **User:** Confirms receipt of the test email and asks to add a schedule an appointment feature. **Status:** In Progress.
+5.  **User:** Chooses Option 1 (simple date/time picker) for the scheduling feature. **Status:** In Progress.
+6.  **User:** Asks about a new user and an interesting email they saw in the admin panel. **Status:** Completed (Agent identified the new user and contact message).
+7.  **User:** Asks where to view messages from users. **Status:** Completed (Agent explained the Contacts tab in the admin panel).
+8.  **User:** Asks for the SEO content draft to be emailed. **Status:** Completed (After several attempts, a working SMTP service was implemented).
+9.  **User:** Reports the generated HTML file for SEO content is not opening correctly. **Status:** Completed (Agent provided a simpler version and then implemented a full email solution).
+10. **User:** Asks how to download files from the file system. **Status:** Completed (Agent provided instructions via the support agent).
 
 **Project Health Check:**
-- **Broken:** The Google Maps feature on the live site () is not rendering due to an API key .
-- **Mocked:** N/A.
+- **Broken:**
+  - Google OAuth Login flow.
+  - Schedule an Appointment feature (backend is not implemented).
+- **Mocked:** N/A
+
+**3rd Party Integrations**
+- **Google Maps API:** Fully functional.
+- **Google Cloud Storage (GCS):** Fully functional.
+- **Google Analytics (GA4):** Integrated and tracking.
+- **Facebook Graph API:** Partially functional (image posting fix is implemented but not verified).
+- **Emergent Managed Google OAuth:** **BROKEN**.
+- **SMTP via Gmail:** **NEW & Fully functional**. Used for contact form notifications.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES
-- **Troubleshoot agent used after agent stuck in loop:** YES
-- **Test files created:** None
-- **Known regressions:** The Google Maps feature, which worked in development, is failing on the live site due to an external configuration issue (likely billing).
+- **Testing agent used after significant changes:** NO (Agent used manual testing via curl and screenshots).
+- **Troubleshoot agent used after agent stuck in loop:** NO (Agent self-resolved the SMTP issue).
+- **Test files created:** , 
+- **Known regressions:** None in this session.
 
 **Credentials to test flow:**
-- **Admin:** ,  (Access via )
-- **Regular User:** . Password is unknown, but Google OAuth and Password Reset are confirmed to be working.
+- **Admin User:**
+  - **Email:** 
+  - **Password:** 
+- **Regular User:**
+  - **Email:** 
+  - **Password:** 
 
 **What agent forgot to execute**
-- The agent has been thorough. The current blocker is external and depends on user action. All internal code issues appear to be resolved pending final verification on the live site after the user fixes their Google Cloud configuration.</analysis>
+- The agent implemented a fix for the Facebook image posting issue but never tested or verified that the fix works.</analysis>

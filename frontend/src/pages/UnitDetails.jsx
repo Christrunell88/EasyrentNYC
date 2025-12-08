@@ -326,32 +326,102 @@ const UnitDetails = () => {
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleContact} className="space-y-4">
-                      <div>
-                        <Label htmlFor="name" className="text-slate-200">Name</Label>
-                        <Input id="name" name="name" required data-testid="contact-name-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="name" className="text-slate-200">Name</Label>
+                          <Input id="name" name="name" required data-testid="contact-name-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone" className="text-slate-200">Phone</Label>
+                          <Input id="phone" name="phone" type="tel" required data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="email" className="text-slate-200">Email</Label>
                         <Input id="email" name="email" type="email" required data-testid="contact-email-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
                       </div>
-                      <div>
-                        <Label htmlFor="phone" className="text-slate-200">Phone (Optional)</Label>
-                        <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
+                      
+                      {/* Schedule Viewing Section */}
+                      <div className="border border-amber-500/30 rounded-lg p-4 bg-slate-700/30">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CalendarIcon className="w-4 h-4 text-amber-400" />
+                          <Label className="text-amber-400 font-semibold">Schedule a Viewing</Label>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="preferred_date" className="text-slate-200 text-sm">Preferred Date</Label>
+                              <Input 
+                                id="preferred_date" 
+                                name="preferred_date" 
+                                type="date"
+                                min={new Date().toISOString().split('T')[0]}
+                                className="bg-slate-700 border-amber-500/20 text-slate-100"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="preferred_time" className="text-slate-200 text-sm">Preferred Time</Label>
+                              <select 
+                                id="preferred_time" 
+                                name="preferred_time"
+                                className="w-full h-10 px-3 rounded-md bg-slate-700 border border-amber-500/20 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                              >
+                                <option value="">Select time</option>
+                                <option value="morning">Morning (9am-12pm)</option>
+                                <option value="afternoon">Afternoon (12pm-5pm)</option>
+                                <option value="evening">Evening (5pm-8pm)</option>
+                              </select>
+                            </div>
+                          </div>
+                          
+                          <div className="text-xs text-slate-400 flex items-start gap-2">
+                            <Clock className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                            <span>Alternative time (optional)</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Input 
+                                id="alternative_date" 
+                                name="alternative_date" 
+                                type="date"
+                                min={new Date().toISOString().split('T')[0]}
+                                placeholder="Alternative date"
+                                className="bg-slate-700 border-amber-500/30 text-slate-100 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <select 
+                                id="alternative_time" 
+                                name="alternative_time"
+                                className="w-full h-10 px-3 rounded-md bg-slate-700 border border-amber-500/30 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                              >
+                                <option value="">Select time</option>
+                                <option value="morning">Morning (9am-12pm)</option>
+                                <option value="afternoon">Afternoon (12pm-5pm)</option>
+                                <option value="evening">Evening (5pm-8pm)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                      
                       <div>
                         <Label htmlFor="message" className="text-slate-200">Message</Label>
                         <Textarea
                           id="message"
                           name="message"
-                          rows={4}
-                          placeholder="I'm interested in this unit..."
+                          rows={3}
+                          placeholder="Tell us about yourself and any questions you have..."
                           required
                           data-testid="contact-message-input"
                           className="bg-slate-700 border-amber-500/20 text-slate-100 placeholder:text-slate-400"
                         />
                       </div>
                       <Button type="submit" className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-submit-btn">
-                        Send Message
+                        <CalendarIcon className="w-4 h-4 mr-2" />
+                        Request Viewing
                       </Button>
                     </form>
                   </DialogContent>

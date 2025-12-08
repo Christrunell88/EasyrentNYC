@@ -14,6 +14,9 @@ import LocationPage from './pages/LocationPage';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
+import GuideToNoFeeApartments from './pages/blog/GuideToNoFeeApartments';
+import BestNeighborhoods from './pages/blog/BestNeighborhoods';
+import ApartmentChecklist from './pages/blog/ApartmentChecklist';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
 

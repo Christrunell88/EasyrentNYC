@@ -40,6 +40,8 @@ const Auth = () => {
       const params = new URLSearchParams(hash.substring(1));
       const sessionId = params.get('session_id');
       if (sessionId) {
+        // Clear the session_id from URL to prevent re-processing
+        window.history.replaceState(null, '', '/auth');
         handleOAuthSession(sessionId);
       }
     } else if (user) {

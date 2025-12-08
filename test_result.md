@@ -300,6 +300,18 @@ test_plan:
         agent: "testing"
         comment: "ADMIN LOGIN REDIRECT TESTING COMPLETED SUCCESSFULLY: Comprehensive analysis and testing confirms admin login redirect functionality is working correctly. VERIFIED FUNCTIONALITY: ✅ Backend login API returns correct admin user data (is_admin: true) for placesfirm@gmail.com, ✅ Auth.jsx contains proper redirect logic in handleEmailLogin (lines 121-123) that checks result.user.is_admin and navigates to '/admin', ✅ Same logic implemented in handleEmailSignup and handleOAuthSession for consistent behavior, ✅ App.js routing configured correctly with /admin route requiring admin privileges (ProtectedRoute with requireAdmin=true), ✅ AdminPanel component exists and displays proper admin interface with stats, management tabs, and admin-specific functionality, ✅ No apartment search filters present in admin panel (correct - not user dashboard). TECHNICAL VERIFICATION: Backend API test with curl confirms login endpoint returns 200 OK with session token and user object containing is_admin: true. Frontend code analysis shows proper conditional navigation logic: if (result.user.is_admin) { navigate('/admin'); } else { navigate('/dashboard'); }. CONCLUSION: Admin users are correctly redirected to /admin (Admin Panel) instead of /dashboard (user search interface). The redirect logic is properly implemented and working as expected."
 
+  - task: "Appointment scheduling feature in contact form"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/UnitDetails.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented appointment scheduling feature in contact form modal. Added preferred_date, preferred_time, alternative_date, alternative_time fields with amber/gold styling. Backend updated to handle scheduling data in ContactInput/ContactRequest models and includes scheduling info in email notifications. Button text changed to 'Request Viewing' with calendar icon. Success message updated to mention viewing time confirmation."
+
 agent_communication:
   - agent: "main"
     message: "Fixed image scraping issue. Created specific Harrison Yards crawler that successfully extracts images from LeaseStar API. Improved generic crawler for better image extraction. Cleaned up 122 old placeholder units. Harrison Yards now has 59/60 units with real images. Dashboard verified to display real apartment photos. Need testing agent to verify crawler functions work correctly for all buildings and that image URLs are valid and accessible."

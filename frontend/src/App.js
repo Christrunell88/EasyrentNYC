@@ -144,6 +144,9 @@ function App() {
             <Route path="/session" element={<SessionHandler />} />
             <Route path="/location/:location" element={<LocationPage />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/guide-to-no-fee-apartments" element={<GuideToNoFeeApartments />} />
+            <Route path="/blog/best-neighborhoods" element={<BestNeighborhoods />} />
+            <Route path="/blog/apartment-checklist" element={<ApartmentChecklist />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
             <Route

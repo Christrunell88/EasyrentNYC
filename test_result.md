@@ -533,3 +533,59 @@ The configured axios instance (`axiosConfig.js`) includes:
 
 **Status:** ✅ COMPLETE
 
+
+---
+
+## New Listing Added - Chelsea Place (December 8, 2024)
+
+### Chelsea Place - 1 Bedroom Apartment
+
+**Building Information:**
+- **Name:** Chelsea Place
+- **Address:** 363 West 30th Street, New York, NY 10001
+- **Neighborhood:** Chelsea
+- **Source URL:** https://manhattanskyline.com/buildings/chelsea/chelsea-place
+- **Building ID:** c9d752f4-b846-434c-a821-c91bc1e67f5e
+- **Status:** Already exists in database ✅
+
+**Unit Details:**
+- **Unit ID:** 9d4d14f2-4c1c-4b51-9837-5e5615a79672
+- **Unit Number:** 1BR
+- **Rent:** $4,195/month
+- **Bedrooms:** 1
+- **Bathrooms:** 1
+- **Status:** Available Now
+- **Images:** 7 high-quality photos
+- **Amenities:** 12 features including:
+  - Breakfast Bar
+  - Granite Countertops
+  - Stainless Steel Appliances
+  - Dishwasher
+  - Fitness Center
+  - Landscaped Roof Deck (2 decks)
+  - Laundry in Building
+  - On-Premises Parking Garage
+
+**Description Highlights:**
+- Beautiful and spacious one-bedroom
+- Stainless steel appliances
+- Amazing closet space
+- Two landscaped roof decks
+- Fully-equipped fitness center
+- On-premises parking garage
+
+**Database Impact:**
+- Total Buildings: 19 (no change - building already exists)
+- Total Units: 106 → 107
+- Total Available Units: 107
+
+**Crawler Status:**
+- ✅ Building already configured in crawler
+- ✅ Source URL: https://manhattanskyline.com/buildings/chelsea/chelsea-place
+- ✅ Will be automatically updated during scheduled crawls (every 48 hours)
+
+**Verification:**
+✅ Unit successfully added to database
+✅ Visible in API endpoint
+✅ Building already part of automated crawling system
+

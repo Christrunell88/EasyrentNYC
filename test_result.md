@@ -301,15 +301,18 @@ test_plan:
 
   - task: "Appointment scheduling feature in contact form"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/UnitDetails.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented appointment scheduling feature in contact form modal. Added preferred_date, preferred_time, alternative_date, alternative_time fields with amber/gold styling. Backend updated to handle scheduling data in ContactInput/ContactRequest models and includes scheduling info in email notifications. Button text changed to 'Request Viewing' with calendar icon. Success message updated to mention viewing time confirmation."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE APPOINTMENT SCHEDULING TESTING COMPLETED SUCCESSFULLY: Fixed critical CalendarIcon import issue that was causing JavaScript errors. VERIFIED FUNCTIONALITY: ✅ Login flow with regular user (chris.trunell@gmail.com) works perfectly, ✅ Unit details navigation from dashboard working correctly, ✅ Contact form modal opens successfully, ✅ ALL SCHEDULING UI ELEMENTS PRESENT: Schedule a Viewing header with calendar icon, Preferred Date picker (type=date), Preferred Time dropdown (Morning/Afternoon/Evening), Alternative time section with clock icon, Alternative Date picker, Alternative Time dropdown, Request Viewing button with calendar icon, ✅ Amber/gold styling applied correctly to scheduling section, ✅ Form submission successful with scheduling data (Preferred: 2025-12-15 afternoon, Alternative: 2025-12-22 morning), ✅ Success message displayed: 'Contact request submitted! We will reach out to confirm your viewing time.', ✅ Modal closes properly after submission, ✅ BACKEND VERIFICATION: Contact request saved to MongoDB with all scheduling fields (preferred_date, preferred_time, alternative_date, alternative_time), ✅ Screenshot taken showing complete scheduling UI. APPOINTMENT SCHEDULING FEATURE IS FULLY WORKING as specified in requirements."
 
 agent_communication:
   - agent: "main"

@@ -116,6 +116,10 @@ class ContactRequest(BaseModel):
     name: str
     email: str
     phone: Optional[str] = None
+    preferred_date: Optional[str] = None
+    preferred_time: Optional[str] = None
+    alternative_date: Optional[str] = None
+    alternative_time: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # ============ INPUT MODELS ============

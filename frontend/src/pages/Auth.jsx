@@ -27,6 +27,27 @@ const Auth = () => {
   const signup = useAuthStore((state) => state.signup);
   const processSession = useAuthStore((state) => state.processSession);
 
+  // Handle OAuth session processing
+  const handleOAuthSession = async (sessionId) => {
+    const result = await processSession(sessionId);
+    
+    if (result.success) {
+      toast.success('Login successful!');
+      trackLogin('google');
+      
+      // Navigate based on user type
+      if (result.user.is_admin) {
+        navigate('/admin');
+      } else {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath || '/dashboard');
+      }
+    } else {
+      toast.error(result.error || 'Authentication failed');
+    }
+  };
+
   // Process OAuth session_id from URL and check for admin mode
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -54,27 +75,7 @@ const Auth = () => {
         navigate(redirectPath || '/dashboard');
       }
     }
-  }, [location, user, navigate]);
-
-  const handleOAuthSession = async (sessionId) => {
-    const result = await processSession(sessionId);
-    
-    if (result.success) {
-      toast.success('Login successful!');
-      trackLogin('google');
-      
-      // Navigate based on user type
-      if (result.user.is_admin) {
-        navigate('/admin');
-      } else {
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath || '/dashboard');
-      }
-    } else {
-      toast.error(result.error || 'Authentication failed');
-    }
-  };
+  }, [location, user, navigate, handleOAuthSession]);
 
   const handleGoogleLogin = () => {
     // Track Google OAuth attempt

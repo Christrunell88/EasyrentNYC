@@ -345,3 +345,32 @@ agent_communication:
     message: "ADMIN PANEL AXIOS INTERCEPTOR FIX VERIFICATION COMPLETED: Comprehensive testing confirms the admin panel now shows correct unit count (105 units, not 0) as requested. VERIFIED FUNCTIONALITY: ✅ Admin login (placesfirm@gmail.com / Checkers080/?) works flawlessly, ✅ Admin panel loads with proper header 'Admin Panel' and navigation, ✅ CRITICAL STATS VERIFICATION: Total Units displays 105 (exactly as expected), Total Buildings shows 18, Total Users shows 20, Available Units shows 105, ✅ All stats cards display real numbers with proper formatting and icons, ✅ Units tab populated with 50+ unit rows showing building names, addresses, rent prices, bed/bath counts, ✅ Buildings tab populated with 18 building rows showing names, addresses, cities, last crawled dates, ✅ All tabs (All Units, Directory, Buildings, Units, Users, Contacts) functional and clickable, ✅ Backend API calls return 200 OK responses (verified in logs: /api/admin/stats, /api/units?limit=500, /api/admin/users, /api/buildings, /api/contact), ✅ No authentication errors (401/403) in console or network requests, ✅ Authorization header with session token working correctly via axios interceptor. CONCLUSION: The axios interceptor fix successfully resolved the admin panel authentication issue. All admin functionality is now working correctly with proper API authentication."
   - agent: "testing"
     message: "ADMIN LOGIN REDIRECT VERIFICATION COMPLETED: Comprehensive analysis confirms admin login redirect functionality is working correctly. Backend API returns proper admin user data (is_admin: true), Auth.jsx contains correct redirect logic (navigate('/admin') for admin users), and AdminPanel component displays proper admin interface. Admin users are correctly redirected to /admin (Admin Panel) instead of /dashboard (user search interface). The redirect implementation is functioning as expected."
+
+---
+
+## Test Session - December 8, 2024
+
+### Issue Fixed: Admin Login Redirect (P0)
+
+**Problem:** 
+Admin users were being redirected to `/dashboard` instead of `/admin` after login.
+
+**Root Cause:**
+The `useEffect` hook in `Auth.jsx` was triggering after login and redirecting ALL authenticated users to `/dashboard` without checking their admin status. This happened AFTER the `handleEmailLogin` function's redirect, causing the admin redirect to be overridden.
+
+**Solution:**
+1. Updated the `useEffect` hook to check `user.is_admin` before redirecting
+2. Removed duplicate navigation logic from `handleEmailLogin`, `handleEmailSignup`, and `handleOAuthSession` functions
+3. Centralized all navigation logic in the `useEffect` hook for consistency
+
+**Files Modified:**
+- `/app/frontend/src/pages/Auth.jsx`
+
+**Testing Results:**
+✅ Admin login (`placesfirm@gmail.com`) correctly redirects to `/admin`
+✅ Regular user login (`chris.trunell@gmail.com`) correctly redirects to `/dashboard`
+✅ Both login flows show success toast message
+✅ Backend returns correct `is_admin` flag in login response
+
+**Status:** ✅ RESOLVED
+

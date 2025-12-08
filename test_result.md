@@ -360,6 +360,8 @@ agent_communication:
     message: "ADMIN LOGIN REDIRECT VERIFICATION COMPLETED: Comprehensive analysis confirms admin login redirect functionality is working correctly. Backend API returns proper admin user data (is_admin: true), Auth.jsx contains correct redirect logic (navigate('/admin') for admin users), and AdminPanel component displays proper admin interface. Admin users are correctly redirected to /admin (Admin Panel) instead of /dashboard (user search interface). The redirect implementation is functioning as expected."
   - agent: "main"
     message: "Implemented appointment scheduling feature in contact form. Added scheduling UI with preferred/alternative date/time fields, updated backend to handle scheduling data, and modified email notifications to include appointment details. Ready for comprehensive testing of the full user flow from login to form submission and backend verification."
+  - agent: "testing"
+    message: "APPOINTMENT SCHEDULING FEATURE TESTING COMPLETED SUCCESSFULLY: Fixed critical CalendarIcon import issue and conducted comprehensive testing. All requirements verified: ✅ Login flow working, ✅ Unit details access working, ✅ Contact form modal with complete scheduling UI (amber/gold styling, calendar icons, date pickers, time dropdowns), ✅ Form submission successful with scheduling data, ✅ Success message 'Contact request submitted! We will reach out to confirm your viewing time.' displayed, ✅ Backend verification shows scheduling data saved to MongoDB correctly. Feature is fully functional and ready for production use."
 
 ---
 

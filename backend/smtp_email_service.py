@@ -23,6 +23,51 @@ class SMTPEmailService:
         self.smtp_server = 'smtp.gmail.com'
         self.smtp_port = 587
     
+    def _format_viewing_schedule(
+        self, 
+        preferred_date: Optional[str], 
+        preferred_time: Optional[str],
+        alternative_date: Optional[str],
+        alternative_time: Optional[str]
+    ) -> str:
+        """Format viewing schedule section for email"""
+        if not any([preferred_date, preferred_time, alternative_date, alternative_time]):
+            return ""
+        
+        time_mapping = {
+            "morning": "Morning (9am-12pm)",
+            "afternoon": "Afternoon (12pm-5pm)",
+            "evening": "Evening (5pm-8pm)"
+        }
+        
+        html = '<div style="background: #dcfce7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">'
+        html += '<h3 style="color: #1e293b; margin-top: 0;">📅 Requested Viewing Times:</h3>'
+        
+        if preferred_date or preferred_time:
+            html += '<div style="margin: 10px 0;">'
+            html += '<p style="margin: 5px 0;"><strong style="color: #059669;">Preferred:</strong></p>'
+            if preferred_date:
+                html += f'<p style="margin: 5px 0 5px 20px;">📆 Date: {preferred_date}</p>'
+            if preferred_time:
+                time_display = time_mapping.get(preferred_time, preferred_time)
+                html += f'<p style="margin: 5px 0 5px 20px;">⏰ Time: {time_display}</p>'
+            html += '</div>'
+        
+        if alternative_date or alternative_time:
+            html += '<div style="margin: 10px 0;">'
+            html += '<p style="margin: 5px 0;"><strong style="color: #059669;">Alternative:</strong></p>'
+            if alternative_date:
+                html += f'<p style="margin: 5px 0 5px 20px;">📆 Date: {alternative_date}</p>'
+            if alternative_time:
+                time_display = time_mapping.get(alternative_time, alternative_time)
+                html += f'<p style="margin: 5px 0 5px 20px;">⏰ Time: {time_display}</p>'
+            html += '</div>'
+        
+        html += '<p style="margin: 15px 0 0 0; color: #047857; font-size: 14px;"><em>💡 Please confirm availability with the prospective tenant.</em></p>'
+        html += '</div>'
+        
+        return html
+    
     def send_email(self, to_email: str, subject: str, body_html: str, reply_to: Optional[str] = None) -> bool:
         """Send an email using Gmail SMTP"""
         try:

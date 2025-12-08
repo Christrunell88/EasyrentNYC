@@ -279,7 +279,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Welcome email feature testing for new user signup"
   stuck_tasks:
     - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"

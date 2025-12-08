@@ -881,7 +881,11 @@ async def contact_about_unit(
             unit_number=unit_number,
             rent=rent,
             bedrooms=bedrooms,
-            bathrooms=bathrooms
+            bathrooms=bathrooms,
+            preferred_date=input.preferred_date,
+            preferred_time=input.preferred_time,
+            alternative_date=input.alternative_date,
+            alternative_time=input.alternative_time
         )
         
         # Send confirmation to user
@@ -895,7 +899,11 @@ async def contact_about_unit(
             unit_number=unit_number,
             rent=rent,
             bedrooms=bedrooms,
-            bathrooms=bathrooms
+            bathrooms=bathrooms,
+            preferred_date=input.preferred_date,
+            preferred_time=input.preferred_time,
+            alternative_date=input.alternative_date,
+            alternative_time=input.alternative_time
         )
         
         logger.info(f"Email notifications queued for contact request from {input.email}")

@@ -98,7 +98,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "NoFeesApts.com web application that crawls real estate websites for no-fee apartment listings in NYC and Northern NJ. User reported that listing cards show placeholder images instead of actual unit photos scraped from websites."
+user_problem_statement: "Test the welcome email feature for new user signup on NoFeesApts.com. The backend is working correctly and sending emails successfully. Need to verify signup flow, dashboard redirect, and backend email logs."
 
 backend:
   - task: "Image scraping for Harrison Yards"

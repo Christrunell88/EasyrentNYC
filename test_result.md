@@ -280,8 +280,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Google OAuth session validation endpoint fix"
-    - "Google Maps integration on dashboard Map View"
+    - "Appointment scheduling feature in contact form"
   stuck_tasks:
     - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"

@@ -62,7 +62,15 @@ const Auth = () => {
     if (result.success) {
       toast.success('Login successful!');
       trackLogin('google');
-      // Navigation will be handled by useEffect when user state updates
+      
+      // Navigate based on user type
+      if (result.user.is_admin) {
+        navigate('/admin');
+      } else {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath || '/dashboard');
+      }
     } else {
       toast.error(result.error || 'Authentication failed');
     }

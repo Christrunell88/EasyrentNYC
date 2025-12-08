@@ -279,8 +279,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Appointment scheduling feature in contact form"
+  current_focus: []
   stuck_tasks:
     - "Google OAuth session validation endpoint fix"
     - "Google Maps integration on dashboard Map View"

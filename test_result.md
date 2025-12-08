@@ -374,3 +374,30 @@ The `useEffect` hook in `Auth.jsx` was triggering after login and redirecting AL
 
 **Status:** ✅ RESOLVED
 
+
+### Issue Fixed: Facebook Posts with Non-GCS Images (P2)
+
+**Problem:** 
+Facebook posts fail with '400 Bad Request' when using image URLs from `customer-assets.emergentagent.com`.
+
+**Root Cause:**
+Facebook's Graph API doesn't accept URLs from certain domains. The service was directly passing image URLs to Facebook, which rejected URLs from non-whitelisted CDNs.
+
+**Solution:**
+1. Modified `post_with_single_photo()` to detect non-GCS image URLs
+2. For problematic URLs, download the image to memory first
+3. Upload the image data as `multipart/form-data` instead of passing a URL
+4. Applied the same fix to `upload_photo_for_later_use()` for multi-photo posts
+5. Maintained backward compatibility for well-known CDNs (GCS, Unsplash) that work with URL method
+
+**Files Modified:**
+- `/app/backend/facebook_service.py`
+
+**Key Changes:**
+- Detects URLs containing `customer-assets.emergentagent.com` or `emergentagent.com`
+- Downloads image via HTTP GET request
+- Uploads as file data with proper content-type
+- Falls back to URL method for compatible CDNs
+
+**Status:** ✅ IMPLEMENTED (requires testing with actual Facebook posting)
+

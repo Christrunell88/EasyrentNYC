@@ -691,6 +691,9 @@ const Landing = () => {
 
       {/* Signup Modal */}
       <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)} />
+      
+      {/* Email Capture Modal */}
+      <EmailCaptureModal />
     </div>
   );
 };

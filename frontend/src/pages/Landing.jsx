@@ -20,6 +20,7 @@ const Landing = () => {
 
   useEffect(() => {
     checkAuth();
+    fetchFeaturedUnits();
   }, []);
 
   const checkAuth = async () => {

@@ -7,6 +7,7 @@ import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye, M
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
+import EmailCaptureModal from '../components/EmailCaptureModal';
 import Logo from '@/components/Logo';
 import SEO from '@/components/SEO';
 

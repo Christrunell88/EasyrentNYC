@@ -933,6 +933,35 @@ async def get_contact_requests(user: User = Depends(require_admin)):
     contacts = await db.contact_requests.find({}, {"_id": 0}).sort('created_at', -1).to_list(1000)
     return contacts
 
+@api_router.post("/subscribe")
+async def subscribe_email(input: EmailSubscribeInput):
+    """Subscribe email for apartment alerts"""
+    try:
+        # Check if email already exists
+        existing = await db.email_subscribers.find_one({'email': input.email})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already subscribed")
+        
+        # Add new subscriber
+        subscriber = {
+            'id': str(uuid.uuid4()),
+            'email': input.email,
+            'subscribed_at': datetime.now(timezone.utc).isoformat(),
+            'active': True
+        }
+        
+        await db.email_subscribers.insert_one(subscriber)
+        
+        logger.info(f"New email subscriber: {input.email}")
+        
+        return {'success': True, 'message': 'Successfully subscribed!'}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error subscribing email: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to subscribe")
+
 @api_router.post("/share-unit")
 async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
     """Share apartment unit via email"""

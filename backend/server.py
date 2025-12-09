@@ -1211,6 +1211,24 @@ async def get_sitemap():
         logger.error(f"Error generating sitemap: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to generate sitemap")
 
+@app.get("/robots.txt", response_class=PlainTextResponse)
+async def get_robots():
+    """Serve robots.txt for search engines"""
+    base_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+    
+    robots_content = f"""User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: {base_url}/sitemap.xml
+
+# Disallow admin and auth pages from indexing
+Disallow: /admin
+Disallow: /api/
+"""
+    
+    return PlainTextResponse(content=robots_content, media_type="text/plain")
+
 # ============ FACEBOOK INTEGRATION ============
 
 # Import Facebook service

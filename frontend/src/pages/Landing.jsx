@@ -324,16 +324,19 @@ const Landing = () => {
                     <div className="flex items-start gap-2 mb-4 relative">
                       <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <div className="text-sm text-slate-400 select-none relative">
-                          <span style={{ filter: 'blur(5px)', userSelect: 'none' }}>
-                            {unit.building?.address || '123 Main Street'}
-                          </span>
+                        <div className="relative inline-block">
+                          <div className="text-sm text-slate-400 font-medium" style={{ filter: 'blur(4px)' }}>
+                            {unit.building?.address || '4650 Center Boulevard'}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-start gap-1">
+                            <Lock className="w-3 h-3 text-amber-400" />
+                            <span className="text-xs text-amber-400 font-semibold">Sign up to view</span>
+                          </div>
                         </div>
-                        <div className="text-sm text-amber-500 font-medium">
+                        <div className="text-sm text-amber-500 font-medium mt-1">
                           {unit.building?.neighborhood}, {unit.building?.city}
                         </div>
                       </div>
-                      <Lock className="w-3 h-3 text-amber-500 absolute right-0 top-0" />
                     </div>
 
                     {/* Sign Up Button */}

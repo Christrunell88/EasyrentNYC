@@ -149,6 +149,9 @@ class ShareUnitInput(BaseModel):
     recipient_email: str
     message: Optional[str] = None
 
+class EmailSubscribeInput(BaseModel):
+    email: str
+
 class BuildingInput(BaseModel):
     name: str
     address: str

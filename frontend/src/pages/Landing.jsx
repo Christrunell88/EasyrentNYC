@@ -34,6 +34,15 @@ const Landing = () => {
     }
   };
 
+  const fetchFeaturedUnits = async () => {
+    try {
+      const response = await axios.get(`${API}/units?limit=6`);
+      setFeaturedUnits(response.data);
+    } catch (error) {
+      console.error('Error fetching featured units:', error);
+    }
+  };
+
   const handleGetStarted = () => {
     if (isAuthenticated) {
       navigate('/dashboard');

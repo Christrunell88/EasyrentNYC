@@ -53,6 +53,30 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     }
   };
 
+  const handleSocialShare = (platform) => {
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareText);
+    
+    let shareLink = '';
+    
+    switch(platform) {
+      case 'facebook':
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'twitter':
+        shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+        break;
+      case 'whatsapp':
+        shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareLink, '_blank', 'width=600,height=400');
+    toast.success(`Sharing on ${platform}!`);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100 max-w-md">

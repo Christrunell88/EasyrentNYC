@@ -259,6 +259,108 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Featured Apartments */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Featured <span className="warm-gradient-text">No-Fee Apartments</span>
+            </h2>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+              Explore our latest listings. Sign up to view full details and contact information.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {featuredUnits.map((unit) => {
+              const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`;
+              
+              return (
+                <Card 
+                  key={unit.id} 
+                  className="glass-window border-amber-500/20 overflow-hidden group hover:border-amber-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20"
+                >
+                  {/* Image */}
+                  <div className="relative h-56 overflow-hidden bg-slate-800">
+                    {unit.images && unit.images[0] ? (
+                      <>
+                        <img
+                          src={unit.images[0]}
+                          alt={`${unit.building?.name || 'Apartment'}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-3 right-3">
+                          <Badge className="warm-gradient text-slate-900 font-bold">NO FEE</Badge>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Building2 className="w-16 h-16 text-amber-500/30" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5">
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="text-3xl font-bold warm-gradient-text">${unit.rent.toLocaleString()}</span>
+                      <span className="text-slate-400">/mo</span>
+                    </div>
+
+                    {/* Unit Details */}
+                    <div className="flex items-center gap-4 mb-3 text-slate-300">
+                      <div className="flex items-center gap-1">
+                        <BedDouble className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-medium">{bedroomText}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Bath className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-medium">{unit.bathrooms} BA</span>
+                      </div>
+                    </div>
+
+                    {/* Blurred Address */}
+                    <div className="flex items-start gap-2 mb-4 relative">
+                      <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="text-sm text-slate-400 blur-sm select-none">
+                          {unit.building?.address || '123 Main Street'}
+                        </div>
+                        <div className="text-sm text-amber-500 font-medium">
+                          {unit.building?.neighborhood}, {unit.building?.city}
+                        </div>
+                      </div>
+                      <Lock className="w-3 h-3 text-amber-500 absolute right-0 top-0" />
+                    </div>
+
+                    {/* Sign Up Button */}
+                    <Button
+                      onClick={() => navigate('/auth')}
+                      className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+                    >
+                      Sign Up for Full Details
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="text-center">
+            <Button
+              onClick={() => navigate('/auth')}
+              size="lg"
+              className="warm-gradient hover:shadow-xl hover:shadow-amber-500/40 text-slate-900 font-bold px-12 py-6 text-lg"
+            >
+              Sign Up to View All {stats.units}+ Apartments
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* The Moment Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 first-moment">
         <div className="max-w-7xl mx-auto">

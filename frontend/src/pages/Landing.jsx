@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye, MapPin } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Building2, Search, Heart, Key, TrendingUp, Sparkles, ArrowRight, Eye, MapPin, BedDouble, Bath, Lock } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';

@@ -324,8 +324,10 @@ const Landing = () => {
                     <div className="flex items-start gap-2 mb-4 relative">
                       <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <div className="text-sm text-slate-400 blur-sm select-none">
-                          {unit.building?.address || '123 Main Street'}
+                        <div className="text-sm text-slate-400 select-none relative">
+                          <span style={{ filter: 'blur(5px)', userSelect: 'none' }}>
+                            {unit.building?.address || '123 Main Street'}
+                          </span>
                         </div>
                         <div className="text-sm text-amber-500 font-medium">
                           {unit.building?.neighborhood}, {unit.building?.city}

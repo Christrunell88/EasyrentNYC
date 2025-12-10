@@ -685,8 +685,23 @@ async def get_units(
         amenity_list = [a.strip() for a in amenities.split(',')]
         query['amenities'] = {'$in': amenity_list}
     
-    # Get units
-    units = await db.units.find(query, {"_id": 0}).limit(limit).to_list(limit)
+    # Get units - prioritize featured units
+    # First get featured units
+    featured_units = await db.units.find(
+        {**query, 'is_featured': True}, 
+        {"_id": 0}
+    ).limit(limit).to_list(limit)
+    
+    # If we need more units to reach the limit, get regular units
+    remaining_limit = limit - len(featured_units)
+    if remaining_limit > 0:
+        regular_units = await db.units.find(
+            {**query, 'is_featured': {'$ne': True}}, 
+            {"_id": 0}
+        ).limit(remaining_limit).to_list(remaining_limit)
+        units = featured_units + regular_units
+    else:
+        units = featured_units
     
     # If neighborhood or city filter, need to join with buildings
     if neighborhood or city:

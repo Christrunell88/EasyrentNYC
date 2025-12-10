@@ -330,7 +330,7 @@ async def login(input: LoginInput, response: Response, request: Request):
         key='session_token',
         value=session_token,
         httponly=True,
-        secure=False,  # Allow HTTP cookies for localhost development
+        secure=COOKIE_SECURE,  # True for HTTPS, False for HTTP
         samesite='lax',
         max_age=JWT_EXPIRATION_DAYS * 24 * 60 * 60,
         path='/'

@@ -1166,9 +1166,7 @@ async def get_stats(user: User = Depends(require_admin)):
         'total_contacts': total_contacts
     }
 
-# Include the router
-app.include_router(api_router)
-
+# Add CORS middleware BEFORE including router
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -1176,6 +1174,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include the router
+app.include_router(api_router)
 
 @app.on_event("startup")
 async def create_indexes():

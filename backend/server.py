@@ -557,7 +557,7 @@ async def create_session_from_oauth(request: Request, response: Response):
         key='session_token',
         value=session_token,
         httponly=True,
-        secure=False,  # Allow HTTP cookies for localhost development
+        secure=COOKIE_SECURE,  # True for HTTPS, False for HTTP
         samesite='lax',
         max_age=7 * 24 * 60 * 60,
         path='/'

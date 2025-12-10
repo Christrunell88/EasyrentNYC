@@ -29,6 +29,11 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production'
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_DAYS = 7
 
+# Cookie security settings - secure=True for HTTPS (production), False for HTTP (localhost)
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+IS_PRODUCTION = FRONTEND_URL.startswith('https://')
+COOKIE_SECURE = IS_PRODUCTION
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")

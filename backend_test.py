@@ -123,7 +123,7 @@ class NoFeeAptsAPITester:
         return False
 
     def test_admin_login(self):
-        """Test admin login"""
+        """Test admin login with placesfirm@gmail.com / Checkers080/?"""
         data = {
             "email": self.admin_email,
             "password": self.admin_password
@@ -135,10 +135,55 @@ class NoFeeAptsAPITester:
             result = response.json()
             if 'session_token' in result and result.get('user', {}).get('is_admin'):
                 self.admin_session_token = result['session_token']
-                self.log_test("Admin Login", True, endpoint="auth/login")
+                self.log_test("Admin Login (placesfirm@gmail.com)", True, f"Admin user authenticated successfully", "auth/login")
                 return True
+            else:
+                self.log_test("Admin Login (placesfirm@gmail.com)", False, "User is not admin or missing session token", "auth/login")
+        else:
+            error_msg = ""
+            if response:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', f'Status: {response.status_code}')
+                except:
+                    error_msg = f'Status: {response.status_code}'
+            else:
+                error_msg = 'No response'
+            self.log_test("Admin Login (placesfirm@gmail.com)", False, error_msg, "auth/login")
+        return False
+
+    def test_regular_user_login(self):
+        """Test regular user login with chris.trunell@gmail.com / TestPass123!"""
+        data = {
+            "email": self.regular_user_email,
+            "password": self.regular_user_password
+        }
         
-        self.log_test("Admin Login", False, f"Status: {response.status_code if response else 'No response'}", "auth/login")
+        response = self.make_request('POST', 'auth/login', data)
+        
+        if response and response.status_code == 200:
+            result = response.json()
+            if 'session_token' in result:
+                user_data = result.get('user', {})
+                is_admin = user_data.get('is_admin', False)
+                if not is_admin:  # Should be regular user, not admin
+                    self.log_test("Regular User Login (chris.trunell@gmail.com)", True, f"Regular user authenticated successfully", "auth/login")
+                    return True
+                else:
+                    self.log_test("Regular User Login (chris.trunell@gmail.com)", False, "User has admin privileges (should be regular user)", "auth/login")
+            else:
+                self.log_test("Regular User Login (chris.trunell@gmail.com)", False, "Missing session token in response", "auth/login")
+        else:
+            error_msg = ""
+            if response:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', f'Status: {response.status_code}')
+                except:
+                    error_msg = f'Status: {response.status_code}'
+            else:
+                error_msg = 'No response'
+            self.log_test("Regular User Login (chris.trunell@gmail.com)", False, error_msg, "auth/login")
         return False
 
     def test_get_current_user(self):

@@ -518,10 +518,28 @@ class NoFeeAptsAPITester:
         
         # Authentication Tests
         print("\n📝 Authentication Tests")
+        print("Testing OAuth and Login/Sign-in functionality comprehensively...")
+        
+        # Test unauthenticated access first
+        self.test_unauthenticated_access()
+        
+        # Test new user signup
         self.test_user_signup()
-        self.test_get_current_user()
-        self.test_user_login()  # Test login after signup
+        self.test_get_current_user()  # Verify session after signup
+        self.test_duplicate_signup()  # Test duplicate email validation
+        
+        # Test user login after signup
+        self.test_user_login()
+        
+        # Test admin login with specific credentials
         self.test_admin_login()
+        
+        # Test regular user login with specific credentials  
+        self.test_regular_user_login()
+        
+        # Test OAuth endpoints
+        self.test_google_oauth_endpoint()
+        self.test_oauth_session_endpoint()
         
         # Public Endpoints Tests
         print("\n🏢 Public Endpoints Tests")

@@ -174,6 +174,7 @@ class UnitInput(BaseModel):
     images: List[str] = []
     description: Optional[str] = None
     is_available: bool = True
+    is_featured: bool = False
 
 class ContactInput(BaseModel):
     unit_id: str

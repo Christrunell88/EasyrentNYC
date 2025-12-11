@@ -436,14 +436,66 @@ class NoFeeAptsAPITester:
         return False
 
     def test_logout(self):
-        """Test logout functionality"""
+        """Test logout functionality and session clearing"""
+        # First verify we're logged in
+        response = self.make_request('GET', 'auth/me')
+        if not (response and response.status_code == 200):
+            self.log_test("Logout Test", False, "Not logged in before logout test", "auth/logout")
+            return False
+        
+        # Perform logout
         response = self.make_request('POST', 'auth/logout')
         
         if response and response.status_code == 200:
-            self.log_test("Logout", True, endpoint="auth/logout")
-            return True
+            # Verify session is cleared by trying to access protected route
+            old_token = self.session_token
+            response = self.make_request('GET', 'auth/me')
+            
+            if response and response.status_code == 401:
+                self.log_test("Logout Functionality", True, "Session cleared successfully, returns 401 on protected routes", "auth/logout")
+                self.session_token = None  # Clear our stored token
+                return True
+            else:
+                self.log_test("Logout Functionality", False, f"Session not cleared properly, /auth/me returned {response.status_code if response else 'No response'}", "auth/logout")
+        else:
+            self.log_test("Logout Functionality", False, f"Logout failed with status: {response.status_code if response else 'No response'}", "auth/logout")
+        return False
+
+    def test_google_oauth_endpoint(self):
+        """Test Google OAuth endpoint availability"""
+        # Test if Google OAuth endpoint exists (should return 404 or proper redirect)
+        response = self.make_request('GET', 'auth/google')
         
-        self.log_test("Logout", False, f"Status: {response.status_code if response else 'No response'}", "auth/logout")
+        if response:
+            if response.status_code == 404:
+                self.log_test("Google OAuth Endpoint", False, "Google OAuth endpoint not implemented (404)", "auth/google")
+                return False
+            elif response.status_code in [200, 302, 307]:
+                self.log_test("Google OAuth Endpoint", True, f"Google OAuth endpoint available (status: {response.status_code})", "auth/google")
+                return True
+            else:
+                self.log_test("Google OAuth Endpoint", False, f"Unexpected status: {response.status_code}", "auth/google")
+        else:
+            self.log_test("Google OAuth Endpoint", False, "No response from Google OAuth endpoint", "auth/google")
+        return False
+
+    def test_oauth_session_endpoint(self):
+        """Test OAuth session validation endpoint"""
+        # Test with invalid session_id
+        headers = {'X-Session-ID': 'invalid_test_session_123'}
+        response = self.make_request('POST', 'auth/session', headers=headers)
+        
+        if response and response.status_code == 400:
+            try:
+                error_data = response.json()
+                if 'invalid session_id' in error_data.get('detail', '').lower():
+                    self.log_test("OAuth Session Validation", True, "Correctly rejects invalid session_id", "auth/session")
+                    return True
+            except:
+                pass
+            self.log_test("OAuth Session Validation", False, "Wrong error message for invalid session_id", "auth/session")
+        else:
+            self.log_test("OAuth Session Validation", False, f"Expected 400, got {response.status_code if response else 'No response'}", "auth/session")
         return False
 
     def cleanup(self):

@@ -731,3 +731,6 @@ The configured axios instance (`axiosConfig.js`) includes:
 - Building will be automatically crawled every 48 hours once added
 - Monitor for additional units at this location
 
+
+  - agent: "main"
+    message: "User requested comprehensive testing of OAuth and login/sign-in functionality. Please test: 1) Email/password login with existing user (placesfirm@gmail.com / Checkers080/?), 2) New user signup flow, 3) Google OAuth button click and redirect flow, 4) Session persistence after login, 5) Logout functionality. Test on local environment (http://localhost:3000)."

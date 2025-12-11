@@ -217,7 +217,7 @@ class SMTPEmailService:
                 <p style="color: #64748b; font-size: 14px;">
                     <strong>NoFeesApts Team</strong><br>
                     <a href="mailto:placesfirm@gmail.com" style="color: #f59e0b; text-decoration: none;">placesfirm@gmail.com</a><br>
-                    <a href="https://rentdirect-6.preview.emergentagent.com" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
+                    <a href="https://feelessapts.preview.emergentagent.com" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
                 </p>
             </div>
         </body>
@@ -267,7 +267,7 @@ class SMTPEmailService:
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://rentdirect-6.preview.emergentagent.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+                        <a href="https://feelessapts.preview.emergentagent.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
                             Start Searching Now →
                         </a>
                     </div>

@@ -187,17 +187,40 @@ class NoFeeAptsAPITester:
         return False
 
     def test_get_current_user(self):
-        """Test getting current user info"""
+        """Test getting current user info (session validation)"""
         response = self.make_request('GET', 'auth/me')
         
         if response and response.status_code == 200:
             result = response.json()
-            if 'email' in result:
-                self.log_test("Get Current User", True, endpoint="auth/me")
+            if 'email' in result and 'name' in result:
+                self.log_test("Session Validation (GET /api/auth/me)", True, f"User data returned: {result.get('email')}", "auth/me")
                 return True
-        
-        self.log_test("Get Current User", False, f"Status: {response.status_code if response else 'No response'}", "auth/me")
+            else:
+                self.log_test("Session Validation (GET /api/auth/me)", False, "Missing user data in response", "auth/me")
+        elif response and response.status_code == 401:
+            self.log_test("Session Validation (GET /api/auth/me)", True, "Correctly returns 401 when not authenticated", "auth/me")
+            return True
+        else:
+            self.log_test("Session Validation (GET /api/auth/me)", False, f"Status: {response.status_code if response else 'No response'}", "auth/me")
         return False
+
+    def test_unauthenticated_access(self):
+        """Test that protected routes return 401 when not authenticated"""
+        # Temporarily clear session token
+        original_token = self.session_token
+        self.session_token = None
+        
+        response = self.make_request('GET', 'auth/me')
+        
+        # Restore session token
+        self.session_token = original_token
+        
+        if response and response.status_code == 401:
+            self.log_test("Unauthenticated Access Protection", True, "Protected route correctly returns 401", "auth/me")
+            return True
+        else:
+            self.log_test("Unauthenticated Access Protection", False, f"Expected 401, got {response.status_code if response else 'No response'}", "auth/me")
+            return False
 
     def test_get_buildings(self):
         """Test getting all buildings"""

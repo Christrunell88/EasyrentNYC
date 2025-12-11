@@ -84,7 +84,7 @@ class NoFeeAptsAPITester:
             return None
 
     def test_user_signup(self):
-        """Test user signup"""
+        """Test new user signup with unique email"""
         data = {
             "email": self.test_user_email,
             "password": self.test_user_password,
@@ -95,12 +95,47 @@ class NoFeeAptsAPITester:
         
         if response and response.status_code == 200:
             result = response.json()
-            if 'session_token' in result:
+            if 'session_token' in result and 'user' in result:
                 self.session_token = result['session_token']
-                self.log_test("User Signup", True, endpoint="auth/signup")
+                user_data = result['user']
+                self.log_test("New User Signup", True, f"User created: {user_data.get('email')} with auto-login", "auth/signup")
                 return True
+            else:
+                self.log_test("New User Signup", False, "Missing session token or user data in response", "auth/signup")
+        else:
+            error_msg = ""
+            if response:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', f'Status: {response.status_code}')
+                except:
+                    error_msg = f'Status: {response.status_code}'
+            else:
+                error_msg = 'No response'
+            self.log_test("New User Signup", False, error_msg, "auth/signup")
+        return False
+
+    def test_duplicate_signup(self):
+        """Test signup with duplicate email"""
+        data = {
+            "email": self.test_user_email,  # Same email as previous signup
+            "password": "differentpass123",
+            "name": "Different Name"
+        }
         
-        self.log_test("User Signup", False, f"Status: {response.status_code if response else 'No response'}", "auth/signup")
+        response = self.make_request('POST', 'auth/signup', data)
+        
+        if response and response.status_code == 400:
+            try:
+                error_data = response.json()
+                if 'already registered' in error_data.get('detail', '').lower():
+                    self.log_test("Duplicate Email Validation", True, "Correctly prevents duplicate email registration", "auth/signup")
+                    return True
+            except:
+                pass
+            self.log_test("Duplicate Email Validation", False, "Wrong error message for duplicate email", "auth/signup")
+        else:
+            self.log_test("Duplicate Email Validation", False, f"Expected 400, got {response.status_code if response else 'No response'}", "auth/signup")
         return False
 
     def test_user_login(self):

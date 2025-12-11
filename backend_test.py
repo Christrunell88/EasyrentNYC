@@ -25,8 +25,12 @@ class NoFeeAptsAPITester:
         self.test_user_password = "testpass123"
         
         # Admin credentials from requirements
-        self.admin_email = "admin@nofeesapts.com"
-        self.admin_password = "admin123"
+        self.admin_email = "placesfirm@gmail.com"
+        self.admin_password = "Checkers080/?"
+        
+        # Regular user credentials from requirements
+        self.regular_user_email = "chris.trunell@gmail.com"
+        self.regular_user_password = "TestPass123!"
         
         self.created_building_id = None
         self.created_unit_id = None

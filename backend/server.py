@@ -1178,6 +1178,48 @@ async def get_stats(user: User = Depends(require_admin)):
         'total_contacts': total_contacts
     }
 
+@api_router.post("/admin/units/{unit_id}/toggle-featured")
+async def toggle_unit_featured(unit_id: str, user: User = Depends(require_admin)):
+    """Toggle featured status for a unit (admin only)"""
+    existing = await db.units.find_one({'id': unit_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    current_featured = existing.get('is_featured', False)
+    new_featured = not current_featured
+    
+    await db.units.update_one(
+        {'id': unit_id}, 
+        {'$set': {'is_featured': new_featured, 'updated_at': datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        'message': f"Unit {'featured' if new_featured else 'unfeatured'} successfully",
+        'unit_id': unit_id,
+        'is_featured': new_featured
+    }
+
+@api_router.post("/admin/set-featured-units")
+async def set_featured_units(unit_ids: List[str], user: User = Depends(require_admin)):
+    """Set specific units as featured and unfeature all others (admin only)"""
+    # First, unfeature all units
+    await db.units.update_many({}, {'$set': {'is_featured': False}})
+    
+    # Then feature the specified units
+    if unit_ids:
+        result = await db.units.update_many(
+            {'id': {'$in': unit_ids}},
+            {'$set': {'is_featured': True, 'updated_at': datetime.now(timezone.utc).isoformat()}}
+        )
+        featured_count = result.modified_count
+    else:
+        featured_count = 0
+    
+    return {
+        'message': f"Successfully set {featured_count} units as featured",
+        'featured_unit_ids': unit_ids
+    }
+
 # Include the router
 app.include_router(api_router)
 

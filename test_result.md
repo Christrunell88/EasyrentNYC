@@ -291,7 +291,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "OAuth and Login/Sign-in comprehensive backend testing"
   stuck_tasks:
     - "Google Maps integration on dashboard Map View"
   test_all: false

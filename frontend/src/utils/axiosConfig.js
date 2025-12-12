@@ -8,11 +8,22 @@ function getCookie(name) {
   return null;
 }
 
+// Function to get session token from localStorage or cookie
+function getSessionToken() {
+  // First try localStorage (more reliable for cross-domain)
+  const localStorageToken = localStorage.getItem('session_token');
+  if (localStorageToken) {
+    return localStorageToken;
+  }
+  // Fallback to cookie
+  return getCookie('session_token');
+}
+
 // Add request interceptor to include session token for all requests
 axios.interceptors.request.use(
   (config) => {
-    // Add session token from cookie as Authorization header for all environments
-    const sessionToken = getCookie('session_token');
+    // Add session token from localStorage or cookie as Authorization header
+    const sessionToken = getSessionToken();
     if (sessionToken) {
       config.headers['Authorization'] = `Bearer ${sessionToken}`;
     }

@@ -8,15 +8,13 @@ function getCookie(name) {
   return null;
 }
 
-// Add request interceptor to include session token for localhost development
+// Add request interceptor to include session token for all requests
 axios.interceptors.request.use(
   (config) => {
-    // For localhost development, add session token from cookie as Authorization header
-    if (window.location.hostname === 'localhost') {
-      const sessionToken = getCookie('session_token');
-      if (sessionToken) {
-        config.headers['Authorization'] = `Bearer ${sessionToken}`;
-      }
+    // Add session token from cookie as Authorization header for all environments
+    const sessionToken = getCookie('session_token');
+    if (sessionToken) {
+      config.headers['Authorization'] = `Bearer ${sessionToken}`;
     }
     return config;
   },

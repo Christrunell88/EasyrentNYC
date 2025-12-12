@@ -132,7 +132,11 @@ const useAuthStore = create(
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
-          set({ user: null, loading: false, error: null });
+          // Clear session token from localStorage
+          localStorage.removeItem('session_token');
+          // Clear cookie
+          document.cookie = 'session_token=; path=/; max-age=0';
+          set({ user: null, sessionToken: null, loading: false, error: null });
           window.location.href = '/';
         }
       },

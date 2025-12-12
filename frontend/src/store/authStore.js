@@ -46,14 +46,17 @@ const useAuthStore = create(
             { withCredentials: true }
           );
           
-          // For localhost development, manually set the session token cookie
-          // since cross-origin cookies don't work reliably
-          if (response.data.session_token && window.location.hostname === 'localhost') {
+          // Store session token in localStorage for all environments
+          // Cross-origin cookies don't work reliably between different domains
+          if (response.data.session_token) {
+            localStorage.setItem('session_token', response.data.session_token);
+            // Also set cookie as backup
             document.cookie = `session_token=${response.data.session_token}; path=/; max-age=${7 * 24 * 60 * 60}`;
           }
           
           set({ 
             user: response.data.user, 
+            sessionToken: response.data.session_token,
             loading: false, 
             error: null 
           });

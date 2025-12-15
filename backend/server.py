@@ -663,6 +663,7 @@ async def delete_building(building_id: str, user: User = Depends(require_admin))
 async def get_units(
     neighborhood: Optional[str] = None,
     city: Optional[str] = None,
+    state: Optional[str] = None,
     bedrooms: Optional[int] = None,
     min_rent: Optional[float] = None,
     max_rent: Optional[float] = None,
@@ -705,13 +706,15 @@ async def get_units(
     else:
         units = featured_units
     
-    # If neighborhood or city filter, need to join with buildings
-    if neighborhood or city:
+    # If neighborhood, city, or state filter, need to join with buildings
+    if neighborhood or city or state:
         building_query = {}
         if neighborhood:
             building_query['neighborhood'] = neighborhood
         if city:
             building_query['city'] = city
+        if state:
+            building_query['state'] = state
         
         buildings = await db.buildings.find(building_query, {"_id": 0}).to_list(1000)
         building_ids = [b['id'] for b in buildings]

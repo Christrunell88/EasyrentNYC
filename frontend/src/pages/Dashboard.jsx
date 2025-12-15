@@ -13,6 +13,7 @@ import Logo from '@/components/Logo';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import ApartmentMap from '@/components/ApartmentMap';
+import ListingCard from '@/components/ListingCard';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { trackApartmentView, trackApartmentFavorite, trackMapView, trackFilterUsage } from '../utils/analytics';
 import useAuthStore from '../store/authStore';

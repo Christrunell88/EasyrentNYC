@@ -348,6 +348,18 @@ const AdminPanel = () => {
                 </div>
               </CardContent>
             </Card>
+            
+            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-emerald-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-400">Email Subscribers</p>
+                    <p className="text-3xl font-bold text-emerald-400">{stats.total_subscribers || 0}</p>
+                  </div>
+                  <Mail className="w-12 h-12 text-emerald-500" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 

@@ -43,12 +43,13 @@ const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
-      const [buildingsRes, unitsRes, usersRes, statsRes, contactsRes] = await Promise.all([
+      const [buildingsRes, unitsRes, usersRes, statsRes, contactsRes, subscribersRes] = await Promise.all([
         axios.get(`${API}/buildings`, { withCredentials: true }),
         axios.get(`${API}/units?limit=500`, { withCredentials: true }),
         axios.get(`${API}/admin/users`, { withCredentials: true }),
         axios.get(`${API}/admin/stats`, { withCredentials: true }),
-        axios.get(`${API}/contact`, { withCredentials: true })
+        axios.get(`${API}/contact`, { withCredentials: true }),
+        axios.get(`${API}/admin/subscribers`, { withCredentials: true })
       ]);
       
       setBuildings(buildingsRes.data);
@@ -56,6 +57,7 @@ const AdminPanel = () => {
       setUsers(usersRes.data);
       setStats(statsRes.data);
       setContacts(contactsRes.data);
+      setSubscribers(subscribersRes.data);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast.error('Failed to load admin data');

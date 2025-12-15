@@ -63,7 +63,7 @@ const EmailCaptureModal = () => {
         email: email
       });
 
-      toast.success('🎉 Success! You\'ll get alerts for new apartments!');
+      toast.success('Success! You\'ll get alerts for new apartments!');
       localStorage.setItem('emailCaptureSubmitted', 'true');
       setEmail('');
       setOpen(false);
@@ -86,32 +86,32 @@ const EmailCaptureModal = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100 max-w-md">
+      <DialogContent className="bg-white border-slate-200 text-slate-900 max-w-md p-8 rounded-2xl">
         <button
           onClick={handleDismiss}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-slate-900 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:pointer-events-none"
+          className="absolute right-4 top-4 rounded-full p-1.5 bg-slate-100 opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
         >
-          <X className="h-4 w-4 text-slate-400" />
+          <X className="h-4 w-4 text-slate-600" />
           <span className="sr-only">Close</span>
         </button>
 
         <DialogHeader>
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full warm-gradient flex items-center justify-center">
-            <Bell className="h-6 w-6 text-slate-900" />
+          <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-slate-900 flex items-center justify-center">
+            <Bell className="h-7 w-7 text-white" />
           </div>
-          <DialogTitle className="text-slate-100 text-center text-2xl">
-            Never Miss a No-Fee Apartment!
+          <DialogTitle className="text-slate-900 text-center text-2xl font-bold">
+            Get New Listing Alerts
           </DialogTitle>
-          <DialogDescription className="text-slate-300 text-center pt-2">
-            Get instant email alerts when new apartments are posted. Be the first to know!
+          <DialogDescription className="text-slate-500 text-center pt-2 text-base">
+            Be the first to know when new no-fee apartments become available.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="capture-email" className="text-slate-200 flex items-center gap-2">
+            <Label htmlFor="capture-email" className="text-slate-700 flex items-center gap-2 text-sm font-medium">
               <Mail className="w-4 h-4" />
-              Your Email Address
+              Email Address
             </Label>
             <Input
               id="capture-email"
@@ -119,7 +119,7 @@ const EmailCaptureModal = () => {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
+              className="bg-slate-50 border-0 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900 rounded-xl py-5"
               required
             />
           </div>
@@ -127,19 +127,19 @@ const EmailCaptureModal = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold py-6 text-base"
+            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-6 text-base rounded-xl"
           >
-            {isSubmitting ? 'Subscribing...' : '🔔 Get Instant Alerts'}
+            {isSubmitting ? 'Subscribing...' : 'Subscribe'}
           </Button>
 
           <p className="text-xs text-slate-400 text-center">
-            No spam. Unsubscribe anytime. We respect your privacy.
+            No spam. Unsubscribe anytime.
           </p>
         </form>
 
         <button
           onClick={handleDismiss}
-          className="text-sm text-slate-400 hover:text-slate-300 text-center w-full"
+          className="text-sm text-slate-400 hover:text-slate-600 text-center w-full transition-colors"
         >
           Maybe later
         </button>

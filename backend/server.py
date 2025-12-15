@@ -792,6 +792,20 @@ async def update_unit(unit_id: str, input: UnitInput, user: User = Depends(requi
     
     return updated
 
+@api_router.patch("/units/{unit_id}/images")
+async def update_unit_images(unit_id: str, images: List[str], user: User = Depends(require_admin)):
+    """Update unit images only (admin only)"""
+    existing = await db.units.find_one({'id': unit_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    await db.units.update_one(
+        {'id': unit_id}, 
+        {'$set': {'images': images, 'updated_at': datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {'message': 'Images updated', 'unit_id': unit_id, 'image_count': len(images)}
+
 @api_router.delete("/units/{unit_id}")
 async def delete_unit(unit_id: str, user: User = Depends(require_admin)):
     """Delete unit (admin only)"""

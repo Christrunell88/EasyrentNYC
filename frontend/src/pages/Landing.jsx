@@ -497,6 +497,12 @@ const Landing = () => {
                   Browse Apartments
                 </button>
                 <button
+                  onClick={() => navigate('/fee-free-finds')}
+                  className="block mx-auto text-amber-400 hover:text-amber-500 text-sm transition-colors font-semibold"
+                >
+                  #FeeFreeFinds
+                </button>
+                <button
                   onClick={() => navigate('/blog')}
                   className="block mx-auto text-slate-400 hover:text-amber-500 text-sm transition-colors"
                 >

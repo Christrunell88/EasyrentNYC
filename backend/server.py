@@ -981,12 +981,22 @@ async def subscribe_email(input: EmailSubscribeInput):
             'id': str(uuid.uuid4()),
             'email': input.email,
             'subscribed_at': datetime.now(timezone.utc).isoformat(),
-            'active': True
+            'active': True,
+            'source': 'landing_page'
         }
         
         await db.email_subscribers.insert_one(subscriber)
         
         logger.info(f"New email subscriber: {input.email}")
+        
+        # Send welcome email
+        try:
+            from smtp_email_service import send_welcome_subscriber_email
+            await send_welcome_subscriber_email(input.email)
+            logger.info(f"Welcome email sent to: {input.email}")
+        except Exception as email_error:
+            logger.error(f"Failed to send welcome email: {str(email_error)}")
+            # Don't fail the subscription if email fails
         
         return {'success': True, 'message': 'Successfully subscribed!'}
     

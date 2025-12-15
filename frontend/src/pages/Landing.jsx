@@ -438,8 +438,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Final CTA - Emotional */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Get Updates CTA */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-slate-800" />
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
@@ -448,28 +448,38 @@ const Landing = () => {
           }} />
         </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="text-5xl sm:text-6xl font-bold text-white mb-8 leading-tight">
-            Your Window.
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
+            Get <span className="warm-gradient-text">New Listings</span>
             <br />
-            <span className="warm-gradient-text">Your City.</span>
-            <br />
-            Your Time.
+            In Your Inbox
           </h2>
-          <p className="text-2xl text-slate-300 mb-12 leading-relaxed">
-            The lights are waiting. Your apartment is out there.
-            <br />
-            Let&apos;s find your view.
+          <p className="text-xl text-slate-300 mb-8">
+            Be the first to know about new no-fee apartments.
           </p>
-          <Button
-            data-testid="cta-start-btn"
-            onClick={handleGetStarted}
-            size="lg"
-            className="text-xl px-16 py-8 warm-gradient hover:shadow-2xl hover:shadow-amber-500/50 text-slate-900 font-bold rounded-2xl transition-all duration-300 btn-warm"
-          >
-            Start Your Search
-            <ArrowRight className="w-6 h-6 ml-3" />
-          </Button>
+          
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <input
+              type="email"
+              value={subscribeEmail}
+              onChange={(e) => setSubscribeEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="flex-1 px-6 py-4 rounded-xl bg-slate-700/50 border border-amber-500/30 text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+            />
+            <Button
+              type="submit"
+              disabled={subscribing}
+              size="lg"
+              className="px-8 py-4 warm-gradient hover:shadow-xl hover:shadow-amber-500/40 text-slate-900 font-bold rounded-xl transition-all duration-300"
+            >
+              {subscribing ? 'Subscribing...' : 'Get Updates'}
+            </Button>
+          </form>
+          
+          <p className="text-sm text-slate-500 mt-4">
+            No spam. Unsubscribe anytime.
+          </p>
         </div>
       </section>
 

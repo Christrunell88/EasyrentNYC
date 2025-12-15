@@ -379,7 +379,7 @@ const FeeFreeFinds = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-900/20 via-slate-900 to-slate-900 border-y border-emerald-500/10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            See How Much You'll <span className="text-emerald-400">Save</span>
+            See How Much You&apos;ll <span className="text-emerald-400">Save</span>
           </h2>
           
           <div className="glass-window border border-emerald-500/30 rounded-2xl p-8 mb-8">

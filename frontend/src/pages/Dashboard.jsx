@@ -206,6 +206,14 @@ const Dashboard = () => {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
+                onClick={() => navigate('/fee-free-finds')}
+                className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 font-semibold"
+              >
+                #FeeFreeFinds
+              </Button>
+              
+              <Button
+                variant="ghost"
                 onClick={() => navigate('/favorites')}
                 data-testid="nav-favorites-btn"
                 className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"

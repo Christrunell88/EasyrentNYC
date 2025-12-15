@@ -16,6 +16,58 @@ import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import { trackApartmentView, trackContactForm } from '../utils/analytics';
 
+// Smart description formatter - makes descriptions brief and informative
+const formatDescription = (description, unit) => {
+  if (!description) return null;
+  
+  // Remove common filler phrases and clean up
+  let clean = description
+    .replace(/SHOWINGS BY APPOINTMENT ONLY\.?\s*/gi, '')
+    .replace(/NO FEE\.?\s*/gi, '')
+    .replace(/\bno broker fee\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  
+  // If description is already short, return it
+  if (clean.length <= 120) return clean;
+  
+  // Extract key highlights from long descriptions
+  const highlights = [];
+  
+  // Check for key features
+  if (/ceiling|ceilings/i.test(clean)) {
+    const match = clean.match(/(\d+)[\s-]?foot\s+ceiling/i);
+    if (match) highlights.push(`${match[1]}ft ceilings`);
+  }
+  if (/penthouse/i.test(clean)) highlights.push('Penthouse');
+  if (/renovated|updated|modern/i.test(clean)) highlights.push('Modern finishes');
+  if (/view|views/i.test(clean)) highlights.push('Great views');
+  if (/laundry|washer|dryer/i.test(clean)) highlights.push('In-unit laundry');
+  if (/doorman|concierge/i.test(clean)) highlights.push('Doorman building');
+  if (/gym|fitness/i.test(clean)) highlights.push('Fitness center');
+  if (/rooftop|roof deck/i.test(clean)) highlights.push('Rooftop access');
+  if (/balcony|terrace|patio/i.test(clean)) highlights.push('Private outdoor space');
+  if (/parking|garage/i.test(clean)) highlights.push('Parking available');
+  if (/pet|dog|cat/i.test(clean)) highlights.push('Pet-friendly');
+  if (/stainless|granite|quartz/i.test(clean)) highlights.push('Upgraded kitchen');
+  if (/hardwood/i.test(clean)) highlights.push('Hardwood floors');
+  
+  // If we found highlights, create a brief summary
+  if (highlights.length > 0) {
+    return highlights.slice(0, 4).join(' • ');
+  }
+  
+  // Otherwise, truncate intelligently at sentence boundary
+  const sentences = clean.split(/[.!?]+/);
+  let brief = '';
+  for (const sentence of sentences) {
+    if ((brief + sentence).length > 120) break;
+    brief += sentence.trim() + '. ';
+  }
+  
+  return brief.trim() || clean.slice(0, 120) + '...';
+};
+
 const UnitDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();

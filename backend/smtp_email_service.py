@@ -218,7 +218,7 @@ class SMTPEmailService:
                 <p style="color: #64748b; font-size: 14px;">
                     <strong>NoFeesApts Team</strong><br>
                     <a href="mailto:placesfirm@gmail.com" style="color: #f59e0b; text-decoration: none;">placesfirm@gmail.com</a><br>
-                    <a href="https://feelessapts.preview.emergentagent.com" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
+                    <a href="{os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')}" style="color: #f59e0b; text-decoration: none;">NoFeesApts.com</a>
                 </p>
             </div>
         </body>
@@ -233,6 +233,8 @@ class SMTPEmailService:
         user_name: str
     ) -> bool:
         """Send welcome email to new user"""
+        
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
         
         subject = "Welcome to NoFeesApts.com - Start Your No-Fee Apartment Search! 🎉"
         
@@ -268,7 +270,7 @@ class SMTPEmailService:
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://feelessapts.preview.emergentagent.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+                        <a href="{frontend_url}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
                             Start Searching Now →
                         </a>
                     </div>

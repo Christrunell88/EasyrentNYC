@@ -19,6 +19,8 @@ const Landing = () => {
   const [stats, setStats] = useState({ buildings: 5, units: 206 });
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [featuredUnits, setFeaturedUnits] = useState([]);
+  const [subscribeEmail, setSubscribeEmail] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     checkAuth();

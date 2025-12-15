@@ -370,13 +370,14 @@ const AdminPanel = () => {
         <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
           <Tabs defaultValue="dashboard" className="w-full">
             <CardHeader>
-              <TabsList className="grid w-full grid-cols-6 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-7 bg-slate-700/50">
                 <TabsTrigger value="dashboard" data-testid="dashboard-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">All Units</TabsTrigger>
                 <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
                 <TabsTrigger value="users" data-testid="users-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Users</TabsTrigger>
                 <TabsTrigger value="contacts" data-testid="contacts-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Contacts</TabsTrigger>
+                <TabsTrigger value="subscribers" data-testid="subscribers-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-emerald-500">Subscribers</TabsTrigger>
               </TabsList>
             </CardHeader>
             

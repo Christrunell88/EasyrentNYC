@@ -296,5 +296,72 @@ class SMTPEmailService:
         return self.send_email(user_email, subject, body)
 
 
+    def send_welcome_subscriber_email(self, subscriber_email: str) -> bool:
+        """Send welcome email to new email subscriber"""
+        
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+        
+        subject = "Welcome to NoFeesApts Updates! 🏠"
+        
+        body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">🏢 You're In!</h1>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb;">
+                    <h2 style="color: #1e293b; margin-top: 0;">Thanks for subscribing! 🎉</h2>
+                    
+                    <p style="font-size: 16px;">You're now on the list for <strong>NoFeesApts</strong> updates. Here's what you'll get:</p>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                        <ul style="color: #475569; line-height: 2; margin: 0; padding-left: 20px;">
+                            <li>🆕 New no-fee apartment listings</li>
+                            <li>💰 Exclusive deals & move-in specials</li>
+                            <li>📍 Hot neighborhoods to watch</li>
+                            <li>💡 Tips for apartment hunting in NYC & NJ</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{frontend_url}/dashboard" 
+                           style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
+                                  color: white; 
+                                  text-decoration: none; 
+                                  padding: 15px 40px; 
+                                  border-radius: 8px; 
+                                  font-weight: bold;
+                                  display: inline-block;">
+                            Browse Apartments Now →
+                        </a>
+                    </div>
+                    
+                    <p style="color: #64748b; font-size: 14px; text-align: center; margin-top: 30px;">
+                        Happy apartment hunting! 🏠<br>
+                        <strong>The NoFeesApts Team</strong>
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                    
+                    <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+                        You received this email because you subscribed at NoFeesApts.com
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return self.send_email(subscriber_email, subject, body)
+
+
 # Create singleton instance
 smtp_service = SMTPEmailService()
+
+
+# Async wrapper functions for use in FastAPI
+async def send_welcome_subscriber_email(email: str) -> bool:
+    """Async wrapper for sending welcome subscriber email"""
+    return smtp_service.send_welcome_subscriber_email(email)

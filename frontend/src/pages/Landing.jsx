@@ -629,32 +629,38 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Sticky CTA Banner - Only show if not authenticated */}
+      {/* Sticky Get Updates Banner - Only show if not authenticated */}
       {!isAuthenticated && (
         <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500">
           <div className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 shadow-2xl shadow-amber-500/50 border-t-2 border-amber-400">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-center sm:text-left flex-shrink-0">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
                     <Sparkles className="w-5 h-5 text-slate-900 animate-pulse" />
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                      FREE SIGN UP FOR FULL ACCESS
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                      Get New Listing Alerts
                     </h3>
                   </div>
-                  <p className="text-sm sm:text-base text-slate-800 font-medium">
-                    Save favorites • Schedule viewings • Get instant alerts on 208+ no-fee apartments
-                  </p>
                 </div>
-                <Button
-                  onClick={() => setShowSignupModal(true)}
-                  size="lg"
-                  className="bg-slate-900 hover:bg-slate-800 text-amber-500 font-bold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 whitespace-nowrap"
-                >
-                  Join Free Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </div>
+                <div className="flex flex-1 max-w-md gap-2 w-full sm:w-auto">
+                  <input
+                    type="email"
+                    value={subscribeEmail}
+                    onChange={(e) => setSubscribeEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="flex-1 px-4 py-3 rounded-lg bg-slate-900/90 border border-amber-400/50 text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-300 text-sm"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={subscribing}
+                    className="bg-slate-900 hover:bg-slate-800 text-amber-500 font-bold px-6 py-3 shadow-xl hover:shadow-2xl transition-all duration-300 whitespace-nowrap"
+                  >
+                    {subscribing ? '...' : 'Get Updates'}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

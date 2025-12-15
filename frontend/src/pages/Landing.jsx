@@ -405,7 +405,7 @@ const Landing = () => {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-white mb-4">Find Apartments by Location</h2>
             <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-              Browse no-fee apartments in NYC's most popular neighborhoods and surrounding areas
+              Browse no-fee apartments in NYC&apos;s most popular neighborhoods and surrounding areas
             </p>
           </div>
           

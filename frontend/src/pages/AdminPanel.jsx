@@ -849,6 +849,71 @@ const AdminPanel = () => {
                   </TableBody>
                 </Table>
               </TabsContent>
+
+              {/* Subscribers Tab */}
+              <TabsContent value="subscribers">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100">Email Subscribers</h3>
+                      <p className="text-sm text-slate-400">Users who signed up for apartment updates</p>
+                    </div>
+                    <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1">
+                      {subscribers.length} subscribers
+                    </Badge>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Source</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Subscribed Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {subscribers.map((subscriber) => (
+                        <TableRow key={subscriber.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-emerald-500" />
+                              {subscriber.email}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-slate-300 border-slate-600">
+                              {subscriber.source || 'landing_page'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {subscriber.active ? (
+                              <Badge className="bg-emerald-500/20 text-emerald-400">Active</Badge>
+                            ) : (
+                              <Badge className="bg-red-500/20 text-red-400">Inactive</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(subscriber.subscribed_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {subscribers.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-slate-400 py-8">
+                            No subscribers yet. They will appear here when users sign up for updates.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
             </CardContent>
           </Tabs>
         </Card>

@@ -332,8 +332,8 @@ const UnitDetails = () => {
                           <Input id="name" name="name" required data-testid="contact-name-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
                         </div>
                         <div>
-                          <Label htmlFor="phone" className="text-slate-200">Phone</Label>
-                          <Input id="phone" name="phone" type="tel" required data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
+                          <Label htmlFor="phone" className="text-slate-200">Phone <span className="text-slate-400 text-sm">(optional)</span></Label>
+                          <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" placeholder="Optional" />
                         </div>
                       </div>
                       <div>

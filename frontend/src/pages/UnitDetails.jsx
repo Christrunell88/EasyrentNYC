@@ -177,7 +177,7 @@ const UnitDetails = () => {
     <div className="min-h-screen bg-slate-900">
       <SEO
         title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
-        description={`No broker fee ${bedroomText.toLowerCase()} apartment in ${neighborhood}. $${unit.rent.toLocaleString()}/month, ${unit.bathrooms} bath. ${unit.description || 'Move-in ready with modern amenities.'}`}
+        description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath. ${formatDescription(unit.description, unit) || 'Move-in ready.'}`}
         keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}, rent apartment ${unit.building?.city}, no broker fee`}
         url={`/unit/${unit.id}`}
         image={unit.images && unit.images.length > 0 ? unit.images[0] : null}

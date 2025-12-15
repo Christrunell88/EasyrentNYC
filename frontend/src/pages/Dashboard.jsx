@@ -384,131 +384,18 @@ const Dashboard = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="units-grid">
             {units.map((unit) => (
-              <Card
+              <ListingCard
                 key={unit.id}
-                className="overflow-hidden hover:shadow-2xl hover:shadow-amber-500/30 hover:scale-[1.02] transition-all duration-300 cursor-pointer border border-amber-500/30 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm relative group"
-                onClick={() => {
-                  if (user) {
-                    navigate(`/unit/${unit.id}`);
-                  } else {
-                    // Store the intended destination
-                    sessionStorage.setItem('redirectAfterLogin', `/unit/${unit.id}`);
-                    navigate('/auth');
-                  }
+                unit={unit}
+                user={user}
+                isFavorite={favorites.has(unit.id)}
+                onToggleFavorite={toggleFavorite}
+                onShare={(u) => {
+                  setSelectedUnit(u);
+                  setShareDialogOpen(true);
                 }}
-                data-testid={`unit-card-${unit.id}`}
-              >
-                {/* Overlay for non-authenticated users */}
-                {!user && (
-                  <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-[2px] z-10 flex items-center justify-center">
-                    <div className="text-center p-6">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full warm-gradient flex items-center justify-center">
-                        <Eye className="w-8 h-8 text-slate-900" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Sign Up to View Full Details</h3>
-                      <p className="text-slate-300 mb-4">See building name, address, and contact info</p>
-                      <Button className="warm-gradient text-slate-900 font-semibold" onClick={(e) => {e.stopPropagation(); navigate('/auth');}}>
-                        Sign Up Free
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              
-                <div className="relative h-48 bg-slate-950 ring-1 ring-amber-500/10 group-hover:ring-amber-500/30 transition-all duration-300">
-                  {unit.images && unit.images.length > 0 ? (
-                    <img
-                      src={unit.images[0]}
-                      alt={`Unit ${unit.unit_number}`}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-700">
-                      <Building2 className="w-16 h-16 text-amber-500/30" />
-                    </div>
-                  )}
-                  
-                  {/* Featured Badge */}
-                  {unit.featured && (
-                    <div className="absolute top-3 left-3">
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold px-3 py-1 text-sm shadow-lg">
-                        ⭐ FEATURED
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedUnit(unit);
-                        setShareDialogOpen(true);
-                      }}
-                      className="w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
-                      data-testid={`share-btn-${unit.id}`}
-                    >
-                      <Share2 className="w-5 h-5 text-slate-300" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(unit.id);
-                      }}
-                      className="w-10 h-10 bg-slate-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border border-amber-500/20"
-                      data-testid={`favorite-btn-${unit.id}`}
-                    >
-                      <Heart
-                        className={`w-5 h-5 ${favorites.has(unit.id) ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
-                      />
-                    </button>
-                  </div>
-                  
-                  <Badge className="absolute bottom-3 left-3 warm-gradient text-slate-900 font-semibold">
-                    No Fee
-                  </Badge>
-                </div>
-                
-                <CardContent className="p-5">
-                  <div className="mb-3">
-                    <h3 className="font-semibold text-lg text-slate-100">
-                      {user ? (user.is_admin ? unit.building?.name : 'No-Fee Apartment') : (
-                        <span className="filter blur-sm">Premium Building Name</span>
-                      )}
-                    </h3>
-                    <p className="text-sm text-slate-400">
-                      {user ? (
-                        <>
-                          {unit.building?.neighborhood}, {unit.building?.city}
-                          {user.is_admin && (
-                            <span className="block text-xs text-slate-500 mt-1">{unit.building?.address}</span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="filter blur-sm">Building Address • Neighborhood</span>
-                      )}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 mb-3 text-sm text-slate-400">
-                    <div className="flex items-center gap-1">
-                      <BedDouble className="w-4 h-4" />
-                      <span>{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bath className="w-4 h-4" />
-                      <span>{unit.bathrooms} BA</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-2xl font-bold warm-gradient-text">
-                      <DollarSign className="w-6 h-6" />
-                      <span>{unit.rent.toLocaleString()}</span>
-                    </div>
-                    <span className="text-sm text-slate-400">/month</span>
-                  </div>
-                </CardContent>
-              </Card>
+                showBlur={!user}
+              />
             ))}
           </div>
         )}

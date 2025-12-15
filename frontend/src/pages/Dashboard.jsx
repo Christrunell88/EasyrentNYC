@@ -273,7 +273,22 @@ const Dashboard = () => {
         {/* Filters */}
         <Card className="mb-8 shadow-2xl shadow-amber-500/5 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-amber-500/30">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-200 mb-2">State</label>
+                <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
+                  <SelectTrigger data-testid="state-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
+                    <SelectValue placeholder="All States" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="any" className="text-slate-200">All States</SelectItem>
+                    <SelectItem value="NY" className="text-slate-200">New York (NY)</SelectItem>
+                    <SelectItem value="NJ" className="text-slate-200">New Jersey (NJ)</SelectItem>
+                    <SelectItem value="PA" className="text-slate-200">Pennsylvania (PA)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-slate-200 mb-2">Bedrooms</label>
                 <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
@@ -330,7 +345,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            {(bedrooms || minRent || maxRent || bathrooms) && (
+            {(bedrooms || minRent || maxRent || bathrooms || state) && (
               <div className="mt-4">
                 <Button variant="outline" onClick={clearFilters} data-testid="clear-filters-btn" className="border-amber-500/30 text-amber-500 hover:bg-slate-700">
                   Clear Filters

@@ -291,8 +291,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Redesigned NoFeesApts.com landing page comprehensive testing"
+  current_focus: []
   stuck_tasks:
     - "Google Maps integration on dashboard Map View"
   test_all: false

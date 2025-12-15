@@ -292,7 +292,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OAuth and Login/Sign-in comprehensive backend testing"
+    - "Redesigned NoFeesApts.com landing page comprehensive testing"
   stuck_tasks:
     - "Google Maps integration on dashboard Map View"
   test_all: false

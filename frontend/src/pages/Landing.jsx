@@ -8,6 +8,7 @@ import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
 import EmailCaptureModal from '../components/EmailCaptureModal';
+import ListingCard from '../components/ListingCard';
 import Logo from '@/components/Logo';
 import SEO from '@/components/SEO';
 

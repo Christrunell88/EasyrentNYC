@@ -981,7 +981,7 @@ async def subscribe_email(input: EmailSubscribeInput):
 
 @api_router.post("/share-unit")
 async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
-    """Share apartment unit via email"""
+    """Share apartment unit via email using SMTP"""
     # Get unit details
     unit = await db.units.find_one({'id': input.unit_id}, {"_id": 0})
     if not unit:
@@ -992,33 +992,25 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
     if unit.get('building_id'):
         building = await db.buildings.find_one({'id': unit['building_id']}, {"_id": 0})
     
-    # Send share email
+    # Send share email using SMTP
     try:
-        if EMAIL_SERVICE_AVAILABLE:
-            from email_service import get_gmail_service
-            import base64
-            from email.mime.text import MIMEText
-            from email.mime.multipart import MIMEMultipart
-            
-            service = get_gmail_service()
-            
-            # Prepare unit details
-            building_name = building.get('name', 'NYC Apartment') if building else 'NYC Apartment'
-            address = building.get('address', '') if building else ''
-            neighborhood = building.get('neighborhood', '') if building else ''
-            unit_number = unit.get('unit_number', '')
-            bedrooms = 'Studio' if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bedroom"
-            bathrooms = unit.get('bathrooms', 0)
-            rent = unit.get('rent', 0)
-            # Use environment variable for frontend URL
-            frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
-            unit_url = f"{frontend_url}/unit/{unit['id']}"
-            
-            # Get first image
-            image_url = unit.get('images', [])[0] if unit.get('images') else None
-            
-            # Create HTML email
-            html_content = f"""
+        # Prepare unit details
+        building_name = building.get('name', 'NYC Apartment') if building else 'NYC Apartment'
+        address = building.get('address', '') if building else ''
+        neighborhood = building.get('neighborhood', '') if building else ''
+        unit_number = unit.get('unit_number', '')
+        bedrooms = 'Studio' if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bedroom"
+        bathrooms = unit.get('bathrooms', 0)
+        rent = unit.get('rent', 0)
+        # Use environment variable for frontend URL
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+        unit_url = f"{frontend_url}/unit/{unit['id']}"
+        
+        # Get first image
+        image_url = unit.get('images', [])[0] if unit.get('images') else None
+        
+        # Create HTML email
+        html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -1094,30 +1086,25 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
     </div>
 </body>
 </html>
-            """
-            
-            # Create message
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = f"Check out this {bedrooms} apartment at {building_name} - No Broker Fees!"
-            msg['From'] = os.getenv("GMAIL_SENDER_EMAIL", "placesfirm@gmail.com")
-            msg['To'] = input.recipient_email
-            
-            # Attach HTML content
-            html_part = MIMEText(html_content, 'html')
-            msg.attach(html_part)
-            
-            # Send email
-            raw_message = base64.urlsafe_b64encode(msg.as_bytes()).decode()
-            service.users().messages().send(
-                userId='me',
-                body={'raw': raw_message}
-            ).execute()
-            
+        """
+        
+        # Use SMTP service to send email
+        subject = f"Check out this {bedrooms} apartment at {building_name} - No Broker Fees!"
+        email_sent = smtp_service.send_email(
+            to_email=input.recipient_email,
+            subject=subject,
+            body_html=html_content,
+            reply_to=user.email
+        )
+        
+        if email_sent:
             logger.info(f"Unit {unit['id']} shared by {user.email} to {input.recipient_email}")
-            
             return {'message': 'Apartment shared successfully!'}
         else:
-            raise HTTPException(status_code=503, detail="Email service unavailable")
+            raise HTTPException(status_code=500, detail="Failed to send email")
+            
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to share unit: {e}")
         raise HTTPException(status_code=500, detail="Failed to send email")

@@ -274,84 +274,16 @@ const Landing = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {featuredUnits.map((unit) => {
-              const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`;
-              
-              return (
-                <Card 
-                  key={unit.id} 
-                  className="glass-window border-amber-500/20 overflow-hidden group hover:border-amber-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20"
-                >
-                  {/* Image */}
-                  <div className="relative h-56 overflow-hidden bg-slate-800">
-                    {unit.images && unit.images[0] ? (
-                      <>
-                        <img
-                          src={unit.images[0]}
-                          alt={`${unit.building?.name || 'Apartment'}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute top-3 right-3">
-                          <Badge className="warm-gradient text-slate-900 font-bold">NO FEE</Badge>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="w-16 h-16 text-amber-500/30" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5">
-                    {/* Price */}
-                    <div className="flex items-baseline gap-2 mb-3">
-                      <span className="text-3xl font-bold warm-gradient-text">${unit.rent.toLocaleString()}</span>
-                      <span className="text-slate-400">/mo</span>
-                    </div>
-
-                    {/* Unit Details */}
-                    <div className="flex items-center gap-4 mb-3 text-slate-300">
-                      <div className="flex items-center gap-1">
-                        <BedDouble className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium">{bedroomText}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Bath className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium">{unit.bathrooms} BA</span>
-                      </div>
-                    </div>
-
-                    {/* Blurred Address */}
-                    <div className="flex items-start gap-2 mb-4 relative">
-                      <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="relative inline-block">
-                          <div className="text-sm text-slate-400 font-medium" style={{ filter: 'blur(4px)' }}>
-                            {unit.building?.address || '4650 Center Boulevard'}
-                          </div>
-                          <div className="absolute inset-0 flex items-center justify-start gap-1">
-                            <Lock className="w-3 h-3 text-amber-400" />
-                            <span className="text-xs text-amber-400 font-semibold">Sign up to view</span>
-                          </div>
-                        </div>
-                        <div className="text-sm text-amber-500 font-medium mt-1">
-                          {unit.building?.neighborhood}, {unit.building?.city}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Sign Up Button */}
-                    <Button
-                      onClick={() => navigate('/auth')}
-                      className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
-                    >
-                      Sign Up for Full Details
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })}
+            {featuredUnits.map((unit) => (
+              <ListingCard
+                key={unit.id}
+                unit={unit}
+                user={null}
+                isFavorite={false}
+                onToggleFavorite={() => navigate('/auth')}
+                showBlur={true}
+              />
+            ))}
           </div>
 
           {/* Bottom CTA */}

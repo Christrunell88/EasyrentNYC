@@ -1183,14 +1183,22 @@ async def get_stats(user: User = Depends(require_admin)):
     available_units = await db.units.count_documents({'is_available': True})
     total_users = await db.users.count_documents({})
     total_contacts = await db.contact_requests.count_documents({})
+    total_subscribers = await db.email_subscribers.count_documents({'active': True})
     
     return {
         'total_buildings': total_buildings,
         'total_units': total_units,
         'available_units': available_units,
         'total_users': total_users,
-        'total_contacts': total_contacts
+        'total_contacts': total_contacts,
+        'total_subscribers': total_subscribers
     }
+
+@api_router.get("/admin/subscribers")
+async def get_subscribers(user: User = Depends(require_admin)):
+    """Get all email subscribers (admin only)"""
+    subscribers = await db.email_subscribers.find({}, {"_id": 0}).sort('subscribed_at', -1).to_list(1000)
+    return subscribers
 
 @api_router.post("/admin/units/{unit_id}/toggle-featured")
 async def toggle_unit_featured(unit_id: str, user: User = Depends(require_admin)):

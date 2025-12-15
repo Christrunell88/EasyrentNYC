@@ -55,6 +55,26 @@ const Landing = () => {
     }
   };
 
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!subscribeEmail) return;
+    
+    setSubscribing(true);
+    try {
+      await axios.post(`${API}/subscribe`, { email: subscribeEmail });
+      alert('Thanks for subscribing! Check your inbox for a welcome email.');
+      setSubscribeEmail('');
+    } catch (error) {
+      if (error.response?.data?.detail === 'Email already subscribed') {
+        alert('This email is already subscribed!');
+      } else {
+        alert('Failed to subscribe. Please try again.');
+      }
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800">

@@ -459,7 +459,7 @@ const Landing = () => {
           <p className="text-2xl text-slate-300 mb-12 leading-relaxed">
             The lights are waiting. Your apartment is out there.
             <br />
-            Let's find your view.
+            Let&apos;s find your view.
           </p>
           <Button
             data-testid="cta-start-btn"

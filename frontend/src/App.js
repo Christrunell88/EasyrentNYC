@@ -150,6 +150,7 @@ function App() {
             <Route path="/blog/apartment-checklist" element={<ApartmentChecklist />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/fee-free-finds" element={<FeeFreeFinds />} />
             <Route
               path="/dashboard"
               element={

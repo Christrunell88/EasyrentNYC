@@ -20,6 +20,7 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [contacts, setContacts] = useState([]);
+  const [subscribers, setSubscribers] = useState([]);
   const [analyticsData, setAnalyticsData] = useState({
     totalVisitors: 0,
     totalSignups: 0,

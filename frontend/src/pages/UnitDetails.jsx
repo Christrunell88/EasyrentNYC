@@ -265,8 +265,10 @@ const UnitDetails = () => {
             {unit.description && (
               <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4">Description</h2>
-                  <p className="text-slate-300 leading-relaxed">{unit.description}</p>
+                  <h2 className="text-2xl font-bold text-slate-100 mb-4">About This Unit</h2>
+                  <p className="text-slate-300 leading-relaxed">
+                    {formatDescription(unit.description, unit)}
+                  </p>
                 </CardContent>
               </Card>
             )}

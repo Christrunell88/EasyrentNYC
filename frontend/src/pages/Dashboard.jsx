@@ -165,6 +165,7 @@ const Dashboard = () => {
     setMinRent('');
     setMaxRent('');
     setBathrooms('');
+    setState('');
   };
 
   return (

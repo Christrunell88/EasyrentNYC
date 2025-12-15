@@ -376,7 +376,7 @@ const UnitDetails = () => {
                     <DialogHeader>
                       <DialogTitle className="text-slate-100">Contact About This Unit</DialogTitle>
                       <DialogDescription className="text-slate-300">
-                        Send a message to inquire about this apartment. We'll get back to you soon!
+                        Send a message to inquire about this apartment. We&apos;ll get back to you soon!
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleContact} className="space-y-4">

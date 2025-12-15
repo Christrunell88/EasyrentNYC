@@ -42,11 +42,12 @@ const Dashboard = () => {
   const [minRent, setMinRent] = useState('');
   const [maxRent, setMaxRent] = useState('');
   const [bathrooms, setBathrooms] = useState('');
+  const [state, setState] = useState('');
 
   useEffect(() => {
     fetchUnits();
     fetchFavorites();
-  }, [bedrooms, minRent, maxRent, bathrooms]);
+  }, [bedrooms, minRent, maxRent, bathrooms, state]);
 
   const fetchUnits = async () => {
     try {
@@ -55,6 +56,7 @@ const Dashboard = () => {
       if (minRent) params.append('min_rent', minRent);
       if (maxRent) params.append('max_rent', maxRent);
       if (bathrooms) params.append('bathrooms', bathrooms);
+      if (state) params.append('state', state);
       
       const response = await axios.get(`${API}/units?${params.toString()}`, { withCredentials: true });
       

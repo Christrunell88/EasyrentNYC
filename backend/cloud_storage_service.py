@@ -14,12 +14,13 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-BUCKET_NAME = "nofeesapts-images"
-CREDENTIALS_PATH = Path(__file__).parent / "gcs-credentials.json"
+# Configuration - use environment variables for deployment flexibility
+BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", "nofeesapts-images")
+CREDENTIALS_PATH = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", str(Path(__file__).parent / "gcs-credentials.json"))
 
-# Set credentials environment variable
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(CREDENTIALS_PATH)
+# Set credentials environment variable if not already set
+if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(CREDENTIALS_PATH)
 
 # Initialize client
 try:

@@ -11,10 +11,11 @@ import {
   DollarSign, 
   TrendingUp,
   CheckCircle,
-  Share2,
+  Copy,
   Hash,
   MapPin
 } from 'lucide-react';
+import { toast } from 'sonner';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import ListingCard from '../components/ListingCard';

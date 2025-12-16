@@ -145,14 +145,12 @@ const Landing = () => {
       {/* Hero Section - Tall, Clean, Dominant */}
       <section className="min-h-screen flex items-center justify-center px-6 pt-16">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
-            Find your apartment.
-            <br />
-            <span className="text-slate-400">Skip the broker fee.</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-4">
+            Sign Up to Find 1000's of Apartments
           </h1>
           
-          <p className="text-lg text-slate-500 mb-10 max-w-xl mx-auto">
-            {stats.units}+ verified no-fee apartments in NYC and Northern New Jersey, updated daily.
+          <p className="text-lg sm:text-xl font-semibold text-slate-500 tracking-wide mb-10">
+            GET ACCESS FIRST FOR FREE
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

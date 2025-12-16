@@ -12,7 +12,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 class NoFeeAptsAPITester:
-    def __init__(self, base_url="http://localhost:8001"):
+    def __init__(self, base_url="https://fee-free-apts.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.session_token = None

@@ -796,3 +796,36 @@ The configured axios instance (`axiosConfig.js`) includes:
 agent_communication:
   - agent: "main"
     message: "Created #FeeFreeFinds dedicated page at /fee-free-finds. Page includes hero section, featured listings with badges, savings calculator, location links, and social sharing. Please test: 1) Page loading at localhost:3000/fee-free-finds, 2) All sections render correctly, 3) Navigation works (CTA buttons to auth/dashboard), 4) Listings load with #FeeFreeFind badges, 5) Share buttons function, 6) Footer navigation works. Test with both logged-in and logged-out states."
+
+## SEO Optimization - December 16, 2025
+
+### Changes Made:
+1. **Google Analytics Consolidated**
+   - Removed duplicate GA ID (G-H7LJM24EZ8) from index.html
+   - Kept single GA ID: G-BQ9VFLPYFE via React GA4 (.env)
+   - GA now initializes once instead of twice
+
+2. **Meta Tags Updated**
+   - Title: "268+" → "110+" (matching actual unit count)
+   - Description updated with Princeton NJ
+   - OG tags updated
+   - Twitter tags updated
+   - Structured data updated (Organization, FAQ)
+
+3. **Sitemap Regenerated**
+   - 140 URLs (was 133 with old unit IDs)
+   - All 110 current units included
+   - Location pages for all neighborhoods
+   - Blog pages included
+   - lastmod dates updated to 2025-12-16
+
+4. **Files Modified**
+   - /app/frontend/public/index.html
+   - /app/frontend/public/sitemap.xml
+
+### Testing Required:
+- [ ] Verify GA events tracking in Google Analytics dashboard
+- [ ] Verify sitemap.xml accessible
+- [ ] Verify robots.txt accessible
+- [ ] Verify meta tags render correctly
+

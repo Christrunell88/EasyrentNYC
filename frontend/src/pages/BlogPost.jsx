@@ -101,19 +101,9 @@ const BlogPost = () => {
 
   const shareUrl = `https://nofeesapts.com/blog/${slug}`;
 
-  const handleShare = (platform) => {
-    const urls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
-    };
-
-    if (platform === 'copy') {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success('Link copied to clipboard!');
-    } else {
-      window.open(urls[platform], '_blank', 'width=600,height=400');
-    }
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast.success('Link copied to clipboard!');
   };
 
   return (

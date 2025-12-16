@@ -795,10 +795,19 @@ class NoFeeAptsAPITester:
                 print("✅ Cleaned up test building")
 
     def run_all_tests(self):
-        """Run all backend tests"""
+        """Run all backend tests including SEO functionality"""
         print("🚀 Starting NoFeeApts Backend API Tests")
         print(f"🔗 Testing against: {self.base_url}")
         print("=" * 60)
+        
+        # SEO and Sitemap Tests (Priority for this review)
+        print("\n🔍 SEO and Sitemap Tests")
+        print("Testing SEO functionality as requested...")
+        self.test_sitemap_xml()
+        self.test_robots_txt()
+        self.test_homepage_meta_tags()
+        self.test_api_units_count()
+        self.test_api_buildings_count()
         
         # Authentication Tests
         print("\n📝 Authentication Tests")

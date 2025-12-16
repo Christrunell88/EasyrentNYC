@@ -251,14 +251,14 @@ const FeeFreeFinds = () => {
             <Button
               onClick={() => {
                 navigator.clipboard.writeText('https://nofeesapts.com/fee-free-finds');
-                alert('Link copied! Share #FeeFreeFinds with friends');
+                toast.success('Link copied! Share #FeeFreeFinds with friends');
               }}
               variant="outline"
               size="lg"
               className="text-xl px-12 py-7 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-semibold rounded-xl"
             >
-              <Share2 className="w-5 h-5 mr-2" />
-              Share
+              <Copy className="w-5 h-5 mr-2" />
+              Copy Link
             </Button>
           </div>
         </div>

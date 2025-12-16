@@ -297,6 +297,7 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+frontend:
   - task: "Admin login redirect verification"
     implemented: true
     working: true

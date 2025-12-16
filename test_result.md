@@ -220,6 +220,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE GOOGLE OAUTH WORKFLOW TESTING COMPLETED: Verified complete OAuth workflow functionality on development environment. VERIFIED COMPONENTS: ✅ OAuth button redirect mechanism working correctly (redirects to https://auth.emergentagent.com), ✅ Infinite loop prevention confirmed working (no repeated /auth/session calls), ✅ URL cleanup functioning properly (session_id removed from URL after processing), ✅ Error handling working (proper toast messages for invalid sessions), ✅ Frontend OAuth integration fully functional. NOTE: While backend session validation endpoint still returns 404 for actual OAuth sessions, the frontend OAuth redirect mechanism and infinite loop prevention are working correctly. Users can initiate OAuth flow properly, and the infinite loop issue that was previously blocking the UI has been completely resolved."
 
+  - task: "Anagram Columbus Circle building and units verification"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE ANAGRAM COLUMBUS CIRCLE TESTING COMPLETED SUCCESSFULLY: Verified newly added building and both units as requested. BUILDING VERIFICATION: ✅ Anagram Columbus Circle building exists with correct details (Name: 'Anagram Columbus Circle', Address: '1 West 60th Street', Neighborhood: 'Upper West Side', City: 'New York', State: 'NY', Building ID: 7b6f3f5a-a58f-488a-b0db-f2152109537f). STUDIO 02C UNIT VERIFICATION: ✅ Unit ID 9a8c3ba5-60c3-48a0-89af-d6e691c04381 verified with rent=$6,500/month, bedrooms=0 (studio), bathrooms=1, is_available=true, unit_number=02C, correct building association. TWO BEDROOM 21B UNIT VERIFICATION: ✅ Unit ID c350312e-9339-42da-8474-b02c04a575ae verified with rent=$11,700/month, bedrooms=2, bathrooms=2, is_available=true, unit_number=21B, correct building association. UNITS LIST QUERY VERIFICATION: ✅ Both Columbus Circle units appear correctly in GET /api/units?limit=200 response (found 2/2 units in list of 103 total units) with proper building information included. All API endpoints (GET /api/buildings, GET /api/units/{unit_id}, GET /api/units?limit=200) working correctly. Database associations verified - both units properly linked to Anagram Columbus Circle building. All test requirements met successfully."
+
 frontend:
   - task: "Display real apartment images on listing cards"
     implemented: true

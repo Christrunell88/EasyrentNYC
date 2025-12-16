@@ -145,7 +145,7 @@ const Auth = () => {
         </div>
 
         {/* Auth Form */}
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue="signup" className="w-full">
           {!isAdminMode && (
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-lg">
               <TabsTrigger 

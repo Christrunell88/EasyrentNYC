@@ -500,6 +500,288 @@ class NoFeeAptsAPITester:
             self.log_test("OAuth Session Validation", False, f"Expected 400, got {response.status_code if response else 'No response'}", "auth/session")
         return False
 
+    def test_sitemap_xml(self):
+        """Test sitemap.xml generation and content"""
+        try:
+            # Make request to sitemap.xml endpoint
+            response = requests.get(f"{self.base_url}/sitemap.xml", timeout=10)
+            
+            if response.status_code != 200:
+                self.log_test("Sitemap XML - Availability", False, f"Status: {response.status_code}", "sitemap.xml")
+                return False
+            
+            # Check content type
+            content_type = response.headers.get('content-type', '')
+            if 'xml' not in content_type.lower():
+                self.log_test("Sitemap XML - Content Type", False, f"Expected XML, got: {content_type}", "sitemap.xml")
+                return False
+            
+            # Parse XML to verify it's valid
+            try:
+                root = ET.fromstring(response.text)
+                self.log_test("Sitemap XML - Valid XML", True, "Sitemap is valid XML", "sitemap.xml")
+            except ET.ParseError as e:
+                self.log_test("Sitemap XML - Valid XML", False, f"Invalid XML: {str(e)}", "sitemap.xml")
+                return False
+            
+            # Check XML structure and namespace
+            if root.tag != '{http://www.sitemaps.org/schemas/sitemap/0.9}urlset':
+                self.log_test("Sitemap XML - Structure", False, f"Invalid root tag: {root.tag}", "sitemap.xml")
+                return False
+            
+            # Count URLs
+            urls = root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+            url_count = len(urls)
+            
+            # Check if we have approximately 140 URLs as expected
+            if url_count < 100:
+                self.log_test("Sitemap XML - URL Count", False, f"Too few URLs: {url_count} (expected ~140)", "sitemap.xml")
+                return False
+            elif url_count > 200:
+                self.log_test("Sitemap XML - URL Count", False, f"Too many URLs: {url_count} (expected ~140)", "sitemap.xml")
+                return False
+            else:
+                self.log_test("Sitemap XML - URL Count", True, f"Found {url_count} URLs (within expected range)", "sitemap.xml")
+            
+            # Check for unit pages
+            unit_urls = []
+            static_urls = []
+            
+            for url in urls:
+                loc_elem = url.find('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+                if loc_elem is not None:
+                    loc = loc_elem.text
+                    if '/unit/' in loc:
+                        unit_urls.append(loc)
+                    else:
+                        static_urls.append(loc)
+            
+            if len(unit_urls) < 50:
+                self.log_test("Sitemap XML - Unit URLs", False, f"Too few unit URLs: {len(unit_urls)}", "sitemap.xml")
+                return False
+            else:
+                self.log_test("Sitemap XML - Unit URLs", True, f"Found {len(unit_urls)} unit URLs", "sitemap.xml")
+            
+            # Check lastmod dates
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            recent_dates = ['2025-12-16', '2025-12-15', '2025-12-14', current_date]
+            
+            lastmod_found = False
+            for url in urls[:5]:  # Check first 5 URLs
+                lastmod_elem = url.find('.//{http://www.sitemaps.org/schemas/sitemap/0.9}lastmod')
+                if lastmod_elem is not None:
+                    lastmod_date = lastmod_elem.text[:10]  # Get YYYY-MM-DD part
+                    if lastmod_date in recent_dates:
+                        lastmod_found = True
+                        break
+            
+            if lastmod_found:
+                self.log_test("Sitemap XML - Recent Lastmod", True, "Found recent lastmod dates", "sitemap.xml")
+            else:
+                self.log_test("Sitemap XML - Recent Lastmod", False, "No recent lastmod dates found", "sitemap.xml")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("Sitemap XML - Request", False, f"Request error: {str(e)}", "sitemap.xml")
+            return False
+        except Exception as e:
+            self.log_test("Sitemap XML - General", False, f"Error: {str(e)}", "sitemap.xml")
+            return False
+
+    def test_robots_txt(self):
+        """Test robots.txt content and format"""
+        try:
+            response = requests.get(f"{self.base_url}/robots.txt", timeout=10)
+            
+            if response.status_code != 200:
+                self.log_test("Robots.txt - Availability", False, f"Status: {response.status_code}", "robots.txt")
+                return False
+            
+            # Check content type
+            content_type = response.headers.get('content-type', '')
+            if 'text/plain' not in content_type.lower():
+                self.log_test("Robots.txt - Content Type", False, f"Expected text/plain, got: {content_type}", "robots.txt")
+                return False
+            
+            content = response.text.lower()
+            
+            # Check for basic robots.txt structure
+            if 'user-agent:' not in content:
+                self.log_test("Robots.txt - User-Agent", False, "Missing User-agent directive", "robots.txt")
+                return False
+            else:
+                self.log_test("Robots.txt - User-Agent", True, "User-agent directive found", "robots.txt")
+            
+            # Check for sitemap reference
+            if 'sitemap:' not in content:
+                self.log_test("Robots.txt - Sitemap Reference", False, "Missing Sitemap directive", "robots.txt")
+                return False
+            else:
+                self.log_test("Robots.txt - Sitemap Reference", True, "Sitemap directive found", "robots.txt")
+            
+            # Check for admin disallow
+            if 'disallow: /admin' not in content:
+                self.log_test("Robots.txt - Admin Disallow", False, "Missing /admin disallow", "robots.txt")
+                return False
+            else:
+                self.log_test("Robots.txt - Admin Disallow", True, "/admin is disallowed", "robots.txt")
+            
+            # Check for API disallow
+            if 'disallow: /api' not in content:
+                self.log_test("Robots.txt - API Disallow", False, "Missing /api disallow", "robots.txt")
+                return False
+            else:
+                self.log_test("Robots.txt - API Disallow", True, "/api is disallowed", "robots.txt")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("Robots.txt - Request", False, f"Request error: {str(e)}", "robots.txt")
+            return False
+        except Exception as e:
+            self.log_test("Robots.txt - General", False, f"Error: {str(e)}", "robots.txt")
+            return False
+
+    def test_homepage_meta_tags(self):
+        """Test homepage meta tags and SEO elements"""
+        try:
+            response = requests.get(self.base_url, timeout=10)
+            
+            if response.status_code != 200:
+                self.log_test("Homepage Meta - Availability", False, f"Status: {response.status_code}", "homepage")
+                return False
+            
+            content = response.text.lower()
+            
+            # Check for title with "110+ verified listings"
+            if '110+ verified listings' in content or '110 verified listings' in content:
+                self.log_test("Homepage Meta - Title Content", True, "Title contains '110+ Verified Listings'", "homepage")
+            else:
+                self.log_test("Homepage Meta - Title Content", False, "Title missing '110+ Verified Listings'", "homepage")
+            
+            # Check for meta description
+            if 'meta name="description"' in content or 'meta property="description"' in content:
+                self.log_test("Homepage Meta - Description", True, "Meta description found", "homepage")
+            else:
+                self.log_test("Homepage Meta - Description", False, "Meta description missing", "homepage")
+            
+            # Check for Open Graph tags
+            og_tags_found = 0
+            og_tags = ['og:title', 'og:description', 'og:image', 'og:url', 'og:type']
+            
+            for tag in og_tags:
+                if f'property="{tag}"' in content:
+                    og_tags_found += 1
+            
+            if og_tags_found >= 3:
+                self.log_test("Homepage Meta - OG Tags", True, f"Found {og_tags_found} OG tags", "homepage")
+            else:
+                self.log_test("Homepage Meta - OG Tags", False, f"Only found {og_tags_found} OG tags", "homepage")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("Homepage Meta - Request", False, f"Request error: {str(e)}", "homepage")
+            return False
+        except Exception as e:
+            self.log_test("Homepage Meta - General", False, f"Error: {str(e)}", "homepage")
+            return False
+
+    def test_api_units_count(self):
+        """Test API units endpoint returns expected count"""
+        try:
+            response = requests.get(f"{self.api_url}/units?limit=200", timeout=10)
+            
+            if response.status_code != 200:
+                self.log_test("API Units Count - Availability", False, f"Status: {response.status_code}", "api/units")
+                return False
+            
+            units = response.json()
+            
+            if not isinstance(units, list):
+                self.log_test("API Units Count - Format", False, "Response is not a list", "api/units")
+                return False
+            
+            unit_count = len(units)
+            
+            # Check if we have approximately 110 units as expected
+            if unit_count < 80:
+                self.log_test("API Units Count - Count", False, f"Too few units: {unit_count} (expected ~110)", "api/units")
+                return False
+            elif unit_count > 150:
+                self.log_test("API Units Count - Count", False, f"Too many units: {unit_count} (expected ~110)", "api/units")
+                return False
+            else:
+                self.log_test("API Units Count - Count", True, f"Found {unit_count} units (within expected range)", "api/units")
+            
+            # Verify unit structure
+            if units and isinstance(units[0], dict):
+                required_fields = ['id', 'rent', 'bedrooms', 'bathrooms']
+                first_unit = units[0]
+                missing_fields = [field for field in required_fields if field not in first_unit]
+                
+                if missing_fields:
+                    self.log_test("API Units Count - Structure", False, f"Missing fields: {missing_fields}", "api/units")
+                else:
+                    self.log_test("API Units Count - Structure", True, "Unit structure is valid", "api/units")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("API Units Count - Request", False, f"Request error: {str(e)}", "api/units")
+            return False
+        except Exception as e:
+            self.log_test("API Units Count - General", False, f"Error: {str(e)}", "api/units")
+            return False
+
+    def test_api_buildings_count(self):
+        """Test API buildings endpoint returns expected count"""
+        try:
+            response = requests.get(f"{self.api_url}/buildings", timeout=10)
+            
+            if response.status_code != 200:
+                self.log_test("API Buildings Count - Availability", False, f"Status: {response.status_code}", "api/buildings")
+                return False
+            
+            buildings = response.json()
+            
+            if not isinstance(buildings, list):
+                self.log_test("API Buildings Count - Format", False, "Response is not a list", "api/buildings")
+                return False
+            
+            building_count = len(buildings)
+            
+            # Check if we have approximately 25 buildings as expected
+            if building_count < 15:
+                self.log_test("API Buildings Count - Count", False, f"Too few buildings: {building_count} (expected ~25)", "api/buildings")
+                return False
+            elif building_count > 35:
+                self.log_test("API Buildings Count - Count", False, f"Too many buildings: {building_count} (expected ~25)", "api/buildings")
+                return False
+            else:
+                self.log_test("API Buildings Count - Count", True, f"Found {building_count} buildings (within expected range)", "api/buildings")
+            
+            # Verify building structure
+            if buildings and isinstance(buildings[0], dict):
+                required_fields = ['id', 'name', 'address', 'city', 'state']
+                first_building = buildings[0]
+                missing_fields = [field for field in required_fields if field not in first_building]
+                
+                if missing_fields:
+                    self.log_test("API Buildings Count - Structure", False, f"Missing fields: {missing_fields}", "api/buildings")
+                else:
+                    self.log_test("API Buildings Count - Structure", True, "Building structure is valid", "api/buildings")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("API Buildings Count - Request", False, f"Request error: {str(e)}", "api/buildings")
+            return False
+        except Exception as e:
+            self.log_test("API Buildings Count - General", False, f"Error: {str(e)}", "api/buildings")
+            return False
+
     def cleanup(self):
         """Clean up test data"""
         if self.created_unit_id and self.admin_session_token:

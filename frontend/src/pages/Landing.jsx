@@ -146,10 +146,10 @@ const Landing = () => {
       <section className="min-h-screen flex items-center justify-center px-6 pt-16">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-10">
-            Sign Up to Find 1000's of Apartments
+            Free Sign Up to Find 1000's of Apartments in NY, NJ and PA
           </h1>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-5 items-center">
             <Button
               data-testid="get-started-btn"
               onClick={handleGetStarted}
@@ -159,6 +159,33 @@ const Landing = () => {
               GET EARLY ACCESS
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={handleGetStarted}
+                variant="outline"
+                size="lg"
+                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
+              >
+                NY
+              </Button>
+              <Button
+                onClick={handleGetStarted}
+                variant="outline"
+                size="lg"
+                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
+              >
+                NJ
+              </Button>
+              <Button
+                onClick={handleGetStarted}
+                variant="outline"
+                size="lg"
+                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
+              >
+                PA
+              </Button>
+            </div>
           </div>
         </div>
       </section>

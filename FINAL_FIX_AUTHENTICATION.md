@@ -7,7 +7,7 @@
 ### What Was Happening:
 ```
 User visits: https://nofeesapts.com
-Frontend tries to login at: https://rentcrawlr.preview.emergentagent.com/api/auth/login
+Frontend tries to login at: https://fee-free-apts.preview.emergentagent.com/api/auth/login
 Backend responds from: Preview server (not production)
 Result: Authentication fails because preview and production are different environments
 ```
@@ -26,7 +26,7 @@ Result: Authentication fails because preview and production are different enviro
 
 **Before:**
 ```
-REACT_APP_BACKEND_URL=https://rentcrawlr.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://fee-free-apts.preview.emergentagent.com
 ```
 
 **After:**
@@ -39,8 +39,8 @@ REACT_APP_BACKEND_URL=https://nofeesapts.com
 
 **Before:**
 ```javascript
-const defaultImage = 'https://rentcrawlr.preview.emergentagent.com/og-image.jpg';
-const baseUrl = 'https://rentcrawlr.preview.emergentagent.com';
+const defaultImage = 'https://fee-free-apts.preview.emergentagent.com/og-image.jpg';
+const baseUrl = 'https://fee-free-apts.preview.emergentagent.com';
 ```
 
 **After:**
@@ -54,8 +54,8 @@ const baseUrl = 'https://nofeesapts.com';
 
 **Before:**
 ```javascript
-"url": "https://rentcrawlr.preview.emergentagent.com",
-"logo": "https://rentcrawlr.preview.emergentagent.com/logo.png",
+"url": "https://fee-free-apts.preview.emergentagent.com",
+"logo": "https://fee-free-apts.preview.emergentagent.com/logo.png",
 ```
 
 **After:**

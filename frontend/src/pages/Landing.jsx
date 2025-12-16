@@ -190,6 +190,45 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Featured Listings - Right after hero */}
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Featured Apartments
+            </h2>
+            <p className="text-slate-500 max-w-lg mx-auto">
+              A preview of available no-fee listings. Sign up to see full details.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {featuredUnits.map((unit) => (
+              <ListingCard
+                key={unit.id}
+                unit={unit}
+                user={null}
+                isFavorite={false}
+                onToggleFavorite={() => navigate('/auth')}
+                showBlur={true}
+              />
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button
+              onClick={() => navigate('/auth')}
+              variant="outline"
+              size="lg"
+              className="border-slate-300 text-slate-900 hover:bg-slate-50 font-medium px-8 py-5 rounded-xl"
+            >
+              View All {stats.units}+ Apartments
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Value Props - 3 Clean Blocks */}
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-5xl mx-auto">
@@ -223,45 +262,6 @@ const Landing = () => {
                 Real photos, real addresses, real availability.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Listings - Minimal */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Featured Apartments
-            </h2>
-            <p className="text-slate-500 max-w-lg mx-auto">
-              A preview of available no-fee listings. Sign up to see full details.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {featuredUnits.map((unit) => (
-              <ListingCard
-                key={unit.id}
-                unit={unit}
-                user={null}
-                isFavorite={false}
-                onToggleFavorite={() => navigate('/auth')}
-                showBlur={true}
-              />
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Button
-              onClick={() => navigate('/auth')}
-              variant="outline"
-              size="lg"
-              className="border-slate-300 text-slate-900 hover:bg-slate-50 font-medium px-8 py-5 rounded-xl"
-            >
-              View All {stats.units}+ Apartments
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
           </div>
         </div>
       </section>

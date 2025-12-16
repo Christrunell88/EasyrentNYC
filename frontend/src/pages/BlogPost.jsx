@@ -185,42 +185,15 @@ const BlogPost = () => {
                 </div>
               </div>
 
-              {/* Share Buttons */}
+              {/* Share Button */}
               <div className="flex gap-2 mb-8 pb-8 border-b border-slate-700">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleShare('facebook')}
+                  onClick={handleCopyLink}
                   className="border-slate-600 text-slate-300 hover:bg-slate-700"
                 >
-                  <Facebook className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShare('twitter')}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                >
-                  <Twitter className="w-4 h-4 mr-2" />
-                  Tweet
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShare('linkedin')}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                >
-                  <Linkedin className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShare('copy')}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
+                  <Copy className="w-4 h-4 mr-2" />
                   Copy Link
                 </Button>
               </div>

@@ -145,13 +145,9 @@ const Landing = () => {
       {/* Hero Section - Tall, Clean, Dominant */}
       <section className="min-h-screen flex items-center justify-center px-6 pt-16">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-4">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-10">
             Sign Up to Find 1000's of Apartments
           </h1>
-          
-          <p className="text-lg sm:text-xl font-semibold text-slate-500 tracking-wide mb-10">
-            GET ACCESS FIRST FOR FREE
-          </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -160,7 +156,7 @@ const Landing = () => {
               size="lg"
               className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-8 py-6 text-lg rounded-xl"
             >
-              Browse Apartments
+              GET EARLY ACCESS
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>

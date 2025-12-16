@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 Backend API Testing for NoFeeApts Application
-Tests all API endpoints including authentication, CRUD operations, and admin functions
+Tests all API endpoints including authentication, CRUD operations, admin functions, and SEO functionality
 """
 
 import requests
 import sys
 import json
+import xml.etree.ElementTree as ET
 from datetime import datetime
+from urllib.parse import urlparse
 
 class NoFeeAptsAPITester:
     def __init__(self, base_url="http://localhost:8001"):

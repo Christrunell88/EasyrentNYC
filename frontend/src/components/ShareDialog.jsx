@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
-import { Mail, Copy, Check, Facebook, Twitter, MessageCircle } from 'lucide-react';
+import { Mail, Copy, Check } from 'lucide-react';
 
 const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   const [emailTo, setEmailTo] = useState('');
@@ -17,9 +17,6 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
 
   // Generate share URL
   const shareUrl = `${window.location.origin}/unit/${unit.id}`;
-  
-  // Generate share text
-  const shareText = `Check out this no-fee apartment at ${building?.name || 'NYC'}! ${unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`} for $${unit.rent.toLocaleString()}/month`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -53,30 +50,6 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     }
   };
 
-  const handleSocialShare = (platform) => {
-    const encodedUrl = encodeURIComponent(shareUrl);
-    const encodedText = encodeURIComponent(shareText);
-    
-    let shareLink = '';
-    
-    switch(platform) {
-      case 'facebook':
-        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-        break;
-      case 'twitter':
-        shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
-        break;
-      case 'whatsapp':
-        shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
-        break;
-      default:
-        return;
-    }
-    
-    window.open(shareLink, '_blank', 'width=600,height=400');
-    toast.success(`Sharing on ${platform}!`);
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100 max-w-md">
@@ -88,37 +61,6 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Social Media Share Buttons */}
-          <div className="space-y-2">
-            <Label className="text-slate-200">Share on Social Media</Label>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                onClick={() => handleSocialShare('facebook')}
-                variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
-              >
-                <Facebook className="w-4 h-4 mr-2" />
-                Facebook
-              </Button>
-              <Button
-                onClick={() => handleSocialShare('twitter')}
-                variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
-              >
-                <Twitter className="w-4 h-4 mr-2" />
-                Twitter
-              </Button>
-              <Button
-                onClick={() => handleSocialShare('whatsapp')}
-                variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
-            </div>
-          </div>
-
           {/* Copy Link */}
           <div className="space-y-2">
             <Label className="text-slate-200">Copy Link</Label>

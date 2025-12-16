@@ -471,25 +471,14 @@ const FeeFreeFinds = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               onClick={() => {
-                const text = "Save thousands on your next apartment! Check out #FeeFreeFinds - curated no-fee apartments in NYC & NJ 🏠✨";
                 const url = "https://nofeesapts.com/fee-free-finds";
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                navigator.clipboard.writeText(url);
+                toast.success('Link copied to clipboard!');
               }}
               size="lg"
               className="bg-slate-900 hover:bg-slate-800 text-amber-500 font-bold px-8 py-6"
             >
-              Share on X/Twitter
-            </Button>
-            <Button
-              onClick={() => {
-                const url = "https://nofeesapts.com/fee-free-finds";
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-              }}
-              size="lg"
-              variant="outline"
-              className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-amber-500 font-bold px-8 py-6"
-            >
-              Share on Facebook
+              Copy Link to Share
             </Button>
           </div>
         </div>

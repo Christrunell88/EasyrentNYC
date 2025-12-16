@@ -98,7 +98,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the welcome email feature for new user signup on NoFeesApts.com. The backend is working correctly and sending emails successfully. Need to verify signup flow, dashboard redirect, and backend email logs."
+user_problem_statement: "Test the newly added 'Anagram Columbus Circle' building and its units. The building was just added at 1 West 60th Street, Upper West Side, New York. Verify building exists with correct details, test Studio 02C unit (ID: 9a8c3ba5-60c3-48a0-89af-d6e691c04381) with rent=$6,500, and Two Bedroom 21B unit (ID: c350312e-9339-42da-8474-b02c04a575ae) with rent=$11,700. Ensure both units appear in units list query with correct building associations."
 
 backend:
   - task: "Image scraping for Harrison Yards"

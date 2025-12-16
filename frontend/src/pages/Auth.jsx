@@ -149,18 +149,18 @@ const Auth = () => {
           {!isAdminMode && (
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-lg">
               <TabsTrigger 
-                value="login" 
-                data-testid="login-tab" 
-                className="rounded-md data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
-              >
-                Login
-              </TabsTrigger>
-              <TabsTrigger 
                 value="signup" 
                 data-testid="signup-tab" 
                 className="rounded-md data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
               >
                 Sign Up
+              </TabsTrigger>
+              <TabsTrigger 
+                value="login" 
+                data-testid="login-tab" 
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
+              >
+                Login
               </TabsTrigger>
             </TabsList>
           )}

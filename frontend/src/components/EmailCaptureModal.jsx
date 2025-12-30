@@ -14,40 +14,41 @@ const EmailCaptureModal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Check if user has already submitted or dismissed
+    // Check if user has already submitted
     const hasSubmitted = localStorage.getItem('emailCaptureSubmitted');
-    const hasDismissed = localStorage.getItem('emailCaptureDismissed');
-    const dismissedTime = localStorage.getItem('emailCaptureDismissedTime');
-
-    // Don't show if already submitted
     if (hasSubmitted) return;
 
-    // If dismissed, check if 7 days have passed
-    if (hasDismissed && dismissedTime) {
+    // Check if dismissed - respect 30-day cool-off period
+    const dismissedTime = localStorage.getItem('emailCaptureDismissedTime');
+    if (dismissedTime) {
       const daysSinceDismissed = (Date.now() - parseInt(dismissedTime)) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismissed < 7) return; // Don't show for 7 days after dismiss
+      if (daysSinceDismissed < 30) return; // Don't show for 30 days after dismiss
     }
 
-    // Show modal after 30 seconds
+    // Check session - only show once per session
+    const shownThisSession = sessionStorage.getItem('emailCaptureShownThisSession');
+    if (shownThisSession) return;
+
+    // Count page views in this session
+    const pageViews = parseInt(sessionStorage.getItem('pageViewCount') || '0') + 1;
+    sessionStorage.setItem('pageViewCount', pageViews.toString());
+
+    // Only show after user has viewed at least 3 pages (showing genuine interest)
+    if (pageViews < 3) return;
+
+    // Show modal after 60 seconds of being on the page (user is engaged)
     const timer = setTimeout(() => {
-      setOpen(true);
-    }, 30000); // 30 seconds
-
-    // Or show on scroll (if user scrolls 50% down the page)
-    const handleScroll = () => {
-      const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      if (scrollPercent > 50 && !hasSubmitted && !open) {
+      // Double-check they haven't navigated away
+      if (document.visibilityState === 'visible') {
         setOpen(true);
+        sessionStorage.setItem('emailCaptureShownThisSession', 'true');
       }
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    }, 60000); // 60 seconds - more respectful
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('scroll', handleScroll);
     };
-  }, [open]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,38 +80,41 @@ const EmailCaptureModal = () => {
   };
 
   const handleDismiss = () => {
-    localStorage.setItem('emailCaptureDismissed', 'true');
     localStorage.setItem('emailCaptureDismissedTime', Date.now().toString());
+    sessionStorage.setItem('emailCaptureShownThisSession', 'true');
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-white border-slate-200 text-slate-900 max-w-md p-8 rounded-2xl">
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) handleDismiss();
+      setOpen(isOpen);
+    }}>
+      <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/20 text-white max-w-md p-8 rounded-none">
         <button
           onClick={handleDismiss}
-          className="absolute right-4 top-4 rounded-full p-1.5 bg-slate-100 opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+          className="absolute right-4 top-4 p-1.5 bg-[#0a0a0a] border border-[#D4AF37]/20 opacity-70 transition-opacity hover:opacity-100 hover:border-[#D4AF37] focus:outline-none"
         >
-          <X className="h-4 w-4 text-slate-600" />
+          <X className="h-4 w-4 text-[#D4AF37]" />
           <span className="sr-only">Close</span>
         </button>
 
         <DialogHeader>
-          <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-slate-900 flex items-center justify-center">
-            <Bell className="h-7 w-7 text-white" />
+          <div className="mx-auto mb-4 h-14 w-14 border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center">
+            <Bell className="h-7 w-7 text-[#D4AF37]" />
           </div>
-          <DialogTitle className="text-slate-900 text-center text-2xl font-bold">
+          <DialogTitle className="text-white text-center text-2xl font-philosopher font-bold">
             Get New Listing Alerts
           </DialogTitle>
-          <DialogDescription className="text-slate-500 text-center pt-2 text-base">
-            Be the first to know when new no-fee apartments become available.
+          <DialogDescription className="text-[#888888] text-center pt-2 text-base font-philosopher">
+            Be the first to know when new luxury no-fee apartments become available.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="capture-email" className="text-slate-700 flex items-center gap-2 text-sm font-medium">
-              <Mail className="w-4 h-4" />
+            <Label htmlFor="capture-email" className="text-[#F5F5F5] flex items-center gap-2 text-sm font-philosopher">
+              <Mail className="w-4 h-4 text-[#D4AF37]" />
               Email Address
             </Label>
             <Input
@@ -119,7 +123,7 @@ const EmailCaptureModal = () => {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-50 border-0 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900 rounded-xl py-5"
+              className="bg-[#0a0a0a] border border-[#D4AF37]/20 text-white placeholder:text-[#666666] focus:border-[#D4AF37] focus:ring-0 rounded-none py-5 font-philosopher"
               required
             />
           </div>
@@ -127,19 +131,19 @@ const EmailCaptureModal = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-6 text-base rounded-xl"
+            className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold py-6 text-base rounded-none tracking-wide"
           >
-            {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+            {isSubmitting ? 'SUBSCRIBING...' : 'SUBSCRIBE'}
           </Button>
 
-          <p className="text-xs text-slate-400 text-center">
+          <p className="text-xs text-[#666666] text-center font-philosopher">
             No spam. Unsubscribe anytime.
           </p>
         </form>
 
         <button
           onClick={handleDismiss}
-          className="text-sm text-slate-400 hover:text-slate-600 text-center w-full transition-colors"
+          className="text-sm text-[#888888] hover:text-[#D4AF37] text-center w-full transition-colors font-philosopher"
         >
           Maybe later
         </button>

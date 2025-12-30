@@ -142,55 +142,99 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Luxury Dark Theme */}
-      <section className="min-h-screen flex items-center justify-center px-6 pt-20 relative overflow-hidden">
-        {/* Subtle gold gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#D4AF37]/5 via-transparent to-transparent pointer-events-none" />
+      {/* Hero Section - Luxury Dark Theme with Hero Image */}
+      <section className="min-h-screen relative overflow-hidden pt-20">
+        {/* Hero Background Image */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/dchndobx_Chris-01.jpg"
+            alt="Luxury NYC Apartment Interior"
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient overlays for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/50" />
+        </div>
         
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          {/* Decorative line */}
-          <div className="w-16 h-px bg-[#D4AF37] mx-auto mb-8" />
-          
-          <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-6">
-            A Curated Collection
-          </p>
-          
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-8">
-            The Finest Luxury No Fee Apartments in Northern NJ, NYC & PA
-          </h1>
-          
-          <p className="text-[#F5F5F5] text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
-            An exclusive selection of premium residences, handpicked for discerning renters who expect nothing less than excellence.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-            <Button
-              data-testid="get-started-btn"
-              onClick={handleGetStarted}
-              size="lg"
-              className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
-            >
-              EXPLORE COLLECTION
-              <ArrowRight className="w-5 h-5 ml-3" />
-            </Button>
-          </div>
+        {/* Content */}
+        <div className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center">
+          <div className="max-w-7xl mx-auto px-6 w-full">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left Content */}
+              <div className="max-w-xl">
+                {/* Decorative line */}
+                <div className="w-16 h-px bg-[#D4AF37] mb-8" />
+                
+                <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-6">
+                  A Curated Collection
+                </p>
+                
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-8">
+                  The Finest No Fee Apartments
+                </h1>
+                
+                <p className="text-[#F5F5F5]/90 text-lg md:text-xl mb-10 leading-relaxed">
+                  An exclusive selection of premium residences in NYC, Northern NJ & PA — handpicked for discerning renters who expect nothing less than excellence.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  <Button
+                    data-testid="get-started-btn"
+                    onClick={handleGetStarted}
+                    size="lg"
+                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                  >
+                    EXPLORE COLLECTION
+                    <ArrowRight className="w-5 h-5 ml-3" />
+                  </Button>
+                </div>
 
-          {/* State buttons */}
-          <div className="flex gap-4 justify-center mt-8">
-            {['NY', 'NJ', 'PA'].map((state) => (
-              <Button
-                key={state}
-                onClick={handleGetStarted}
-                variant="outline"
-                className="border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] font-philosopher font-bold px-8 py-4 rounded-none tracking-[0.2em] transition-all duration-300"
-              >
-                {state}
-              </Button>
-            ))}
+                {/* State buttons */}
+                <div className="flex gap-4 mt-8">
+                  {['NY', 'NJ', 'PA'].map((state) => (
+                    <Button
+                      key={state}
+                      onClick={handleGetStarted}
+                      variant="outline"
+                      className="border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] font-philosopher font-bold px-8 py-4 rounded-none tracking-[0.2em] transition-all duration-300 backdrop-blur-sm"
+                    >
+                      {state}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Right side - Stats overlay card */}
+              <div className="hidden lg:flex justify-end">
+                <div className="bg-[#0a0a0a]/70 backdrop-blur-md border border-[#D4AF37]/20 p-8 max-w-sm">
+                  <p className="text-[#D4AF37] font-philosopher tracking-[0.2em] uppercase text-xs mb-6">
+                    Currently Available
+                  </p>
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-5xl font-philosopher font-bold text-white">{stats.units}+</p>
+                      <p className="text-[#888888] text-sm mt-1">No Fee Apartments</p>
+                    </div>
+                    <div className="w-full h-px bg-[#D4AF37]/20" />
+                    <div>
+                      <p className="text-5xl font-philosopher font-bold text-white">{stats.buildings}</p>
+                      <p className="text-[#888888] text-sm mt-1">Premium Buildings</p>
+                    </div>
+                    <div className="w-full h-px bg-[#D4AF37]/20" />
+                    <div>
+                      <p className="text-5xl font-philosopher font-bold text-[#D4AF37]">$0</p>
+                      <p className="text-[#888888] text-sm mt-1">Broker Fees</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          {/* Decorative line */}
-          <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-16" />
+        </div>
+        
+        {/* Bottom scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-px h-16 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent animate-pulse" />
         </div>
       </section>
 

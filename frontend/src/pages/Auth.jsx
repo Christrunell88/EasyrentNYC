@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import { trackLogin, trackSignup } from '../utils/analytics';
 import useAuthStore from '../store/authStore';

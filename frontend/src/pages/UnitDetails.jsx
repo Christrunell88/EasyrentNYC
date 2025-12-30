@@ -216,17 +216,17 @@ const UnitDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+        <div className="text-xl text-[#D4AF37] font-philosopher">Loading...</div>
       </div>
     );
   }
 
   if (!unit) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="text-xl text-gray-600 mb-4">Apartment not found</div>
-        <Button onClick={() => navigate('/dashboard')} className="bg-[#1a2b4a] hover:bg-[#0f1d33] text-white">Back to Dashboard</Button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a]">
+        <div className="text-xl text-[#F5F5F5] font-philosopher mb-4">Apartment not found</div>
+        <Button onClick={() => navigate('/dashboard')} className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold rounded-none">Back to Dashboard</Button>
       </div>
     );
   }

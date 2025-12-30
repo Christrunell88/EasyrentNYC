@@ -1544,6 +1544,18 @@ async def delete_facebook_post(
         logger.error(f"Error deleting post: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ============ INCLUDE ROUTER AND MIDDLEWARE ============
+# Note: This MUST be after all routes are defined
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ============ SCHEDULER ============
 
 scheduler = BackgroundScheduler()

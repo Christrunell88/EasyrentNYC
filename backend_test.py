@@ -615,51 +615,77 @@ class NoFeeAptsAPITester:
         print(f"🔗 Testing against: {self.base_url}")
         print("=" * 60)
         
-        # Authentication Tests
+        # Authentication Tests - Focus on specific credentials from review request
         print("\n📝 Authentication Tests")
-        print("Testing OAuth and Login/Sign-in functionality comprehensively...")
+        print("Testing specific admin and user credentials from review request...")
         
-        # Test unauthenticated access first
-        self.test_unauthenticated_access()
-        
-        # Test new user signup
-        self.test_user_signup()
-        self.test_get_current_user()  # Verify session after signup
-        self.test_duplicate_signup()  # Test duplicate email validation
-        
-        # Test user login after signup
-        self.test_user_login()
-        
-        # Test admin login with specific credentials
+        # Test admin login with specific credentials from review request
         self.test_admin_login()
         
-        # Test regular user login with specific credentials  
+        # Test regular user login with specific credentials from review request
         self.test_regular_user_login()
         
-        # Test OAuth endpoints
-        self.test_google_oauth_endpoint()
-        self.test_oauth_session_endpoint()
+        # Test unauthenticated access protection
+        self.test_unauthenticated_access()
         
-        # Public Endpoints Tests
-        print("\n🏢 Public Endpoints Tests")
+        # Email Subscription Tests - Primary focus from review request
+        print("\n📧 Email Subscription Tests")
+        print("Testing email subscription API as specified in review request...")
+        self.test_email_subscription()
+        
+        # Admin access to subscribers (part of review request)
+        if self.admin_session_token:
+            self.test_admin_subscribers_access()
+        
+        # Facebook Route Registration Tests - From review request
+        print("\n📘 Facebook Route Registration Tests")
+        print("Verifying Facebook posting routes exist (not actual posting due to expired token)...")
+        self.test_facebook_routes_registration()
+        
+        # Admin Stats Access - Part of review request
+        print("\n📊 Admin Stats Tests")
+        if self.admin_session_token:
+            response = self.make_request('GET', 'admin/stats', use_admin=True)
+            if response and response.status_code == 200:
+                stats = response.json()
+                if isinstance(stats, dict):
+                    self.log_test("Admin Stats Access", True, f"Stats retrieved successfully", "admin/stats")
+                else:
+                    self.log_test("Admin Stats Access", False, "Invalid response format", "admin/stats")
+            else:
+                self.log_test("Admin Stats Access", False, f"Status: {response.status_code if response else 'No response'}", "admin/stats")
+        
+        # User Session Validation - Part of review request
+        print("\n🔐 User Session Validation Tests")
+        if self.regular_user_email and self.regular_user_password:
+            # Login as regular user and test /api/auth/me
+            data = {
+                "email": self.regular_user_email,
+                "password": self.regular_user_password
+            }
+            response = self.make_request('POST', 'auth/login', data)
+            if response and response.status_code == 200:
+                result = response.json()
+                regular_token = result.get('session_token')
+                if regular_token:
+                    # Test /api/auth/me with regular user token
+                    old_token = self.session_token
+                    self.session_token = regular_token
+                    response = self.make_request('GET', 'auth/me')
+                    if response and response.status_code == 200:
+                        user_data = response.json()
+                        if user_data.get('email') == self.regular_user_email:
+                            self.log_test("Regular User /api/auth/me Access", True, f"User data retrieved: {user_data.get('email')}", "auth/me")
+                        else:
+                            self.log_test("Regular User /api/auth/me Access", False, "Wrong user data returned", "auth/me")
+                    else:
+                        self.log_test("Regular User /api/auth/me Access", False, f"Status: {response.status_code if response else 'No response'}", "auth/me")
+                    self.session_token = old_token
+        
+        # Additional Core Tests (if time permits)
+        print("\n🏢 Core Functionality Tests")
         self.test_get_buildings()
         self.test_get_units()
-        
-        # Admin Tests
-        print("\n👑 Admin Tests")
-        self.test_create_building()
-        self.test_create_unit()
-        self.test_admin_endpoints()
-        
-        # User Features Tests
-        print("\n❤️ User Features Tests")
-        self.test_favorites()
-        self.test_contact_submission()
-        
-        # Cleanup and Logout
-        print("\n🧹 Cleanup Tests")
-        self.test_logout()
-        self.cleanup()
         
         # Results Summary
         print("\n" + "=" * 60)

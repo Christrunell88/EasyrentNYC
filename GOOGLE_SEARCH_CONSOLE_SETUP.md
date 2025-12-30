@@ -4,7 +4,7 @@
 
 Your dynamic sitemap is now live at:
 - **Production:** `https://nofeesapts.com/sitemap.xml`
-- **Preview:** `https://feefreeapts.preview.emergentagent.com/sitemap.xml`
+- **Preview:** `https://nofeesapts.preview.emergentagent.com/sitemap.xml`
 - **Robots.txt:** `https://nofeesapts.com/robots.txt`
 
 **Total URLs in Sitemap:** 133+ (automatically updated)

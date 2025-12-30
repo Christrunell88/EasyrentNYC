@@ -113,6 +113,8 @@ const UnitDetails = () => {
   const [contactOpen, setContactOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [scheduledViewing, setScheduledViewing] = useState({ date: null, time: null });
 
   useEffect(() => {
     fetchUnit();

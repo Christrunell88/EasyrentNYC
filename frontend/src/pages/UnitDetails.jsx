@@ -390,69 +390,72 @@ const UnitDetails = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleContact} className="space-y-4 mt-2">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name" className="text-gray-700">Name</Label>
-                        <Input id="name" name="name" required data-testid="contact-name-input" className="border-gray-300" />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone" className="text-gray-700">Phone</Label>
-                        <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="border-gray-300" />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-gray-700">Email</Label>
-                      <Input id="email" name="email" type="email" required data-testid="contact-email-input" className="border-gray-300" />
-                    </div>
-                    
-                    {/* Schedule Viewing */}
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Calendar className="w-4 h-4 text-[#1a2b4a]" />
-                        <Label className="text-[#1a2b4a] font-semibold">Schedule a Viewing</Label>
+                    {/* Schedule Section - Primary */}
+                    <div className="bg-[#1a2b4a]/5 border border-[#1a2b4a]/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="w-5 h-5 text-[#1a2b4a]" />
+                        <span className="text-[#1a2b4a] font-semibold">Select Your Preferred Time</span>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="preferred_date" className="text-gray-600 text-sm">Date</Label>
+                          <Label htmlFor="preferred_date" className="text-gray-600 text-sm mb-1 block">Date</Label>
                           <Input 
                             id="preferred_date" 
                             name="preferred_date" 
                             type="date"
                             min={new Date().toISOString().split('T')[0]}
-                            className="border-gray-300"
+                            className="border-gray-300 bg-white"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="preferred_time" className="text-gray-600 text-sm">Time</Label>
+                          <Label htmlFor="preferred_time" className="text-gray-600 text-sm mb-1 block">Time</Label>
                           <select 
                             id="preferred_time" 
                             name="preferred_time"
-                            className="w-full h-10 px-3 rounded-md border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a2b4a]/30"
+                            className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a2b4a]/30"
                           >
                             <option value="">Select time</option>
-                            <option value="morning">Morning (9am-12pm)</option>
-                            <option value="afternoon">Afternoon (12pm-5pm)</option>
-                            <option value="evening">Evening (5pm-8pm)</option>
+                            <option value="morning">Morning (9-12pm)</option>
+                            <option value="afternoon">Afternoon (12-5pm)</option>
+                            <option value="evening">Evening (5-8pm)</option>
                           </select>
                         </div>
                       </div>
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="message" className="text-gray-700">Message</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        rows={3}
-                        placeholder="I'm interested in this apartment..."
-                        required
-                        data-testid="contact-message-input"
-                        className="border-gray-300"
-                      />
+
+                    {/* Contact Info Section */}
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="name" className="text-gray-600 text-sm mb-1 block">Name *</Label>
+                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-gray-300" />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone" className="text-gray-600 text-sm mb-1 block">Phone</Label>
+                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-gray-300" />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="email" className="text-gray-600 text-sm mb-1 block">Email *</Label>
+                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-gray-300" />
+                      </div>
+                      <div>
+                        <Label htmlFor="message" className="text-gray-600 text-sm mb-1 block">Message (optional)</Label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          rows={2}
+                          placeholder="Any questions or special requests?"
+                          data-testid="contact-message-input"
+                          className="border-gray-300 resize-none"
+                        />
+                      </div>
                     </div>
-                    <Button type="submit" className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white" data-testid="contact-submit-btn">
-                      Send Message
+                    
+                    <Button type="submit" className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 font-semibold flex items-center justify-center gap-2" data-testid="contact-submit-btn">
+                      <Calendar className="w-4 h-4" />
+                      Request Viewing
                     </Button>
                   </form>
                 </DialogContent>

@@ -384,12 +384,12 @@ const UnitDetails = () => {
                 </DialogTrigger>
                 <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="text-[#1a2b4a]">Contact About This Unit</DialogTitle>
+                    <DialogTitle className="text-[#1a2b4a] text-xl">Schedule a Viewing</DialogTitle>
                     <DialogDescription className="text-gray-500">
-                      Send a message to inquire about this apartment.
+                      Pick a time that works for you. We'll confirm your appointment shortly.
                     </DialogDescription>
                   </DialogHeader>
-                  <form onSubmit={handleContact} className="space-y-4">
+                  <form onSubmit={handleContact} className="space-y-4 mt-2">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="name" className="text-gray-700">Name</Label>

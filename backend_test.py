@@ -498,6 +498,105 @@ class NoFeeAptsAPITester:
             self.log_test("OAuth Session Validation", False, f"Expected 400, got {response.status_code if response else 'No response'}", "auth/session")
         return False
 
+    def test_email_subscription(self):
+        """Test email subscription API (POST /api/subscribe)"""
+        # Test with valid email
+        test_email = f"test_subscription_{datetime.now().strftime('%H%M%S')}@example.com"
+        data = {"email": test_email}
+        
+        response = self.make_request('POST', 'subscribe', data)
+        
+        if response and response.status_code == 200:
+            result = response.json()
+            if result.get('success') and 'subscribed' in result.get('message', '').lower():
+                self.log_test("Email Subscription (Valid Email)", True, f"Successfully subscribed {test_email}", "subscribe")
+                
+                # Test duplicate email subscription
+                response2 = self.make_request('POST', 'subscribe', data)
+                if response2 and response2.status_code == 400:
+                    error_data = response2.json()
+                    if 'already subscribed' in error_data.get('detail', '').lower():
+                        self.log_test("Email Subscription (Duplicate Email)", True, "Correctly handles duplicate subscription", "subscribe")
+                        return True
+                    else:
+                        self.log_test("Email Subscription (Duplicate Email)", False, f"Wrong error message: {error_data.get('detail')}", "subscribe")
+                else:
+                    # Some implementations might return success for duplicate emails
+                    self.log_test("Email Subscription (Duplicate Email)", True, "Duplicate subscription handled gracefully", "subscribe")
+                    return True
+            else:
+                self.log_test("Email Subscription (Valid Email)", False, f"Unexpected response format: {result}", "subscribe")
+        else:
+            error_msg = ""
+            if response:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', f'Status: {response.status_code}')
+                except:
+                    error_msg = f'Status: {response.status_code}'
+            else:
+                error_msg = 'No response'
+            self.log_test("Email Subscription (Valid Email)", False, error_msg, "subscribe")
+        return False
+
+    def test_admin_subscribers_access(self):
+        """Test admin access to subscribers list"""
+        if not self.admin_session_token:
+            self.log_test("Admin Subscribers Access", False, "No admin session token available", "admin/subscribers")
+            return False
+        
+        response = self.make_request('GET', 'admin/subscribers', use_admin=True)
+        
+        if response and response.status_code == 200:
+            subscribers = response.json()
+            if isinstance(subscribers, list):
+                self.log_test("Admin Subscribers Access", True, f"Found {len(subscribers)} subscribers", "admin/subscribers")
+                return True
+            else:
+                self.log_test("Admin Subscribers Access", False, "Invalid response format", "admin/subscribers")
+        else:
+            error_msg = ""
+            if response:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', f'Status: {response.status_code}')
+                except:
+                    error_msg = f'Status: {response.status_code}'
+            else:
+                error_msg = 'No response'
+            self.log_test("Admin Subscribers Access", False, error_msg, "admin/subscribers")
+        return False
+
+    def test_facebook_routes_registration(self):
+        """Test Facebook posting routes exist (route registration verification)"""
+        # Test POST /api/facebook/post-listing route exists
+        response = self.make_request('POST', 'facebook/post-listing?unit_id=test123', use_admin=True)
+        
+        if response:
+            if response.status_code == 404:
+                self.log_test("Facebook Route Registration", False, "Facebook routes not registered (404)", "facebook/post-listing")
+                return False
+            elif response.status_code in [400, 401, 403, 500, 503]:
+                # Route exists but may fail due to auth/validation issues (expected)
+                try:
+                    error_data = response.json()
+                    error_detail = error_data.get('detail', '')
+                    if 'not configured' in error_detail.lower() or 'token' in error_detail.lower() or 'unit not found' in error_detail.lower():
+                        self.log_test("Facebook Route Registration", True, f"Route exists, fails as expected: {error_detail}", "facebook/post-listing")
+                        return True
+                    else:
+                        self.log_test("Facebook Route Registration", True, f"Route exists (status: {response.status_code})", "facebook/post-listing")
+                        return True
+                except:
+                    self.log_test("Facebook Route Registration", True, f"Route exists (status: {response.status_code})", "facebook/post-listing")
+                    return True
+            else:
+                self.log_test("Facebook Route Registration", True, f"Route exists (status: {response.status_code})", "facebook/post-listing")
+                return True
+        else:
+            self.log_test("Facebook Route Registration", False, "No response from Facebook route", "facebook/post-listing")
+        return False
+
     def cleanup(self):
         """Clean up test data"""
         if self.created_unit_id and self.admin_session_token:

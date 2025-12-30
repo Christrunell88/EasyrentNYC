@@ -371,14 +371,15 @@ const UnitDetails = () => {
                 </div>
               </div>
 
-              {/* Contact Button */}
+              {/* Schedule Viewing Button */}
               <Dialog open={contactOpen} onOpenChange={setContactOpen}>
                 <DialogTrigger asChild>
                   <Button 
-                    className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-6 text-lg font-semibold mb-4" 
+                    className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 text-base font-semibold mb-4 flex items-center justify-center gap-2 transition-all hover:shadow-lg" 
                     data-testid="contact-btn"
                   >
-                    CONTACT AGENT
+                    <Calendar className="w-5 h-5" />
+                    Schedule Viewing
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md">

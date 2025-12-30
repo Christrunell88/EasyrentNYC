@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Search, Shield, Clock, MapPin } from 'lucide-react';
+import { ArrowRight, Building2, Shield, Clock, Sparkles } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
@@ -74,14 +74,14 @@ const Landing = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-lg text-slate-900">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+        <div className="text-lg text-[#D4AF37] font-philosopher">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <SEO
         title="No Broker Fee Apartments NYC & NJ"
         description={`Find your perfect apartment with zero broker fees. Browse ${stats.units}+ verified no-fee listings in NYC and Northern New Jersey.`}
@@ -101,39 +101,39 @@ const Landing = () => {
         }}
       />
       
-      {/* Navigation - Clean & Minimal */}
-      <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-sm">
+      {/* Navigation - Luxury Dark */}
+      <nav className="fixed top-0 w-full z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-[#D4AF37]/10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex justify-between items-center h-16">
-            <span className="text-xl font-bold text-slate-900 tracking-tight">
+          <div className="flex justify-between items-center h-20">
+            <span className="text-2xl font-philosopher font-bold text-white tracking-wide">
               NoFeesApts
             </span>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <Button
                   onClick={() => navigate('/dashboard')}
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2 rounded-lg"
+                  className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider"
                   data-testid="dashboard-btn"
                 >
-                  View Apartments
+                  VIEW COLLECTION
                 </Button>
               ) : (
                 <>
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/auth')}
-                    className="text-slate-600 hover:text-slate-900 font-medium"
+                    className="text-[#F5F5F5] hover:text-[#D4AF37] font-philosopher tracking-wide"
                     data-testid="signin-btn"
                   >
                     Sign In
                   </Button>
                   <Button
                     onClick={() => navigate('/auth')}
-                    className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2 rounded-lg"
+                    className="bg-transparent border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider transition-all duration-300"
                     data-testid="get-started-nav-btn"
                   >
-                    Get Started
+                    GET STARTED
                   </Button>
                 </>  
               )}
@@ -142,67 +142,72 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Tall, Clean, Dominant */}
-      <section className="min-h-screen flex items-center justify-center px-6 pt-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight tracking-tight mb-10">
-            Free Sign Up to Find 1000's of Apartments in NY, NJ and PA
+      {/* Hero Section - Luxury Dark Theme */}
+      <section className="min-h-screen flex items-center justify-center px-6 pt-20 relative overflow-hidden">
+        {/* Subtle gold gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#D4AF37]/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Decorative line */}
+          <div className="w-16 h-px bg-[#D4AF37] mx-auto mb-8" />
+          
+          <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-6">
+            A Curated Collection
+          </p>
+          
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-8">
+            The Finest Luxury No Fee Apartments in Northern NJ, NYC & PA
           </h1>
           
-          <div className="flex flex-col gap-5 items-center">
+          <p className="text-[#F5F5F5] text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+            An exclusive selection of premium residences, handpicked for discerning renters who expect nothing less than excellence.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Button
               data-testid="get-started-btn"
               onClick={handleGetStarted}
               size="lg"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-8 py-6 text-lg rounded-xl"
+              className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
             >
-              GET EARLY ACCESS
-              <ArrowRight className="w-5 h-5 ml-2" />
+              EXPLORE COLLECTION
+              <ArrowRight className="w-5 h-5 ml-3" />
             </Button>
-            
-            <div className="flex gap-3">
-              <Button
-                onClick={handleGetStarted}
-                variant="outline"
-                size="lg"
-                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
-              >
-                NY
-              </Button>
-              <Button
-                onClick={handleGetStarted}
-                variant="outline"
-                size="lg"
-                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
-              >
-                NJ
-              </Button>
-              <Button
-                onClick={handleGetStarted}
-                variant="outline"
-                size="lg"
-                className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold px-8 py-5 rounded-xl"
-              >
-                PA
-              </Button>
-            </div>
           </div>
+
+          {/* State buttons */}
+          <div className="flex gap-4 justify-center mt-8">
+            {['NY', 'NJ', 'PA'].map((state) => (
+              <Button
+                key={state}
+                onClick={handleGetStarted}
+                variant="outline"
+                className="border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] font-philosopher font-bold px-8 py-4 rounded-none tracking-[0.2em] transition-all duration-300"
+              >
+                {state}
+              </Button>
+            ))}
+          </div>
+          
+          {/* Decorative line */}
+          <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-16" />
         </div>
       </section>
 
-      {/* Featured Listings - Right after hero */}
-      <section className="py-16 px-6">
+      {/* Featured Listings */}
+      <section className="py-24 px-6 bg-[#111111]">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Featured Apartments
-            </h2>
-            <p className="text-slate-500 max-w-lg mx-auto">
-              A preview of available no-fee listings. Sign up to see full details.
+          <div className="text-center mb-16">
+            <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
+              Featured Properties
             </p>
+            <h2 className="text-3xl sm:text-4xl font-philosopher font-bold text-white mb-4">
+              Exceptional Residences
+            </h2>
+            <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
             {featuredUnits.map((unit) => (
               <ListingCard
                 key={unit.id}
@@ -220,58 +225,71 @@ const Landing = () => {
               onClick={() => navigate('/auth')}
               variant="outline"
               size="lg"
-              className="border-slate-300 text-slate-900 hover:bg-slate-50 font-medium px-8 py-5 rounded-xl"
+              className="border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-10 py-5 rounded-none tracking-[0.15em] transition-all duration-300"
             >
-              View All {stats.units}+ Apartments
-              <ArrowRight className="w-4 h-4 ml-2" />
+              VIEW ALL {stats.units}+ PROPERTIES
+              <ArrowRight className="w-4 h-4 ml-3" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Value Props - 3 Clean Blocks */}
-      <section className="py-24 px-6 bg-slate-50">
+      {/* Value Props - Luxury Style */}
+      <section className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
+              Why Choose Us
+            </p>
+            <h2 className="text-3xl font-philosopher font-bold text-white">
+              The NoFeesApts Difference
+            </h2>
+            <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
+          </div>
+          
           <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5">
-                <Shield className="w-6 h-6 text-white" />
+            <div className="text-center group">
+              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+                <Shield className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Zero Broker Fees</h3>
-              <p className="text-slate-500 text-sm">
-                Save thousands. Every listing is direct from building management.
+              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Zero Broker Fees</h3>
+              <p className="text-[#888888] text-sm leading-relaxed">
+                Save thousands on your next move. Every property listed is direct from management.
               </p>
             </div>
             
-            <div className="text-center">
-              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5">
-                <Clock className="w-6 h-6 text-white" />
+            <div className="text-center group">
+              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+                <Clock className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Updated Daily</h3>
-              <p className="text-slate-500 text-sm">
-                Fresh listings every 48 hours. No outdated or fake apartments.
+              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Updated Daily</h3>
+              <p className="text-[#888888] text-sm leading-relaxed">
+                Fresh listings every 48 hours. No outdated or unavailable properties.
               </p>
             </div>
             
-            <div className="text-center">
-              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5">
-                <Building2 className="w-6 h-6 text-white" />
+            <div className="text-center group">
+              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+                <Sparkles className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Verified Buildings</h3>
-              <p className="text-slate-500 text-sm">
-                Real photos, real addresses, real availability.
+              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Curated Selection</h3>
+              <p className="text-[#888888] text-sm leading-relaxed">
+                Only the finest properties make our collection. Quality over quantity.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Locations - Compact */}
-      <section className="py-24 px-6 bg-slate-50">
+      {/* Locations */}
+      <section className="py-24 px-6 bg-[#111111]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Popular Locations</h2>
-            <p className="text-slate-500">Browse apartments by neighborhood</p>
+            <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
+              Neighborhoods
+            </p>
+            <h2 className="text-3xl font-philosopher font-bold text-white">Popular Locations</h2>
+            <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
           </div>
           
           <div className="flex flex-wrap justify-center gap-3">
@@ -288,7 +306,7 @@ const Landing = () => {
               <button
                 key={location.name}
                 onClick={() => navigate(location.url)}
-                className="px-5 py-2.5 bg-white text-slate-700 rounded-full text-sm font-medium hover:bg-slate-900 hover:text-white transition-colors"
+                className="px-6 py-3 border border-[#D4AF37]/20 text-[#F5F5F5] text-sm font-philosopher tracking-wide hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all duration-300"
               >
                 {location.name}
               </button>
@@ -297,86 +315,90 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Email Signup - Clean CTA */}
-      <section className="py-24 px-6">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            Get new listings in your inbox
+      {/* Email Signup */}
+      <section className="py-24 px-6 bg-[#0a0a0a] relative">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="max-w-xl mx-auto text-center relative z-10">
+          <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
+            Stay Informed
+          </p>
+          <h2 className="text-3xl font-philosopher font-bold text-white mb-4">
+            New Listings in Your Inbox
           </h2>
-          <p className="text-slate-500 mb-8">
-            Be the first to know when new no-fee apartments become available.
+          <p className="text-[#888888] mb-10">
+            Be the first to know when exceptional properties become available.
           </p>
           
-          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4">
             <input
               type="email"
               value={subscribeEmail}
               onChange={(e) => setSubscribeEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-5 py-4 rounded-xl bg-slate-50 border-0 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+              className="flex-1 px-6 py-4 bg-[#1a1a1a] border border-[#D4AF37]/20 text-white placeholder:text-[#666666] focus:outline-none focus:border-[#D4AF37] transition-colors font-philosopher"
             />
             <Button
               type="submit"
               disabled={subscribing}
-              size="lg"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-8 py-4 rounded-xl"
+              className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-8 py-4 rounded-none tracking-[0.1em] transition-all duration-300"
             >
-              {subscribing ? 'Subscribing...' : 'Subscribe'}
+              {subscribing ? 'SUBSCRIBING...' : 'SUBSCRIBE'}
             </Button>
           </form>
           
-          <p className="text-xs text-slate-400 mt-4">
+          <p className="text-xs text-[#666666] mt-6 font-philosopher">
             No spam. Unsubscribe anytime.
           </p>
         </div>
       </section>
 
-      {/* Footer - Minimal */}
-      <footer className="py-12 px-6 border-t border-slate-100">
+      {/* Footer - Luxury Minimal */}
+      <footer className="py-16 px-6 border-t border-[#D4AF37]/10 bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
-              <span className="text-lg font-bold text-slate-900">NoFeesApts</span>
-              <p className="text-sm text-slate-500 mt-1">NYC & Northern New Jersey</p>
+              <span className="text-2xl font-philosopher font-bold text-white tracking-wide">NoFeesApts</span>
+              <p className="text-sm text-[#888888] mt-2 font-philosopher">Northern NJ • NYC • PA</p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-6 text-sm">
+            <div className="flex flex-wrap justify-center gap-8 text-sm">
               <button
                 onClick={handleGetStarted}
-                className="text-slate-500 hover:text-slate-900"
+                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
               >
-                Browse Apartments
+                Browse Collection
               </button>
               <button
                 onClick={() => navigate('/fee-free-finds')}
-                className="text-slate-500 hover:text-slate-900"
+                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
               >
                 #FeeFreeFinds
               </button>
               <button
                 onClick={() => navigate('/blog')}
-                className="text-slate-500 hover:text-slate-900"
+                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
               >
                 Blog
               </button>
               <button
                 onClick={() => navigate('/faq')}
-                className="text-slate-500 hover:text-slate-900"
+                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
               >
                 FAQ
               </button>
               <a
                 href="mailto:placesfirm@gmail.com"
-                className="text-slate-500 hover:text-slate-900"
+                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
               >
                 Contact
               </a>
             </div>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-400">
+          <div className="mt-12 pt-8 border-t border-[#D4AF37]/10 text-center">
+            <p className="text-xs text-[#666666] font-philosopher tracking-wide">
               © 2025 NoFeesApts.com. All rights reserved.
             </p>
           </div>

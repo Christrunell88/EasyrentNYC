@@ -237,7 +237,7 @@ const UnitDetails = () => {
   const images = unit.images || [];
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <SEO
         title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
         description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath.`}
@@ -248,27 +248,27 @@ const UnitDetails = () => {
       />
       
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <header className="bg-[#0a0a0a] border-b border-[#D4AF37]/10 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate(-1)}
               data-testid="back-to-dashboard-btn"
-              className="text-gray-600 hover:text-[#1a2b4a]"
+              className="text-[#F5F5F5] hover:text-[#D4AF37] font-philosopher"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
             {/* Breadcrumb */}
-            <nav className="hidden md:flex text-sm text-gray-500">
+            <nav className="hidden md:flex text-sm text-[#888888] font-philosopher">
               <span>Rentals</span>
-              <span className="mx-2">›</span>
+              <span className="mx-2 text-[#D4AF37]/50">›</span>
               <span>{unit.building?.state || 'NY'}</span>
-              <span className="mx-2">›</span>
-              <span className="text-gray-700">{neighborhood}</span>
-              <span className="mx-2">›</span>
-              <span className="text-[#1a2b4a] font-medium">{unit.building?.address} #{unit.unit_number}</span>
+              <span className="mx-2 text-[#D4AF37]/50">›</span>
+              <span className="text-[#F5F5F5]">{neighborhood}</span>
+              <span className="mx-2 text-[#D4AF37]/50">›</span>
+              <span className="text-[#D4AF37]">{unit.building?.address} #{unit.unit_number}</span>
             </nav>
           </div>
         </div>

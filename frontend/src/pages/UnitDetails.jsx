@@ -10,10 +10,58 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, Info, CalendarPlus, CheckCircle2 } from 'lucide-react';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import { trackApartmentView } from '../utils/analytics';
+
+// Generate Google Calendar URL
+const generateGoogleCalendarUrl = (unit, date, time) => {
+  const buildingName = unit?.building?.name || 'Apartment';
+  const address = unit?.building?.address || '';
+  const city = unit?.building?.city || '';
+  const state = unit?.building?.state || '';
+  const unitNumber = unit?.unit_number || '';
+  
+  const title = encodeURIComponent(`Apartment Viewing - ${buildingName} #${unitNumber}`);
+  const location = encodeURIComponent(`${address}, ${city}, ${state}`);
+  const details = encodeURIComponent(
+    `Apartment viewing scheduled via NoFeesApts.com\n\n` +
+    `Property: ${buildingName}\n` +
+    `Unit: #${unitNumber}\n` +
+    `Rent: $${unit?.rent?.toLocaleString()}/month\n` +
+    `Address: ${address}, ${city}, ${state}\n\n` +
+    `No broker fee apartment!`
+  );
+  
+  // Parse date and time
+  let startDate = new Date();
+  if (date) {
+    startDate = new Date(date);
+  }
+  
+  // Set time based on selection
+  const timeMap = {
+    'morning': { hour: 10, label: '10:00 AM' },
+    'afternoon': { hour: 14, label: '2:00 PM' },
+    'evening': { hour: 18, label: '6:00 PM' }
+  };
+  
+  const selectedTime = timeMap[time] || timeMap['afternoon'];
+  startDate.setHours(selectedTime.hour, 0, 0, 0);
+  
+  const endDate = new Date(startDate);
+  endDate.setHours(startDate.getHours() + 1); // 1 hour viewing
+  
+  // Format dates for Google Calendar (YYYYMMDDTHHmmss)
+  const formatDate = (d) => {
+    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  };
+  
+  const dates = `${formatDate(startDate)}/${formatDate(endDate)}`;
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+};
 
 // Smart description formatter
 const formatDescription = (description, unit) => {

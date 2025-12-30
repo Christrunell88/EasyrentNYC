@@ -168,6 +168,8 @@ const UnitDetails = () => {
   const handleContact = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const preferredDate = formData.get('preferred_date');
+    const preferredTime = formData.get('preferred_time');
     
     try {
       await axios.post(`${API}/contact`, {
@@ -176,17 +178,24 @@ const UnitDetails = () => {
         email: formData.get('email'),
         phone: formData.get('phone'),
         message: formData.get('message'),
-        preferred_date: formData.get('preferred_date'),
-        preferred_time: formData.get('preferred_time'),
+        preferred_date: preferredDate,
+        preferred_time: preferredTime,
         alternative_date: formData.get('alternative_date'),
         alternative_time: formData.get('alternative_time')
       }, { withCredentials: true });
       
-      toast.success('Contact request submitted! We will reach out to confirm your viewing time.');
+      // Store the scheduled viewing details for calendar
+      setScheduledViewing({ date: preferredDate, time: preferredTime });
       setContactOpen(false);
+      setSuccessOpen(true);
     } catch (error) {
       toast.error('Failed to submit request');
     }
+  };
+
+  const openGoogleCalendar = () => {
+    const url = generateGoogleCalendarUrl(unit, scheduledViewing.date, scheduledViewing.time);
+    window.open(url, '_blank');
   };
 
   const nextImage = () => {

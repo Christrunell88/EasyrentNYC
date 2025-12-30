@@ -586,6 +586,45 @@ const UnitDetails = () => {
           building={unit.building}
         />
       )}
+
+      {/* Success Dialog with Google Calendar */}
+      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+        <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md text-center">
+          <div className="flex flex-col items-center py-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <DialogTitle className="text-[#1a2b4a] text-xl mb-2">Viewing Request Sent!</DialogTitle>
+            <DialogDescription className="text-gray-500 mb-6">
+              We'll confirm your appointment shortly. Add it to your calendar so you don't forget!
+            </DialogDescription>
+            
+            {/* Google Calendar Button */}
+            <Button 
+              onClick={openGoogleCalendar}
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 py-5 font-medium flex items-center justify-center gap-3 mb-3"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#fff" stroke="#4285F4" strokeWidth="1.5"/>
+                <path d="M16 2v4M8 2v4M3 10h18" stroke="#4285F4" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#4285F4"/>
+              </svg>
+              Add to Google Calendar
+            </Button>
+
+            <Button 
+              onClick={() => setSuccessOpen(false)}
+              className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 font-semibold"
+            >
+              Done
+            </Button>
+
+            <p className="text-xs text-gray-400 mt-4">
+              You'll receive an email confirmation with all the details.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

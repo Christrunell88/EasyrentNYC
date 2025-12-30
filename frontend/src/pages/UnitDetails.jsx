@@ -10,17 +10,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Building2, BedDouble, Bath, DollarSign, Heart, MapPin, Calendar, Send, Share2, Clock } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
-import { trackApartmentView, trackContactForm } from '../utils/analytics';
+import { trackApartmentView } from '../utils/analytics';
 
-// Smart description formatter - makes descriptions brief and informative
+// Smart description formatter
 const formatDescription = (description, unit) => {
   if (!description) return null;
   
-  // Remove common filler phrases and clean up
   let clean = description
     .replace(/SHOWINGS BY APPOINTMENT ONLY\.?\s*/gi, '')
     .replace(/NO FEE\.?\s*/gi, '')
@@ -28,13 +26,9 @@ const formatDescription = (description, unit) => {
     .replace(/\s{2,}/g, ' ')
     .trim();
   
-  // If description is already short, return it
-  if (clean.length <= 120) return clean;
+  if (clean.length <= 200) return clean;
   
-  // Extract key highlights from long descriptions
   const highlights = [];
-  
-  // Check for key features
   if (/ceiling|ceilings/i.test(clean)) {
     const match = clean.match(/(\d+)[\s-]?foot\s+ceiling/i);
     if (match) highlights.push(`${match[1]}ft ceilings`);
@@ -47,25 +41,19 @@ const formatDescription = (description, unit) => {
   if (/gym|fitness/i.test(clean)) highlights.push('Fitness center');
   if (/rooftop|roof deck/i.test(clean)) highlights.push('Rooftop access');
   if (/balcony|terrace|patio/i.test(clean)) highlights.push('Private outdoor space');
-  if (/parking|garage/i.test(clean)) highlights.push('Parking available');
-  if (/pet|dog|cat/i.test(clean)) highlights.push('Pet-friendly');
-  if (/stainless|granite|quartz/i.test(clean)) highlights.push('Upgraded kitchen');
-  if (/hardwood/i.test(clean)) highlights.push('Hardwood floors');
   
-  // If we found highlights, create a brief summary
   if (highlights.length > 0) {
     return highlights.slice(0, 4).join(' • ');
   }
   
-  // Otherwise, truncate intelligently at sentence boundary
   const sentences = clean.split(/[.!?]+/);
   let brief = '';
   for (const sentence of sentences) {
-    if ((brief + sentence).length > 120) break;
+    if ((brief + sentence).length > 200) break;
     brief += sentence.trim() + '. ';
   }
   
-  return brief.trim() || clean.slice(0, 120) + '...';
+  return brief.trim() || clean.slice(0, 200) + '...';
 };
 
 const UnitDetails = () => {
@@ -76,6 +64,7 @@ const UnitDetails = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     fetchUnit();
@@ -87,8 +76,6 @@ const UnitDetails = () => {
       const response = await axios.get(`${API}/units/${id}`, { withCredentials: true });
       const unitData = response.data;
       setUnit(unitData);
-      
-      // Track apartment view
       trackApartmentView(
         unitData.id, 
         unitData.building?.name || 'Unknown Building',
@@ -152,346 +139,377 @@ const UnitDetails = () => {
     }
   };
 
+  const nextImage = () => {
+    if (unit?.images?.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % unit.images.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (unit?.images?.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + unit.images.length) % unit.images.length);
+    }
+  };
+
+  const selectImage = (index) => {
+    setCurrentImageIndex(index);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="text-xl text-slate-300">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
   }
 
   if (!unit) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
-        <div className="text-xl text-slate-300 mb-4">Apartment not found</div>
-        <Button onClick={() => navigate('/dashboard')} className="warm-gradient text-slate-900">Back to Dashboard</Button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="text-xl text-gray-600 mb-4">Apartment not found</div>
+        <Button onClick={() => navigate('/dashboard')} className="bg-[#1a2b4a] hover:bg-[#0f1d33] text-white">Back to Dashboard</Button>
       </div>
     );
   }
 
-  const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} Bedroom`;
+  const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`;
   const buildingName = unit.building?.name || 'NYC Apartment';
   const neighborhood = unit.building?.neighborhood || unit.building?.city || 'NYC';
+  const images = unit.images || [];
   
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-white">
       <SEO
         title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
-        description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath. ${formatDescription(unit.description, unit) || 'Move-in ready.'}`}
-        keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}, rent apartment ${unit.building?.city}, no broker fee`}
+        description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath.`}
+        keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}`}
         url={`/unit/${unit.id}`}
-        image={unit.images && unit.images.length > 0 ? unit.images[0] : null}
+        image={images.length > 0 ? images[0] : null}
         type="product"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "Apartment",
-          "name": `${bedroomText} at ${buildingName}`,
-          "description": unit.description || `${bedroomText} apartment with ${unit.bathrooms} bathroom in ${neighborhood}`,
-          "image": unit.images || [],
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": unit.building?.address,
-            "addressLocality": unit.building?.city,
-            "addressRegion": unit.building?.state,
-            "postalCode": unit.building?.zip_code,
-            "addressCountry": "US"
-          },
-          "numberOfRooms": unit.bedrooms + 1,
-          "numberOfBedrooms": unit.bedrooms,
-          "numberOfBathroomsTotal": unit.bathrooms,
-          "floorSize": {
-            "@type": "QuantitativeValue",
-            "value": unit.square_feet || 0,
-            "unitText": "sqft"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": unit.rent,
-            "priceCurrency": "USD",
-            "availability": "https://schema.org/InStock",
-            "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            "seller": {
-              "@type": "RealEstateAgent",
-              "name": "NoFeesApts.com"
-            }
-          },
-          "amenityFeature": (unit.amenities || []).map(amenity => ({
-            "@type": "LocationFeatureSpecification",
-            "name": amenity
-          }))
-        }}
       />
       
       {/* Header */}
-      <header className="bg-slate-800/90 backdrop-blur-sm border-b border-amber-500/20 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/dashboard')}
-            data-testid="back-to-dashboard-btn"
-            className="text-slate-200 hover:text-amber-500"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Search
-          </Button>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              data-testid="back-to-dashboard-btn"
+              className="text-gray-600 hover:text-[#1a2b4a]"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            {/* Breadcrumb */}
+            <nav className="hidden md:flex text-sm text-gray-500">
+              <span>Rentals</span>
+              <span className="mx-2">›</span>
+              <span>{unit.building?.state || 'NY'}</span>
+              <span className="mx-2">›</span>
+              <span className="text-gray-700">{neighborhood}</span>
+              <span className="mx-2">›</span>
+              <span className="text-[#1a2b4a] font-medium">{unit.building?.address} #{unit.unit_number}</span>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-testid="unit-details">
-        {/* Image Gallery */}
-        <Card className="mb-8 overflow-hidden shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
-          {unit.images && unit.images.length > 0 ? (
-            <Carousel className="w-full">
-              <CarouselContent>
-                {unit.images.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                      <img
-                        src={image}
-                        alt={`Unit ${unit.unit_number} - ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-contain bg-slate-900"
-                      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="unit-details">
+        {/* Main Content - Two Column Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* LEFT COLUMN - Image Gallery (60-65%) */}
+          <div className="lg:w-[62%]">
+            {/* Main Image */}
+            <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-3">
+              {images.length > 0 ? (
+                <>
+                  <div className="relative aspect-[4/3]">
+                    <img
+                      src={images[currentImageIndex]}
+                      alt={`${buildingName} - Image ${currentImageIndex + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Image Counter Badge */}
+                    <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1.5 rounded text-sm font-medium">
+                      {currentImageIndex + 1} of {images.length}
                     </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-4 bg-slate-800/90 border-amber-500/30 text-amber-500" />
-              <CarouselNext className="right-4 bg-slate-800/90 border-amber-500/30 text-amber-500" />
-            </Carousel>
-          ) : (
-            <div className="h-96 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
-              <Building2 className="w-24 h-24 text-amber-500/30" />
+                    
+                    {/* Navigation Arrows */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                        >
+                          <ChevronLeft className="w-6 h-6 text-gray-700" />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                        >
+                          <ChevronRight className="w-6 h-6 text-gray-700" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                  <Building2 className="w-24 h-24 text-gray-400" />
+                </div>
+              )}
             </div>
-          )}
-        </Card>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Info */}
-            <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-slate-100 mb-2">
-                      {unit.building?.name}
-                    </h1>
-                    <div className="flex items-center text-slate-300 mb-2">
-                      <MapPin className="w-5 h-5 mr-2 text-amber-500" />
-                      <span>{unit.building?.address}, {unit.building?.city}, {unit.building?.state}</span>
-                    </div>
-                    <p className="text-slate-400">Unit {unit.unit_number}</p>
+            {/* Thumbnail Gallery */}
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {images.slice(0, 8).map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => selectImage(index)}
+                    className={`flex-shrink-0 w-20 h-16 rounded overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex 
+                        ? 'border-[#1a2b4a] ring-2 ring-[#1a2b4a]/30' 
+                        : 'border-transparent hover:border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+                {images.length > 8 && (
+                  <div className="flex-shrink-0 w-20 h-16 rounded bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-medium">
+                    +{images.length - 8}
                   </div>
-                  <Badge className="warm-gradient text-slate-900 text-lg px-4 py-2 font-semibold">No Fee</Badge>
-                </div>
-
-                <div className="flex items-center gap-8 py-6 border-y border-amber-500/20">
-                  <div className="flex items-center gap-2 text-slate-200">
-                    <BedDouble className="w-6 h-6 text-amber-500" />
-                    <span className="text-xl font-semibold">
-                      {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} Bedrooms`}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-200">
-                    <Bath className="w-6 h-6 text-amber-500" />
-                    <span className="text-xl font-semibold">{unit.bathrooms} Bathrooms</span>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-4xl font-bold warm-gradient-text">${unit.rent.toLocaleString()}</span>
-                    <span className="text-xl text-slate-400">/month</span>
-                  </div>
-                  {unit.available_date && (
-                    <div className="flex items-center text-slate-300 mt-2">
-                      <Calendar className="w-5 h-5 mr-2 text-amber-500" />
-                      <span>Available: {unit.available_date}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Description */}
-            {unit.description && (
-              <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4">About This Unit</h2>
-                  <p className="text-slate-300 leading-relaxed">
-                    {formatDescription(unit.description, unit)}
-                  </p>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             )}
 
-            {/* Amenities */}
-            {unit.amenities && unit.amenities.length > 0 && (
-              <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4">Amenities</h2>
+            {/* About Section - Below Images */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h2 className="text-xl font-bold text-[#1a2b4a] mb-4">About</h2>
+              {unit.description ? (
+                <p className="text-gray-600 leading-relaxed">
+                  {formatDescription(unit.description, unit)}
+                </p>
+              ) : (
+                <p className="text-gray-500">
+                  {bedroomText === 'Studio' ? 'Studio' : `${unit.bedrooms} bedroom`} apartment with {unit.bathrooms} bathroom{unit.bathrooms > 1 ? 's' : ''} in {neighborhood}. No broker fee required.
+                </p>
+              )}
+              
+              {/* Amenities */}
+              {unit.amenities && unit.amenities.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-[#1a2b4a] mb-3">Features & Amenities</h3>
                   <div className="flex flex-wrap gap-2">
                     {unit.amenities.map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="px-4 py-2 text-sm bg-slate-700/50 text-slate-200 border border-amber-500/20">
+                      <Badge key={index} variant="secondary" className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 border border-gray-200">
                         {amenity}
                       </Badge>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card className="shadow-2xl border border-amber-500/20 bg-slate-800/90 backdrop-blur-sm sticky top-24">
-              <CardContent className="p-6 space-y-4">
-                <Button
-                  onClick={() => setShareOpen(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  data-testid="share-btn"
-                >
-                  <Share2 className="w-5 h-5 mr-2" />
-                  Share This Apartment
-                </Button>
+          {/* RIGHT COLUMN - Property Info (35-40%) */}
+          <div className="lg:w-[38%]">
+            <div className="lg:sticky lg:top-24">
+              {/* Property Title & Address */}
+              <div className="mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#1a2b4a] mb-1">
+                  {unit.building?.address}
+                </h1>
+                <p className="text-lg text-gray-600">#{unit.unit_number}</p>
+              </div>
 
+              {/* Price Section */}
+              <div className="mb-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl md:text-4xl font-bold text-[#1a2b4a]">${unit.rent.toLocaleString()}</span>
+                  <span className="text-gray-500 text-lg">FOR RENT</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">No broker fee. Move-in ready.</p>
+              </div>
+
+              {/* Key Details Row */}
+              <div className="flex items-center gap-4 text-gray-700 py-4 border-y border-gray-200 mb-6">
+                {unit.square_feet && (
+                  <>
+                    <span className="font-medium">{unit.square_feet} ft²</span>
+                    <span className="text-gray-300">|</span>
+                  </>
+                )}
+                <span className="font-medium">{unit.bedrooms + 1} rooms</span>
+                <span className="text-gray-300">|</span>
+                <span className="font-medium">{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`}</span>
+                <span className="text-gray-300">|</span>
+                <span className="font-medium">{unit.bathrooms} bath</span>
+              </div>
+
+              {/* Location */}
+              <div className="mb-6 text-sm">
+                <p className="text-gray-500">Rental unit</p>
+                <p className="text-[#1a2b4a] font-medium">{neighborhood}</p>
+              </div>
+
+              {/* No Fee Notice */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700">
+                    <strong>No broker fee</strong> - You won't be charged a broker fee for this apartment.
+                  </p>
+                </div>
+              </div>
+
+              {/* Contact Button */}
+              <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-6 text-lg font-semibold mb-4" 
+                    data-testid="contact-btn"
+                  >
+                    CONTACT AGENT
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-[#1a2b4a]">Contact About This Unit</DialogTitle>
+                    <DialogDescription className="text-gray-500">
+                      Send a message to inquire about this apartment.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleContact} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="name" className="text-gray-700">Name</Label>
+                        <Input id="name" name="name" required data-testid="contact-name-input" className="border-gray-300" />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone" className="text-gray-700">Phone</Label>
+                        <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="border-gray-300" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-gray-700">Email</Label>
+                      <Input id="email" name="email" type="email" required data-testid="contact-email-input" className="border-gray-300" />
+                    </div>
+                    
+                    {/* Schedule Viewing */}
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="w-4 h-4 text-[#1a2b4a]" />
+                        <Label className="text-[#1a2b4a] font-semibold">Schedule a Viewing</Label>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="preferred_date" className="text-gray-600 text-sm">Date</Label>
+                          <Input 
+                            id="preferred_date" 
+                            name="preferred_date" 
+                            type="date"
+                            min={new Date().toISOString().split('T')[0]}
+                            className="border-gray-300"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="preferred_time" className="text-gray-600 text-sm">Time</Label>
+                          <select 
+                            id="preferred_time" 
+                            name="preferred_time"
+                            className="w-full h-10 px-3 rounded-md border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a2b4a]/30"
+                          >
+                            <option value="">Select time</option>
+                            <option value="morning">Morning (9am-12pm)</option>
+                            <option value="afternoon">Afternoon (12pm-5pm)</option>
+                            <option value="evening">Evening (5pm-8pm)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="message" className="text-gray-700">Message</Label>
+                      <Textarea
+                        id="message"
+                        name="message"
+                        rows={3}
+                        placeholder="I'm interested in this apartment..."
+                        required
+                        data-testid="contact-message-input"
+                        className="border-gray-300"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white" data-testid="contact-submit-btn">
+                      Send Message
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+
+              {/* Action Buttons Row */}
+              <div className="flex gap-3 mb-6">
                 <Button
                   onClick={toggleFavorite}
-                  variant={isFavorite ? "default" : "outline"}
-                  className={isFavorite ? "w-full bg-red-500 hover:bg-red-600 text-white" : "w-full border-amber-500/30 text-slate-200 hover:bg-slate-700"}
+                  variant="outline"
+                  className={`flex-1 border-gray-300 ${isFavorite ? 'bg-red-50 border-red-300 text-red-600' : 'text-gray-700 hover:bg-gray-50'}`}
                   data-testid="toggle-favorite-btn"
                 >
-                  <Heart className={`w-5 h-5 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
-                  {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                  <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                  SAVE
                 </Button>
+                <Button
+                  onClick={() => setShareOpen(true)}
+                  variant="outline"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  data-testid="share-btn"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  SHARE
+                </Button>
+              </div>
 
-                <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-btn">
-                      <Send className="w-5 h-5 mr-2" />
-                      Contact About Unit
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100">
-                    <DialogHeader>
-                      <DialogTitle className="text-slate-100">Contact About This Unit</DialogTitle>
-                      <DialogDescription className="text-slate-300">
-                        Send a message to inquire about this apartment. We&apos;ll get back to you soon!
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleContact} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="name" className="text-slate-200">Name</Label>
-                          <Input id="name" name="name" required data-testid="contact-name-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
-                        </div>
-                        <div>
-                          <Label htmlFor="phone" className="text-slate-200">Phone <span className="text-slate-400 text-sm">(optional)</span></Label>
-                          <Input id="phone" name="phone" type="tel" data-testid="contact-phone-input" className="bg-slate-700 border-amber-500/20 text-slate-100" placeholder="Optional" />
-                        </div>
+              {/* Building Details Card */}
+              <Card className="border border-gray-200">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-[#1a2b4a] mb-3">Building Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Building</span>
+                      <span className="text-gray-900 font-medium">{unit.building?.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Address</span>
+                      <span className="text-gray-900">{unit.building?.address}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Neighborhood</span>
+                      <span className="text-gray-900">{unit.building?.neighborhood}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">City</span>
+                      <span className="text-gray-900">{unit.building?.city}, {unit.building?.state}</span>
+                    </div>
+                    {unit.available_date && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Available</span>
+                        <span className="text-green-600 font-medium">{unit.available_date}</span>
                       </div>
-                      <div>
-                        <Label htmlFor="email" className="text-slate-200">Email</Label>
-                        <Input id="email" name="email" type="email" required data-testid="contact-email-input" className="bg-slate-700 border-amber-500/20 text-slate-100" />
-                      </div>
-                      
-                      {/* Schedule Viewing Section */}
-                      <div className="border border-amber-500/30 rounded-lg p-4 bg-slate-700/30">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Calendar className="w-4 h-4 text-amber-400" />
-                          <Label className="text-amber-400 font-semibold">Schedule a Viewing</Label>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <Label htmlFor="preferred_date" className="text-slate-200 text-sm">Preferred Date</Label>
-                              <Input 
-                                id="preferred_date" 
-                                name="preferred_date" 
-                                type="date"
-                                min={new Date().toISOString().split('T')[0]}
-                                className="bg-slate-700 border-amber-500/20 text-slate-100"
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="preferred_time" className="text-slate-200 text-sm">Preferred Time</Label>
-                              <select 
-                                id="preferred_time" 
-                                name="preferred_time"
-                                className="w-full h-10 px-3 rounded-md bg-slate-700 border border-amber-500/20 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                              >
-                                <option value="">Select time</option>
-                                <option value="morning">Morning (9am-12pm)</option>
-                                <option value="afternoon">Afternoon (12pm-5pm)</option>
-                                <option value="evening">Evening (5pm-8pm)</option>
-                              </select>
-                            </div>
-                          </div>
-                          
-                          <div className="text-xs text-slate-400 flex items-start gap-2">
-                            <Clock className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                            <span>Alternative time (optional)</span>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <Input 
-                                id="alternative_date" 
-                                name="alternative_date" 
-                                type="date"
-                                min={new Date().toISOString().split('T')[0]}
-                                placeholder="Alternative date"
-                                className="bg-slate-700 border-amber-500/30 text-slate-100 text-sm"
-                              />
-                            </div>
-                            <div>
-                              <select 
-                                id="alternative_time" 
-                                name="alternative_time"
-                                className="w-full h-10 px-3 rounded-md bg-slate-700 border border-amber-500/30 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                              >
-                                <option value="">Select time</option>
-                                <option value="morning">Morning (9am-12pm)</option>
-                                <option value="afternoon">Afternoon (12pm-5pm)</option>
-                                <option value="evening">Evening (5pm-8pm)</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="message" className="text-slate-200">Message</Label>
-                        <Textarea
-                          id="message"
-                          name="message"
-                          rows={3}
-                          placeholder="Tell us about yourself and any questions you have..."
-                          required
-                          data-testid="contact-message-input"
-                          className="bg-slate-700 border-amber-500/20 text-slate-100 placeholder:text-slate-400"
-                        />
-                      </div>
-                      <Button type="submit" className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold" data-testid="contact-submit-btn">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Request Viewing
-                      </Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-
-                <div className="pt-4 border-t border-amber-500/20">
-                  <h3 className="font-semibold text-slate-100 mb-2">Building Details</h3>
-                  <div className="space-y-2 text-sm text-slate-300">
-                    <p><strong className="text-amber-500">Address:</strong> {unit.building?.address}</p>
-                    <p><strong className="text-amber-500">Neighborhood:</strong> {unit.building?.neighborhood}</p>
-                    <p><strong className="text-amber-500">City:</strong> {unit.building?.city}, {unit.building?.state}</p>
-                    <p><strong className="text-amber-500">Zip:</strong> {unit.building?.zip_code}</p>
+                    )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

@@ -303,9 +303,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Unit Details page two-column layout testing"
   stuck_tasks:
     - "Google Maps integration on dashboard Map View"
+    - "Unit Details page two-column layout testing"
   test_all: false
   test_priority: "high_first"
 

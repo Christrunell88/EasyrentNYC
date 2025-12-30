@@ -221,6 +221,18 @@ backend:
         comment: "COMPREHENSIVE GOOGLE OAUTH WORKFLOW TESTING COMPLETED: Verified complete OAuth workflow functionality on development environment. VERIFIED COMPONENTS: ✅ OAuth button redirect mechanism working correctly (redirects to https://auth.emergentagent.com), ✅ Infinite loop prevention confirmed working (no repeated /auth/session calls), ✅ URL cleanup functioning properly (session_id removed from URL after processing), ✅ Error handling working (proper toast messages for invalid sessions), ✅ Frontend OAuth integration fully functional. NOTE: While backend session validation endpoint still returns 404 for actual OAuth sessions, the frontend OAuth redirect mechanism and infinite loop prevention are working correctly. Users can initiate OAuth flow properly, and the infinite loop issue that was previously blocking the UI has been completely resolved."
 
 frontend:
+  - task: "Unit Details page two-column layout testing"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/UnitDetails.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "UNIT DETAILS PAGE LAYOUT TESTING ATTEMPTED: Verified UnitDetails.jsx component implements correct two-column layout structure as specified. LAYOUT STRUCTURE CONFIRMED: ✅ Left column (lg:w-[62%]) contains main image gallery with aspect-[4/3] main image, thumbnail gallery strip below, and About section. ✅ Right column (lg:w-[38%]) contains property info with address/unit number at top, prominently displayed price, key details (sq ft, rooms, beds, baths), no broker fee info box, CONTACT AGENT button, SAVE/SHARE buttons, and Building Details card at bottom. ✅ Responsive design with flex-col on mobile, lg:flex-row on desktop. CRITICAL AUTHENTICATION ISSUE: ❌ Cannot complete layout testing due to authentication failure. Login with chris.trunell@gmail.com / TestPass123! fails in browser despite backend API working correctly (curl test successful). CORS issue fixed (updated CORS_ORIGINS in backend/.env), but frontend session/cookie handling between localhost:3000 and backend still problematic. RECOMMENDATION: Fix frontend authentication to complete visual layout verification and screenshot capture."
+
   - task: "Display real apartment images on listing cards"
     implemented: true
     working: true

@@ -329,10 +329,10 @@ const UnitDetails = () => {
                   <button
                     key={index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-16 rounded overflow-hidden border-2 transition-all ${
+                    className={`flex-shrink-0 w-20 h-16 overflow-hidden border transition-all ${
                       index === currentImageIndex 
-                        ? 'border-[#1a2b4a] ring-2 ring-[#1a2b4a]/30' 
-                        : 'border-transparent hover:border-gray-300'
+                        ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]/30' 
+                        : 'border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
                     }`}
                   >
                     <img
@@ -343,7 +343,7 @@ const UnitDetails = () => {
                   </button>
                 ))}
                 {images.length > 8 && (
-                  <div className="flex-shrink-0 w-20 h-16 rounded bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-medium">
+                  <div className="flex-shrink-0 w-20 h-16 bg-[#1a1a1a] border border-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] text-sm font-philosopher">
                     +{images.length - 8}
                   </div>
                 )}
@@ -351,14 +351,14 @@ const UnitDetails = () => {
             )}
 
             {/* About Section - Below Images */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h2 className="text-xl font-bold text-[#1a2b4a] mb-4">About</h2>
+            <div className="mt-8 pt-6 border-t border-[#D4AF37]/10">
+              <h2 className="text-xl font-philosopher font-bold text-white mb-4">About</h2>
               {unit.description ? (
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-[#F5F5F5] leading-relaxed">
                   {formatDescription(unit.description, unit)}
                 </p>
               ) : (
-                <p className="text-gray-500">
+                <p className="text-[#888888]">
                   {bedroomText === 'Studio' ? 'Studio' : `${unit.bedrooms} bedroom`} apartment with {unit.bathrooms} bathroom{unit.bathrooms > 1 ? 's' : ''} in {neighborhood}. No broker fee required.
                 </p>
               )}
@@ -366,10 +366,10 @@ const UnitDetails = () => {
               {/* Amenities */}
               {unit.amenities && unit.amenities.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-[#1a2b4a] mb-3">Features & Amenities</h3>
+                  <h3 className="text-lg font-philosopher font-semibold text-white mb-3">Features & Amenities</h3>
                   <div className="flex flex-wrap gap-2">
                     {unit.amenities.map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 border border-gray-200">
+                      <Badge key={index} variant="secondary" className="px-3 py-1.5 text-sm bg-[#1a1a1a] text-[#F5F5F5] border border-[#D4AF37]/20 rounded-none font-philosopher">
                         {amenity}
                       </Badge>
                     ))}
@@ -384,40 +384,40 @@ const UnitDetails = () => {
             <div className="lg:sticky lg:top-24">
               {/* Property Title & Address */}
               <div className="mb-6">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#1a2b4a] mb-1">
+                <h1 className="text-2xl md:text-3xl font-philosopher font-bold text-white mb-1">
                   {unit.building?.address}
                 </h1>
-                <p className="text-lg text-gray-600">#{unit.unit_number}</p>
+                <p className="text-lg text-[#888888] font-philosopher">#{unit.unit_number}</p>
               </div>
 
               {/* Price Section */}
               <div className="mb-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl md:text-4xl font-bold text-[#1a2b4a]">${unit.rent.toLocaleString()}</span>
-                  <span className="text-gray-500 text-lg">FOR RENT</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl md:text-4xl font-philosopher font-bold text-[#D4AF37]">${unit.rent.toLocaleString()}</span>
+                  <span className="text-[#888888] text-sm font-philosopher tracking-wide">FOR RENT</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">No broker fee. Move-in ready.</p>
+                <p className="text-sm text-[#888888] mt-2 font-philosopher">No broker fee. Move-in ready.</p>
               </div>
 
               {/* Key Details Row */}
-              <div className="flex items-center gap-4 text-gray-700 py-4 border-y border-gray-200 mb-6">
+              <div className="flex items-center gap-4 text-[#F5F5F5] py-4 border-y border-[#D4AF37]/20 mb-6 font-philosopher">
                 {unit.square_feet && (
                   <>
                     <span className="font-medium">{unit.square_feet} ft²</span>
-                    <span className="text-gray-300">|</span>
+                    <span className="text-[#D4AF37]/50">|</span>
                   </>
                 )}
                 <span className="font-medium">{unit.bedrooms + 1} rooms</span>
-                <span className="text-gray-300">|</span>
+                <span className="text-[#D4AF37]/50">|</span>
                 <span className="font-medium">{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`}</span>
-                <span className="text-gray-300">|</span>
+                <span className="text-[#D4AF37]/50">|</span>
                 <span className="font-medium">{unit.bathrooms} bath</span>
               </div>
 
               {/* Location */}
-              <div className="mb-6 text-sm">
-                <p className="text-gray-500">Rental unit</p>
-                <p className="text-[#1a2b4a] font-medium">{neighborhood}</p>
+              <div className="mb-6 text-sm font-philosopher">
+                <p className="text-[#888888]">Rental unit</p>
+                <p className="text-[#D4AF37] font-medium">{neighborhood}</p>
               </div>
 
               {/* No Fee Notice */}

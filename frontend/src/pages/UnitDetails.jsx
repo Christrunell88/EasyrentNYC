@@ -525,7 +525,7 @@ const UnitDetails = () => {
                 <Button
                   onClick={toggleFavorite}
                   variant="outline"
-                  className={`flex-1 border-gray-300 ${isFavorite ? 'bg-red-50 border-red-300 text-red-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                  className={`flex-1 border-[#D4AF37]/30 rounded-none font-philosopher ${isFavorite ? 'bg-[#D4AF37]/10 border-[#D4AF37] text-[#D4AF37]' : 'text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}`}
                   data-testid="toggle-favorite-btn"
                 >
                   <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
@@ -534,7 +534,7 @@ const UnitDetails = () => {
                 <Button
                   onClick={() => setShareOpen(true)}
                   variant="outline"
-                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="flex-1 border-[#D4AF37]/30 text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] rounded-none font-philosopher"
                   data-testid="share-btn"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
@@ -543,30 +543,30 @@ const UnitDetails = () => {
               </div>
 
               {/* Building Details Card */}
-              <Card className="border border-gray-200">
+              <Card className="border border-[#D4AF37]/20 bg-[#1a1a1a] rounded-none">
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-[#1a2b4a] mb-3">Building Details</h3>
-                  <div className="space-y-2 text-sm">
+                  <h3 className="font-philosopher font-semibold text-[#D4AF37] mb-3">Building Details</h3>
+                  <div className="space-y-2 text-sm font-philosopher">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Building</span>
-                      <span className="text-gray-900 font-medium">{unit.building?.name}</span>
+                      <span className="text-[#888888]">Building</span>
+                      <span className="text-[#F5F5F5] font-medium">{unit.building?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Address</span>
-                      <span className="text-gray-900">{unit.building?.address}</span>
+                      <span className="text-[#888888]">Address</span>
+                      <span className="text-[#F5F5F5]">{unit.building?.address}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Neighborhood</span>
-                      <span className="text-gray-900">{unit.building?.neighborhood}</span>
+                      <span className="text-[#888888]">Neighborhood</span>
+                      <span className="text-[#F5F5F5]">{unit.building?.neighborhood}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">City</span>
-                      <span className="text-gray-900">{unit.building?.city}, {unit.building?.state}</span>
+                      <span className="text-[#888888]">City</span>
+                      <span className="text-[#F5F5F5]">{unit.building?.city}, {unit.building?.state}</span>
                     </div>
                     {unit.available_date && (
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Available</span>
-                        <span className="text-green-600 font-medium">{unit.available_date}</span>
+                        <span className="text-[#888888]">Available</span>
+                        <span className="text-[#D4AF37] font-medium">{unit.available_date}</span>
                       </div>
                     )}
                   </div>
@@ -589,32 +589,32 @@ const UnitDetails = () => {
 
       {/* Success Dialog with Google Calendar */}
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
-        <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md text-center">
+        <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/20 text-white max-w-md text-center rounded-none">
           <div className="flex flex-col items-center py-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            <div className="w-16 h-16 bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-10 h-10 text-[#D4AF37]" />
             </div>
-            <DialogTitle className="text-[#1a2b4a] text-xl mb-2">Viewing Request Sent!</DialogTitle>
-            <DialogDescription className="text-gray-500 mb-6">
+            <DialogTitle className="text-white text-xl font-philosopher mb-2">Viewing Request Sent!</DialogTitle>
+            <DialogDescription className="text-[#888888] font-philosopher mb-6">
               We'll confirm your appointment shortly. Add it to your calendar so you don't forget!
             </DialogDescription>
             
             {/* Google Calendar Button */}
             <Button 
               onClick={openGoogleCalendar}
-              className="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 py-5 font-medium flex items-center justify-center gap-3 mb-3"
+              className="w-full bg-[#0a0a0a] hover:bg-[#D4AF37]/10 text-[#F5F5F5] border border-[#D4AF37]/30 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 mb-3 rounded-none"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#fff" stroke="#4285F4" strokeWidth="1.5"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="#4285F4" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#4285F4"/>
+                <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
+                <path d="M16 2v4M8 2v4M3 10h18" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#D4AF37"/>
               </svg>
               Add to Google Calendar
             </Button>
 
             <Button 
               onClick={() => setSuccessOpen(false)}
-              className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 font-semibold"
+              className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 font-philosopher font-bold rounded-none tracking-wide"
             >
               Done
             </Button>

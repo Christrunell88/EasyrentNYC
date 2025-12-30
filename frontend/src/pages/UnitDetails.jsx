@@ -281,7 +281,7 @@ const UnitDetails = () => {
           {/* LEFT COLUMN - Image Gallery (60-65%) */}
           <div className="lg:w-[62%]">
             {/* Main Image */}
-            <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-3">
+            <div className="relative bg-[#1a1a1a] overflow-hidden mb-3 border border-[#D4AF37]/10">
               {images.length > 0 ? (
                 <>
                   <div className="relative aspect-[4/3]">
@@ -292,7 +292,7 @@ const UnitDetails = () => {
                     />
                     
                     {/* Image Counter Badge */}
-                    <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1.5 rounded text-sm font-medium">
+                    <div className="absolute bottom-4 left-4 bg-[#0a0a0a]/90 text-[#D4AF37] px-4 py-2 text-sm font-philosopher tracking-wide border border-[#D4AF37]/30">
                       {currentImageIndex + 1} of {images.length}
                     </div>
                     
@@ -301,23 +301,23 @@ const UnitDetails = () => {
                       <>
                         <button
                           onClick={prevImage}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#0a0a0a]/80 hover:bg-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
                         >
-                          <ChevronLeft className="w-6 h-6 text-gray-700" />
+                          <ChevronLeft className="w-6 h-6 text-[#D4AF37] group-hover:text-[#0a0a0a]" />
                         </button>
                         <button
                           onClick={nextImage}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#0a0a0a]/80 hover:bg-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
                         >
-                          <ChevronRight className="w-6 h-6 text-gray-700" />
+                          <ChevronRight className="w-6 h-6 text-[#D4AF37] group-hover:text-[#0a0a0a]" />
                         </button>
                       </>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                  <Building2 className="w-24 h-24 text-gray-400" />
+                <div className="aspect-[4/3] bg-[#1a1a1a] flex items-center justify-center">
+                  <Building2 className="w-24 h-24 text-[#D4AF37]/30" />
                 </div>
               )}
             </div>

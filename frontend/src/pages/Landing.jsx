@@ -169,12 +169,13 @@ const Landing = () => {
                   A Curated Collection
                 </p>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-8">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-10">
                   The Finest No Fee Apartments
                 </h1>
                 
-                <p className="text-[#F5F5F5]/90 text-lg md:text-xl mb-10 leading-relaxed">
-                  An exclusive selection of premium residences in NYC, Northern NJ & PA — handpicked for discerning renters who expect nothing less than excellence.
+                {/* SEO-only text - hidden visually but accessible to search engines */}
+                <p className="sr-only">
+                  An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 items-start">

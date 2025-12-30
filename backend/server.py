@@ -1242,16 +1242,7 @@ async def set_featured_units(unit_ids: List[str], user: User = Depends(require_a
         'featured_unit_ids': unit_ids
     }
 
-# Include the router
-app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Note: Router is included after all routes are defined (see below)
 
 @app.on_event("startup")
 async def create_indexes():

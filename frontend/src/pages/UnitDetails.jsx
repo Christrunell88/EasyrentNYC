@@ -421,11 +421,11 @@ const UnitDetails = () => {
               </div>
 
               {/* No Fee Notice */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-gray-700">
-                    <strong>No broker fee</strong> - You won't be charged a broker fee for this apartment.
+                  <Info className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-[#F5F5F5] font-philosopher">
+                    <strong className="text-[#D4AF37]">No broker fee</strong> - You won't be charged a broker fee for this property.
                   </p>
                 </div>
               </div>
@@ -434,45 +434,45 @@ const UnitDetails = () => {
               <Dialog open={contactOpen} onOpenChange={setContactOpen}>
                 <DialogTrigger asChild>
                   <Button 
-                    className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 text-base font-semibold mb-4 flex items-center justify-center gap-2 transition-all hover:shadow-lg" 
+                    className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 text-base font-philosopher font-bold mb-4 flex items-center justify-center gap-2 transition-all rounded-none tracking-wide hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]" 
                     data-testid="contact-btn"
                   >
                     <Calendar className="w-5 h-5" />
                     Schedule Viewing
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md">
+                <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/20 text-white max-w-md rounded-none">
                   <DialogHeader>
-                    <DialogTitle className="text-[#1a2b4a] text-xl">Schedule a Viewing</DialogTitle>
-                    <DialogDescription className="text-gray-500">
+                    <DialogTitle className="text-white text-xl font-philosopher">Schedule a Viewing</DialogTitle>
+                    <DialogDescription className="text-[#888888] font-philosopher">
                       Pick a time that works for you. We'll confirm your appointment shortly.
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleContact} className="space-y-4 mt-2">
                     {/* Schedule Section - Primary */}
-                    <div className="bg-[#1a2b4a]/5 border border-[#1a2b4a]/20 rounded-lg p-4">
+                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 p-4">
                       <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="w-5 h-5 text-[#1a2b4a]" />
-                        <span className="text-[#1a2b4a] font-semibold">Select Your Preferred Time</span>
+                        <Calendar className="w-5 h-5 text-[#D4AF37]" />
+                        <span className="text-[#D4AF37] font-philosopher font-semibold">Select Your Preferred Time</span>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="preferred_date" className="text-gray-600 text-sm mb-1 block">Date</Label>
+                          <Label htmlFor="preferred_date" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Date</Label>
                           <Input 
                             id="preferred_date" 
                             name="preferred_date" 
                             type="date"
                             min={new Date().toISOString().split('T')[0]}
-                            className="border-gray-300 bg-white"
+                            className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="preferred_time" className="text-gray-600 text-sm mb-1 block">Time</Label>
+                          <Label htmlFor="preferred_time" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Time</Label>
                           <select 
                             id="preferred_time" 
                             name="preferred_time"
-                            className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a2b4a]/30"
+                            className="w-full h-10 px-3 border border-[#D4AF37]/30 bg-[#0a0a0a] text-white focus:outline-none focus:border-[#D4AF37] font-philosopher"
                           >
                             <option value="">Select time</option>
                             <option value="morning">Morning (9-12pm)</option>
@@ -487,32 +487,32 @@ const UnitDetails = () => {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="name" className="text-gray-600 text-sm mb-1 block">Name *</Label>
-                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-gray-300" />
+                          <Label htmlFor="name" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Name *</Label>
+                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
                         </div>
                         <div>
-                          <Label htmlFor="phone" className="text-gray-600 text-sm mb-1 block">Phone</Label>
-                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-gray-300" />
+                          <Label htmlFor="phone" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Phone</Label>
+                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email" className="text-gray-600 text-sm mb-1 block">Email *</Label>
-                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-gray-300" />
+                        <Label htmlFor="email" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Email *</Label>
+                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
                       </div>
                       <div>
-                        <Label htmlFor="message" className="text-gray-600 text-sm mb-1 block">Message (optional)</Label>
+                        <Label htmlFor="message" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Message (optional)</Label>
                         <Textarea
                           id="message"
                           name="message"
                           rows={2}
                           placeholder="Any questions or special requests?"
                           data-testid="contact-message-input"
-                          className="border-gray-300 resize-none"
+                          className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none resize-none font-philosopher placeholder:text-[#666666]"
                         />
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full bg-[#1a2b4a] hover:bg-[#0f1d33] text-white py-5 font-semibold flex items-center justify-center gap-2" data-testid="contact-submit-btn">
+                    <Button type="submit" className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide" data-testid="contact-submit-btn">
                       <Calendar className="w-4 h-4" />
                       Request Viewing
                     </Button>

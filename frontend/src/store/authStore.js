@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from '../utils/axiosConfig';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Use current origin for API calls to avoid cross-origin issues with custom domains
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
 const API = `${BACKEND_URL}/api`;
 
 const useAuthStore = create(

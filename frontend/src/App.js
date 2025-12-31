@@ -21,7 +21,8 @@ import FeeFreeFinds from './pages/FeeFreeFinds';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Use current origin for API calls to avoid cross-origin issues with custom domains
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
 const API = `${BACKEND_URL}/api`;
 
 export { API };

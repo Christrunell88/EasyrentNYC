@@ -1309,8 +1309,8 @@ async def get_sitemap():
             {"_id": 0, "neighborhood": 1, "city": 1}
         ).to_list(1000)
         
-        # Get base URL from environment or use production URL
-        base_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+        # Always use production URL for sitemap (SEO purposes)
+        base_url = 'https://nofeesapts.com'
         
         # Generate sitemap
         sitemap_xml = generate_sitemap(units, buildings, base_url)

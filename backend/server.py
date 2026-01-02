@@ -1291,7 +1291,7 @@ async def shutdown_db_client():
 
 # ============ SITEMAP ROUTE ============
 
-@app.get("/sitemap.xml", response_class=PlainTextResponse)
+@api_router.get("/sitemap.xml", response_class=PlainTextResponse)
 async def get_sitemap():
     """Generate and serve dynamic sitemap.xml for SEO"""
     try:

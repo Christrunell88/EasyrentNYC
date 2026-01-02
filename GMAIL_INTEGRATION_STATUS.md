@@ -106,7 +106,7 @@ python email_service.py
 Expected: Test email received at placesfirm@gmail.com
 
 **Step 2: Full Contact Form Test**
-1. Go to website: https://nofeesapts.preview.emergentagent.com
+1. Go to website: https://nofeeapts.preview.emergentagent.com
 2. Sign in with admin account
 3. Click on any apartment listing
 4. Fill out the contact form

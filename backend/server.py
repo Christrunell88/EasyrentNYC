@@ -1335,7 +1335,7 @@ async def get_robots():
 Allow: /
 
 # Sitemap
-Sitemap: {base_url}/sitemap.xml
+Sitemap: {base_url}/api/sitemap.xml
 
 # Disallow admin and auth pages from indexing
 Disallow: /admin

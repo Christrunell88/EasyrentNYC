@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/api/sitemap.xml"?>
+<!-- 
+  This is a redirect file. The actual sitemap is served dynamically from the API.
+  Search engines will follow the canonical link below.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://nofeesapts.com/api/sitemap.xml</loc>
+    <lastmod>2025-01-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

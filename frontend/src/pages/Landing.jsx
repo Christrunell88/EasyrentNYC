@@ -399,53 +399,178 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer - Luxury Minimal */}
+      {/* Footer - SEO Optimized */}
       <footer className="py-16 px-6 border-t border-[#D4AF37]/10 bg-[#0a0a0a]">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="text-center md:text-left">
+        <div className="max-w-6xl mx-auto">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+            {/* Brand & Description */}
+            <div className="lg:col-span-1">
               <span className="text-2xl font-philosopher font-bold text-white tracking-wide">NoFeesApts</span>
-              <p className="text-sm text-[#888888] mt-2 font-philosopher">Northern NJ • NYC • PA</p>
+              <p className="text-sm text-[#888888] mt-3 leading-relaxed">
+                Your trusted source for no broker fee apartments in NYC, Northern New Jersey, and Pennsylvania. 
+                Save thousands on broker fees with our curated collection of verified no-fee rentals.
+              </p>
+              <p className="text-xs text-[#666666] mt-4">
+                <a href="mailto:placesfirm@gmail.com" className="hover:text-[#D4AF37] transition-colors">
+                  placesfirm@gmail.com
+                </a>
+              </p>
             </div>
-            
-            <div className="flex flex-wrap justify-center gap-8 text-sm">
-              <button
-                onClick={handleGetStarted}
-                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
-              >
-                Browse Collection
-              </button>
-              <button
-                onClick={() => navigate('/fee-free-finds')}
-                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
-              >
-                #FeeFreeFinds
-              </button>
-              <button
-                onClick={() => navigate('/blog')}
-                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
-              >
-                Blog
-              </button>
-              <button
-                onClick={() => navigate('/faq')}
-                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
-              >
-                FAQ
-              </button>
-              <a
-                href="mailto:placesfirm@gmail.com"
-                className="text-[#888888] hover:text-[#D4AF37] font-philosopher tracking-wide transition-colors"
-              >
-                Contact
-              </a>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <button onClick={handleGetStarted} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Browse All Apartments
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/fee-free-finds')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    #FeeFreeFinds
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/blog')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Apartment Hunting Blog
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/blog/guide-to-no-fee-apartments')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    No-Fee Apartment Guide
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/faq')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    FAQ
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* NYC Neighborhoods */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">NYC No-Fee Apartments</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <button onClick={() => navigate('/location/Upper West Side-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Upper West Side
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Upper East Side-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Upper East Side
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Midtown West-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Midtown West
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Chelsea-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Chelsea
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Tribeca-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Tribeca
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/SoHo-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    SoHo
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/East Village-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    East Village
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Long Island City-Queens')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Long Island City
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* NJ & Brooklyn */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">NJ & Brooklyn</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <button onClick={() => navigate('/location/Harrison-Harrison')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Harrison, NJ
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Princeton-Princeton')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Princeton, NJ
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Linden-Linden')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Linden, NJ
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/DUMBO-Brooklyn')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    DUMBO, Brooklyn
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Carroll Gardens-Brooklyn')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Carroll Gardens
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/location/Langhorne-Langhorne')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                    Langhorne, PA
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
-          
-          <div className="mt-12 pt-8 border-t border-[#D4AF37]/10 text-center">
-            <p className="text-xs text-[#666666] font-philosopher tracking-wide">
-              © 2025 NoFeesApts.com. All rights reserved.
+
+          {/* SEO Content Section */}
+          <div className="border-t border-[#D4AF37]/10 pt-10 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-[#777777] leading-relaxed">
+              <div>
+                <h4 className="text-[#D4AF37] font-semibold mb-2">About No-Fee Apartments</h4>
+                <p>
+                  NoFeesApts.com specializes in no broker fee apartment rentals across New York City, Northern New Jersey, 
+                  and Pennsylvania. We help renters save thousands of dollars by connecting them directly with 
+                  landlords and management companies that don't charge broker fees. Our listings include studios, 
+                  1-bedroom, 2-bedroom, and 3-bedroom apartments in Manhattan, Brooklyn, Queens, and Jersey City.
+                </p>
+              </div>
+              <div>
+                <h4 className="text-[#D4AF37] font-semibold mb-2">Why Choose No-Fee Rentals?</h4>
+                <p>
+                  Broker fees in NYC typically range from one month's rent to 15% of annual rent—that's $3,000 to $6,000+ 
+                  you could save. Our verified no-fee listings are updated daily, featuring luxury amenities like 
+                  doorman buildings, fitness centers, rooftop terraces, in-unit laundry, and pet-friendly policies. 
+                  Start your apartment search with NoFeesApts.com today.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-[#D4AF37]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-[#666666]">
+              © 2025 NoFeesApts.com. All rights reserved. | No Broker Fee Apartments NYC & NJ
             </p>
+            <div className="flex gap-6 text-xs text-[#666666]">
+              <span>New York, NY</span>
+              <span>•</span>
+              <span>Harrison, NJ</span>
+              <span>•</span>
+              <span>Brooklyn, NY</span>
+            </div>
           </div>
         </div>
       </footer>

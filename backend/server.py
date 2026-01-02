@@ -1328,7 +1328,8 @@ async def get_sitemap():
 @app.get("/robots.txt", response_class=PlainTextResponse)
 async def get_robots():
     """Serve robots.txt for search engines"""
-    base_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+    # Always use production URL for robots.txt
+    base_url = 'https://nofeesapts.com'
     
     robots_content = f"""User-agent: *
 Allow: /

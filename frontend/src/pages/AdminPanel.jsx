@@ -227,6 +227,20 @@ const AdminPanel = () => {
     }
   };
 
+  const handleToggleFeatured = async (unitId) => {
+    try {
+      const response = await axios.post(`${API}/admin/units/${unitId}/toggle-featured`, {}, { withCredentials: true });
+      toast.success(response.data.message);
+      // Update local state without full refetch
+      setUnits(prev => prev.map(unit => 
+        unit.id === unitId ? { ...unit, is_featured: response.data.is_featured } : unit
+      ));
+    } catch (error) {
+      console.error('Toggle featured error:', error);
+      toast.error('Failed to toggle featured status');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Header */}

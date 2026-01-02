@@ -31,6 +31,16 @@ JWT_EXPIRATION_DAYS = 7
 
 # Create the main app
 app = FastAPI()
+
+origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
+# print(":white_tick: CORS Origins:", origins)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO)
@@ -1548,13 +1558,13 @@ async def delete_facebook_post(
 # Note: This MUST be after all routes are defined
 app.include_router(api_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_credentials=True,
+#     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # ============ SCHEDULER ============
 

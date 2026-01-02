@@ -761,33 +761,52 @@ const AdminPanel = () => {
                 
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Building</TableHead>
-                      <TableHead>Unit #</TableHead>
-                      <TableHead>BR/BA</TableHead>
-                      <TableHead>Rent</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="border-slate-700">
+                      <TableHead className="text-slate-300">Building</TableHead>
+                      <TableHead className="text-slate-300">Unit #</TableHead>
+                      <TableHead className="text-slate-300">BR/BA</TableHead>
+                      <TableHead className="text-slate-300">Rent</TableHead>
+                      <TableHead className="text-slate-300">Featured</TableHead>
+                      <TableHead className="text-slate-300">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {units.slice(0, 50).map((unit) => (
-                      <TableRow key={unit.id}>
-                        <TableCell>{unit.building?.name}</TableCell>
-                        <TableCell>{unit.unit_number}</TableCell>
-                        <TableCell>{unit.bedrooms}BR / {unit.bathrooms}BA</TableCell>
-                        <TableCell>${unit.rent.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteUnit(unit.id)}
-                            data-testid={`delete-unit-${unit.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {units.slice(0, 50).map((unit) => {
+                      const building = buildings.find(b => b.id === unit.building_id);
+                      return (
+                        <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
+                          <TableCell className="text-slate-100">{building?.name || 'Unknown'}</TableCell>
+                          <TableCell className="text-slate-300">{unit.unit_number}</TableCell>
+                          <TableCell className="text-slate-300">{unit.bedrooms}BR / {unit.bathrooms}BA</TableCell>
+                          <TableCell className="text-amber-500 font-semibold">${unit.rent?.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant={unit.is_featured ? "default" : "outline"}
+                              onClick={() => handleToggleFeatured(unit.id)}
+                              data-testid={`toggle-featured-${unit.id}`}
+                              className={unit.is_featured 
+                                ? "bg-amber-500 hover:bg-amber-600 text-slate-900" 
+                                : "border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-amber-500"
+                              }
+                            >
+                              <Star className={`w-4 h-4 ${unit.is_featured ? 'fill-current' : ''}`} />
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteUnit(unit.id)}
+                              data-testid={`delete-unit-${unit.id}`}
+                              className="bg-red-900/50 hover:bg-red-900"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TabsContent>

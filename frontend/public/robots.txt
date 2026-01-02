@@ -20,7 +20,7 @@ Disallow: /*?session=*
 Disallow: /*?token=*
 
 # Sitemap location
-Sitemap: https://nofeesapts.com/sitemap.xml
+Sitemap: https://nofeesapts.com/api/sitemap.xml
 
 # Crawl delay for respectful crawling
 Crawl-delay: 1

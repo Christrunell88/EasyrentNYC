@@ -366,6 +366,19 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
             
+            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-yellow-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-400">Featured Units</p>
+                    <p className="text-3xl font-bold text-yellow-400">{units.filter(u => u.is_featured).length}</p>
+                    <p className="text-xs text-slate-500 mt-1">Shown on homepage</p>
+                  </div>
+                  <Star className="w-12 h-12 text-yellow-500" />
+                </div>
+              </CardContent>
+            </Card>
+            
             <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-emerald-500/20">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">

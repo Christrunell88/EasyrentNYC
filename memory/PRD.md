@@ -61,9 +61,17 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
-### 2025-01-02
+### 2025-01-02 (Session 2)
+- **Added:** Featured toggle button in Admin Panel > Units tab
+- **Added:** "Featured Units" stat card showing count of featured units
+- **Updated:** Home page now displays 6 featured units (was 3)
+- **Improved:** Units table in admin now shows building names properly
+
+### 2025-01-02 (Session 1)
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`
 - **Updated:** robots.txt to point to new sitemap URL
+- **Fixed:** Facebook integration restored with new access token
+- **Added:** SEO-optimized footer with internal links
 
 ### Previous Session
 - **Fixed:** Auth issue on custom domain (made API URL dynamic)
@@ -116,6 +124,8 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - `POST /api/subscribe` - Email subscription
 - `GET /api/sitemap.xml` - Dynamic sitemap
 - `GET /api/admin/stats` - Admin dashboard stats
+- `POST /api/admin/units/{unit_id}/toggle-featured` - Toggle featured status
+- `POST /api/admin/set-featured-units` - Bulk set featured units
 
 ## Test Credentials
 - **Admin:** `placesfirm@gmail.com` / `Checkers080/?`

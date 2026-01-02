@@ -1310,7 +1310,7 @@ async def get_sitemap():
         ).to_list(1000)
         
         # Always use production URL for sitemap (SEO purposes)
-        base_url = 'https://nofeesapts.com'
+        base_url = 'https://www.nofeesapts.com'
         
         # Generate sitemap
         sitemap_xml = generate_sitemap(units, buildings, base_url)
@@ -1328,8 +1328,8 @@ async def get_sitemap():
 @app.get("/robots.txt", response_class=PlainTextResponse)
 async def get_robots():
     """Serve robots.txt for search engines"""
-    # Always use production URL for robots.txt
-    base_url = 'https://nofeesapts.com'
+    # Always use production URL for robots.txt (with www to match Google Search Console)
+    base_url = 'https://www.nofeesapts.com'
     
     robots_content = f"""User-agent: *
 Allow: /

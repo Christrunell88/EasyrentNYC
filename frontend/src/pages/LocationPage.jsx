@@ -137,7 +137,7 @@ const LocationPage = () => {
         'Premium amenities and modern buildings'
       ],
       avgRent: '$2,400 - $3,800',
-      seoKeywords: 'no fee apartments weehawken, weehawken nj apartments no broker fee, weehawken waterfront rentals'
+      seoKeywords: 'no fee apartments weehawken, weehawken nj apartments no broker fee, weehawken waterfront rentals, luxury weehawken apartments, nyc views apartments nj no fee, lincoln harbor apartments'
     },
     bronx: {
       name: 'Bronx',
@@ -151,7 +151,7 @@ const LocationPage = () => {
         'Growing arts scene and waterfront parks'
       ],
       avgRent: '$1,600 - $2,800',
-      seoKeywords: 'no fee apartments bronx, bronx apartments no broker fee, south bronx rentals'
+      seoKeywords: 'no fee apartments bronx, bronx apartments no broker fee, south bronx rentals, affordable bronx apartments, cheap no fee apartments bronx, riverdale apartments no fee, mott haven rentals'
     }
   };
 

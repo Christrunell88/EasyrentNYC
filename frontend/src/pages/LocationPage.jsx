@@ -25,7 +25,7 @@ const LocationPage = () => {
         'Central Park and waterfront access'
       ],
       avgRent: '$3,200 - $4,500',
-      seoKeywords: 'no fee apartments manhattan, manhattan apartments no broker fee, upper west side apartments, upper east side rentals'
+      seoKeywords: 'no fee apartments manhattan, manhattan apartments no broker fee, upper west side apartments, upper east side rentals, luxury no fee apartments manhattan, cheap apartments manhattan no broker, rent manhattan without broker fee, best no fee deals manhattan'
     },
     brooklyn: {
       name: 'Brooklyn',
@@ -39,7 +39,7 @@ const LocationPage = () => {
         'Waterfront parks and Brooklyn Bridge Park'
       ],
       avgRent: '$2,400 - $3,800',
-      seoKeywords: 'no fee apartments brooklyn, brooklyn apartments no broker fee, williamsburg apartments, dumbo rentals'
+      seoKeywords: 'no fee apartments brooklyn, brooklyn apartments no broker fee, williamsburg apartments, dumbo rentals, affordable brooklyn apartments no fee, how to find no fee brooklyn, park slope no broker fee, downtown brooklyn rentals'
     },
     queens: {
       name: 'Queens',
@@ -53,7 +53,7 @@ const LocationPage = () => {
         'Family-friendly with excellent schools'
       ],
       avgRent: '$1,800 - $3,200',
-      seoKeywords: 'no fee apartments queens, queens apartments no broker fee, long island city apartments, astoria rentals'
+      seoKeywords: 'no fee apartments queens, queens apartments no broker fee, long island city apartments, astoria rentals, cheap no fee apartments queens, affordable queens rentals, best value nyc apartments no fee'
     },
     'long-island-city': {
       name: 'Long Island City',
@@ -67,7 +67,7 @@ const LocationPage = () => {
         'Rapidly growing arts and dining scene'
       ],
       avgRent: '$2,200 - $3,600',
-      seoKeywords: 'no fee apartments long island city, lic apartments no broker fee, hunters point apartments'
+      seoKeywords: 'no fee apartments long island city, lic apartments no broker fee, hunters point apartments, luxury no fee lic, long island city rentals near manhattan, waterfront apartments lic no fee'
     },
     williamsburg: {
       name: 'Williamsburg',
@@ -81,7 +81,7 @@ const LocationPage = () => {
         'Waterfront parks and Brooklyn Brewery'
       ],
       avgRent: '$2,600 - $4,200',
-      seoKeywords: 'no fee apartments williamsburg, williamsburg brooklyn apartments no broker fee, north williamsburg rentals'
+      seoKeywords: 'no fee apartments williamsburg, williamsburg brooklyn apartments no broker fee, north williamsburg rentals, cheap williamsburg apartments, how to find no fee williamsburg, hipster apartments brooklyn no fee'
     },
     'jersey-city': {
       name: 'Jersey City',
@@ -95,7 +95,7 @@ const LocationPage = () => {
         'Family-friendly with great schools'
       ],
       avgRent: '$2,000 - $3,400',
-      seoKeywords: 'no fee apartments jersey city, jersey city apartments no broker fee, downtown jersey city rentals'
+      seoKeywords: 'no fee apartments jersey city, jersey city apartments no broker fee, downtown jersey city rentals, jersey city nj no fee, apartments near PATH train no fee, luxury jersey city apartments, newport jersey city rentals'
     },
     hoboken: {
       name: 'Hoboken',
@@ -109,7 +109,7 @@ const LocationPage = () => {
         'Safe, family-friendly community'
       ],
       avgRent: '$2,200 - $3,600',
-      seoKeywords: 'no fee apartments hoboken, hoboken apartments no broker fee, hoboken nj rentals'
+      seoKeywords: 'no fee apartments hoboken, hoboken apartments no broker fee, hoboken nj rentals, hoboken waterfront apartments, cheap hoboken apartments no fee, how to find no fee hoboken, hoboken near PATH'
     },
     harrison: {
       name: 'Harrison',
@@ -123,7 +123,7 @@ const LocationPage = () => {
         'Red Bull Arena and waterfront parks'
       ],
       avgRent: '$2,200 - $3,500',
-      seoKeywords: 'no fee apartments harrison nj, harrison new jersey apartments no broker fee'
+      seoKeywords: 'no fee apartments harrison nj, harrison new jersey apartments no broker fee, harrison yards apartments, luxury harrison nj rentals, harrison PATH train apartments, affordable nj apartments near nyc'
     },
     weehawken: {
       name: 'Weehawken',

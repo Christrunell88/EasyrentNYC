@@ -173,7 +173,7 @@ const Dashboard = () => {
       <SEO
         title="Browse No-Fee Apartments"
         description={`Search ${units.length}+ no broker fee apartments in NYC & NJ. Filter by bedrooms, price, and location. Real photos, verified listings, zero fees.`}
-        keywords="browse no fee apartments, search NYC apartments, apartment listings, no broker fee search, NYC rentals, NJ apartments"
+        keywords="browse no fee apartments, search NYC apartments, apartment listings, no broker fee search, NYC rentals, NJ apartments, no fee apartments near me, affordable apartments NYC, luxury no fee rentals, studio apartments no broker fee, 1 bedroom no fee NYC, pet friendly no fee apartments, doorman building no fee"
         url="/dashboard"
         structuredData={{
           "@context": "https://schema.org",

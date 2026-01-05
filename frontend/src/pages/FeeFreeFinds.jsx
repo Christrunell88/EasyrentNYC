@@ -104,7 +104,7 @@ const FeeFreeFinds = () => {
       <SEO
         title="#FeeFreeFinds - No Broker Fee Apartments NYC & NJ"
         description="Discover #FeeFreeFinds - curated no broker fee apartments in NYC and New Jersey. Save thousands on your next apartment. Real listings, real savings, zero fees."
-        keywords="FeeFreeFinds, no fee apartments NYC, no broker fee apartments, NYC apartments, New Jersey apartments, free apartment listings, save on broker fees"
+        keywords="FeeFreeFinds, no fee apartments NYC, no broker fee apartments, NYC apartments, New Jersey apartments, free apartment listings, save on broker fees, best no fee apartment deals, cheap apartments NYC no broker, verified no fee listings, move to NYC without broker fee, apartment hunting NYC tips"
         url="/fee-free-finds"
         structuredData={{
           "@context": "https://schema.org",

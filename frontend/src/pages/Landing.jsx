@@ -85,7 +85,7 @@ const Landing = () => {
       <SEO
         title="No Broker Fee Apartments NYC & NJ"
         description={`Find your perfect apartment with zero broker fees. Browse ${stats.units}+ verified no-fee listings in NYC and Northern New Jersey.`}
-        keywords="no fee apartments NYC, no broker fee apartments, NYC apartments, Northern New Jersey apartments"
+        keywords="no fee apartments NYC, no broker fee apartments, NYC apartments, Northern New Jersey apartments, no fee apartments near me, cheap no fee apartments NYC, luxury no fee apartments, rent without broker fee NYC, best no fee apartment websites, streeteasy alternative, Jersey City no fee, Hoboken apartments no fee, how to find no fee apartments NYC"
         url="/"
         structuredData={{
           "@context": "https://schema.org",

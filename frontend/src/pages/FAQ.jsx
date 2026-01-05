@@ -194,7 +194,7 @@ const FAQ = () => {
       <SEO 
         title="FAQ - No-Fee Apartments NYC & New Jersey | NoFeesApts"
         description="Get answers to common questions about finding no-fee apartments in NYC. Learn about costs, application process, and how to save thousands on broker fees."
-        keywords="no-fee apartments faq, nyc rental questions, broker fee questions, apartment hunting help"
+        keywords="no-fee apartments faq, nyc rental questions, broker fee questions, apartment hunting help, how much are broker fees NYC, what is no fee apartment, avoid broker fees NYC, rent directly from landlord NYC, no fee vs fee apartment"
       />
       
       <Helmet>

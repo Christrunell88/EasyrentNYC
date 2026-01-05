@@ -138,7 +138,7 @@ const Blog = () => {
       <SEO 
         title="NYC No-Fee Apartment Blog | Guides, Tips & Market Insights"
         description="Expert guides on finding no-fee apartments in NYC and New Jersey. Get insider tips, neighborhood guides, and market analysis to save thousands on your move."
-        keywords="nyc apartment blog, no-fee apartments guide, nyc rental tips, apartment hunting nyc, moving to nyc"
+        keywords="nyc apartment blog, no-fee apartments guide, nyc rental tips, apartment hunting nyc, moving to nyc, how to find no fee apartments, rent without broker NYC, first apartment NYC tips, avoid broker fees NYC, best neighborhoods NYC rentals"
       />
       
       <Helmet>

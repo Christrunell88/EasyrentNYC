@@ -9,7 +9,7 @@ const GuideToNoFeeApartments = () => {
       <Helmet>
         <title>Ultimate Guide to Finding No-Fee Apartments in NYC | NoFeesApts.com</title>
         <meta name="description" content="Discover how to find no-fee apartments in NYC and save thousands on broker fees. Complete guide to NYC apartment hunting with expert tips and neighborhood insights." />
-        <meta name="keywords" content="no fee apartments NYC, no broker fee apartments, NYC apartment hunting, rent without broker fee" />
+        <meta name="keywords" content="no fee apartments NYC, no broker fee apartments, NYC apartment hunting, rent without broker fee, what is no fee apartment, how to find no fee apartments, streeteasy no fee filter, avoid broker fees NYC, direct from landlord NYC, fee vs no fee apartments" />
       </Helmet>
 
       {/* Navigation */}

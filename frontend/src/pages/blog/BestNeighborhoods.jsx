@@ -57,7 +57,7 @@ const BestNeighborhoods = () => {
       <Helmet>
         <title>Best NYC Neighborhoods for No-Fee Apartments | 2024 Guide</title>
         <meta name='description' content='Discover the top NYC neighborhoods with the most no-fee apartment listings. Compare prices, amenities, and lifestyle in Manhattan, Brooklyn, and Queens.' />
-        <meta name='keywords' content='NYC neighborhoods, no fee apartments by neighborhood, best areas to rent NYC, affordable NYC neighborhoods' />
+        <meta name='keywords' content='NYC neighborhoods, no fee apartments by neighborhood, best areas to rent NYC, affordable NYC neighborhoods, cheap neighborhoods NYC, best neighborhoods for young professionals NYC, safe neighborhoods NYC rentals, neighborhoods near subway NYC' />
       </Helmet>
 
       <div className='bg-white border-b'>

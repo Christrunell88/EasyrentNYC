@@ -9,7 +9,7 @@ const ApartmentChecklist = () => {
       <Helmet>
         <title>NYC Apartment Hunting Checklist: Complete Guide | NoFeesApts.com</title>
         <meta name='description' content='Do not miss crucial steps in your NYC apartment search. Complete checklist covering documents, viewing tips, lease terms, and move-in requirements.' />
-        <meta name='keywords' content='NYC apartment checklist, apartment hunting tips NYC, what to know before renting NYC, NYC rental requirements' />
+        <meta name='keywords' content='NYC apartment checklist, apartment hunting tips NYC, what to know before renting NYC, NYC rental requirements, documents needed for NYC apartment, how to rent in NYC first time, NYC apartment application tips, credit score for NYC apartment, guarantor NYC rental' />
       </Helmet>
 
       <div className='bg-white border-b'>

@@ -149,6 +149,12 @@ const Auth = () => {
           <p className="text-[#888888] text-sm font-philosopher">
             {isAdminMode ? 'Administrative portal' : 'Access our curated collection'}
           </p>
+          {!isAdminMode && (
+            <div className="mt-4 inline-flex items-center gap-2 bg-[#4ade80]/10 border border-[#4ade80]/30 px-4 py-2 rounded-full">
+              <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse"></span>
+              <span className="text-[#4ade80] text-xs font-semibold tracking-wide">FREE FOREVER • No Credit Card</span>
+            </div>
+          )}
         </div>
 
         {/* Auth Form */}

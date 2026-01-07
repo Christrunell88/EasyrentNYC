@@ -179,15 +179,21 @@ const Landing = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <Button
-                    data-testid="get-started-btn"
-                    onClick={handleGetStarted}
-                    size="lg"
-                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
-                  >
-                    EXPLORE COLLECTION
-                    <ArrowRight className="w-5 h-5 ml-3" />
-                  </Button>
+                  <div className="flex flex-col items-start gap-2">
+                    <Button
+                      data-testid="get-started-btn"
+                      onClick={handleGetStarted}
+                      size="lg"
+                      className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                    >
+                      EXPLORE COLLECTION
+                      <ArrowRight className="w-5 h-5 ml-3" />
+                    </Button>
+                    <span className="text-[#4ade80] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
+                      <span className="w-1.5 h-1.5 bg-[#4ade80] rounded-full animate-pulse"></span>
+                      100% FREE • No Credit Card Required
+                    </span>
+                  </div>
                 </div>
 
                 {/* State buttons */}

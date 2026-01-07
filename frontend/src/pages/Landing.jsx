@@ -166,7 +166,7 @@ const Landing = () => {
                 <div className="w-16 h-px bg-[#D4AF37] mb-8" />
                 
                 <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-6">
-                  A Curated Collection
+                  NYC Belongs To You
                 </p>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-10">

@@ -9,6 +9,19 @@ import { Helmet } from 'react-helmet-async';
 
 const blogPosts = [
   {
+    id: 'broker-fees',
+    slug: 'why-nyc-renters-pay-broker-fees',
+    title: 'Why NYC Renters Pay Broker Fees When No One Else Does',
+    excerpt: 'NYC is one of the only markets in America where tenants pay broker fees. Learn why the NYC rental market is different from every other city—and how to avoid these fees entirely.',
+    author: 'NoFeesApts Team',
+    date: 'January 2025',
+    readTime: '8 min read',
+    category: 'Market Insights',
+    tags: ['broker fees', 'nyc market', 'rental tips', 'save money'],
+    image: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=80',
+    featured: true
+  },
+  {
     id: 'guide',
     slug: 'guide-to-no-fee-apartments',
     title: 'Ultimate Guide to Finding No-Fee Apartments in NYC (2024-2025)',

@@ -135,3 +135,10 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Test Credentials
 - **Admin:** `placesfirm@gmail.com` / `Checkers080/?`
 - **User:** `chris.trunell@gmail.com` / `TestPass123!`
+
+---
+
+## SEO Documentation Files
+- `/app/memory/SEO_STRATEGY.md` - Full SEO strategy with target keywords, negative keywords, brand positioning
+- `/app/memory/GOOGLE_ADS_NEGATIVE_KEYWORDS.md` - Copy-paste ready lists for Google Ads campaigns
+- `/app/frontend/public/robots.txt` - Crawler directives with documentation

@@ -136,7 +136,7 @@ const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   
-  const categories = ['All', 'Guides', 'Finances', 'Neighborhoods', 'Moving Tips', 'Market Analysis'];
+  const categories = ['All', 'Guides', 'Market Insights', 'Neighborhoods', 'Finances', 'Moving Tips', 'Market Analysis', 'Tips & Advice'];
   
   const filteredPosts = blogPosts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

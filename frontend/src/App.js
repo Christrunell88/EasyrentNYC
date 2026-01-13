@@ -20,6 +20,7 @@ import ApartmentChecklist from './pages/blog/ApartmentChecklist';
 import NYCBrokerFeeGuide from './pages/blog/NYCBrokerFeeGuide';
 import FeeFreeFinds from './pages/FeeFreeFinds';
 import { initGA, trackPageView } from './utils/analytics';
+import { initWebVitals } from './utils/webVitals';
 import useAuthStore from './store/authStore';
 
 // Use current origin for API calls to avoid cross-origin issues with custom domains

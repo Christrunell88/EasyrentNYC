@@ -337,7 +337,7 @@ const UnitDetails = () => {
                   >
                     <img
                       src={image}
-                      alt={`Thumbnail ${index + 1}`}
+                      alt={`${unit?.bedrooms === 0 ? 'Studio' : unit?.bedrooms === 1 ? 'One bedroom' : `${unit?.bedrooms} bedroom`} apartment thumbnail ${index + 1} at ${buildingName}`}
                       className="w-full h-full object-cover"
                     />
                   </button>

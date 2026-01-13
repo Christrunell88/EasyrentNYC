@@ -287,7 +287,7 @@ const UnitDetails = () => {
                   <div className="relative aspect-[4/3]">
                     <img
                       src={images[currentImageIndex]}
-                      alt={`${buildingName} - Image ${currentImageIndex + 1}`}
+                      alt={`${unit?.bedrooms === 0 ? 'Studio' : unit?.bedrooms === 1 ? 'One bedroom' : `${unit?.bedrooms} bedroom`} apartment ${currentImageIndex === 0 ? 'interior' : currentImageIndex === 1 ? 'kitchen' : currentImageIndex === 2 ? 'bedroom' : 'view'} at ${buildingName}, ${unit?.building?.neighborhood || unit?.building?.city || 'NYC'}`}
                       className="w-full h-full object-cover"
                     />
                     

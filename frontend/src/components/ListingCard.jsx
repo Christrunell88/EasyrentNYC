@@ -59,7 +59,7 @@ const ListingCard = ({
           <>
             <img
               src={images[currentImageIndex]}
-              alt={`${unit.building?.name || 'Apartment'} - Image ${currentImageIndex + 1}`}
+              alt={`${unit.bedrooms === 0 ? 'Studio' : unit.bedrooms === 1 ? 'One bedroom' : `${unit.bedrooms} bedroom`} apartment interior at ${unit.building?.name || 'luxury building'}, ${unit.building?.neighborhood || unit.building?.city || 'NYC'}`}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             

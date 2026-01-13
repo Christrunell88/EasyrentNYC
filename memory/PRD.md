@@ -62,6 +62,14 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Changelog
 
 ### 2026-01-13
+- **New Building Added: 33 Bond Street (Downtown Brooklyn)**
+  - Building ID: `cc25c23a-ec06-419c-b3fd-90dc8fe94257`
+  - 7 units added (1 studio, 5 one-bedrooms, 1 two-bedroom)
+  - Rents: $2,998 - $5,530/month
+  - Source: TF Cornerstone
+  - Data script saved: `/app/backend/Buildings/33_bond_street.py`
+  - Features: Chelsea Piers Fitness, 18,500 sq ft roof deck, pet spa (Throw Me a Bone)
+
 - **New Listing Added: 101 West 15th Street, Unit 519 (Chelsea)**
   - Building ID: `f787816c-4475-4d13-a082-a33f4b1a2b9b`
   - Unit ID: `28ce94fb-703a-43ff-9c66-24e17dcbe7d8`

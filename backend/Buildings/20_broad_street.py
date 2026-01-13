@@ -108,14 +108,33 @@ UNITS_DATA = [
             "Glass Shower"
         ],
         "images": [
-            "https://20broadst.com/assets/images/cache/20-Broad-Unit-2213-Kitchen-Living-staged-SA-2-3837ffba06ba532514dc45d71ce874c5.jpg",
-            "https://20broadst.com/assets/images/cache/20-Broad-Unit-2213-Bedroom-staged-SA-1-0acb941409c126301750a0b18a0b81a8.jpg",
-            "https://20broadst.com/assets/images/cache/20-Broad-Unit-2213-Bathroom-staged-SA2-20bd7f45ae88dee617b1baa11c291129.jpg"
+            "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/mdcpaquu_20%20Broad%20LIving%20Room.jpg",
+            "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/h8y18ctm_20%20Broad%20Street%20Kitchen%20studio.jpg",
+            "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/fjams7rs_20%20Broad%20Bath.jpg"
         ],
         "source_url": "https://20broadst.com/floorplans/unit-b27703006c884487ac0c8ccbed197005/",
         "no_fee": True
     }
 ]
+
+# ============ IMAGE LIBRARY FOR NEW LISTINGS ============
+# Use these images for future unit listings at 20 Broad Street
+
+IMAGES_LIBRARY = {
+    "living_room": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/mdcpaquu_20%20Broad%20LIving%20Room.jpg",
+    "kitchen_studio": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/h8y18ctm_20%20Broad%20Street%20Kitchen%20studio.jpg",
+    "bath": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/fjams7rs_20%20Broad%20Bath.jpg",
+    "bedroom_1": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/krjvwfb2_20%20Broad%20Bedroom.jpg",
+    "bedroom_2": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/ddnfu4yk_20%20Broad%20Bedroom%202.jpg",
+    "bedroom_3": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/96bok48w_20%20Broad%20Bedroom%203.jpg",
+    "office": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/n91c1vyj_20%20Broad%20Office.jpg",
+    "terrace": "https://customer-assets.emergentagent.com/job_b77f5f3c-00e4-44d8-860f-4562e00e9632/artifacts/zep6aekf_20%20Broad%20Terrace.jpg"
+}
+
+# Usage Guide:
+# - Studios: living_room, kitchen_studio, bath (NO bedroom)
+# - 1BR: living_room, kitchen_studio, bedroom_1, bath, (optional: office or terrace)
+# - 2BR: living_room, kitchen_studio, bedroom_1, bedroom_2, bath, (optional: office or terrace)
 
 # Floor Plans Available:
 # Studios: 20bs10e, 20bs10i, 20bs10bd, 20bs10bo, 20bs10bt, 20bs10ce, 20bs10cj

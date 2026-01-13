@@ -17,6 +17,7 @@ import FAQ from './pages/FAQ';
 import GuideToNoFeeApartments from './pages/blog/GuideToNoFeeApartments';
 import BestNeighborhoods from './pages/blog/BestNeighborhoods';
 import ApartmentChecklist from './pages/blog/ApartmentChecklist';
+import NYCBrokerFeeGuide from './pages/blog/NYCBrokerFeeGuide';
 import FeeFreeFinds from './pages/FeeFreeFinds';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';

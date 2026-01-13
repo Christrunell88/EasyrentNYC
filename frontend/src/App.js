@@ -150,6 +150,7 @@ function App() {
             <Route path="/blog/guide-to-no-fee-apartments" element={<GuideToNoFeeApartments />} />
             <Route path="/blog/best-neighborhoods" element={<BestNeighborhoods />} />
             <Route path="/blog/apartment-checklist" element={<ApartmentChecklist />} />
+            <Route path="/blog/why-nyc-renters-pay-broker-fees" element={<NYCBrokerFeeGuide />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/fee-free-finds" element={<FeeFreeFinds />} />

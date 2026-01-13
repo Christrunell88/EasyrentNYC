@@ -1,5 +1,12 @@
 # NoFeesApts.com - Robots.txt
-# No-Fee Apartments in NYC & Northern New Jersey
+# Premium No-Fee Apartment Rentals in NYC & Northern New Jersey
+# 
+# BRAND POSITIONING: Quality no-fee apartment rentals for discerning renters
+# TARGET: Premium apartment seekers in NYC, NJ, PA areas
+# NOT TARGET: Budget housing, government programs, sales, jobs, roommates
+#
+# SEO Strategy: See /app/memory/SEO_STRATEGY.md for full keyword strategy
+# including negative keyword lists for Google Ads campaigns
 
 # Allow all major search engines
 User-agent: *
@@ -9,6 +16,11 @@ Allow: /dashboard?*
 Allow: /auth
 Allow: /unit/*
 Allow: /favorites
+Allow: /blog
+Allow: /blog/*
+Allow: /faq
+Allow: /location/*
+Allow: /locations
 
 # Disallow admin, API, and user-specific pages
 Disallow: /admin
@@ -18,6 +30,8 @@ Disallow: /api/*
 Disallow: /*.json$
 Disallow: /*?session=*
 Disallow: /*?token=*
+Disallow: /*?utm_*
+Disallow: /*?ref=*
 
 # Sitemap location
 Sitemap: https://www.nofeesapts.com/api/sitemap.xml
@@ -25,7 +39,7 @@ Sitemap: https://www.nofeesapts.com/api/sitemap.xml
 # Crawl delay for respectful crawling
 Crawl-delay: 1
 
-# Specific bot rules
+# Specific bot rules - prioritize major search engines
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0.5
@@ -37,3 +51,15 @@ Crawl-delay: 0.5
 User-agent: Slurp
 Allow: /
 Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 0.5
+
+# Block AI training bots (optional - uncomment if desired)
+# User-agent: GPTBot
+# Disallow: /
+# User-agent: ChatGPT-User
+# Disallow: /
+# User-agent: CCBot
+# Disallow: /

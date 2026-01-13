@@ -61,6 +61,14 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
+### 2026-01-13
+- **New Listing Added: 101 West 15th Street, Unit 519 (Chelsea)**
+  - Building ID: `f787816c-4475-4d13-a082-a33f4b1a2b9b`
+  - Unit ID: `28ce94fb-703a-43ff-9c66-24e17dcbe7d8`
+  - 1BR/1BA, $6,850/month, 2 months free on 16-month lease
+  - Source: Stonehenge NYC
+  - Data script saved: `/app/backend/Buildings/101_west_15th_street.py`
+
 ### 2025-01-13 (Session 2)
 - **P1: SEO Optimization - Location Pages Enhanced:**
   - Added rich neighborhood descriptions with local tips

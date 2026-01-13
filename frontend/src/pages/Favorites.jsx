@@ -108,7 +108,7 @@ const Favorites = () => {
                     {unit.images && unit.images.length > 0 ? (
                       <img
                         src={unit.images[0]}
-                        alt={`Unit ${unit.unit_number}`}
+                        alt={`${unit.bedrooms === 0 ? 'Studio' : unit.bedrooms === 1 ? 'One bedroom' : `${unit.bedrooms} bedroom`} apartment at ${unit.building?.name || 'luxury building'}, ${unit.building?.neighborhood || unit.building?.city || 'NYC'}`}
                         className="w-full h-full object-cover"
                       />
                     ) : (

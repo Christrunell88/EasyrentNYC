@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query, BackgroundTasks
 from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -31,6 +32,9 @@ JWT_EXPIRATION_DAYS = 7
 
 # Create the main app
 app = FastAPI()
+
+# Add GZip compression for responses > 500 bytes
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
 # print(":white_tick: CORS Origins:", origins)

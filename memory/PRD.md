@@ -61,7 +61,33 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
-### 2025-01-13
+### 2025-01-13 (Session 2)
+- **P1: SEO Optimization - Location Pages Enhanced:**
+  - Added rich neighborhood descriptions with local tips
+  - Added commute info cards (subway lines, avg commute, walk score)
+  - Added lifestyle cards (dining, nightlife, outdoors)
+  - Added collapsible FAQ sections with JSON-LD schema for Google rich results
+  - Added "Compare Other Locations" internal linking
+  - Added comprehensive footer with location links
+  - Implemented for all 10 locations: Manhattan, Brooklyn, Queens, Bronx, LIC, Williamsburg, Jersey City, Hoboken, Harrison, Weehawken
+
+- **P1: Blog Content - New Article Published:**
+  - "Why NYC Renters Pay Broker Fees When No One Else Does" (`/blog/why-nyc-renters-pay-broker-fees`)
+  - Comparison table: NYC vs 6 other cities
+  - Explains unique NYC broker fee market
+  - Highlights NJ as no-fee alternative
+  - 5 actionable tips for finding no-fee apartments
+
+- **P2: Page Speed Optimization:**
+  - Added `loading="lazy"` and `decoding="async"` to all images
+  - Added `fetchPriority="high"` to hero/critical images
+  - Added preconnect hints for external domains (fonts, images)
+  - Added preload for hero image
+  - Added `font-display: swap` for fonts
+  - Added GZip compression middleware to backend (responses >500 bytes)
+  - Added Web Vitals monitoring (LCP, INP, CLS, FCP, TTFB) integrated with GA4
+
+### 2025-01-13 (Session 1)
 - **Verified:** JSON-LD RealEstateListing schema implemented on unit detail pages (UnitDetails.jsx)
 - **Created:** Comprehensive SEO Strategy document (`/app/memory/SEO_STRATEGY.md`)
   - Expanded negative keyword list (budget, government housing, sales, jobs, roommates, geographic exclusions)

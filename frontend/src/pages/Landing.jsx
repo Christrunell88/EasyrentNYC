@@ -87,18 +87,90 @@ const Landing = () => {
         description={`Find your perfect apartment with zero broker fees. Browse ${stats.units}+ verified no-fee listings in NYC and Northern New Jersey.`}
         keywords="no fee apartments NYC, no broker fee apartments, NYC apartments, Northern New Jersey apartments, no fee apartments near me, cheap no fee apartments NYC, luxury no fee apartments, rent without broker fee NYC, best no fee apartment websites, streeteasy alternative, Jersey City no fee, Hoboken apartments no fee, how to find no fee apartments NYC"
         url="/"
-        structuredData={{
+      />
+      
+      {/* Organization Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "RealEstateAgent",
           "name": "NoFeesApts.com",
-          "description": "No broker fee apartment listings in NYC and Northern New Jersey",
-          "url": "https://nofeesapts.com",
+          "alternateName": "No Fees Apts",
+          "description": "No broker fee apartment listings in NYC, Northern New Jersey, and Pennsylvania. Save thousands on broker fees.",
+          "url": "https://www.nofeesapts.com",
+          "logo": "https://www.nofeesapts.com/logo.png",
+          "sameAs": [
+            "https://www.facebook.com/Places.NYC.LLC"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "New York",
+            "addressRegion": "NY",
+            "addressCountry": "US"
+          },
           "areaServed": [
-            { "@type": "City", "name": "New York City" },
+            { "@type": "City", "name": "New York" },
+            { "@type": "City", "name": "Brooklyn" },
+            { "@type": "City", "name": "Jersey City" },
+            { "@type": "City", "name": "Hoboken" },
             { "@type": "State", "name": "New Jersey" }
           ],
-          "numberOfUnits": stats.units
-        }}
+          "priceRange": "$1,500 - $15,000/month"
+        }) }}
+      />
+      
+      {/* WebSite Schema for Sitelinks Search */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "NoFeesApts.com",
+          "alternateName": "No Fee Apartments NYC",
+          "url": "https://www.nofeesapts.com",
+          "description": "Find no broker fee apartments in NYC, NJ & PA",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.nofeesapts.com/dashboard?search={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }) }}
+      />
+      
+      {/* ItemList Schema for Featured Listings */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "No Fee Apartments",
+          "description": "Featured no broker fee apartments in NYC and NJ",
+          "numberOfItems": stats.units,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Studio Apartments",
+              "url": "https://www.nofeesapts.com/dashboard?bedrooms=0"
+            },
+            {
+              "@type": "ListItem", 
+              "position": 2,
+              "name": "1 Bedroom Apartments",
+              "url": "https://www.nofeesapts.com/dashboard?bedrooms=1"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "2 Bedroom Apartments", 
+              "url": "https://www.nofeesapts.com/dashboard?bedrooms=2"
+            }
+          ]
+        }) }}
       />
       
       {/* Navigation - Luxury Dark */}

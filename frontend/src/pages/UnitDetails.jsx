@@ -236,8 +236,132 @@ const UnitDetails = () => {
   const neighborhood = unit.building?.neighborhood || unit.building?.city || 'NYC';
   const images = unit.images || [];
   
+  // RealEstateListing Schema for Google Rich Results
+  const realEstateSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": `${bedroomText} Apartment at ${buildingName}`,
+    "description": unit.description || `No broker fee ${bedroomText.toLowerCase()} apartment in ${neighborhood}. Features ${unit.bathrooms} bathroom(s) and modern amenities.`,
+    "url": `https://www.nofeesapts.com/unit/${unit.id}`,
+    "datePosted": unit.created_at || new Date().toISOString(),
+    "image": images.length > 0 ? images : undefined,
+    "offers": {
+      "@type": "Offer",
+      "price": unit.rent,
+      "priceCurrency": "USD",
+      "availability": unit.is_available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": unit.rent,
+        "priceCurrency": "USD",
+        "unitText": "MONTH"
+      }
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": `${unit.building?.address || ''} #${unit.unit_number}`,
+      "addressLocality": unit.building?.city || "New York",
+      "addressRegion": unit.building?.state || "NY",
+      "postalCode": unit.building?.zip_code || "",
+      "addressCountry": "US"
+    },
+    "geo": unit.building?.latitude && unit.building?.longitude ? {
+      "@type": "GeoCoordinates",
+      "latitude": unit.building.latitude,
+      "longitude": unit.building.longitude
+    } : undefined,
+    "floorSize": unit.square_feet ? {
+      "@type": "QuantitativeValue",
+      "value": unit.square_feet,
+      "unitCode": "FTK"
+    } : undefined,
+    "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
+    "numberOfBedrooms": unit.bedrooms,
+    "numberOfBathroomsTotal": unit.bathrooms,
+    "amenityFeature": (unit.amenities || []).map(amenity => ({
+      "@type": "LocationFeatureSpecification",
+      "name": amenity,
+      "value": true
+    })),
+    "landlord": {
+      "@type": "Organization",
+      "name": "NoFeesApts.com",
+      "url": "https://www.nofeesapts.com"
+    }
+  };
+
+  // Product schema for additional price display in SERPs
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": `${bedroomText} No-Fee Apartment at ${buildingName}, ${neighborhood}`,
+    "description": `No broker fee ${bedroomText.toLowerCase()} apartment in ${neighborhood}. $${unit.rent.toLocaleString()}/month rent. ${unit.bathrooms} bath.`,
+    "image": images.length > 0 ? images[0] : undefined,
+    "brand": {
+      "@type": "Brand",
+      "name": buildingName
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://www.nofeesapts.com/unit/${unit.id}`,
+      "price": unit.rent,
+      "priceCurrency": "USD",
+      "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      "availability": unit.is_available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "NoFeesApts.com"
+      }
+    }
+  };
+
+  // Apartment schema (more specific for rentals)
+  const apartmentSchema = {
+    "@context": "https://schema.org",
+    "@type": "Apartment",
+    "name": `Unit ${unit.unit_number} at ${buildingName}`,
+    "description": unit.description || `${bedroomText} apartment available for rent in ${neighborhood}`,
+    "url": `https://www.nofeesapts.com/unit/${unit.id}`,
+    "image": images,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": unit.building?.address || '',
+      "addressLocality": unit.building?.city || "New York",
+      "addressRegion": unit.building?.state || "NY",
+      "postalCode": unit.building?.zip_code || "",
+      "addressCountry": "US"
+    },
+    "floorSize": unit.square_feet ? {
+      "@type": "QuantitativeValue",
+      "value": unit.square_feet,
+      "unitCode": "FTK"
+    } : undefined,
+    "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
+    "numberOfBedrooms": unit.bedrooms,
+    "numberOfBathroomsTotal": unit.bathrooms,
+    "petsAllowed": (unit.amenities || []).some(a => a.toLowerCase().includes('pet')) || false,
+    "amenityFeature": (unit.amenities || []).map(amenity => ({
+      "@type": "LocationFeatureSpecification", 
+      "name": amenity
+    }))
+  };
+  
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      {/* Structured Data for Google Rich Results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(apartmentSchema) }}
+      />
+      
       <SEO
         title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
         description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath.`}

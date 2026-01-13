@@ -148,7 +148,7 @@ const Landing = () => {
         <div className="absolute inset-0">
           <img 
             src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/dchndobx_Chris-01.jpg"
-            alt="Luxury NYC Apartment Interior"
+            alt="Luxury no-fee apartment living room with floor-to-ceiling windows and NYC skyline view - NoFeesApts.com"
             className="w-full h-full object-cover"
           />
           {/* Gradient overlays for text readability */}

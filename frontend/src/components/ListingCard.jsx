@@ -61,6 +61,8 @@ const ListingCard = ({
               src={images[currentImageIndex]}
               alt={`${unit.bedrooms === 0 ? 'Studio' : unit.bedrooms === 1 ? 'One bedroom' : `${unit.bedrooms} bedroom`} apartment interior at ${unit.building?.name || 'luxury building'}, ${unit.building?.neighborhood || unit.building?.city || 'NYC'}`}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
             />
             
             {/* Image Navigation Arrows - Only show on hover with multiple images */}

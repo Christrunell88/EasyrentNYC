@@ -61,23 +61,38 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
+### 2025-01-13
+- **Verified:** JSON-LD RealEstateListing schema implemented on unit detail pages (UnitDetails.jsx)
+- **Created:** Comprehensive SEO Strategy document (`/app/memory/SEO_STRATEGY.md`)
+  - Expanded negative keyword list (budget, government housing, sales, jobs, roommates, geographic exclusions)
+  - Target keyword strategy
+  - Brand positioning guidelines
+- **Updated:** robots.txt with enhanced documentation and additional bot rules
+- **Created:** Google Ads Negative Keywords reference (`/app/memory/GOOGLE_ADS_NEGATIVE_KEYWORDS.md`)
+  - Copy-paste ready lists for campaign setup
+  - Match type recommendations
+  - Maintenance schedule
+
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`
 - **Updated:** robots.txt to point to new sitemap URL
 
-### Previous Session
+### Previous Sessions
 - **Fixed:** Auth issue on custom domain (made API URL dynamic)
 - **Fixed:** Dynamic sitemap to use production domain
 - **Redesigned:** Hero section with user-provided image
 - **Added:** Multiple new buildings and listings (The Anagram, Harrison Yards updates, CD 280, The Habitat)
+- **Added:** JSON-LD schemas (RealEstateListing, Product, Apartment) for Google rich results
+- **Added:** Dynamic alt text for all images
+- **Added:** Comprehensive SEO footer
 
 ---
 
 ## Prioritized Backlog
 
-### P0 - Critical (Pending User Verification)
-- [ ] Login/Signup fix verification on `nofeesapts.com` (requires redeployment)
-- [ ] Sitemap fix verification (requires redeployment)
+### P0 - Verified ✅
+- [x] Login working on custom domain (user confirmed)
+- [x] JSON-LD RealEstateListing schema implemented
 
 ### P0 - High Priority
 - [ ] Complete `#FeeFreeFinds` branding strategy
@@ -98,7 +113,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ### P3 - Future
 - [ ] Google Business Profile for NoFeesApts
 - [ ] User-facing apartment comparison feature
-- [ ] Google/Facebook Ad campaigns
+- [ ] Google/Facebook Ad campaigns (negative keyword lists ready)
 
 ---
 

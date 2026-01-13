@@ -62,6 +62,14 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Changelog
 
 ### 2026-01-13
+- **New Building Added: 20 Broad Street (Financial District)**
+  - Building ID: `9a7632e7-8e2b-4be2-90a0-6cd04eb639ad`
+  - Historic building at Wall Street/NYSE with mid-century modern design by Cetra Ruddy
+  - 1 unit added (Studio, 524 sq ft)
+  - Rent: $4,202/month
+  - Data script saved: `/app/backend/Buildings/20_broad_street.py`
+  - Features: Sky Lounge, rooftop terrace, outdoor theater, Technogym fitness center
+
 - **New Building Added: 8 Spruce Street - New York by Gehry (Financial District)**
   - Building ID: `b1ba3309-a200-411b-8df7-6b530551cb90`
   - Iconic 76-story Frank Gehry-designed tower (870 ft tall)

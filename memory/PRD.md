@@ -62,6 +62,15 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Changelog
 
 ### 2026-01-13
+- **New Building Added: 8 Spruce Street - New York by Gehry (Financial District)**
+  - Building ID: `b1ba3309-a200-411b-8df7-6b530551cb90`
+  - Iconic 76-story Frank Gehry-designed tower (870 ft tall)
+  - 7 units added (2 studios, 3 one-bedrooms, 1 two-bedroom, 1 three-bedroom)
+  - Rents: $4,151 - $17,198/month
+  - Source: Brookfield Properties
+  - Data script saved: `/app/backend/Buildings/8_spruce_street.py`
+  - Features: 50ft pool, 22,000 sq ft amenities, Brooklyn Bridge views, Steinway Grand Piano
+
 - **New Building Added: 33 Bond Street (Downtown Brooklyn)**
   - Building ID: `cc25c23a-ec06-419c-b3fd-90dc8fe94257`
   - 7 units added (1 studio, 5 one-bedrooms, 1 two-bedroom)

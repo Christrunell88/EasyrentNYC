@@ -222,6 +222,8 @@ const Landing = () => {
             src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/dchndobx_Chris-01.jpg"
             alt="Luxury no-fee apartment living room with floor-to-ceiling windows and NYC skyline view - NoFeesApts.com"
             className="w-full h-full object-cover"
+            fetchPriority="high"
+            decoding="async"
           />
           {/* Gradient overlays for text readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />

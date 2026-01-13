@@ -129,9 +129,10 @@ const AuthInitializer = () => {
 };
 
 function App() {
-  // Initialize Google Analytics on app load
+  // Initialize Google Analytics and Web Vitals on app load
   useEffect(() => {
     initGA();
+    initWebVitals();
   }, []);
   
   return (

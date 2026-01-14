@@ -61,6 +61,10 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
+### 2025-01-14
+- **Added:** 20 Park Avenue building with 2 units (012G: 3BR/3BA $11,595/mo, 017B: 1BR/1BA $6,695/mo)
+- **Database:** Total now at 28 buildings, 126 units
+
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`
 - **Updated:** robots.txt to point to new sitemap URL

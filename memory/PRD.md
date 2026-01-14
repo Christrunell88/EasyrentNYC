@@ -63,7 +63,11 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ### 2025-01-14
 - **Added:** 20 Park Avenue building with 2 units (012G: 3BR/3BA $11,595/mo, 017B: 1BR/1BA $6,695/mo)
-- **Database:** Total now at 28 buildings, 126 units
+- **Added:** TFC Buildings from tfc.com crawl:
+  - **95 Horatio** (West Village): 3 new units ($6,745 - $7,895/mo)
+  - **4540 Center Blvd** (Long Island City): 8 units ($3,117 - $6,795/mo)
+  - **595 Dean** (Prospect Heights, Brooklyn): 10 units ($3,094 - $8,105/mo)
+- **Database:** Total now at 30 buildings, 147 units
 
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`

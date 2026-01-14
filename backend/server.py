@@ -1185,6 +1185,19 @@ async def trigger_crawl_all(background_tasks: BackgroundTasks, user: User = Depe
         logger.error(f"Crawl all error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/stats")
+async def get_public_stats():
+    """Get public platform statistics"""
+    total_buildings = await db.buildings.count_documents({})
+    total_units = await db.units.count_documents({})
+    available_units = await db.units.count_documents({'is_available': True})
+    
+    return {
+        'total_buildings': total_buildings,
+        'total_units': total_units,
+        'available_units': available_units
+    }
+
 @api_router.get("/admin/stats")
 async def get_stats(user: User = Depends(require_admin)):
     """Get platform statistics (admin only)"""

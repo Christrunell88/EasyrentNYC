@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail } from 'lucide-react';
+import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const AdminPanel = () => {
@@ -36,6 +36,8 @@ const AdminPanel = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
   const [crawling, setCrawling] = useState(false);
+  const [unitsPage, setUnitsPage] = useState(1);
+  const unitsPerPage = 25;
 
   useEffect(() => {
     fetchData();

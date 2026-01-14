@@ -68,7 +68,9 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - **4540 Center Blvd** (Long Island City): 8 units ($3,117 - $6,795/mo)
   - **595 Dean** (Prospect Heights, Brooklyn): 10 units ($3,094 - $8,105/mo)
 - **Added:** 200 West 26th (Chelsea Centro): 5 units ($5,225 - $7,065/mo)
-- **Database:** Total now at 31 buildings, 152 units
+- **Added:** 8 Spruce (Financial District, Frank Gehry building): 21 units ($4,151 - $17,198/mo)
+  - 8 Studios, 10 1BR, 2 2BR, 1 3BR penthouse
+- **Database:** Total now at 32 buildings, 173 units
 
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`

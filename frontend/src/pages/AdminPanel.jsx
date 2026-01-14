@@ -758,7 +758,9 @@ const AdminPanel = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {units.slice(0, 50).map((unit) => (
+                    {units
+                      .slice((unitsPage - 1) * unitsPerPage, unitsPage * unitsPerPage)
+                      .map((unit) => (
                       <TableRow key={unit.id}>
                         <TableCell>{unit.building?.name}</TableCell>
                         <TableCell>{unit.unit_number}</TableCell>
@@ -778,6 +780,36 @@ const AdminPanel = () => {
                     ))}
                   </TableBody>
                 </Table>
+                
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between mt-4 px-2">
+                  <p className="text-sm text-gray-400">
+                    Showing {((unitsPage - 1) * unitsPerPage) + 1} - {Math.min(unitsPage * unitsPerPage, units.length)} of {units.length} units
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUnitsPage(p => Math.max(1, p - 1))}
+                      disabled={unitsPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </Button>
+                    <span className="text-sm px-3">
+                      Page {unitsPage} of {Math.ceil(units.length / unitsPerPage)}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUnitsPage(p => Math.min(Math.ceil(units.length / unitsPerPage), p + 1))}
+                      disabled={unitsPage >= Math.ceil(units.length / unitsPerPage)}
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
 
               {/* Users Tab */}

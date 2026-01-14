@@ -22,7 +22,27 @@ const Landing = () => {
   useEffect(() => {
     checkAuth();
     fetchFeaturedUnits();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get(`${API}/stats`);
+      setStats({
+        buildings: response.data.total_buildings || 32,
+        units: response.data.total_units || 173
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // Fallback to fetching units count directly
+      try {
+        const unitsResponse = await axios.get(`${API}/units?limit=1000`);
+        setStats(prev => ({ ...prev, units: unitsResponse.data.length }));
+      } catch (e) {
+        console.error('Error fetching units count:', e);
+      }
+    }
+  };
 
   const checkAuth = async () => {
     try {

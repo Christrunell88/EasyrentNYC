@@ -70,7 +70,9 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - **Added:** 200 West 26th (Chelsea Centro): 5 units ($5,225 - $7,065/mo)
 - **Added:** 8 Spruce (Financial District, Frank Gehry building): 21 units ($4,151 - $17,198/mo)
   - 8 Studios, 10 1BR, 2 2BR, 1 3BR penthouse
-- **Database:** Total now at 32 buildings, 173 units
+- **Added:** Aro (242 West 53rd, Midtown West): 6 units ($4,150 - $9,095/mo)
+  - 3 Studios, 2 1BR, 1 2BR - 40,000 sqft of amenities including dual pools
+- **Database:** Total now at 33 buildings, 179 units
 
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`

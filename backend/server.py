@@ -128,6 +128,24 @@ class ContactRequest(BaseModel):
     email: str
     phone: Optional[str] = None
     preferred_date: Optional[str] = None
+
+class AISearchRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
+class AISearchHistory(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str
+    user_id: Optional[str] = None
+    user_email: Optional[str] = None
+    query: str
+    response: str
+    units_found: int = 0
+    neighborhoods_mentioned: List[str] = []
+    price_range: Optional[dict] = None
+    bedrooms_requested: Optional[int] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     preferred_time: Optional[str] = None
     alternative_date: Optional[str] = None
     alternative_time: Optional[str] = None

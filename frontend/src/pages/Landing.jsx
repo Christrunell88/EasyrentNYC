@@ -29,8 +29,8 @@ const Landing = () => {
     try {
       const response = await axios.get(`${API}/stats`);
       setStats({
-        buildings: response.data.total_buildings || 32,
-        units: response.data.total_units || 173
+        buildings: response.data.total_buildings || 33,
+        units: response.data.total_units || 179
       });
     } catch (error) {
       console.error('Error fetching stats:', error);

@@ -159,7 +159,7 @@ const LocationPage = () => {
 
   const fetchLocationStats = React.useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/units?city=${currentLocation.name}`, { withCredentials: true });
+      const response = await axios.get(`${API}/units?limit=500&city=${currentLocation.name}`, { withCredentials: true });
       const units = response.data;
       setStats({
         totalUnits: units.length,

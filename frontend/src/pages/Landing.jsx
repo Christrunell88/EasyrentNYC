@@ -13,7 +13,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ buildings: 33, units: 179 });
+  const [stats, setStats] = useState({ buildings: 34, units: 180 });
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [featuredUnits, setFeaturedUnits] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');

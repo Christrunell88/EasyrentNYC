@@ -58,7 +58,7 @@ const Dashboard = () => {
       if (bathrooms) params.append('bathrooms', bathrooms);
       if (state) params.append('state', state);
       
-      const response = await axios.get(`${API}/units?${params.toString()}`, { withCredentials: true });
+      const response = await axios.get(`${API}/units?limit=500&${params.toString()}`, { withCredentials: true });
       
       // Distribute apartments from different buildings evenly to show variety
       const diversifiedUnits = diversifyListings(response.data);

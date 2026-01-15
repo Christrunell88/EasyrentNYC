@@ -1293,7 +1293,7 @@ async def ai_search(request: Request, search_request: AISearchRequest):
         user = None
         user_email = None
         try:
-            user = await get_current_user_optional(request)
+            user = await get_current_user(request)
             if user:
                 user_email = user.email
         except:

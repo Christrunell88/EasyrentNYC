@@ -67,12 +67,13 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - **95 Horatio** (West Village): 3 new units ($6,745 - $7,895/mo)
   - **4540 Center Blvd** (Long Island City): 8 units ($3,117 - $6,795/mo)
   - **595 Dean** (Prospect Heights, Brooklyn): 10 units ($3,094 - $8,105/mo)
-- **Added:** 200 West 26th (Chelsea Centro): 5 units ($5,225 - $7,065/mo)
-- **Added:** 8 Spruce (Financial District, Frank Gehry building): 21 units ($4,151 - $17,198/mo)
-  - 8 Studios, 10 1BR, 2 2BR, 1 3BR penthouse
-- **Added:** Aro (242 West 53rd, Midtown West): 6 units ($4,150 - $9,095/mo)
-  - 3 Studios, 2 1BR, 1 2BR - 40,000 sqft of amenities including dual pools
-- **Database:** Total now at 33 buildings, 179 units
+- **Added:** 505 W 37th St (Hudson Yards): 1 unit (2BR/2BA $6,775/mo with balcony & river views)
+- **Added:** AI Search Agent powered by Gemini 3 Flash
+  - Floating chat bubble on all pages
+  - Searches 180 units in database
+  - Directs users to contact Chris for off-site searches
+  - Saves all searches for admin analytics
+- **Database:** Total now at 34 buildings, 180 units
 
 ### 2025-01-02
 - **Fixed:** Sitemap 404 error - moved route from `/sitemap.xml` to `/api/sitemap.xml`

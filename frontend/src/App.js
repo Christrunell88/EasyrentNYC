@@ -186,6 +186,7 @@ function App() {
               }
             />
           </Routes>
+          <AISearchAgent />
         </BrowserRouter>
       </div>
     </HelmetProvider>

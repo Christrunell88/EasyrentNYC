@@ -657,56 +657,6 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Newsletter Subscribe Section */}
-          <div className="border-t border-[#D4AF37]/10 pt-10 mb-10">
-            <div className="max-w-xl mx-auto text-center">
-              <h3 className="text-xl font-philosopher font-semibold text-white mb-2">
-                Never Miss a No-Fee Listing
-              </h3>
-              <p className="text-sm text-[#888888] mb-6">
-                Subscribe to get notified when new no-fee apartments hit the market in your preferred neighborhoods.
-              </p>
-              <form 
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const email = e.target.footerEmail.value;
-                  if (!email) return;
-                  try {
-                    await axios.post(`${API}/subscribe`, { email });
-                    toast.success('Thanks for subscribing! You\'ll hear from us soon.');
-                    e.target.reset();
-                  } catch (error) {
-                    if (error.response?.status === 400) {
-                      toast.info('You\'re already subscribed!');
-                    } else {
-                      toast.error('Something went wrong. Please try again.');
-                    }
-                  }
-                }}
-                className="flex flex-col sm:flex-row gap-3 justify-center"
-              >
-                <input
-                  type="email"
-                  name="footerEmail"
-                  placeholder="Enter your email"
-                  required
-                  className="px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/20 w-full sm:w-72"
-                  data-testid="footer-subscribe-email"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8960C] hover:from-[#E5C158] hover:to-[#C9A71D] text-slate-900 font-semibold rounded-lg transition-all duration-300 whitespace-nowrap"
-                  data-testid="footer-subscribe-button"
-                >
-                  Subscribe Free
-                </button>
-              </form>
-              <p className="text-xs text-[#666666] mt-4">
-                No spam, ever. Unsubscribe anytime.
-              </p>
-            </div>
-          </div>
-
           {/* Bottom Bar */}
           <div className="border-t border-[#D4AF37]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-[#666666]">

@@ -88,7 +88,7 @@ const AISearchAgent = () => {
       {/* Floating Button with Label */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         {!isOpen && (
-          <span className="bg-slate-800 text-white text-sm px-3 py-1.5 rounded-full shadow-lg animate-pulse">
+          <span className="bg-slate-800/90 text-[#7EB8DA] text-sm px-3 py-1.5 rounded-full shadow-lg animate-pulse font-philosopher tracking-wide">
             Ask Chris
           </span>
         )}

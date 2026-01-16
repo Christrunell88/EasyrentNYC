@@ -209,10 +209,10 @@ const AISearchAgent = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick Questions */}
+              {/* Quick Questions - Horizontal Scrollable */}
               {messages.length <= 2 && (
-                <div className="px-4 pb-2">
-                  <div className="flex flex-wrap gap-2">
+                <div className="px-3 py-2 border-t border-slate-700/50 bg-slate-900/50">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {quickQuestions.map((q, idx) => (
                       <button
                         key={idx}
@@ -220,7 +220,7 @@ const AISearchAgent = () => {
                           setInput(q);
                           setTimeout(() => handleSend(), 100);
                         }}
-                        className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition-colors border border-slate-700"
+                        className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition-colors border border-slate-600 whitespace-nowrap flex-shrink-0"
                       >
                         {q}
                       </button>

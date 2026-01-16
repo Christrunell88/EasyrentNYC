@@ -124,16 +124,23 @@ const AISearchAgent = () => {
           className="fixed bottom-24 right-6 z-50 w-[380px] h-[520px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
           data-testid="ai-chat-window"
         >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-4 py-3 border-b border-slate-700">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B8960C] flex items-center justify-center text-slate-900 font-bold text-lg">
-                C
+          {/* Header - Compact */}
+          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-3 py-2 border-b border-slate-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B8960C] flex items-center justify-center text-slate-900 font-bold text-xs">
+                  C
+                </div>
+                <span className="text-white font-medium text-sm">Chris</span>
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               </div>
-              <div>
-                <h3 className="text-white font-semibold text-sm">Chris - AI Assistant</h3>
-                <p className="text-slate-400 text-xs">Your personal apartment search expert</p>
-              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors p-1"
+                title="Minimize"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

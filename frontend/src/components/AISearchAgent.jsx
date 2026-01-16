@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { MessageCircle, X, Send, Loader2, User, Phone, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import useAuthStore from '../store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AISearchAgent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! 👋 I'm Chris, your personal apartment search assistant at NoFeesApts. I can help you find no-fee apartments in NYC, NJ, and PA.\n\nTry asking me:\n• \"Show me studios under $4,000 in Manhattan\"\n• \"What's available in Hudson Yards?\"\n• \"I need a 2BR pet-friendly apartment\""
+      content: "Hi! 👋 I'm Chris. What kind of apartment are you looking for today?"
     }
   ]);
   const [input, setInput] = useState('');
@@ -23,6 +23,58 @@ const AISearchAgent = () => {
   
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Dynamic quick questions based on current page/context
+  const quickQuestions = useMemo(() => {
+    const path = location.pathname.toLowerCase();
+    const searchParams = new URLSearchParams(location.search);
+    const neighborhood = searchParams.get('neighborhood');
+    
+    // Base questions
+    const baseQuestions = [
+      { text: "Studios under $4,500", priority: 1 },
+      { text: "2BR with doorman", priority: 2 },
+      { text: "Pet-friendly options", priority: 3 },
+      { text: "What's new this week?", priority: 4 },
+    ];
+    
+    // Context-aware questions
+    if (path.includes('chelsea') || neighborhood === 'Chelsea') {
+      return ["More in Chelsea", "Chelsea with balcony"];
+    }
+    if (path.includes('hudson') || neighborhood === 'Hudson Yards') {
+      return ["More in Hudson Yards", "Hudson Yards 1BR"];
+    }
+    if (path.includes('soho') || neighborhood === 'SoHo') {
+      return ["More in SoHo", "SoHo lofts"];
+    }
+    if (path.includes('financial') || neighborhood === 'Financial District') {
+      return ["More in FiDi", "FiDi with views"];
+    }
+    if (path.includes('brooklyn') || neighborhood === 'Brooklyn') {
+      return ["More in Brooklyn", "Brooklyn 2BR"];
+    }
+    if (path.includes('west-village') || neighborhood === 'West Village') {
+      return ["More in West Village", "West Village studios"];
+    }
+    if (path.includes('midtown') || neighborhood === 'Midtown') {
+      return ["More in Midtown", "Midtown luxury"];
+    }
+    
+    // Check for unit detail page
+    if (path.includes('/unit/')) {
+      return ["Similar apartments", "Schedule a viewing"];
+    }
+    
+    // Check for dashboard/browsing
+    if (path.includes('/dashboard')) {
+      return ["Best deals today", "Newest listings"];
+    }
+    
+    // Default: show top 2 most useful
+    return ["Studios under $4,500", "What's available?"];
+  }, [location]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

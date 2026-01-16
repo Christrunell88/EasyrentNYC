@@ -45,13 +45,14 @@ const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
+      const timestamp = Date.now(); // Cache busting
       const [buildingsRes, unitsRes, usersRes, statsRes, contactsRes, subscribersRes] = await Promise.all([
-        axios.get(`${API}/buildings`, { withCredentials: true }),
-        axios.get(`${API}/units?limit=500`, { withCredentials: true }),
-        axios.get(`${API}/admin/users`, { withCredentials: true }),
-        axios.get(`${API}/admin/stats`, { withCredentials: true }),
-        axios.get(`${API}/contact`, { withCredentials: true }),
-        axios.get(`${API}/admin/subscribers`, { withCredentials: true })
+        axios.get(`${API}/buildings?_t=${timestamp}`, { withCredentials: true }),
+        axios.get(`${API}/units?limit=500&_t=${timestamp}`, { withCredentials: true }),
+        axios.get(`${API}/admin/users?_t=${timestamp}`, { withCredentials: true }),
+        axios.get(`${API}/admin/stats?_t=${timestamp}`, { withCredentials: true }),
+        axios.get(`${API}/contact?_t=${timestamp}`, { withCredentials: true }),
+        axios.get(`${API}/admin/subscribers?_t=${timestamp}`, { withCredentials: true })
       ]);
       
       setBuildings(buildingsRes.data);
@@ -60,6 +61,8 @@ const AdminPanel = () => {
       setStats(statsRes.data);
       setContacts(contactsRes.data);
       setSubscribers(subscribersRes.data);
+      
+      console.log(`Admin data loaded: ${buildingsRes.data.length} buildings, ${unitsRes.data.length} units`);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast.error('Failed to load admin data');

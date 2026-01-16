@@ -85,6 +85,15 @@ const AISearchAgent = () => {
 
   return (
     <>
+      {/* Dark Overlay with Blur */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+          onClick={() => setIsOpen(false)}
+          data-testid="ai-chat-overlay"
+        />
+      )}
+
       {/* Floating Button with Label */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         {!isOpen && (

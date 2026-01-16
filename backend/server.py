@@ -128,6 +128,7 @@ class ContactRequest(BaseModel):
     email: str
     phone: Optional[str] = None
     preferred_date: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AISearchRequest(BaseModel):
     message: str

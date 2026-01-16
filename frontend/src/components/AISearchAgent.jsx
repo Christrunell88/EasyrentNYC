@@ -128,13 +128,6 @@ const AISearchAgent = () => {
     }
   };
 
-  const quickQuestions = [
-    "Studios under $4,500",
-    "2BR in Chelsea",
-    "Pet-friendly apartments",
-    "What neighborhoods do you have?"
-  ];
-
   return (
     <>
       {/* Dark Overlay with Blur */}

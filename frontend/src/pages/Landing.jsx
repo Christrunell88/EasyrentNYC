@@ -14,6 +14,7 @@ const Landing = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ buildings: 34, units: 180 });
+  const statsLoadedRef = useRef(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [featuredUnits, setFeaturedUnits] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');

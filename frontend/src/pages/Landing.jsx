@@ -27,9 +27,13 @@ const Landing = () => {
   }, []);
 
   const fetchStats = async () => {
+    // Only fetch once to prevent overwriting
+    if (statsLoadedRef.current) return;
+    
     try {
       const response = await axios.get(`${API}/stats`);
       if (response.data && response.data.total_units) {
+        statsLoadedRef.current = true;
         setStats({
           buildings: response.data.total_buildings || 34,
           units: response.data.total_units
@@ -37,7 +41,7 @@ const Landing = () => {
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Keep the default values, don't try fallback that might give wrong count
+      // Keep the default values
     }
   };
 

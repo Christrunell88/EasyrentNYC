@@ -36,7 +36,7 @@ const Landing = () => {
       console.error('Error fetching stats:', error);
       // Fallback to fetching units count directly
       try {
-        const unitsResponse = await axios.get(`${API}/units?limit=1000`);
+        const unitsResponse = await axios.get(`${API}/units?limit=500`);
         setStats(prev => ({ ...prev, units: unitsResponse.data.length }));
       } catch (e) {
         console.error('Error fetching units count:', e);

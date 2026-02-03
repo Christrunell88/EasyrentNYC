@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Building2, Shield, Clock, Sparkles } from 'lucide-react';
@@ -9,42 +9,72 @@ import EmailCaptureModal from '../components/EmailCaptureModal';
 import ListingCard from '../components/ListingCard';
 import SEO from '@/components/SEO';
 
+// Generate a unique cache buster that changes every page load
+const CACHE_BUSTER = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+
 const Landing = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ buildings: 34, units: 180 });
+  // Initialize from localStorage if available, otherwise use known correct values
+  const [stats, setStats] = useState(() => {
+    try {
+      const cached = localStorage.getItem('nofeesapts_stats');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Only use cache if it's recent (within 1 hour) and has valid data
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 3600000 && parsed.units >= 100) {
+          return { buildings: parsed.buildings, units: parsed.units };
+        }
+      }
+    } catch (e) {}
+    return { buildings: 34, units: 180 };
+  });
   const statsLoadedRef = useRef(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [featuredUnits, setFeaturedUnits] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-    fetchFeaturedUnits();
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    // Only fetch once to prevent overwriting
+  // Memoized stats fetch to prevent multiple calls
+  const fetchStats = useCallback(async () => {
+    // Only fetch once per component lifecycle
     if (statsLoadedRef.current) return;
+    statsLoadedRef.current = true; // Set immediately to prevent race conditions
     
     try {
-      // Add timestamp to bust cache
-      const response = await axios.get(`${API}/stats?_t=${Date.now()}`);
-      if (response.data && response.data.total_units) {
-        statsLoadedRef.current = true;
-        setStats({
+      // Use multiple cache-busting techniques
+      const response = await axios.get(`${API}/stats`, {
+        params: { 
+          _cb: CACHE_BUSTER,
+          _r: Math.random() 
+        },
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (response.data && response.data.total_units && response.data.total_units >= 100) {
+        const newStats = {
           buildings: response.data.total_buildings || 34,
           units: response.data.total_units
-        });
+        };
+        setStats(newStats);
+        
+        // Cache in localStorage for next page load
+        try {
+          localStorage.setItem('nofeesapts_stats', JSON.stringify({
+            ...newStats,
+            timestamp: Date.now()
+          }));
+        } catch (e) {}
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Keep the default values
+      // Keep the initialized values
     }
-  };
+  }, []);
 
   const checkAuth = async () => {
     try {

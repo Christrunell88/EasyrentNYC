@@ -10,7 +10,7 @@ import ListingCard from '../components/ListingCard';
 import SEO from '@/components/SEO';
 
 // Version for cache debugging - update this to force new builds
-const BUILD_VERSION = 'v2.1.0-20260203';
+const BUILD_VERSION = 'v2.2.0-20260203';
 
 // Generate a unique cache buster that changes every page load
 const CACHE_BUSTER = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;

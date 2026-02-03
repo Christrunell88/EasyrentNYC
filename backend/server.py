@@ -1207,10 +1207,12 @@ async def trigger_crawl_all(background_tasks: BackgroundTasks, user: User = Depe
 @api_router.get("/stats")
 async def get_public_stats(response: Response):
     """Get public platform statistics"""
-    # Prevent caching
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    # Aggressive cache prevention headers
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+    response.headers["Surrogate-Control"] = "no-store"
+    response.headers["X-Served-At"] = datetime.now(timezone.utc).isoformat()
     
     total_buildings = await db.buildings.count_documents({})
     total_units = await db.units.count_documents({})
@@ -1219,7 +1221,8 @@ async def get_public_stats(response: Response):
     return {
         'total_buildings': total_buildings,
         'total_units': total_units,
-        'available_units': available_units
+        'available_units': available_units,
+        'served_at': datetime.now(timezone.utc).isoformat()
     }
 
 @api_router.get("/admin/stats")

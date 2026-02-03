@@ -90,9 +90,17 @@ const Landing = () => {
   }, []);
 
   useEffect(() => {
+    componentMountedRef.current = true;
+    console.log(`[NoFeesApts ${BUILD_VERSION}] Landing component mounted`);
+    
     checkAuth();
     fetchFeaturedUnits();
     fetchStats();
+    
+    return () => {
+      componentMountedRef.current = false;
+      console.log(`[NoFeesApts ${BUILD_VERSION}] Landing component unmounted`);
+    };
   }, [fetchStats]);
 
   const checkAuth = async () => {

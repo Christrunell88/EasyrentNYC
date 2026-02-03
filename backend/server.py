@@ -1205,8 +1205,13 @@ async def trigger_crawl_all(background_tasks: BackgroundTasks, user: User = Depe
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/stats")
-async def get_public_stats():
+async def get_public_stats(response: Response):
     """Get public platform statistics"""
+    # Prevent caching
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    
     total_buildings = await db.buildings.count_documents({})
     total_units = await db.units.count_documents({})
     available_units = await db.units.count_documents({'is_available': True})

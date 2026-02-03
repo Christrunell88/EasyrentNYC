@@ -56,6 +56,16 @@ except Exception as e:
     EMAIL_SERVICE_AVAILABLE = False
     logger.warning(f"Email service not available: {str(e)}")
 
+# Import database seeding module
+SEED_MODULE_AVAILABLE = False
+try:
+    from seed_database import seed_database, check_database_status, load_seed_data
+    SEED_MODULE_AVAILABLE = True
+    logger.info("Database seeding module loaded successfully")
+except Exception as e:
+    SEED_MODULE_AVAILABLE = False
+    logger.warning(f"Database seeding module not available: {str(e)}")
+
 # ============ MODELS ============
 
 class User(BaseModel):

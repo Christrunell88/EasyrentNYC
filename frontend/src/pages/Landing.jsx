@@ -44,15 +44,21 @@ const Landing = () => {
   // Memoized stats fetch to prevent multiple calls
   const fetchStats = useCallback(async () => {
     // Only fetch once per component lifecycle
-    if (statsLoadedRef.current) return;
+    if (statsLoadedRef.current) {
+      console.log(`[NoFeesApts ${BUILD_VERSION}] Stats already loaded, skipping fetch`);
+      return;
+    }
     statsLoadedRef.current = true; // Set immediately to prevent race conditions
+    
+    console.log(`[NoFeesApts ${BUILD_VERSION}] Fetching stats from API...`);
     
     try {
       // Use multiple cache-busting techniques
       const response = await axios.get(`${API}/stats`, {
         params: { 
           _cb: CACHE_BUSTER,
-          _r: Math.random() 
+          _r: Math.random(),
+          _v: BUILD_VERSION
         },
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -60,23 +66,25 @@ const Landing = () => {
         }
       });
       
-      if (response.data && response.data.total_units && response.data.total_units >= 100) {
+      console.log(`[NoFeesApts ${BUILD_VERSION}] API Response:`, response.data);
+      
+      if (response.data && response.data.total_units) {
         const newStats = {
           buildings: response.data.total_buildings || 34,
           units: response.data.total_units
         };
-        setStats(newStats);
         
-        // Cache in localStorage for next page load
-        try {
-          localStorage.setItem('nofeesapts_stats', JSON.stringify({
-            ...newStats,
-            timestamp: Date.now()
-          }));
-        } catch (e) {}
+        console.log(`[NoFeesApts ${BUILD_VERSION}] Setting stats:`, newStats);
+        
+        // Only update if component is still mounted
+        if (componentMountedRef.current) {
+          setStats(newStats);
+        }
+      } else {
+        console.warn(`[NoFeesApts ${BUILD_VERSION}] Invalid API response, keeping defaults`);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error(`[NoFeesApts ${BUILD_VERSION}] Error fetching stats:`, error);
       // Keep the initialized values
     }
   }, []);

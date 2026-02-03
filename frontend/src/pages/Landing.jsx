@@ -76,6 +76,12 @@ const Landing = () => {
     }
   }, []);
 
+  useEffect(() => {
+    checkAuth();
+    fetchFeaturedUnits();
+    fetchStats();
+  }, [fetchStats]);
+
   const checkAuth = async () => {
     try {
       await axios.get(`${API}/auth/me`, { withCredentials: true });

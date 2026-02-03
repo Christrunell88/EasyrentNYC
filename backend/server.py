@@ -1537,6 +1537,62 @@ async def get_search_analytics(user: User = Depends(require_admin)):
 
 # Note: Router is included after all routes are defined (see below)
 
+# ============ DATABASE SEEDING ENDPOINT ============
+
+@api_router.post("/admin/seed-database")
+async def admin_seed_database(
+    force: bool = Query(False, description="Force re-seed even if data exists"),
+    is_admin: bool = Depends(require_admin)
+):
+    """
+    Admin endpoint to seed the database with buildings and units data.
+    Use force=true to overwrite existing data.
+    """
+    if not SEED_MODULE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Database seeding module not available"
+        )
+    
+    try:
+        result = await seed_database(force=force)
+        return result
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Database seeding error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/seed-status")
+async def admin_seed_status(is_admin: bool = Depends(require_admin)):
+    """Check the current database status and available seed data."""
+    try:
+        current_buildings = await db.buildings.count_documents({})
+        current_units = await db.units.count_documents({})
+        
+        seed_info = {"available": False, "buildings": 0, "units": 0}
+        if SEED_MODULE_AVAILABLE:
+            try:
+                buildings_data, units_data = await load_seed_data()
+                seed_info = {
+                    "available": True,
+                    "buildings": len(buildings_data),
+                    "units": len(units_data)
+                }
+            except:
+                pass
+        
+        return {
+            "current_database": {
+                "buildings": current_buildings,
+                "units": current_units
+            },
+            "seed_data": seed_info,
+            "needs_seeding": current_buildings < seed_info.get("buildings", 0) or current_units < seed_info.get("units", 0)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.on_event("startup")
 async def create_indexes():
     """Create database indexes for query optimization"""
@@ -1567,6 +1623,29 @@ async def create_indexes():
         logger.info("Database indexes created successfully")
     except Exception as e:
         logger.warning(f"Index creation warning (may already exist): {e}")
+
+@app.on_event("startup")
+async def auto_seed_database():
+    """Auto-seed database on startup if it's empty or has fewer records than seed data"""
+    if not SEED_MODULE_AVAILABLE:
+        logger.info("Skipping auto-seed: seeding module not available")
+        return
+    
+    try:
+        current_buildings = await db.buildings.count_documents({})
+        current_units = await db.units.count_documents({})
+        
+        buildings_data, units_data = await load_seed_data()
+        
+        # Only auto-seed if database has significantly fewer records
+        if current_buildings < len(buildings_data) or current_units < len(units_data):
+            logger.info(f"Auto-seeding database: current has {current_buildings} buildings, {current_units} units; seed has {len(buildings_data)} buildings, {len(units_data)} units")
+            result = await seed_database(force=False)
+            logger.info(f"Auto-seed complete: {result.get('message', 'done')}")
+        else:
+            logger.info(f"Database already has sufficient data ({current_buildings} buildings, {current_units} units), skipping auto-seed")
+    except Exception as e:
+        logger.warning(f"Auto-seed warning: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

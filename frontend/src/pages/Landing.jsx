@@ -719,7 +719,7 @@ const Landing = () => {
           {/* Bottom Bar */}
           <div className="border-t border-[#D4AF37]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-[#666666]">
-              © 2025 NoFeesApts.com. All rights reserved. | No Broker Fee Apartments NYC & NJ
+              © 2025 NoFeesApts.com. All rights reserved. | No Broker Fee Apartments NYC & NJ | {BUILD_VERSION}
             </p>
             <div className="flex gap-6 text-xs text-[#666666]">
               <span>New York, NY</span>

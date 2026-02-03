@@ -3,6 +3,20 @@
 ## Original Problem Statement
 Build a web application called "NoFeesApts.com" that functions similarly to nofeeplaces.com. The primary feature is to crawl publicly available real estate websites for no-fee apartment listings in NYC, Northern New Jersey, and PA, and display them.
 
+---
+## Latest Update (Feb 3, 2026)
+
+### Fixed: Landing Page Stats Caching Issue
+**Problem:** Stats were flashing 180+/34 then resetting to stale values (63/24)
+**Solution:**
+- Added localStorage caching with timestamp validation
+- Unique cache buster per page load
+- Aggressive cache-prevention headers on backend
+- Minimum threshold check to reject stale cached API responses
+**Status:** Fixed in preview, awaiting user verification post-redeployment
+
+---
+
 ## Core Requirements
 - **Web Crawler:** Automatically crawl websites every 48 hours with manual trigger in admin panel
 - **Database:** MongoDB for all crawled data (Address, unit number, rent, bedrooms, baths, images, amenities)

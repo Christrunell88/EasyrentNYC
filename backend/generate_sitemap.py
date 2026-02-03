@@ -17,7 +17,7 @@ async def generate_sitemap():
     client = AsyncIOMotorClient(mongo_url)
     db = client[db_name]
     
-    base_url = "https://feefreeapts-1.preview.emergentagent.com"
+    base_url = "https://rentnoagent.preview.emergentagent.com"
     today = datetime.now().strftime('%Y-%m-%d')
     
     # Get all units

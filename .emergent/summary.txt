@@ -11,6 +11,7 @@ The user wants to build a web application called NoFeesApts.com that functions s
     - Favorites feature for logged-in users.
     - A smart, intuitive, sexy, sleek, and modern design, currently a Luxury Dark Theme.
     - Sign up for full details feature with blurred addresses on the landing page.
+- **AI Search Agent:** A clever, creative AI search agent (Ask Chris) for users to find units on and off the site. The agent should be powered by Gemini, save searches for admin review, and be available only to logged-in users.
 - **SEO:** The site should be optimized for search engines, including a dynamic sitemap, descriptive alt text, and structured data (Schema.org).
 - **Admin Panel:** An admin-only section to view listings, analytics, and trigger crawls.
 - **Notifications:** Send email notifications for contact form submissions and a welcome email for new user sign-ups.
@@ -19,33 +20,57 @@ The user wants to build a web application called NoFeesApts.com that functions s
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack platform with a Luxury Dark Theme and a database of 124 apartment listings. The web crawler is now fully functional after fixing a Playwright dependency issue and has successfully added new units. The site's SEO has been significantly enhanced with a new footer, expanded keyword strategy, dynamic image alt text, and  schema for rich snippets. The admin panel now correctly displays all listings with pagination. The Facebook integration has been restored with a new access token. Several new buildings and units have been added manually at the user's request.
+The application is a full-stack platform with a Luxury Dark Theme. The database contains 34 buildings and 180 apartment listings. A significant new feature, an AI-powered search agent named Ask Chris (using Gemini 3 Flash), has been implemented. It's accessible via a floating chat bubble for logged-in users and saves search history for admin review. Several bugs have been fixed, including dynamic stat display on the landing page, the full unit count on the user dashboard, and the calendar/scheduling functionality. Cache-busting mechanisms have been added to address recurring issues with stale data on the production site.
 
 **Last working item**:
-- **Last item agent was working:** The user requested to add the 20 Park building and its units from a provided URL. The agent successfully extracted the information from the URL. The next step is to create the building and unit entries in the database.
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** backend testing agent
+- **Last item agent was working:** Fixing a recurring issue where the production landing page displayed incorrect stats (63 units/24 buildings) despite the code being correct in the preview environment. The agent identified this as a caching problem. The fix involved adding a timestamp to the frontend API call () and setting  headers on the backend endpoint to prevent browser and server-side caching.
+- **Status:** USER VERIFICATION PENDING
+- **Agent Testing Done:** Y
+- **Which testing method agent to use?** Manual testing by user after redeployment. The agent has already verified the fix in the preview environment with screenshots and by inspecting network headers.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** (P0) Login and Signup fail on the live custom domain ().
-- **Issue 2:** (P1) User verification for the Get Updates feature is pending.
+- **Issue 1:** (P0) Landing page displays incorrect stats (63 units, 24 buildings) on the live site.
+- **Issue 2:** (P0) Login and Signup fail on the live custom domain ().
+- **Issue 3:** (P1) Admin panel displays only 24 buildings instead of the correct 34.
+- **Issue 4:** (P2) User verification for the Get Updates feature is pending.
 
 **Issues Detail:**
-- **Issue 1: Login/Signup fails on custom domain**
-    - **Attempted fixes:** A fix was implemented in the previous session by making the frontend API URL dynamic (). This is pending user redeployment.
+- **Issue 1: Landing page displays incorrect stats**
+    - **Attempted fixes:** Cache-busting was implemented by adding a timestamp query parameter to the frontend API call in  and by adding  headers to the  endpoint response in .
     - **Next debug checklist:**
-        1. Confirm with the user that they have **redeployed** the application.
-        2. If it still fails, ask the user to check the browser's developer console for errors during the login attempt on the live domain.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical bug blocking all user authentication on the production site.
+        1.  Confirm with the user that they have **redeployed** the application.
+        2.  Ask the user to perform a hard refresh (Ctrl+Shift+R or Cmd+Shift+R) on the live site.
+    - **Why fix this issue and what will be achieved with the fix?** To ensure users see the accurate, up-to-date count of available properties, which is crucial for user trust and engagement.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** Frontend
     - **Blocked on other issue:** User redeployment.
 
-- **Issue 2: Get Updates Feature Verification**
-    - **Attempted fixes:** The agent previously confirmed the feature works end-to-end.
+- **Issue 2: Login/Signup fails on custom domain**
+    - **Attempted fixes:** In a previous session, the frontend API URL was made dynamic (). The CORS configuration on the backend was verified in this session to be correct for  and .
+    - **Next debug checklist:**
+        1.  Confirm with the user that they have **redeployed** the application.
+        2.  If it still fails, ask the user to check the browser's developer console for errors during the login attempt on the live domain.
+    - **Why fix this issue and what will be achieved with the fix?** This is a critical bug blocking all user authentication, favorites, and AI chat features on the production site.
+    - **Status:** USER VERIFICATION PENDING
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** Frontend
+    - **Blocked on other issue:** User redeployment.
+
+- **Issue 3: Admin panel shows incorrect building count**
+    - **Attempted fixes:** A cache-busting timestamp was added to the  fetch call in .
+    - **Next debug checklist:**
+        1.  Confirm with the user they have **redeployed** the application.
+        2.  Ask the user to check the admin panel again.
+    - **Why fix this issue and what will be achieved with the fix?** Ensures the admin has an accurate view of all properties in the system.
+    - **Status:** USER VERIFICATION PENDING
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Frontend
+    - **Blocked on other issue:** User redeployment.
+
+- **Issue 4: Get Updates Feature Verification**
+    - **Attempted fixes:** The feature was confirmed to be working end-to-end by a previous agent.
     - **Next debug checklist:** Awaiting user confirmation on the live site.
     - **Why fix this issue and what will be achieved with the fix?** To confirm the lead-generation feature is fully functional.
     - **Status:** USER VERIFICATION PENDING
@@ -54,16 +79,10 @@ The application is a full-stack platform with a Luxury Dark Theme and a database
     - **Blocked on other issue:** None.
 
 **In progress Task List**:
-- **Task 1:** (P0) Add the 20 Park building and its units to the database.
-    - **Where to resume:** Use the extracted details from the Stonehenge NYC URL to create a new building and associated units in the database via a script or API calls.
-    - **What will be achieved with this?** The site's inventory will be updated with the new property as requested by the user.
-    - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Backend
-    - **Blocked on something:** None.
+- None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P0:** Add the 8 Spruce building.
     - **P1:** Complete the  branding strategy (add badges to listings, update social sharing text).
     - **P2:** Start **Option B: SEO Optimization** (enhance location-specific pages with rich content, add more blog content).
     - **P2:** Implement image re-ordering for listings in the admin panel.
@@ -76,44 +95,56 @@ The application is a full-stack platform with a Luxury Dark Theme and a database
     - **P3:** Set up and manage Google/Facebook Ad campaigns.
 
 **Completed work in this session**
-- **Sitemap Fix:** Resolved a 404 error by moving the sitemap to  and updating .
-- **Facebook Integration Fix:** Restored the connection by updating the expired Page Access Token.
-- **Web Crawler Fix:** Fixed the crawler by installing Playwright browsers and creating necessary symlinks. The crawler successfully added 41 new units, bringing the total to 106 at that time.
-- **Admin Panel Pagination:** Fixed a bug where the admin panel only showed 50 listings; it now uses pagination to show all 122+ units.
-- **SEO Enhancements:**
-    - Implemented a comprehensive, SEO-optimized footer with location-based internal links.
-    - Executed a site-wide keyword enhancement strategy, adding competitor, long-tail, intent-based, and NJ-specific keywords.
-    - Implemented dynamic, descriptive  text for all images site-wide to improve accessibility and SEO.
-    - Added  and other JSON-LD schemas to unit detail pages to enable Google Rich Results (e.g., price in SERPs).
-- **Content & UI Updates:**
-    - Updated landing page headlines multiple times based on user's creative direction.
-    - Added animated Free Signup badges to the landing and auth pages to improve user conversion.
-    - Replaced generic 8-digit unit numbers with realistic, human-readable ones (e.g., 4C, 15B).
-- **Database Curation:**
-    - Manually added and/or updated listings for The Saranac, Soho Court, Princeton Court, 507 West Chelsea, and 101 West 15th Street.
+- **Database Curation:** Added 8 new buildings (20 Park, 95 Horatio, 4540 Center Blvd, 595 Dean, 200 West 26th, 8 Spruce, Aro, 505 W 37th) and a total of 56 new units through crawling and manual scripts.
+- **Image Updates:** Added user-provided interior images for studio and 1-bedroom units at 8 Spruce and Aro.
+- **AI Search Agent (Ask Chris):**
+    - Integrated **Gemini 3 Flash** using the  library.
+    - Created a new backend endpoint () to process user queries and save chat history to a new  collection in MongoDB.
+    - Created an admin endpoint () to review user interactions.
+    - Built a floating chat bubble component () that is present on all pages.
+    - Implemented an auth gate, requiring users to sign in to use the chat.
+    - Refined the UI with a silver blue theme, compact header, blurred backdrop overlay, and horizontally scrolling quick replies.
+- **Bug Fixes:**
+    - **Dynamic Stats:** Fixed hardcoded stats on the landing page by creating a new public  endpoint and fetching the live data (34 buildings, 180 units).
+    - **Dashboard Unit Count:** Fixed the user dashboard displaying only 63 units by increasing the API call limit in  to , ensuring all 180 units are fetched.
+    - **Calendar/Scheduling:** Fixed a  crash in the backend  endpoint, making the Schedule a Viewing feature functional again.
+- **Cache-Busting Implementation:**
+    - Addressed a recurring issue of stale data on the production site by adding cache-busting timestamps to API calls in  and .
+    - Added  headers to the  backend endpoint.
+- **Deployment Readiness:** Fixed malformed  and  files that were blocking deployment.
 
 **Earlier issues found/mentioned but not fixed**
 - The logic for determining the  is duplicated in  and . This could be centralized into a single utility file for better maintainability.
 
 **Known issue recurrence from previous fork**
-- **Issue recurrence in previous fork:** Authentication issues on the custom domain.
-- **Recurrence count:** At least 2.
-- **Status:** USER VERIFICATION PENDING
+- **Issue recurrence in previous fork:**
+    1.  Authentication issues on the custom domain.
+    2.  Landing page displaying incorrect stats.
+- **Recurrence count:** 2+ for both.
+- **Status:** Both are currently in  status after new fixes were applied in this session.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **SEO Structured Data (JSON-LD):** Implemented , , and  schemas to enable rich snippets in Google search results.
-- **Dynamic Image Alt Text:** Used React props to dynamically generate descriptive alt text for images based on unit data (e.g., building name, unit type, neighborhood), improving SEO and accessibility.
-- **Web Crawler Debugging:** Diagnosed and fixed a  execution error by installing browser dependencies and creating symbolic links in the container environment.
-- **React Pagination:** Implemented client-side pagination in the Admin Panel to handle a large number of listings without performance degradation or UI limitations.
-- **API Routing for SEO:** Moved the sitemap from a root path to an  prefixed path to work with the ingress routing, and updated  accordingly.
+- **LLM Integration:** Used  library to connect to Gemini 3 Flash with the Emergent LLM Key.
+- **Cache Busting:** Implemented both client-side (timestamp query parameter) and server-side ( headers) strategies to combat stale data issues.
+- **Dynamic Frontend Components:** Made the AI chat agent's UI and functionality change based on user authentication status ().
+- **API Development:** Created new public, authenticated, and admin-only endpoints in FastAPI.
+- **React State Management:** Used , , and  to manage component state, fetch data, and prevent unintended re-renders (e.g., stats being overwritten).
 
 **key DB schema**
-- No schema changes were made.
+- **ai_searches**: 
+- **units**: (existing)
+- **buildings**: (existing)
+
+**changes in tech stack**
+- None.
 
 **All files of reference**
+- **Created:**
+    - 
+    - Multiple one-off scripts in  to add buildings (e.g., , ).
 - **Updated:**
     - 
     - 
@@ -123,60 +154,58 @@ The application is a full-stack platform with a Luxury Dark Theme and a database
     - 
     - 
     - 
-    - 
-    - 
-- **Created:**
-    - 
 
 **Areas that need refactoring**:
-- The  definition is duplicated across  and . This should be centralized in a single configuration file (e.g., ) to avoid inconsistencies.
+- The  definition is duplicated across  and . This should be centralized in a single configuration file (e.g.,  or ).
 
 **key api endpoints**
-- : Endpoint to trigger the web crawler. Was fixed and tested.
-- : New endpoint for the dynamic sitemap.
-- : Used by the admin panel; confirmed to return all 122+ units.
+- : **(New/Fixed)** Public endpoint to get total buildings/units. Now includes cache-control headers.
+- : **(New)** Endpoint for the Ask Chris AI agent.
+- : **(New)** Admin endpoint to review saved AI chats.
+- : **(Fixed)** Endpoint for scheduling viewings. A  was resolved.
+- : **(Behavior Change)** Default limit remains 100. Frontend pages now explicitly request  to get all units.
+- : No code change, but the frontend call now includes a cache-busting param.
 
 **Critical Info for New Agent**
-- **Login/Sitemap Fixes Need Redeployment:** The critical authentication fix for the custom domain and the sitemap URL updates will only take effect after the user redeploys the application. This is the highest priority item to confirm with the user.
-- **Crawler is Working:** The web crawler was broken but is now fixed. It can be triggered from the admin panel to find new listings from configured sources.
-- **Admin Panel is Fixed:** The admin panel now correctly displays all listings in the database using pagination. Any future missing units complaints should first be checked against the database count directly.
-- **Facebook Token:** The user provided a new token, but these tokens can expire (typically after 60 days). Be aware that this issue may recur in the future.
+- **Redeployment is Key:** The user has repeatedly reported issues (incorrect stats, admin panel counts) that were fixed in the code but were likely not visible to them because the application had not been redeployed. The login issue on the custom domain also falls into this category. The highest priority is to confirm with the user that they have redeployed their application before investigating these issues further.
+- **Caching is a Recurring Theme:** The app has struggled with stale data. The latest fixes involve cache-busting techniques on both frontend and backend. Be mindful of this if similar issues arise.
+- **AI Agent is New:** The Ask Chris chat agent is a major new feature. Its functionality is tied to user authentication.
 
 **documents and test reports created in this job**
-- 
+-  (updated with AI Agent and other completed tasks)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** add this building 20 Park and units: [URL] - **Status:** In Progress.
-9. **User:** 101 West 15th Add building and units: [URL] - **Status:** Completed.
-8. **User:** 101 West 15th 8 Spruce and which other units were added recently? - **Status:** Completed.
-7. **User:** We should have more units displaying. Admin panel only shows 63... - **Status:** Completed. (Admin panel was fixed).
-6. **User:** Can you use RealestateListingSchema to help google display prices directly in SERPs - **Status:** Completed.
-5. **User:** make sure all images have descriptive Alt text... & Repeat this task for all of our listings. - **Status:** Completed.
-4. **User:** Feature the last listing...The Building Is Premium for home page & provided URL - **Status:** Completed.
-3. **User:** add this listing and feature it as well: [URL] - **Status:** Completed.
-2. **User:** Check status of google analytics - **Status:** Completed.
-1. **User:** Add this listing to the backend and feature it if not already: [URL] - **Status:** Completed.
+10. **User:** could it be cache issue? - **Status:** Completed. Agent agreed and implemented cache-busting.
+9. **User:** landing page is still only showing 63 units and 24 buildings. - **Status:** Completed. Agent verified the fix works in preview and concluded it's a deployment/cache issue.
+8. **User:** Call Deployer Agent and Run Health Check to Check for Readiness for Deployment - **Status:** Completed. Agent ran checks, found and fixed blockers, and confirmed readiness.
+7. **User:** Landing page flashes 180 available units then resets to 63. - **Status:** Completed. Agent identified the root cause and implemented a fix using  to prevent state overwrite.
+6. **User:** Collapsible Suggested Questions... in AI chat - **Status:** Completed.
+5. **User:** Icon-Only Header... for AI chat - **Status:** Completed.
+4. **User:** Refine the Quick Replies... in AI chat - **Status:** Completed.
+3. **User:** Add a backdrop blur to the AI chat window. - **Status:** Completed.
+2. **User:** in admin only 24 buildings. we should have 34. - **Status:** Completed. Agent added a cache-busting param.
+1. **User:** Calendar and schedule are not functioning from the listing card - **Status:** Completed. Agent fixed backend .
 
 **Project Health Check:**
-- **Broken:** User authentication on the production custom domain () is likely broken and is pending verification after user redeployment.
+- **Broken:** User authentication on the production custom domain () is likely broken. This is pending user verification after they redeploy the application.
 - **Mocked:** None.
-- **Testing Pending:** User verification of the login fix, sitemap fix, and Get Updates feature on the live site.
+- **Testing Pending:** User verification of the landing page stats fix, admin panel building count fix, and login fix *after* redeployment.
 
 **3rd Party Integrations**
-- **Facebook Graph API:** Connection restored and working.
-- **Google Analytics:** Verified as active and tracking events.
-- **Playwright:** Now installed and configured correctly for the web crawler.
-- Other existing integrations (Google Maps, GCS, Emergent Google OAuth, SMTP) remain unchanged.
+- **Gemini 3 Flash:** **(New)** For the Ask Chris AI Search Agent. Uses the Emergent LLM Key via the  library.
+- **Facebook Graph API:** Connection was restored in a previous session.
+- **Google Analytics:** Active and tracking events.
+- **Playwright:** Configured for the web crawler.
 
 **Testing status**
 - **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** None in this session; however, the auth issue on the custom domain is a known regression from a previous session that is pending verification.
+- **Known regressions:** The landing page stats issue and the custom domain authentication issue are known regressions that were addressed again in this session. Both are awaiting user verification after redeployment.
 
 **Credentials to test flow:**
 - **Admin User:**  / 
 - **Regular User:**  / 
 
 **What agent forgot to execute**
-- The user had asked about 8 Spruce but the agent moved on to other buildings (101 West 15th, 20 Park) based on subsequent user messages. The task to add 8 Spruce remains in the upcoming tasks list.</analysis>
+- Nothing was explicitly requested and forgotten. The agent systematically completed a large volume of user requests.</analysis>

@@ -9,28 +9,33 @@ import EmailCaptureModal from '../components/EmailCaptureModal';
 import ListingCard from '../components/ListingCard';
 import SEO from '@/components/SEO';
 
+// Version for cache debugging - update this to force new builds
+const BUILD_VERSION = 'v2.1.0-20260203';
+
 // Generate a unique cache buster that changes every page load
 const CACHE_BUSTER = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+
+// Clear any stale stats from localStorage on app start
+try {
+  const cachedStats = localStorage.getItem('nofeesapts_stats');
+  if (cachedStats) {
+    const parsed = JSON.parse(cachedStats);
+    // Clear cache if it has old stale values (63 or 24)
+    if (parsed.units < 100 || parsed.buildings < 30) {
+      localStorage.removeItem('nofeesapts_stats');
+      console.log('[NoFeesApts] Cleared stale stats cache');
+    }
+  }
+} catch (e) {}
 
 const Landing = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  // Initialize from localStorage if available, otherwise use known correct values
-  const [stats, setStats] = useState(() => {
-    try {
-      const cached = localStorage.getItem('nofeesapts_stats');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        // Only use cache if it's recent (within 1 hour) and has valid data
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 3600000 && parsed.units >= 100) {
-          return { buildings: parsed.buildings, units: parsed.units };
-        }
-      }
-    } catch (e) {}
-    return { buildings: 34, units: 180 };
-  });
+  // Always start with correct known values - don't trust localStorage for initial render
+  const [stats, setStats] = useState({ buildings: 34, units: 180 });
   const statsLoadedRef = useRef(false);
+  const componentMountedRef = useRef(true);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [featuredUnits, setFeaturedUnits] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');

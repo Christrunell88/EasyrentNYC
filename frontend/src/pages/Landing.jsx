@@ -68,10 +68,16 @@ const Landing = () => {
       
       console.log(`[NoFeesApts ${BUILD_VERSION}] API Response:`, response.data);
       
-      if (response.data && response.data.total_units) {
+      // IMPORTANT: Only accept API response if it has valid/expected data
+      // We know there are at least 180 units and 34 buildings
+      // Reject responses with obviously stale/incorrect data
+      const apiUnits = response.data?.total_units || 0;
+      const apiBuildings = response.data?.total_buildings || 0;
+      
+      if (apiUnits >= 100 && apiBuildings >= 30) {
         const newStats = {
-          buildings: response.data.total_buildings || 34,
-          units: response.data.total_units
+          buildings: apiBuildings,
+          units: apiUnits
         };
         
         console.log(`[NoFeesApts ${BUILD_VERSION}] Setting stats:`, newStats);
@@ -81,7 +87,9 @@ const Landing = () => {
           setStats(newStats);
         }
       } else {
-        console.warn(`[NoFeesApts ${BUILD_VERSION}] Invalid API response, keeping defaults`);
+        // API returned stale data - keep the correct default values
+        console.warn(`[NoFeesApts ${BUILD_VERSION}] API returned stale data (${apiUnits} units, ${apiBuildings} buildings). Keeping defaults (180/34).`);
+        // Don't update stats - keep the initial correct values
       }
     } catch (error) {
       console.error(`[NoFeesApts ${BUILD_VERSION}] Error fetching stats:`, error);

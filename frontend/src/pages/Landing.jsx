@@ -31,7 +31,8 @@ const Landing = () => {
     if (statsLoadedRef.current) return;
     
     try {
-      const response = await axios.get(`${API}/stats`);
+      // Add timestamp to bust cache
+      const response = await axios.get(`${API}/stats?_t=${Date.now()}`);
       if (response.data && response.data.total_units) {
         statsLoadedRef.current = true;
         setStats({

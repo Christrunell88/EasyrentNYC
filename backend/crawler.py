@@ -1029,10 +1029,11 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
 async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
     """Generic crawler for other sites - checks tables first, then divs"""
     units = []
+    content = None
     
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+        p, browser = await get_browser()
+        try:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             await page.wait_for_timeout(5000)
@@ -1050,12 +1051,17 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             
             content = iframe_content if iframe_content else await page.content()
             await browser.close()
+        finally:
+            await p.stop()
+        
+        if not content:
+            return units
             
-            soup = BeautifulSoup(content, 'html.parser')
-            
-            # Try table-based parsing
-            tables = soup.find_all('table')
-            if tables:
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Try table-based parsing
+        tables = soup.find_all('table')
+        if tables:
                 for table in tables:
                     rows = table.find_all('tr')
                     if len(rows) < 2:

@@ -1237,7 +1237,8 @@ async def insert_building_to_staging(
         'created_at': datetime.now(timezone.utc).isoformat()
     }
     
-    await db.buildings_staging.insert_one(staging_building)
+    # Use safe staging insert (enforces production write block)
+    await _safe_staging_insert('buildings_staging', staging_building, crawler_source)
     
     log_msg = f"Inserted building to staging: {staging_building['name']} (dup_score: {duplicate_score:.2f}"
     if duplicate_flags:

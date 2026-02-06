@@ -76,6 +76,16 @@ except Exception as e:
     PROMOTION_SERVICE_AVAILABLE = False
     logger.warning(f"Promotion service not available: {str(e)}")
 
+# Import lifecycle management service
+LIFECYCLE_SERVICE_AVAILABLE = False
+try:
+    from lifecycle_service import UnitLifecycleService, get_lifecycle_service, run_stale_check
+    LIFECYCLE_SERVICE_AVAILABLE = True
+    logger.info("Lifecycle service loaded successfully")
+except Exception as e:
+    LIFECYCLE_SERVICE_AVAILABLE = False
+    logger.warning(f"Lifecycle service not available: {str(e)}")
+
 # ============ MODELS ============
 
 class User(BaseModel):

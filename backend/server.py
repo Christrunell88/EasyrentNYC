@@ -118,6 +118,15 @@ class Unit(BaseModel):
     is_featured: bool = False
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    # Verification fields (set when approved from staging)
+    is_verified: bool = False
+    verified_at: Optional[datetime] = None
+    verified_by: Optional[str] = None
+    # Source metadata (maintained from staging)
+    crawler_source: Optional[str] = None
+    crawler_batch_id: Optional[str] = None
+    original_staging_id: Optional[str] = None
+    # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

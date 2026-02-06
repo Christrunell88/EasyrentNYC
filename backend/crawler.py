@@ -849,8 +849,8 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
     units = []
     
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+        p, browser = await get_browser()
+        try:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             await page.wait_for_timeout(5000)
@@ -858,46 +858,48 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
             content = await page.content()
             raw_html = content
             await browser.close()
-            
-            soup = BeautifulSoup(content, 'html.parser')
-            all_text = soup.get_text()
-            
-            pattern = re.findall(
-                r'(Studio|[\d]+\s*Bedroom[s]?)[^\d#]*#?(\d+)[^\d\$]*\$([0-9,]+)',
-                all_text,
-                re.I
-            )
-            
-            for match in pattern:
-                try:
-                    bedroom_type = match[0].strip()
-                    unit_number = match[1].strip()
-                    rent = float(match[2].replace(',', ''))
-                    
-                    if 'studio' in bedroom_type.lower():
-                        bedrooms = 0
-                    else:
-                        bed_match = re.search(r'(\d+)', bedroom_type)
-                        bedrooms = int(bed_match.group(1)) if bed_match else 1
-                    
-                    unit_data = {
-                        'unit_number': unit_number,
-                        'rent': rent,
-                        'bedrooms': bedrooms,
-                        'bathrooms': 1.0,
-                        'square_feet': None,
-                        'images': [],
-                        'amenities': [],
-                        'description': f"{bedroom_type} apartment",
-                        'available_date': 'Immediate',
-                        'raw_data': f"{bedroom_type}#{unit_number}|${rent}"
-                    }
-                    
-                    units.append(unit_data)
+        finally:
+            await p.stop()
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        all_text = soup.get_text()
+        
+        pattern = re.findall(
+            r'(Studio|[\d]+\s*Bedroom[s]?)[^\d#]*#?(\d+)[^\d\$]*\$([0-9,]+)',
+            all_text,
+            re.I
+        )
+        
+        for match in pattern:
+            try:
+                bedroom_type = match[0].strip()
+                unit_number = match[1].strip()
+                rent = float(match[2].replace(',', ''))
                 
-                except Exception as e:
-                    logger.error(f"Error parsing Mercedes unit: {e}")
-                    continue
+                if 'studio' in bedroom_type.lower():
+                    bedrooms = 0
+                else:
+                    bed_match = re.search(r'(\d+)', bedroom_type)
+                    bedrooms = int(bed_match.group(1)) if bed_match else 1
+                
+                unit_data = {
+                    'unit_number': unit_number,
+                    'rent': rent,
+                    'bedrooms': bedrooms,
+                    'bathrooms': 1.0,
+                    'square_feet': None,
+                    'images': [],
+                    'amenities': [],
+                    'description': f"{bedroom_type} apartment",
+                    'available_date': 'Immediate',
+                    'raw_data': f"{bedroom_type}#{unit_number}|${rent}"
+                }
+                
+                units.append(unit_data)
+            
+            except Exception as e:
+                logger.error(f"Error parsing Mercedes unit: {e}")
+                continue
     
     except Exception as e:
         logger.error(f"Error crawling Mercedes House: {e}")
@@ -910,8 +912,8 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
     units = []
     
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+        p, browser = await get_browser()
+        try:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             await page.wait_for_timeout(8000)

@@ -61,6 +61,14 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Changelog
 
+### 2025-01-15
+- **Tested:** Database Access Control Layer - All 9 tests passed
+  - Crawler role BLOCKED from writing to production collections (units, buildings)
+  - Admin role CAN write to production collections via authorized_production_write
+  - Crawler CAN write to staging collections (units_staging, buildings_staging)
+  - E2E Promotion Flow (staging → production) works correctly
+- **Created:** Test suite at `/app/backend/tests/test_db_access_control.py`
+
 ### 2025-01-14
 - **Added:** 20 Park Avenue building with 2 units (012G: 3BR/3BA $11,595/mo, 017B: 1BR/1BA $6,695/mo)
 - **Added:** TFC Buildings from tfc.com crawl:

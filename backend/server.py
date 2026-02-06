@@ -3339,6 +3339,20 @@ def scheduled_crawl_job():
     except Exception as e:
         logger.error(f"Scheduled crawl error: {e}")
 
+def scheduled_stale_check_job():
+    """Check for stale units daily"""
+    import asyncio
+    
+    logger.info("Starting scheduled stale check...")
+    try:
+        if LIFECYCLE_SERVICE_AVAILABLE:
+            asyncio.run(run_stale_check(db))
+            logger.info("Scheduled stale check completed")
+        else:
+            logger.warning("Lifecycle service not available, skipping stale check")
+    except Exception as e:
+        logger.error(f"Scheduled stale check error: {e}")
+
 # Schedule crawl every 48 hours
 scheduler.add_job(
     scheduled_crawl_job,
@@ -3347,10 +3361,18 @@ scheduler.add_job(
     replace_existing=True
 )
 
+# Schedule stale check daily at 6 AM
+scheduler.add_job(
+    scheduled_stale_check_job,
+    trigger=IntervalTrigger(hours=24),
+    id='stale_check_job',
+    replace_existing=True
+)
+
 @app.on_event("startup")
 async def startup_event():
     scheduler.start()
-    logger.info("Scheduler started - crawling every 48 hours")
+    logger.info("Scheduler started - crawling every 48 hours, stale check daily")
 
 @app.on_event("shutdown")
 async def shutdown_event():

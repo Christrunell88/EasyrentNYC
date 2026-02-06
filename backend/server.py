@@ -2134,6 +2134,199 @@ async def reject_batch_staging_units(
         "reason": reason
     }
 
+# ============ PROMOTION SERVICE ENDPOINTS ============
+
+@api_router.post("/staging/promote/{unit_id}")
+async def promote_staging_unit(
+    unit_id: str,
+    notes: Optional[str] = Query(None, description="Optional promotion notes"),
+    user: User = Depends(require_admin)
+):
+    """
+    Promote a staged unit to production using the promotion service.
+    
+    Promotion rules:
+    - If production unit exists → update price/status only
+    - If not → create new production unit
+    - Preserves history: price_changes, status_changes
+    """
+    if not PROMOTION_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Promotion service not available")
+    
+    # Get the staged unit
+    staged_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staged_unit:
+        raise HTTPException(status_code=404, detail="Staged unit not found")
+    
+    if staged_unit.get("review_status") == "approved":
+        raise HTTPException(status_code=400, detail="Unit already approved/promoted")
+    
+    # Get promotion service
+    promotion_service = get_promotion_service(db)
+    
+    try:
+        result = await promotion_service.promote_unit(
+            staged_unit=staged_unit,
+            approved_by=user.id,
+            notes=notes
+        )
+        
+        return {
+            "message": f"Unit {result['action']} successfully",
+            "staging_id": result["staging_id"],
+            "production_id": result["production_id"],
+            "action": result["action"],
+            "changes": result["changes"],
+            "building_created": result["building_created"],
+            "promoted_at": result["promoted_at"]
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Promotion error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/staging/promote-batch")
+async def promote_batch_staging_units(
+    unit_ids: List[str] = Query(..., description="List of unit IDs to promote"),
+    notes: Optional[str] = Query(None, description="Optional batch promotion notes"),
+    user: User = Depends(require_admin)
+):
+    """
+    Promote multiple staged units to production in batch.
+    
+    Returns results for each unit showing whether it was created or updated.
+    """
+    if not PROMOTION_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Promotion service not available")
+    
+    promotion_service = get_promotion_service(db)
+    
+    results = await promotion_service.promote_batch(
+        staging_ids=unit_ids,
+        approved_by=user.id,
+        notes=notes
+    )
+    
+    return {
+        "message": f"Batch promotion complete: {results['created']} created, {results['updated']} updated, {results['failed']} failed",
+        "total": results["total"],
+        "created": results["created"],
+        "updated": results["updated"],
+        "failed": results["failed"],
+        "details": results["details"]
+    }
+
+
+@api_router.get("/units/{unit_id}/price-history")
+async def get_unit_price_history(
+    unit_id: str,
+    limit: int = Query(50, le=200),
+    user: User = Depends(require_admin)
+):
+    """
+    Get price change history for a production unit.
+    """
+    if not PROMOTION_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Promotion service not available")
+    
+    # Verify unit exists
+    unit = await db.units.find_one({"id": unit_id}, {"_id": 0, "id": 1, "unit_number": 1, "rent": 1})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    promotion_service = get_promotion_service(db)
+    history = await promotion_service.get_unit_price_history(unit_id, limit)
+    
+    return {
+        "unit_id": unit_id,
+        "unit_number": unit.get("unit_number"),
+        "current_rent": unit.get("rent"),
+        "price_history": history,
+        "total_changes": len(history)
+    }
+
+
+@api_router.get("/units/{unit_id}/status-history")
+async def get_unit_status_history(
+    unit_id: str,
+    limit: int = Query(50, le=200),
+    user: User = Depends(require_admin)
+):
+    """
+    Get status change history for a production unit.
+    """
+    if not PROMOTION_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Promotion service not available")
+    
+    # Verify unit exists
+    unit = await db.units.find_one({"id": unit_id}, {"_id": 0, "id": 1, "unit_number": 1, "is_available": 1})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    promotion_service = get_promotion_service(db)
+    history = await promotion_service.get_unit_status_history(unit_id, limit)
+    
+    return {
+        "unit_id": unit_id,
+        "unit_number": unit.get("unit_number"),
+        "current_status": "available" if unit.get("is_available", True) else "unavailable",
+        "status_history": history,
+        "total_changes": len(history)
+    }
+
+
+@api_router.get("/admin/price-changes")
+async def get_all_price_changes(
+    limit: int = Query(100, le=500),
+    skip: int = Query(0),
+    unit_id: Optional[str] = Query(None),
+    user: User = Depends(require_admin)
+):
+    """
+    Get all price changes across all units.
+    """
+    query = {}
+    if unit_id:
+        query["unit_id"] = unit_id
+    
+    changes = await db.price_changes.find(query, {"_id": 0}).sort("changed_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.price_changes.count_documents(query)
+    
+    return {
+        "items": changes,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+
+@api_router.get("/admin/status-changes")
+async def get_all_status_changes(
+    limit: int = Query(100, le=500),
+    skip: int = Query(0),
+    unit_id: Optional[str] = Query(None),
+    user: User = Depends(require_admin)
+):
+    """
+    Get all status changes across all units.
+    """
+    query = {}
+    if unit_id:
+        query["unit_id"] = unit_id
+    
+    changes = await db.status_changes.find(query, {"_id": 0}).sort("changed_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.status_changes.count_documents(query)
+    
+    return {
+        "items": changes,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
 @api_router.get("/admin/users")
 async def get_users(user: User = Depends(require_admin)):
     """Get all users (admin only) - includes plain text passwords"""

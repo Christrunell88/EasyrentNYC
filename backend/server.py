@@ -2804,53 +2804,47 @@ async def admin_seed_status(is_admin: bool = Depends(require_admin)):
 async def create_indexes():
     """Create database indexes for query optimization"""
     try:
-        # Units collection indexes
-        await db.units.create_index([("building_id", 1)])
-        await db.units.create_index([("is_available", 1)])
-        await db.units.create_index([("bedrooms", 1)])
-        await db.units.create_index([("rent", 1)])
-        
-        # Favorites collection indexes
-        await db.favorites.create_index([("user_id", 1)])
-        await db.favorites.create_index([("unit_id", 1)])
-        await db.favorites.create_index([("user_id", 1), ("unit_id", 1)], unique=True)
-        
-        # Buildings collection indexes
-        await db.buildings.create_index([("neighborhood", 1)])
-        await db.buildings.create_index([("city", 1)])
-        
-        # User sessions indexes
-        await db.user_sessions.create_index([("session_token", 1)], unique=True)
-        await db.user_sessions.create_index([("expires_at", 1)])
-        
-        # Password resets indexes
-        await db.password_resets.create_index([("token", 1)], unique=True)
-        await db.password_resets.create_index([("expires_at", 1)])
-        
-        # Staging collections indexes
-        await db.buildings_staging.create_index([("id", 1)], unique=True)
-        await db.buildings_staging.create_index([("review_status", 1)])
-        await db.buildings_staging.create_index([("crawler_batch_id", 1)])
-        await db.buildings_staging.create_index([("crawler_source", 1)])
-        await db.buildings_staging.create_index([("duplicate_score", -1)])
-        
-        await db.units_staging.create_index([("id", 1)], unique=True)
-        await db.units_staging.create_index([("building_id", 1)])
-        await db.units_staging.create_index([("review_status", 1)])
-        await db.units_staging.create_index([("crawler_batch_id", 1)])
-        await db.units_staging.create_index([("crawler_source", 1)])
-        await db.units_staging.create_index([("duplicate_score", -1)])
-        
-        # Price and status change history indexes
-        await db.price_changes.create_index([("unit_id", 1)])
-        await db.price_changes.create_index([("changed_at", -1)])
-        await db.price_changes.create_index([("unit_id", 1), ("changed_at", -1)])
-        
-        await db.status_changes.create_index([("unit_id", 1)])
-        await db.status_changes.create_index([("changed_at", -1)])
-        await db.status_changes.create_index([("unit_id", 1), ("changed_at", -1)])
-        
-        logger.info("Database indexes created successfully (including staging and history collections)")
+        # Use comprehensive index creation script
+        try:
+            from create_indexes import create_indexes as create_all_indexes, ensure_geospatial_field
+            
+            # Ensure geospatial fields are set
+            await ensure_geospatial_field(db)
+            
+            # Create all indexes
+            results = await create_all_indexes(db)
+            logger.info(f"Database indexes: {len(results['created'])} created, {len(results['already_exists'])} already existed")
+            
+            if results['errors']:
+                for err in results['errors'][:3]:  # Log first 3 errors
+                    logger.warning(f"Index creation warning: {err}")
+        except ImportError:
+            # Fallback to basic indexes if script not available
+            logger.warning("Index creation script not available, using basic indexes")
+            
+            # Units collection indexes
+            await db.units.create_index([("building_id", 1)])
+            await db.units.create_index([("is_available", 1)])
+            await db.units.create_index([("bedrooms", 1)])
+            await db.units.create_index([("rent", 1)])
+            await db.units.create_index([("lifecycle_status", 1)])
+            
+            # Buildings collection indexes
+            await db.buildings.create_index([("neighborhood", 1)])
+            await db.buildings.create_index([("city", 1)])
+            await db.buildings.create_index([("normalized_address", 1)], sparse=True)
+            
+            # User sessions indexes
+            await db.user_sessions.create_index([("session_token", 1)], unique=True)
+            await db.user_sessions.create_index([("expires_at", 1)])
+            
+            # Staging collections indexes
+            await db.units_staging.create_index([("review_status", 1)])
+            await db.units_staging.create_index([("duplicate_score", -1)])
+            await db.buildings_staging.create_index([("review_status", 1)])
+            
+            logger.info("Basic database indexes created successfully")
+            
     except Exception as e:
         logger.warning(f"Index creation warning (may already exist): {e}")
 

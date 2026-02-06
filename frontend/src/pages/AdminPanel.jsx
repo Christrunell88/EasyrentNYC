@@ -83,6 +83,129 @@ const AdminPanel = () => {
     }
   };
 
+  // Fetch staging units for review
+  const fetchStagingUnits = async () => {
+    setStagingLoading(true);
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/staging/units?status=pending&_t=${timestamp}`, { withCredentials: true });
+      
+      // Sort by duplicate_score descending, then created_at descending
+      const sortedUnits = (response.data.items || []).sort((a, b) => {
+        if (b.duplicate_score !== a.duplicate_score) {
+          return b.duplicate_score - a.duplicate_score;
+        }
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+      
+      setStagingUnits(sortedUnits);
+      setStagingStats({
+        pending: response.data.pending_total || sortedUnits.length,
+        total: response.data.total || sortedUnits.length
+      });
+    } catch (error) {
+      console.error('Error fetching staging units:', error);
+      toast.error('Failed to load staging units');
+    } finally {
+      setStagingLoading(false);
+    }
+  };
+
+  // Approve a staging unit
+  const handleApproveStaging = async (unitId) => {
+    try {
+      const response = await axios.post(`${API}/staging/approve/${unitId}`, {}, { withCredentials: true });
+      toast.success(`Unit approved! ${response.data.action === 'updated' ? 'Production unit updated.' : 'New production unit created.'}`);
+      fetchStagingUnits();
+      fetchData(); // Refresh main data
+    } catch (error) {
+      console.error('Error approving unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to approve unit');
+    }
+  };
+
+  // Reject a staging unit
+  const handleRejectStaging = async () => {
+    if (!selectedStagingUnit || !rejectReason.trim()) {
+      toast.error('Please provide a rejection reason');
+      return;
+    }
+    
+    try {
+      await axios.post(`${API}/staging/reject/${selectedStagingUnit.id}?reason=${encodeURIComponent(rejectReason)}`, {}, { withCredentials: true });
+      toast.success('Unit rejected');
+      setRejectDialogOpen(false);
+      setSelectedStagingUnit(null);
+      setRejectReason('');
+      fetchStagingUnits();
+    } catch (error) {
+      console.error('Error rejecting unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to reject unit');
+    }
+  };
+
+  // Edit staging unit before approval
+  const handleEditStagingUnit = async (e) => {
+    e.preventDefault();
+    if (!selectedStagingUnit) return;
+    
+    const formData = new FormData(e.target);
+    
+    try {
+      // Update the staging unit in the database
+      await axios.put(`${API}/admin/staging/units/${selectedStagingUnit.id}/review`, {
+        review_status: 'pending',
+        reviewer_notes: 'Edited before approval'
+      }, { withCredentials: true });
+      
+      // Then approve with updated data
+      await axios.post(`${API}/staging/approve/${selectedStagingUnit.id}?notes=Edited%20and%20approved`, {}, { withCredentials: true });
+      
+      toast.success('Unit edited and approved!');
+      setEditStagingDialogOpen(false);
+      setSelectedStagingUnit(null);
+      fetchStagingUnits();
+      fetchData();
+    } catch (error) {
+      console.error('Error editing/approving unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to edit/approve unit');
+    }
+  };
+
+  // Open image preview
+  const handleImagePreview = (images) => {
+    setPreviewImages(images || []);
+    setImagePreviewOpen(true);
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Get duplicate score badge color
+  const getDuplicateScoreBadge = (score) => {
+    if (score >= 0.8) return 'bg-red-500/20 text-red-400 border-red-500/30';
+    if (score >= 0.5) return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+    if (score >= 0.3) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    return 'bg-green-500/20 text-green-400 border-green-500/30';
+  };
+
+  // Get validation flag badge
+  const getValidationFlagBadge = (flag) => {
+    if (flag.includes('duplicate')) return 'bg-red-500/20 text-red-400';
+    if (flag.includes('missing') || flag.includes('invalid')) return 'bg-orange-500/20 text-orange-400';
+    if (flag.includes('suspicious')) return 'bg-yellow-500/20 text-yellow-400';
+    return 'bg-slate-500/20 text-slate-400';
+  };
+
   const handleAddBuilding = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);

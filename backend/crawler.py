@@ -544,10 +544,6 @@ async def calculate_unit_duplicate_score(unit_data: Dict, building_id: str) -> T
         unit_data, building_id, building_address
     )
     return score, matched_id
-            best_score = score
-            matched_id = prod_unit.get('id')
-    
-    return min(best_score, 1.0), matched_id
 
 
 # ============ IMAGE PROCESSING ============

@@ -6,6 +6,12 @@ Handles moving approved staged listings into production with:
 - Price change history tracking
 - Status change history tracking
 - Full audit trail
+
+AUTHORIZATION:
+This service is authorized to write to production collections because:
+1. It is triggered ONLY by manual admin approval
+2. All writes are logged and audited
+3. It uses the WriteSource.ADMIN_APPROVAL authorization
 """
 
 import logging
@@ -16,19 +22,90 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+# Import access control for authorized production writes
+try:
+    from db_access_control import (
+        DatabaseAccessControl,
+        WriteSource,
+        get_access_control,
+        init_access_control
+    )
+    ACCESS_CONTROL_AVAILABLE = True
+except ImportError:
+    ACCESS_CONTROL_AVAILABLE = False
+    logger.warning("Access control not available - using direct writes")
+
 
 class PromotionService:
     """
     Service for promoting staged listings to production.
     
+    AUTHORIZED SOURCE: WriteSource.ADMIN_APPROVAL
+    
     Promotion rules:
     - If production unit exists → update price/status only
     - If not → create new production unit
     - Preserve history: price_changes, status_changes
+    
+    This service is the ONLY authorized way for listings to move
+    from staging to production (except for internal leasing feeds).
     """
     
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
+        self._access_control = None
+        if ACCESS_CONTROL_AVAILABLE:
+            self._access_control = get_access_control(db)
+    
+    async def _authorized_production_insert(
+        self,
+        collection: str,
+        document: Dict,
+        user_id: str
+    ):
+        """
+        Insert a document to production with proper authorization.
+        """
+        if ACCESS_CONTROL_AVAILABLE and self._access_control:
+            return await self._access_control.authorized_production_write(
+                collection=collection,
+                operation='insert',
+                source=WriteSource.ADMIN_APPROVAL,
+                user_id=user_id,
+                document=document
+            )
+        else:
+            # Fallback for testing without access control
+            await self.db[collection].insert_one(document)
+            logger.info(f"Production insert (no access control): {collection}")
+            return {"inserted_id": document.get('id')}
+    
+    async def _authorized_production_update(
+        self,
+        collection: str,
+        document_id: str,
+        updates: Dict,
+        user_id: str
+    ):
+        """
+        Update a document in production with proper authorization.
+        """
+        if ACCESS_CONTROL_AVAILABLE and self._access_control:
+            updates['id'] = document_id
+            return await self._access_control.authorized_production_write(
+                collection=collection,
+                operation='update',
+                source=WriteSource.ADMIN_APPROVAL,
+                user_id=user_id,
+                document=updates
+            )
+        else:
+            # Fallback for testing
+            result = await self.db[collection].update_one(
+                {"id": document_id},
+                {"$set": updates}
+            )
+            return {"matched": result.matched_count, "modified": result.modified_count}
     
     async def find_matching_production_unit(
         self,

@@ -1671,6 +1671,450 @@ async def get_staging_stats(user: User = Depends(require_admin)):
         "recent_batch_ids": recent_batches[-10:] if recent_batches else []
     }
 
+# ============ STAGING APPROVAL SYSTEM ============
+
+@api_router.get("/staging/units")
+async def get_staging_units_for_approval(
+    status: str = Query("pending", description="Filter by status: pending, approved, rejected"),
+    building_id: Optional[str] = Query(None, description="Filter by building ID"),
+    batch_id: Optional[str] = Query(None, description="Filter by crawler batch ID"),
+    has_duplicates: Optional[bool] = Query(None, description="Filter by duplicate flag"),
+    limit: int = Query(50, le=200),
+    skip: int = Query(0),
+    user: User = Depends(require_admin)
+):
+    """
+    Get staged units for approval review.
+    
+    Query params:
+    - status: pending | approved | rejected
+    - building_id: Filter by building
+    - batch_id: Filter by crawl batch
+    - has_duplicates: true to show only flagged duplicates
+    """
+    query = {"review_status": status}
+    
+    if building_id:
+        query["building_id"] = building_id
+    if batch_id:
+        query["crawler_batch_id"] = batch_id
+    if has_duplicates is True:
+        query["validation_flags"] = {"$in": ["likely_duplicate", "possible_duplicate", "potential_duplicate"]}
+    elif has_duplicates is False:
+        query["validation_flags"] = {"$nin": ["likely_duplicate", "possible_duplicate", "potential_duplicate"]}
+    
+    # Get units with building info
+    units = await db.units_staging.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    # Enrich with building names
+    for unit in units:
+        # Try production building first
+        building = await db.buildings.find_one({"id": unit["building_id"]}, {"_id": 0, "name": 1, "address": 1})
+        if not building:
+            # Try staging building
+            building = await db.buildings_staging.find_one({"id": unit["building_id"]}, {"_id": 0, "name": 1, "address": 1})
+        
+        unit["building_name"] = building.get("name", "Unknown") if building else "Unknown"
+        unit["building_address"] = building.get("address", "") if building else ""
+    
+    total = await db.units_staging.count_documents(query)
+    pending_count = await db.units_staging.count_documents({"review_status": "pending"})
+    
+    return {
+        "items": units,
+        "total": total,
+        "pending_total": pending_count,
+        "skip": skip,
+        "limit": limit
+    }
+
+
+@api_router.post("/staging/approve/{unit_id}")
+async def approve_staging_unit(
+    unit_id: str,
+    notes: Optional[str] = Query(None, description="Optional approval notes"),
+    user: User = Depends(require_admin)
+):
+    """
+    Approve a staged unit and move it to production.
+    
+    Process:
+    1. Validate building exists in production (create if missing from staging)
+    2. Check for duplicates in production (prevent double insertion)
+    3. Move unit from staging to production
+    4. Set is_verified = true
+    5. Maintain source metadata
+    6. Record approval timestamp
+    """
+    # Get the staged unit
+    staged_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staged_unit:
+        raise HTTPException(status_code=404, detail="Staged unit not found")
+    
+    if staged_unit.get("review_status") == "approved":
+        raise HTTPException(status_code=400, detail="Unit already approved")
+    
+    building_id = staged_unit["building_id"]
+    production_building_id = building_id
+    
+    # Step 1: Validate building exists in production
+    production_building = await db.buildings.find_one({"id": building_id}, {"_id": 0})
+    
+    if not production_building:
+        # Check if building exists in staging
+        staged_building = await db.buildings_staging.find_one({"id": building_id}, {"_id": 0})
+        
+        if staged_building:
+            # Create building in production from staging data
+            production_building_id = str(uuid.uuid4())
+            new_production_building = {
+                "id": production_building_id,
+                "name": staged_building["name"],
+                "address": staged_building["address"],
+                "neighborhood": staged_building["neighborhood"],
+                "city": staged_building["city"],
+                "state": staged_building["state"],
+                "zip_code": staged_building["zip_code"],
+                "source_url": staged_building["source_url"],
+                "latitude": staged_building.get("latitude"),
+                "longitude": staged_building.get("longitude"),
+                "last_crawled": staged_building.get("last_crawled"),
+                # Source metadata
+                "crawler_source": staged_building.get("crawler_source", ""),
+                "original_staging_id": building_id,
+                "is_verified": True,
+                "verified_at": datetime.now(timezone.utc).isoformat(),
+                "verified_by": user.id,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.buildings.insert_one(new_production_building)
+            
+            # Mark staging building as promoted
+            await db.buildings_staging.update_one(
+                {"id": building_id},
+                {
+                    "$set": {
+                        "review_status": "promoted",
+                        "matched_production_id": production_building_id,
+                        "reviewed_by": user.id,
+                        "reviewed_at": datetime.now(timezone.utc).isoformat()
+                    }
+                }
+            )
+            
+            logger.info(f"Auto-created production building {production_building_id} from staging {building_id}")
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Building {building_id} not found in production or staging. Cannot approve unit."
+            )
+    
+    # Step 2: Check for duplicates in production (prevent double insertion)
+    # Use normalized unit number if available
+    normalized_unit = staged_unit.get("normalized_unit_number", staged_unit["unit_number"])
+    
+    existing_unit = await db.units.find_one({
+        "building_id": production_building_id,
+        "$or": [
+            {"unit_number": staged_unit["unit_number"]},
+            {"unit_number": normalized_unit}
+        ]
+    }, {"_id": 0, "id": 1, "unit_number": 1})
+    
+    if existing_unit:
+        # Update staging status to rejected with duplicate info
+        await db.units_staging.update_one(
+            {"id": unit_id},
+            {
+                "$set": {
+                    "review_status": "rejected",
+                    "reviewer_notes": f"Duplicate of production unit {existing_unit['id']} (unit {existing_unit['unit_number']})",
+                    "matched_production_id": existing_unit["id"],
+                    "reviewed_by": user.id,
+                    "reviewed_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=409,
+            detail=f"Unit already exists in production: {existing_unit['unit_number']} (ID: {existing_unit['id']})"
+        )
+    
+    # Step 3: Create production unit
+    production_unit_id = str(uuid.uuid4())
+    production_unit = {
+        "id": production_unit_id,
+        "building_id": production_building_id,
+        "unit_number": staged_unit["unit_number"],
+        "rent": staged_unit["rent"],
+        "bedrooms": staged_unit["bedrooms"],
+        "bathrooms": staged_unit["bathrooms"],
+        "square_feet": staged_unit.get("square_feet"),
+        "available_date": staged_unit.get("available_date", "Immediate"),
+        "amenities": staged_unit.get("amenities", []),
+        "images": staged_unit.get("images", []),
+        "description": staged_unit.get("description", ""),
+        "is_available": staged_unit.get("is_available", True),
+        "is_featured": False,
+        "latitude": staged_unit.get("latitude"),
+        "longitude": staged_unit.get("longitude"),
+        # Verification flags
+        "is_verified": True,
+        "verified_at": datetime.now(timezone.utc).isoformat(),
+        "verified_by": user.id,
+        # Source metadata
+        "crawler_source": staged_unit.get("crawler_source", ""),
+        "crawler_batch_id": staged_unit.get("crawler_batch_id", ""),
+        "original_staging_id": unit_id,
+        # Timestamps
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.units.insert_one(production_unit)
+    
+    # Step 4: Update staging unit status
+    await db.units_staging.update_one(
+        {"id": unit_id},
+        {
+            "$set": {
+                "review_status": "approved",
+                "matched_production_id": production_unit_id,
+                "reviewer_notes": notes,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    logger.info(f"Approved staging unit {unit_id} -> production unit {production_unit_id}")
+    
+    return {
+        "message": "Unit approved and moved to production",
+        "staging_id": unit_id,
+        "production_id": production_unit_id,
+        "building_id": production_building_id,
+        "unit_number": staged_unit["unit_number"],
+        "approved_at": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@api_router.post("/staging/reject/{unit_id}")
+async def reject_staging_unit(
+    unit_id: str,
+    reason: str = Query(..., description="Reason for rejection"),
+    user: User = Depends(require_admin)
+):
+    """
+    Reject a staged unit.
+    
+    The unit remains in staging with status='rejected' for audit purposes.
+    """
+    # Get the staged unit
+    staged_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staged_unit:
+        raise HTTPException(status_code=404, detail="Staged unit not found")
+    
+    if staged_unit.get("review_status") == "rejected":
+        raise HTTPException(status_code=400, detail="Unit already rejected")
+    
+    if staged_unit.get("review_status") == "approved":
+        raise HTTPException(status_code=400, detail="Cannot reject an already approved unit")
+    
+    # Update staging unit status
+    await db.units_staging.update_one(
+        {"id": unit_id},
+        {
+            "$set": {
+                "review_status": "rejected",
+                "reviewer_notes": reason,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    logger.info(f"Rejected staging unit {unit_id}: {reason}")
+    
+    return {
+        "message": "Unit rejected",
+        "staging_id": unit_id,
+        "reason": reason,
+        "rejected_at": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@api_router.post("/staging/approve-batch")
+async def approve_batch_staging_units(
+    unit_ids: List[str] = Query(..., description="List of unit IDs to approve"),
+    notes: Optional[str] = Query(None, description="Optional batch approval notes"),
+    user: User = Depends(require_admin)
+):
+    """
+    Approve multiple staged units in batch.
+    
+    Returns results for each unit (success or failure reason).
+    """
+    results = []
+    approved_count = 0
+    failed_count = 0
+    
+    for unit_id in unit_ids:
+        try:
+            # Get the staged unit
+            staged_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+            if not staged_unit:
+                results.append({"unit_id": unit_id, "status": "failed", "reason": "Not found"})
+                failed_count += 1
+                continue
+            
+            if staged_unit.get("review_status") == "approved":
+                results.append({"unit_id": unit_id, "status": "skipped", "reason": "Already approved"})
+                continue
+            
+            # Use the single approve endpoint logic
+            building_id = staged_unit["building_id"]
+            production_building_id = building_id
+            
+            # Check building
+            production_building = await db.buildings.find_one({"id": building_id}, {"_id": 0})
+            
+            if not production_building:
+                staged_building = await db.buildings_staging.find_one({"id": building_id}, {"_id": 0})
+                if staged_building:
+                    # Auto-create building
+                    production_building_id = str(uuid.uuid4())
+                    new_building = {
+                        "id": production_building_id,
+                        "name": staged_building["name"],
+                        "address": staged_building["address"],
+                        "neighborhood": staged_building["neighborhood"],
+                        "city": staged_building["city"],
+                        "state": staged_building["state"],
+                        "zip_code": staged_building["zip_code"],
+                        "source_url": staged_building["source_url"],
+                        "latitude": staged_building.get("latitude"),
+                        "longitude": staged_building.get("longitude"),
+                        "crawler_source": staged_building.get("crawler_source", ""),
+                        "original_staging_id": building_id,
+                        "is_verified": True,
+                        "verified_at": datetime.now(timezone.utc).isoformat(),
+                        "verified_by": user.id,
+                        "created_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    await db.buildings.insert_one(new_building)
+                    await db.buildings_staging.update_one(
+                        {"id": building_id},
+                        {"$set": {"review_status": "promoted", "matched_production_id": production_building_id}}
+                    )
+                else:
+                    results.append({"unit_id": unit_id, "status": "failed", "reason": "Building not found"})
+                    failed_count += 1
+                    continue
+            
+            # Check for duplicates
+            normalized_unit = staged_unit.get("normalized_unit_number", staged_unit["unit_number"])
+            existing = await db.units.find_one({
+                "building_id": production_building_id,
+                "$or": [{"unit_number": staged_unit["unit_number"]}, {"unit_number": normalized_unit}]
+            })
+            
+            if existing:
+                await db.units_staging.update_one(
+                    {"id": unit_id},
+                    {"$set": {"review_status": "rejected", "reviewer_notes": f"Duplicate of {existing['id']}"}}
+                )
+                results.append({"unit_id": unit_id, "status": "rejected", "reason": f"Duplicate of {existing['id']}"})
+                failed_count += 1
+                continue
+            
+            # Create production unit
+            production_unit_id = str(uuid.uuid4())
+            production_unit = {
+                "id": production_unit_id,
+                "building_id": production_building_id,
+                "unit_number": staged_unit["unit_number"],
+                "rent": staged_unit["rent"],
+                "bedrooms": staged_unit["bedrooms"],
+                "bathrooms": staged_unit["bathrooms"],
+                "square_feet": staged_unit.get("square_feet"),
+                "available_date": staged_unit.get("available_date", "Immediate"),
+                "amenities": staged_unit.get("amenities", []),
+                "images": staged_unit.get("images", []),
+                "description": staged_unit.get("description", ""),
+                "is_available": True,
+                "is_featured": False,
+                "is_verified": True,
+                "verified_at": datetime.now(timezone.utc).isoformat(),
+                "verified_by": user.id,
+                "crawler_source": staged_unit.get("crawler_source", ""),
+                "crawler_batch_id": staged_unit.get("crawler_batch_id", ""),
+                "original_staging_id": unit_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.units.insert_one(production_unit)
+            await db.units_staging.update_one(
+                {"id": unit_id},
+                {
+                    "$set": {
+                        "review_status": "approved",
+                        "matched_production_id": production_unit_id,
+                        "reviewer_notes": notes,
+                        "reviewed_by": user.id,
+                        "reviewed_at": datetime.now(timezone.utc).isoformat()
+                    }
+                }
+            )
+            
+            results.append({
+                "unit_id": unit_id,
+                "status": "approved",
+                "production_id": production_unit_id
+            })
+            approved_count += 1
+            
+        except Exception as e:
+            results.append({"unit_id": unit_id, "status": "failed", "reason": str(e)})
+            failed_count += 1
+    
+    return {
+        "message": f"Batch approval complete: {approved_count} approved, {failed_count} failed",
+        "approved_count": approved_count,
+        "failed_count": failed_count,
+        "results": results
+    }
+
+
+@api_router.post("/staging/reject-batch")
+async def reject_batch_staging_units(
+    unit_ids: List[str] = Query(..., description="List of unit IDs to reject"),
+    reason: str = Query(..., description="Rejection reason"),
+    user: User = Depends(require_admin)
+):
+    """
+    Reject multiple staged units in batch.
+    """
+    result = await db.units_staging.update_many(
+        {"id": {"$in": unit_ids}, "review_status": "pending"},
+        {
+            "$set": {
+                "review_status": "rejected",
+                "reviewer_notes": reason,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    return {
+        "message": f"{result.modified_count} units rejected",
+        "rejected_count": result.modified_count,
+        "reason": reason
+    }
+
 @api_router.get("/admin/users")
 async def get_users(user: User = Depends(require_admin)):
     """Get all users (admin only) - includes plain text passwords"""

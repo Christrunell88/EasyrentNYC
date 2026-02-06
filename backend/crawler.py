@@ -27,6 +27,9 @@ from cloud_storage_service import upload_apartment_image
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Set Playwright browsers path for consistent browser location
+os.environ.setdefault('PLAYWRIGHT_BROWSERS_PATH', '/pw-browsers')
+
 logger = logging.getLogger(__name__)
 
 # MongoDB connection

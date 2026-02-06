@@ -169,6 +169,7 @@ class UnitStaging(BaseModel):
     # Core unit fields (mirror production)
     building_id: str  # References building_staging.id or buildings.id
     unit_number: str
+    normalized_unit_number: Optional[str] = None  # Standardized unit number for duplicate detection
     rent: float
     bedrooms: int  # 0 for studio
     bathrooms: float
@@ -185,7 +186,7 @@ class UnitStaging(BaseModel):
     review_status: str = Field(default="pending")  # pending, approved, rejected
     crawler_source: str = Field(default="")  # e.g., "mercedeshouseny.com", "tfc.com"
     crawler_batch_id: str = Field(default="")  # unique identifier for the crawl batch
-    validation_flags: List[str] = Field(default_factory=list)  # e.g., ["missing_images", "invalid_rent", "duplicate_kitchen_images"]
+    validation_flags: List[str] = Field(default_factory=list)  # e.g., ["possible_duplicate", "missing_images", "invalid_rent"]
     duplicate_score: float = Field(default=0.0)  # 0-1, higher means more likely duplicate
     matched_production_id: Optional[str] = None  # ID of matching production unit if duplicate
     raw_data: Optional[str] = None  # Store original crawled HTML/data

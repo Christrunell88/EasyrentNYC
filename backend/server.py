@@ -136,10 +136,15 @@ class BuildingStaging(BaseModel):
     # Core building fields (mirror production)
     name: str
     address: str
+    normalized_address: Optional[str] = None  # Standardized address format
     neighborhood: str
     city: str
+    normalized_city: Optional[str] = None
     state: str
+    normalized_state: Optional[str] = None  # 2-letter abbreviation
     zip_code: str
+    normalized_zip: Optional[str] = None  # 5-digit format
+    address_hash: Optional[str] = None  # For duplicate detection
     source_url: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
@@ -151,6 +156,7 @@ class BuildingStaging(BaseModel):
     validation_flags: List[str] = Field(default_factory=list)  # e.g., ["missing_zip", "invalid_address"]
     duplicate_score: float = Field(default=0.0)  # 0-1, higher means more likely duplicate
     matched_production_id: Optional[str] = None  # ID of matching production building if duplicate
+    raw_data: Optional[dict] = None  # Store original crawled data
     reviewer_notes: Optional[str] = None
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None
@@ -170,6 +176,7 @@ class UnitStaging(BaseModel):
     available_date: Optional[str] = None
     amenities: List[str] = []
     images: List[str] = []
+    original_images: List[str] = []  # Store original URLs before GCS upload
     description: Optional[str] = None
     is_available: bool = True
     latitude: Optional[float] = None

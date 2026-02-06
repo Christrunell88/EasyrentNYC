@@ -1062,127 +1062,65 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
         # Try table-based parsing
         tables = soup.find_all('table')
         if tables:
-                for table in tables:
-                    rows = table.find_all('tr')
-                    if len(rows) < 2:
-                        continue
-                    
-                    header_row = rows[0]
-                    headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
-                    
-                    if not any(h in headers for h in ['unit', 'rent', 'bedroom', 'bed', 'price']):
-                        continue
-                    
-                    for row in rows[1:]:
-                        try:
-                            cells = row.find_all(['td', 'th'])
-                            if len(cells) < 3:
-                                continue
-                            
-                            unit_data = {
-                                'unit_number': '',
-                                'rent': 0.0,
-                                'bedrooms': 0,
-                                'bathrooms': 1.0,
-                                'square_feet': None,
-                                'images': [],
-                                'amenities': [],
-                                'description': '',
-                                'available_date': 'Immediate',
-                                'raw_data': str(row)
-                            }
-                            
-                            for idx, cell in enumerate(cells):
-                                text = cell.get_text(strip=True)
-                                header = headers[idx] if idx < len(headers) else ''
-                                
-                                if 'unit' in header or idx == 0:
-                                    if text and (text.isdigit() or re.match(r'^[A-Z0-9-]+$', text)):
-                                        unit_data['unit_number'] = text
-                                
-                                if 'rent' in header or 'price' in header or '$' in text:
-                                    rent_match = re.search(r'\$([0-9,]+)', text)
-                                    if rent_match:
-                                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
-                                
-                                if 'bedroom' in header or 'bed' in header or 'br' in header:
-                                    if 'studio' in text.lower():
-                                        unit_data['bedrooms'] = 0
-                                    else:
-                                        bed_match = re.search(r'(\d+)', text)
-                                        if bed_match:
-                                            unit_data['bedrooms'] = int(bed_match.group(1))
-                                
-                                if 'bathroom' in header or 'bath' in header or 'ba' in header:
-                                    bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
-                                    if bath_match:
-                                        unit_data['bathrooms'] = float(bath_match.group(1))
-                            
-                            images = row.find_all('img')
-                            for img in images:
-                                src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
-                                if src:
-                                    if src.startswith('//'):
-                                        src = 'https:' + src
-                                    elif src.startswith('/') and not src.startswith('http'):
-                                        from urllib.parse import urlparse
-                                        parsed_url = urlparse(url)
-                                        src = f"{parsed_url.scheme}://{parsed_url.netloc}{src}"
-                                    
-                                    if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
-                                        unit_data['images'].append(src)
-                            
-                            if unit_data['rent'] > 0:
-                                if not unit_data['unit_number']:
-                                    unit_data['unit_number'] = f"Unit-{len(units)+1}"
-                                units.append(unit_data)
-                        
-                        except Exception as e:
-                            logger.error(f"Error parsing table row: {e}")
-                            continue
-            
-            # If no units from tables, try div-based parsing
-            if not units:
-                listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property|floor|plan|residence', re.I))
+            for table in tables:
+                rows = table.find_all('tr')
+                if len(rows) < 2:
+                    continue
                 
-                for container in listing_containers:
+                header_row = rows[0]
+                headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
+                
+                if not any(h in headers for h in ['unit', 'rent', 'bedroom', 'bed', 'price']):
+                    continue
+                
+                for row in rows[1:]:
                     try:
+                        cells = row.find_all(['td', 'th'])
+                        if len(cells) < 3:
+                            continue
+                        
                         unit_data = {
                             'unit_number': '',
                             'rent': 0.0,
                             'bedrooms': 0,
                             'bathrooms': 1.0,
+                            'square_feet': None,
                             'images': [],
                             'amenities': [],
                             'description': '',
-                            'raw_data': str(container)[:1000]  # Limit raw data size
+                            'available_date': 'Immediate',
+                            'raw_data': str(row)
                         }
                         
-                        text = container.get_text(separator=' ', strip=True)
+                        for idx, cell in enumerate(cells):
+                            text = cell.get_text(strip=True)
+                            header = headers[idx] if idx < len(headers) else ''
+                            
+                            if 'unit' in header or idx == 0:
+                                if text and (text.isdigit() or re.match(r'^[A-Z0-9-]+$', text)):
+                                    unit_data['unit_number'] = text
+                            
+                            if 'rent' in header or 'price' in header or '$' in text:
+                                rent_match = re.search(r'\$([0-9,]+)', text)
+                                if rent_match:
+                                    unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                            
+                            if 'bedroom' in header or 'bed' in header or 'br' in header:
+                                if 'studio' in text.lower():
+                                    unit_data['bedrooms'] = 0
+                                else:
+                                    bed_match = re.search(r'(\d+)', text)
+                                    if bed_match:
+                                        unit_data['bedrooms'] = int(bed_match.group(1))
+                            
+                            if 'bathroom' in header or 'bath' in header or 'ba' in header:
+                                bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
+                                if bath_match:
+                                    unit_data['bathrooms'] = float(bath_match.group(1))
                         
-                        rent_match = re.search(r'\$([0-9,]+)', text)
-                        if rent_match:
-                            unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
-                        
-                        bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
-                        if bed_match:
-                            unit_data['bedrooms'] = int(bed_match.group(1))
-                        elif re.search(r'studio', text, re.I):
-                            unit_data['bedrooms'] = 0
-                        
-                        bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
-                        if bath_match:
-                            unit_data['bathrooms'] = float(bath_match.group(1))
-                        
-                        unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
-                        if unit_match:
-                            unit_data['unit_number'] = unit_match.group(1)
-                        else:
-                            unit_data['unit_number'] = f"Unit-{len(units)+1}"
-                        
-                        images = container.find_all('img')
+                        images = row.find_all('img')
                         for img in images:
-                            src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
+                            src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
                             if src:
                                 if src.startswith('//'):
                                     src = 'https:' + src
@@ -1194,16 +1132,78 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                                 if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
                                     unit_data['images'].append(src)
                         
-                        desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
-                        if desc_elem:
-                            unit_data['description'] = desc_elem.get_text(strip=True)[:500]
-                        
                         if unit_data['rent'] > 0:
+                            if not unit_data['unit_number']:
+                                unit_data['unit_number'] = f"Unit-{len(units)+1}"
                             units.append(unit_data)
                     
                     except Exception as e:
-                        logger.error(f"Error parsing unit: {e}")
+                        logger.error(f"Error parsing table row: {e}")
                         continue
+        
+        # If no units from tables, try div-based parsing
+        if not units:
+            listing_containers = soup.find_all(['div', 'article', 'li'], class_=re.compile(r'unit|apartment|listing|availability|property|floor|plan|residence', re.I))
+            
+            for container in listing_containers:
+                try:
+                    unit_data = {
+                        'unit_number': '',
+                        'rent': 0.0,
+                        'bedrooms': 0,
+                        'bathrooms': 1.0,
+                        'images': [],
+                        'amenities': [],
+                        'description': '',
+                        'raw_data': str(container)[:1000]  # Limit raw data size
+                    }
+                    
+                    text = container.get_text(separator=' ', strip=True)
+                    
+                    rent_match = re.search(r'\$([0-9,]+)', text)
+                    if rent_match:
+                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
+                    if bed_match:
+                        unit_data['bedrooms'] = int(bed_match.group(1))
+                    elif re.search(r'studio', text, re.I):
+                        unit_data['bedrooms'] = 0
+                    
+                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
+                    if bath_match:
+                        unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
+                    if unit_match:
+                        unit_data['unit_number'] = unit_match.group(1)
+                    else:
+                        unit_data['unit_number'] = f"Unit-{len(units)+1}"
+                    
+                    images = container.find_all('img')
+                    for img in images:
+                        src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
+                        if src:
+                            if src.startswith('//'):
+                                src = 'https:' + src
+                            elif src.startswith('/') and not src.startswith('http'):
+                                from urllib.parse import urlparse
+                                parsed_url = urlparse(url)
+                                src = f"{parsed_url.scheme}://{parsed_url.netloc}{src}"
+                            
+                            if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
+                                unit_data['images'].append(src)
+                    
+                    desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
+                    if desc_elem:
+                        unit_data['description'] = desc_elem.get_text(strip=True)[:500]
+                    
+                    if unit_data['rent'] > 0:
+                        units.append(unit_data)
+                
+                except Exception as e:
+                    logger.error(f"Error parsing unit: {e}")
+                    continue
     
     except Exception as e:
         logger.error(f"Error crawling site: {e}")

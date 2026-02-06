@@ -739,8 +739,8 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     units = []
     
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+        p, browser = await get_browser()
+        try:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
             await page.wait_for_timeout(3000)
@@ -756,6 +756,8 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
             content = iframe_content if iframe_content else await page.content()
             raw_html = content  # Store raw HTML
             await browser.close()
+        finally:
+            await p.stop()
             
             soup = BeautifulSoup(content, 'html.parser')
             tables = soup.find_all('table')

@@ -62,6 +62,25 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Changelog
 
 ### 2025-01-15
+- **Implemented:** Unit Lifecycle Management System
+  - Automatic stale detection (units not updated in 14 days → status = "stale")
+  - Rented status tracking with history
+  - Price change history tracking in `price_changes` collection
+  - Status change history in `status_changes` collection
+  - NO auto-deletion (units are never automatically deleted)
+  - Daily scheduler job checks for stale units
+- **Created:** `/app/backend/lifecycle_service.py`
+- **Created:** Test suite at `/app/backend/tests/test_lifecycle_management.py` (7 tests passed)
+- **New API Endpoints:**
+  - `GET /api/admin/lifecycle/stats` - Lifecycle statistics
+  - `GET /api/admin/lifecycle/stale-units` - List stale units
+  - `GET /api/admin/lifecycle/rented-units` - List rented units
+  - `PUT /api/admin/lifecycle/unit/{id}/status` - Update unit status
+  - `PUT /api/admin/lifecycle/unit/{id}/price` - Update price with history
+  - `GET /api/admin/lifecycle/unit/{id}/history` - Full history
+  - `POST /api/admin/lifecycle/check-stale` - Manual stale check
+  - `POST /api/admin/lifecycle/bulk-refresh` - Bulk refresh stale
+  - `POST /api/admin/lifecycle/bulk-mark-rented` - Bulk mark rented
 - **Tested:** Database Access Control Layer - All 9 tests passed
   - Crawler role BLOCKED from writing to production collections (units, buildings)
   - Admin role CAN write to production collections via authorized_production_write

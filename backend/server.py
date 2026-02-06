@@ -2784,7 +2784,16 @@ async def create_indexes():
         await db.units_staging.create_index([("crawler_source", 1)])
         await db.units_staging.create_index([("duplicate_score", -1)])
         
-        logger.info("Database indexes created successfully (including staging collections)")
+        # Price and status change history indexes
+        await db.price_changes.create_index([("unit_id", 1)])
+        await db.price_changes.create_index([("changed_at", -1)])
+        await db.price_changes.create_index([("unit_id", 1), ("changed_at", -1)])
+        
+        await db.status_changes.create_index([("unit_id", 1)])
+        await db.status_changes.create_index([("changed_at", -1)])
+        await db.status_changes.create_index([("unit_id", 1), ("changed_at", -1)])
+        
+        logger.info("Database indexes created successfully (including staging and history collections)")
     except Exception as e:
         logger.warning(f"Index creation warning (may already exist): {e}")
 

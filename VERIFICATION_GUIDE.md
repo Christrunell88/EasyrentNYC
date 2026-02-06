@@ -11,7 +11,7 @@
 2. You'll see two options:
    - Domain (harder, requires DNS access)
    - **URL prefix** ← Choose this one
-3. Enter your website URL: `https://nofeesapts.com` or `https://rent-without-fee.preview.emergentagent.com`
+3. Enter your website URL: `https://nofeesapts.com` or `https://nofeeapts-3.preview.emergentagent.com`
 4. Click **Continue**
 
 ### Step 3: Choose HTML Tag Verification Method

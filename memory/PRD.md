@@ -145,6 +145,13 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - `POST /api/subscribe` - Email subscription
 - `GET /api/sitemap.xml` - Dynamic sitemap
 - `GET /api/admin/stats` - Admin dashboard stats
+- `GET /api/stats` - Public stats (with cache busting)
+
+### Staging & Promotion API
+- `GET /api/admin/staging/units` - Get staged units for review
+- `POST /api/staging/approve/{staging_unit_id}` - Approve staged unit
+- `POST /api/staging/reject/{staging_unit_id}` - Reject staged unit
+- `POST /api/promote/unit/{staging_unit_id}` - Promote to production
 
 ## Test Credentials
 - **Admin:** `placesfirm@gmail.com` / `Checkers080/?`

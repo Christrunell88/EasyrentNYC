@@ -664,6 +664,198 @@ const AdminPanel = () => {
                 </div>
               </TabsContent>
 
+              {/* Staging Listings Review Tab */}
+              <TabsContent value="staging">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100">Staging Listings Review</h3>
+                      <p className="text-sm text-slate-400">
+                        Review and approve crawled listings before they go live
+                        {stagingStats.pending > 0 && (
+                          <span className="ml-2 text-amber-400">({stagingStats.pending} pending)</span>
+                        )}
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={fetchStagingUnits} 
+                      variant="outline" 
+                      className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                      data-testid="refresh-staging-btn"
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-2 ${stagingLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </div>
+
+                  {stagingLoading ? (
+                    <div className="text-center py-12 text-slate-400">
+                      <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin" />
+                      Loading staging units...
+                    </div>
+                  ) : stagingUnits.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                      <p className="text-lg font-medium text-slate-200">All caught up!</p>
+                      <p>No pending staging listings to review.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-b border-amber-500/20">
+                            <TableHead className="text-slate-300">Building / Unit</TableHead>
+                            <TableHead className="text-slate-300">Price</TableHead>
+                            <TableHead className="text-slate-300">Beds/Baths</TableHead>
+                            <TableHead className="text-slate-300">Source</TableHead>
+                            <TableHead className="text-slate-300">Duplicate Score</TableHead>
+                            <TableHead className="text-slate-300">Flags</TableHead>
+                            <TableHead className="text-slate-300">Images</TableHead>
+                            <TableHead className="text-slate-300">Created</TableHead>
+                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stagingUnits.map((unit) => (
+                            <TableRow key={unit.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                              <TableCell className="text-slate-200">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Building2 className="w-4 h-4 text-amber-500" />
+                                    <span className="font-medium">{unit.building_name || 'Unknown Building'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                                    <MapPin className="w-3 h-3" />
+                                    {unit.building_address || 'Address not available'}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Home className="w-3 h-3 text-slate-500" />
+                                    <span className="text-amber-400 font-semibold">Unit {unit.unit_number}</span>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-slate-200">
+                                <span className="text-lg font-bold text-green-400">${unit.rent?.toLocaleString()}</span>
+                                <span className="text-slate-400 text-sm">/mo</span>
+                              </TableCell>
+                              <TableCell className="text-slate-200">
+                                <div className="flex items-center gap-3">
+                                  <span className="flex items-center gap-1">
+                                    <BedDouble className="w-4 h-4 text-slate-500" />
+                                    {unit.bedrooms === 0 ? 'Studio' : unit.bedrooms}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Bath className="w-4 h-4 text-slate-500" />
+                                    {unit.bathrooms}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                <a 
+                                  href={`https://${unit.crawler_source}`} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm"
+                                >
+                                  {unit.crawler_source?.substring(0, 20) || 'Unknown'}
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  className={`${getDuplicateScoreBadge(unit.duplicate_score)} border`}
+                                >
+                                  {(unit.duplicate_score * 100).toFixed(0)}%
+                                </Badge>
+                                {unit.duplicate_score >= 0.5 && (
+                                  <AlertTriangle className="w-4 h-4 text-orange-400 inline ml-2" />
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                  {(unit.validation_flags || []).slice(0, 3).map((flag, idx) => (
+                                    <Badge 
+                                      key={idx} 
+                                      variant="outline" 
+                                      className={`${getValidationFlagBadge(flag)} text-xs`}
+                                    >
+                                      {flag.replace(/_/g, ' ')}
+                                    </Badge>
+                                  ))}
+                                  {(unit.validation_flags || []).length > 3 && (
+                                    <Badge variant="outline" className="text-xs text-slate-400">
+                                      +{unit.validation_flags.length - 3}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {unit.images && unit.images.length > 0 ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleImagePreview(unit.images)}
+                                    className="text-slate-300 hover:text-amber-500"
+                                  >
+                                    <ImageIcon className="w-4 h-4 mr-1" />
+                                    {unit.images.length}
+                                  </Button>
+                                ) : (
+                                  <span className="text-slate-500 text-sm">No images</span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-slate-400 text-sm">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {formatDate(unit.created_at)}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedStagingUnit(unit);
+                                      setEditStagingDialogOpen(true);
+                                    }}
+                                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                    data-testid={`edit-staging-${unit.id}`}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleApproveStaging(unit.id)}
+                                    className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                    data-testid={`approve-staging-${unit.id}`}
+                                  >
+                                    <CheckCircle className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedStagingUnit(unit);
+                                      setRejectDialogOpen(true);
+                                    }}
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                    data-testid={`reject-staging-${unit.id}`}
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
               {/* Building Directory Tab - Export to Google Sheets */}
               <TabsContent value="directory">
                 <div className="space-y-6">

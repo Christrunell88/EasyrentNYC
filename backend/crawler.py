@@ -289,12 +289,49 @@ def validate_unit_data(unit_data: Dict) -> Tuple[bool, List[str]]:
 
 # ============ DUPLICATE DETECTION ============
 
-async def calculate_building_duplicate_score(building_data: Dict) -> Tuple[float, Optional[str]]:
+def normalize_unit_number(unit_number: str) -> str:
+    """
+    Normalize unit number for duplicate detection.
+    
+    Normalization rules:
+    - Convert to uppercase
+    - Remove common prefixes (Unit, Apt, #, Suite)
+    - Remove spaces and special characters
+    - Standardize letter/number combinations
+    """
+    if not unit_number:
+        return ""
+    
+    normalized = unit_number.upper().strip()
+    
+    # Remove common prefixes
+    prefixes = ['UNIT', 'APT', 'APARTMENT', 'SUITE', 'STE', '#', 'NO', 'NUMBER']
+    for prefix in prefixes:
+        if normalized.startswith(prefix):
+            normalized = normalized[len(prefix):].strip()
+        # Also check with space or dot after prefix
+        if normalized.startswith(prefix + ' ') or normalized.startswith(prefix + '.'):
+            normalized = normalized[len(prefix)+1:].strip()
+    
+    # Remove leading # or . if still present
+    normalized = normalized.lstrip('#.-').strip()
+    
+    # Remove spaces between letters and numbers (e.g., "10 A" -> "10A")
+    normalized = re.sub(r'(\d+)\s+([A-Z])', r'\1\2', normalized)
+    normalized = re.sub(r'([A-Z])\s+(\d+)', r'\1\2', normalized)
+    
+    # Remove dashes between alphanumerics for comparison
+    normalized = re.sub(r'([A-Z0-9])-([A-Z0-9])', r'\1\2', normalized)
+    
+    return normalized
+
+
+async def calculate_building_duplicate_score(building_data: Dict) -> Tuple[float, Optional[str], List[str]]:
     """
     Calculate duplicate score for a building by comparing with existing production buildings.
     
     Returns:
-        Tuple of (duplicate_score, matched_production_id)
+        Tuple of (duplicate_score, matched_production_id, duplicate_flags)
         Score: 0.0 = unique, 1.0 = exact duplicate
     """
     normalized_address = normalize_address(building_data.get('address', ''))
@@ -307,77 +344,206 @@ async def calculate_building_duplicate_score(building_data: Dict) -> Tuple[float
     
     best_score = 0.0
     matched_id = None
+    duplicate_flags = []
     
     for prod_building in production_buildings:
         score = 0.0
         
-        # Exact address match
+        # Normalize production building address
         prod_normalized = normalize_address(prod_building.get('address', ''))
+        prod_city = normalize_city(prod_building.get('city', ''))
+        prod_state = normalize_state(prod_building.get('state', ''))
+        prod_zip = normalize_zip(prod_building.get('zip_code', ''))
+        
+        # Exact normalized address match
         if prod_normalized.lower() == normalized_address.lower():
             score += 0.5
         elif normalized_address.lower() in prod_normalized.lower() or prod_normalized.lower() in normalized_address.lower():
             score += 0.3
         
         # City match
-        if normalize_city(prod_building.get('city', '')).lower() == normalized_city.lower():
+        if prod_city.lower() == normalized_city.lower():
             score += 0.2
         
         # State match
-        if normalize_state(prod_building.get('state', '')).lower() == normalized_state.lower():
+        if prod_state.lower() == normalized_state.lower():
             score += 0.1
         
         # ZIP match
-        if normalize_zip(prod_building.get('zip_code', '')) == normalized_zip:
+        if prod_zip == normalized_zip:
             score += 0.2
         
         if score > best_score:
             best_score = score
             matched_id = prod_building.get('id')
     
-    return min(best_score, 1.0), matched_id
+    # Determine duplicate flags based on score
+    if best_score >= 0.8:
+        duplicate_flags.append('likely_duplicate_building')
+    elif best_score >= 0.5:
+        duplicate_flags.append('possible_duplicate_building')
+    
+    return min(best_score, 1.0), matched_id, duplicate_flags
 
 
-async def calculate_unit_duplicate_score(unit_data: Dict, building_id: str) -> Tuple[float, Optional[str]]:
+async def check_unit_duplicate_against_production(
+    unit_data: Dict,
+    building_id: str,
+    building_address: Optional[str] = None
+) -> Tuple[float, Optional[str], List[str]]:
     """
-    Calculate duplicate score for a unit by comparing with existing production units.
+    Check if a unit is a duplicate against production units.
+    
+    This checks:
+    1. Units in the same building (by building_id)
+    2. Units in buildings with the same normalized address
+    
+    Args:
+        unit_data: The unit data to check
+        building_id: The building ID (staging or production)
+        building_address: Optional building address for cross-building duplicate check
     
     Returns:
-        Tuple of (duplicate_score, matched_production_id)
+        Tuple of (duplicate_score, matched_production_id, duplicate_flags)
     """
-    unit_number = unit_data.get('unit_number', '')
+    normalized_unit_number = normalize_unit_number(unit_data.get('unit_number', ''))
     rent = unit_data.get('rent', 0)
     bedrooms = unit_data.get('bedrooms', -1)
+    bathrooms = unit_data.get('bathrooms', 0)
     
-    # Check production units for this building
-    production_units = await db.units.find(
+    duplicate_flags = []
+    best_score = 0.0
+    matched_id = None
+    
+    # Step 1: Check production units in the same building
+    production_units_same_building = await db.units.find(
         {'building_id': building_id},
         {"_id": 0}
     ).to_list(1000)
     
-    best_score = 0.0
-    matched_id = None
-    
-    for prod_unit in production_units:
+    for prod_unit in production_units_same_building:
         score = 0.0
+        prod_unit_number = normalize_unit_number(prod_unit.get('unit_number', ''))
         
-        # Exact unit number match
-        if prod_unit.get('unit_number', '').lower() == unit_number.lower():
-            score += 0.5
+        # Exact unit number match (after normalization)
+        if prod_unit_number == normalized_unit_number:
+            score += 0.6
         
         # Similar rent (within 5%)
         prod_rent = prod_unit.get('rent', 0)
         if prod_rent > 0 and rent > 0:
             rent_diff = abs(prod_rent - rent) / max(prod_rent, rent)
             if rent_diff < 0.05:
-                score += 0.3
+                score += 0.2
             elif rent_diff < 0.15:
-                score += 0.15
+                score += 0.1
         
         # Same bedroom count
         if prod_unit.get('bedrooms', -1) == bedrooms:
-            score += 0.2
+            score += 0.1
+        
+        # Same bathroom count
+        if prod_unit.get('bathrooms', 0) == bathrooms:
+            score += 0.1
         
         if score > best_score:
+            best_score = score
+            matched_id = prod_unit.get('id')
+    
+    # Step 2: Check production units in buildings with same normalized address
+    if building_address:
+        normalized_building_address = normalize_address(building_address)
+        
+        # Find buildings with matching normalized address
+        all_buildings = await db.buildings.find({}, {"_id": 0, "id": 1, "address": 1}).to_list(1000)
+        matching_building_ids = []
+        
+        for bld in all_buildings:
+            if bld['id'] != building_id:  # Skip current building
+                bld_normalized = normalize_address(bld.get('address', ''))
+                if bld_normalized.lower() == normalized_building_address.lower():
+                    matching_building_ids.append(bld['id'])
+        
+        # Check units in buildings with same address
+        if matching_building_ids:
+            production_units_same_address = await db.units.find(
+                {'building_id': {'$in': matching_building_ids}},
+                {"_id": 0}
+            ).to_list(1000)
+            
+            for prod_unit in production_units_same_address:
+                score = 0.0
+                prod_unit_number = normalize_unit_number(prod_unit.get('unit_number', ''))
+                
+                # Same address building + same unit number is a strong duplicate signal
+                if prod_unit_number == normalized_unit_number:
+                    score += 0.7  # Higher score for cross-building address match
+                
+                # Similar rent
+                prod_rent = prod_unit.get('rent', 0)
+                if prod_rent > 0 and rent > 0:
+                    rent_diff = abs(prod_rent - rent) / max(prod_rent, rent)
+                    if rent_diff < 0.05:
+                        score += 0.15
+                
+                # Same bedroom count
+                if prod_unit.get('bedrooms', -1) == bedrooms:
+                    score += 0.1
+                
+                if score > best_score:
+                    best_score = score
+                    matched_id = prod_unit.get('id')
+    
+    # Step 3: Also check existing staging units to prevent duplicate staged entries
+    staging_units = await db.units_staging.find(
+        {
+            'building_id': building_id,
+            'review_status': 'pending'
+        },
+        {"_id": 0}
+    ).to_list(1000)
+    
+    for staged_unit in staging_units:
+        staged_unit_number = normalize_unit_number(staged_unit.get('unit_number', ''))
+        
+        if staged_unit_number == normalized_unit_number:
+            # Found duplicate in staging
+            if 'duplicate_in_staging' not in duplicate_flags:
+                duplicate_flags.append('duplicate_in_staging')
+    
+    # Determine duplicate flags based on score
+    if best_score >= 0.8:
+        duplicate_flags.append('likely_duplicate')
+    elif best_score >= 0.5:
+        duplicate_flags.append('possible_duplicate')
+    elif best_score >= 0.3:
+        duplicate_flags.append('potential_duplicate')
+    
+    return min(best_score, 1.0), matched_id, duplicate_flags
+
+
+async def calculate_unit_duplicate_score(unit_data: Dict, building_id: str) -> Tuple[float, Optional[str]]:
+    """
+    Calculate duplicate score for a unit by comparing with existing production units.
+    
+    DEPRECATED: Use check_unit_duplicate_against_production for more comprehensive checks.
+    
+    Returns:
+        Tuple of (duplicate_score, matched_production_id)
+    """
+    # Get building address for comprehensive check
+    building = await db.buildings.find_one({'id': building_id}, {"_id": 0, "address": 1})
+    building_address = building.get('address') if building else None
+    
+    # If not found in production, check staging
+    if not building_address:
+        staging_building = await db.buildings_staging.find_one({'id': building_id}, {"_id": 0, "address": 1})
+        building_address = staging_building.get('address') if staging_building else None
+    
+    score, matched_id, _ = await check_unit_duplicate_against_production(
+        unit_data, building_id, building_address
+    )
+    return score, matched_id
             best_score = score
             matched_id = prod_unit.get('id')
     

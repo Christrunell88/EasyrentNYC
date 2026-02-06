@@ -292,6 +292,53 @@ class ContactInput(BaseModel):
     alternative_date: Optional[str] = None
     alternative_time: Optional[str] = None
 
+# ============ STAGING INPUT MODELS ============
+
+class BuildingStagingInput(BaseModel):
+    """Input model for creating/updating staging buildings"""
+    name: str
+    address: str
+    neighborhood: str
+    city: str
+    state: str
+    zip_code: str
+    source_url: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    crawler_source: str = ""
+    crawler_batch_id: str = ""
+    validation_flags: List[str] = []
+    duplicate_score: float = 0.0
+
+class UnitStagingInput(BaseModel):
+    """Input model for creating/updating staging units"""
+    building_id: str
+    unit_number: str
+    rent: float
+    bedrooms: int
+    bathrooms: float
+    square_feet: Optional[int] = None
+    available_date: Optional[str] = None
+    amenities: List[str] = []
+    images: List[str] = []
+    description: Optional[str] = None
+    is_available: bool = True
+    crawler_source: str = ""
+    crawler_batch_id: str = ""
+    validation_flags: List[str] = []
+    duplicate_score: float = 0.0
+
+class StagingReviewInput(BaseModel):
+    """Input model for reviewing staging items"""
+    review_status: str  # "approved" or "rejected"
+    reviewer_notes: Optional[str] = None
+
+class StagingBulkReviewInput(BaseModel):
+    """Input model for bulk reviewing staging items"""
+    ids: List[str]
+    review_status: str  # "approved" or "rejected"
+    reviewer_notes: Optional[str] = None
+
 # ============ AUTH HELPERS ============
 
 async def get_current_user(request: Request) -> Optional[User]:

@@ -1348,7 +1348,8 @@ async def insert_unit_to_staging(
         'updated_at': datetime.now(timezone.utc).isoformat()
     }
     
-    await db.units_staging.insert_one(staging_unit)
+    # Use safe staging insert (enforces production write block)
+    await _safe_staging_insert('units_staging', staging_unit, crawler_source)
     
     log_msg = f"Inserted unit to staging: {staging_unit['unit_number']} (normalized: {normalized_unit_number}, dup_score: {duplicate_score:.2f}"
     if duplicate_flags:
@@ -1359,6 +1360,37 @@ async def insert_unit_to_staging(
     logger.info(log_msg)
     
     return unit_id
+
+
+# ============ PRODUCTION WRITE PREVENTION (EXPLICIT BLOCKS) ============
+
+async def _blocked_production_insert(*args, **kwargs):
+    """
+    BLOCKED: This function exists to catch any accidental production writes.
+    Raises an error immediately.
+    """
+    raise PermissionError(
+        "BLOCKED: Direct production insert attempted. "
+        "Use the promotion service or admin approval workflow instead."
+    )
+
+
+async def _blocked_production_update(*args, **kwargs):
+    """
+    BLOCKED: This function exists to catch any accidental production writes.
+    """
+    raise PermissionError(
+        "BLOCKED: Direct production update attempted. "
+        "Use the promotion service or admin approval workflow instead."
+    )
+
+
+# Override any functions that might try to write to production
+# These are fail-safes in case someone tries to call them
+insert_unit_to_production = _blocked_production_insert
+insert_building_to_production = _blocked_production_insert
+update_production_unit = _blocked_production_update
+update_production_building = _blocked_production_update
 
 
 # ============ MAIN CRAWL FUNCTIONS ============

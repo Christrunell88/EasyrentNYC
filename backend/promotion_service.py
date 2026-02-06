@@ -406,17 +406,16 @@ class PromotionService:
                         "new": staged_value
                     })
             
-            # Apply updates
+            # Apply updates using authorized method
             if updates:
                 updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 updates["last_staged_update"] = staging_id
                 
-                await self.db.units.update_one(
-                    {"id": existing_unit["id"]},
-                    {"$set": updates}
+                await self._authorized_production_update(
+                    'units', existing_unit["id"], updates, approved_by
                 )
                 
-                logger.info(f"Updated production unit {existing_unit['id']} with {len(result['changes'])} changes")
+                logger.info(f"Updated production unit {existing_unit['id']} with {len(result['changes'])} changes (authorized)")
             else:
                 result["changes"].append({"field": "none", "message": "No changes detected"})
         
@@ -455,7 +454,10 @@ class PromotionService:
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
-            await self.db.units.insert_one(production_unit)
+            # Use authorized production write
+            await self._authorized_production_insert(
+                'units', production_unit, approved_by
+            )
             
             # Record initial price in history
             if production_unit["rent"] > 0:

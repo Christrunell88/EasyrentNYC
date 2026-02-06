@@ -88,7 +88,7 @@ const AdminPanel = () => {
     setStagingLoading(true);
     try {
       const timestamp = Date.now();
-      const response = await axios.get(`${API}/staging/units?status=pending&_t=${timestamp}`, { withCredentials: true });
+      const response = await axios.get(`${API}/admin/staging/units?status=pending&_t=${timestamp}`, { withCredentials: true });
       
       // Sort by duplicate_score descending, then created_at descending
       const sortedUnits = (response.data.items || []).sort((a, b) => {
@@ -100,7 +100,9 @@ const AdminPanel = () => {
       
       setStagingUnits(sortedUnits);
       setStagingStats({
-        pending: response.data.pending_total || sortedUnits.length,
+        pending: response.data.pending || sortedUnits.length,
+        approved: response.data.approved || 0,
+        rejected: response.data.rejected || 0,
         total: response.data.total || sortedUnits.length
       });
     } catch (error) {

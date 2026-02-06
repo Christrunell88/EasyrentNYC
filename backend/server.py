@@ -971,13 +971,54 @@ async def create_unit(input: UnitInput, user: User = Depends(require_admin)):
 
 @api_router.put("/units/{unit_id}", response_model=Unit)
 async def update_unit(unit_id: str, input: UnitInput, user: User = Depends(require_admin)):
-    """Update unit (admin only)"""
+    """Update unit (admin only) - tracks price changes automatically"""
     existing = await db.units.find_one({'id': unit_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Unit not found")
     
+    old_rent = existing.get('rent', 0)
+    new_rent = input.rent
+    old_available = existing.get('is_available', True)
+    new_available = input.is_available
+    
     update_data = input.model_dump()
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    # Track price changes if rent changed
+    if old_rent != new_rent and LIFECYCLE_SERVICE_AVAILABLE:
+        service = get_lifecycle_service(db)
+        await service._record_price_change(
+            unit_id=unit_id,
+            old_price=old_rent,
+            new_price=new_rent,
+            source='admin_update',
+            changed_by=user.id
+        )
+        # Clear stale status if price was updated
+        if existing.get('lifecycle_status') == 'stale':
+            update_data['lifecycle_status'] = 'available'
+            update_data['stale_since'] = None
+    
+    # Track availability/status changes
+    if old_available != new_available and LIFECYCLE_SERVICE_AVAILABLE:
+        service = get_lifecycle_service(db)
+        old_status = existing.get('lifecycle_status', 'available')
+        # If marked as not available, it could be rented or unavailable
+        if not new_available:
+            new_status = 'rented' if 'rented' in (input.description or '').lower() else 'unavailable'
+        else:
+            new_status = 'available'
+        
+        await service._record_status_change(
+            unit_id=unit_id,
+            old_status=old_status,
+            new_status=new_status,
+            source='admin_update',
+            changed_by=user.id
+        )
+        update_data['lifecycle_status'] = new_status
+        update_data['lifecycle_updated_at'] = datetime.now(timezone.utc).isoformat()
+    
     await db.units.update_one({'id': unit_id}, {'$set': update_data})
     
     updated = await db.units.find_one({'id': unit_id}, {"_id": 0})

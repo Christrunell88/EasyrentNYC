@@ -188,6 +188,7 @@ class UnitStaging(BaseModel):
     validation_flags: List[str] = Field(default_factory=list)  # e.g., ["missing_images", "invalid_rent", "duplicate_kitchen_images"]
     duplicate_score: float = Field(default=0.0)  # 0-1, higher means more likely duplicate
     matched_production_id: Optional[str] = None  # ID of matching production unit if duplicate
+    raw_data: Optional[str] = None  # Store original crawled HTML/data
     reviewer_notes: Optional[str] = None
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None

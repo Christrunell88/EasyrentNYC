@@ -1,6 +1,9 @@
-"""Web crawler for apartment listings"""
+"""Web crawler for apartment listings - STAGING ONLY
+All crawled data goes to staging collections for review before production.
+Direct writes to production collections are blocked.
+"""
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 import re
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
@@ -10,6 +13,8 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from pathlib import Path
 import aiohttp
+import uuid
+import hashlib
 from cloud_storage_service import upload_apartment_image
 
 ROOT_DIR = Path(__file__).parent
@@ -25,6 +30,361 @@ db = client[os.environ['DB_NAME']]
 # Toggle for GCS image upload (set to True to use GCS, False to use original URLs)
 USE_GCS_FOR_IMAGES = os.environ.get('USE_GCS_FOR_IMAGES', 'true').lower() == 'true'
 
+# ============ ADDRESS NORMALIZATION ============
+
+# Common street type abbreviations
+STREET_TYPE_MAPPINGS = {
+    'street': 'St',
+    'st': 'St',
+    'st.': 'St',
+    'avenue': 'Ave',
+    'ave': 'Ave',
+    'ave.': 'Ave',
+    'boulevard': 'Blvd',
+    'blvd': 'Blvd',
+    'blvd.': 'Blvd',
+    'drive': 'Dr',
+    'dr': 'Dr',
+    'dr.': 'Dr',
+    'road': 'Rd',
+    'rd': 'Rd',
+    'rd.': 'Rd',
+    'lane': 'Ln',
+    'ln': 'Ln',
+    'ln.': 'Ln',
+    'place': 'Pl',
+    'pl': 'Pl',
+    'pl.': 'Pl',
+    'court': 'Ct',
+    'ct': 'Ct',
+    'ct.': 'Ct',
+    'circle': 'Cir',
+    'cir': 'Cir',
+    'terrace': 'Ter',
+    'ter': 'Ter',
+    'way': 'Way',
+    'parkway': 'Pkwy',
+    'pkwy': 'Pkwy',
+    'highway': 'Hwy',
+    'hwy': 'Hwy',
+    'square': 'Sq',
+    'sq': 'Sq',
+}
+
+# Direction abbreviations
+DIRECTION_MAPPINGS = {
+    'north': 'N',
+    'n': 'N',
+    'n.': 'N',
+    'south': 'S',
+    's': 'S',
+    's.': 'S',
+    'east': 'E',
+    'e': 'E',
+    'e.': 'E',
+    'west': 'W',
+    'w': 'W',
+    'w.': 'W',
+    'northeast': 'NE',
+    'ne': 'NE',
+    'northwest': 'NW',
+    'nw': 'NW',
+    'southeast': 'SE',
+    'se': 'SE',
+    'southwest': 'SW',
+    'sw': 'SW',
+}
+
+# State abbreviations
+STATE_MAPPINGS = {
+    'new york': 'NY',
+    'new jersey': 'NJ',
+    'pennsylvania': 'PA',
+    'connecticut': 'CT',
+}
+
+
+def normalize_address(address: str) -> str:
+    """
+    Normalize an address for consistent storage and duplicate detection.
+    
+    Normalization rules:
+    - Convert to title case
+    - Standardize street types (Street -> St, Avenue -> Ave)
+    - Standardize directions (North -> N, West -> W)
+    - Remove extra whitespace
+    - Remove apartment/unit suffixes
+    
+    Args:
+        address: Raw address string
+        
+    Returns:
+        Normalized address string
+    """
+    if not address:
+        return ""
+    
+    # Remove extra whitespace and convert to lowercase for processing
+    normalized = ' '.join(address.split()).lower()
+    
+    # Remove common apartment/unit designators
+    normalized = re.sub(r'\s*(apt\.?|apartment|unit|#|suite|ste\.?)\s*[\w-]*\s*$', '', normalized, flags=re.I)
+    
+    # Remove trailing commas
+    normalized = normalized.rstrip(',').strip()
+    
+    # Split into words for processing
+    words = normalized.split()
+    result_words = []
+    
+    for i, word in enumerate(words):
+        word_lower = word.lower().rstrip('.,')
+        
+        # Check if it's a direction (usually at start or after number)
+        if word_lower in DIRECTION_MAPPINGS:
+            result_words.append(DIRECTION_MAPPINGS[word_lower])
+        # Check if it's a street type
+        elif word_lower in STREET_TYPE_MAPPINGS:
+            result_words.append(STREET_TYPE_MAPPINGS[word_lower])
+        # Check if it's a state
+        elif word_lower in STATE_MAPPINGS:
+            result_words.append(STATE_MAPPINGS[word_lower])
+        # Keep numbers as-is
+        elif word.isdigit():
+            result_words.append(word)
+        # Title case for other words
+        else:
+            # Handle ordinal numbers (1st, 2nd, 3rd, etc.)
+            if re.match(r'^\d+(st|nd|rd|th)$', word_lower):
+                result_words.append(word_lower)
+            else:
+                result_words.append(word.title())
+    
+    return ' '.join(result_words)
+
+
+def normalize_city(city: str) -> str:
+    """Normalize city name."""
+    if not city:
+        return ""
+    return ' '.join(city.split()).title()
+
+
+def normalize_state(state: str) -> str:
+    """Normalize state to 2-letter abbreviation."""
+    if not state:
+        return ""
+    state_lower = state.lower().strip()
+    if state_lower in STATE_MAPPINGS:
+        return STATE_MAPPINGS[state_lower]
+    # If already 2 letters, uppercase it
+    if len(state_lower) == 2:
+        return state_lower.upper()
+    return state.upper()
+
+
+def normalize_zip(zip_code: str) -> str:
+    """Normalize ZIP code to 5 digits."""
+    if not zip_code:
+        return ""
+    # Extract just the 5-digit ZIP
+    match = re.search(r'(\d{5})', str(zip_code))
+    return match.group(1) if match else str(zip_code).strip()
+
+
+def generate_address_hash(address: str, city: str, state: str, zip_code: str) -> str:
+    """Generate a hash for duplicate detection based on normalized address components."""
+    normalized = f"{normalize_address(address)}|{normalize_city(city)}|{normalize_state(state)}|{normalize_zip(zip_code)}"
+    return hashlib.md5(normalized.lower().encode()).hexdigest()
+
+
+def generate_unit_hash(building_id: str, unit_number: str, rent: float, bedrooms: int) -> str:
+    """Generate a hash for unit duplicate detection."""
+    normalized = f"{building_id}|{unit_number}|{rent}|{bedrooms}"
+    return hashlib.md5(normalized.lower().encode()).hexdigest()
+
+
+# ============ VALIDATION HELPERS ============
+
+def validate_building_data(building_data: Dict) -> Tuple[bool, List[str]]:
+    """
+    Validate building data and return validation flags.
+    
+    Returns:
+        Tuple of (is_valid, validation_flags)
+    """
+    flags = []
+    
+    if not building_data.get('name'):
+        flags.append('missing_name')
+    if not building_data.get('address'):
+        flags.append('missing_address')
+    if not building_data.get('neighborhood'):
+        flags.append('missing_neighborhood')
+    if not building_data.get('city'):
+        flags.append('missing_city')
+    if not building_data.get('state'):
+        flags.append('missing_state')
+    if not building_data.get('zip_code'):
+        flags.append('missing_zip')
+    if not building_data.get('source_url'):
+        flags.append('missing_source_url')
+    
+    # Validate address format
+    address = building_data.get('address', '')
+    if address and not re.search(r'\d+', address):
+        flags.append('invalid_address_no_number')
+    
+    is_valid = len(flags) == 0
+    return is_valid, flags
+
+
+def validate_unit_data(unit_data: Dict) -> Tuple[bool, List[str]]:
+    """
+    Validate unit data and return validation flags.
+    
+    Returns:
+        Tuple of (is_valid, validation_flags)
+    """
+    flags = []
+    
+    if not unit_data.get('unit_number'):
+        flags.append('missing_unit_number')
+    if not unit_data.get('building_id'):
+        flags.append('missing_building_id')
+    
+    rent = unit_data.get('rent', 0)
+    if rent <= 0:
+        flags.append('invalid_rent')
+    elif rent < 500:
+        flags.append('suspiciously_low_rent')
+    elif rent > 50000:
+        flags.append('suspiciously_high_rent')
+    
+    bedrooms = unit_data.get('bedrooms', -1)
+    if bedrooms < 0:
+        flags.append('missing_bedrooms')
+    elif bedrooms > 10:
+        flags.append('suspiciously_high_bedrooms')
+    
+    bathrooms = unit_data.get('bathrooms', 0)
+    if bathrooms <= 0:
+        flags.append('missing_bathrooms')
+    
+    images = unit_data.get('images', [])
+    if not images:
+        flags.append('no_images')
+    elif len(images) == 1:
+        flags.append('single_image')
+    elif len(images) > 20:
+        flags.append('too_many_images')
+    
+    # Check for duplicate images (same image URL appearing multiple times)
+    if images and len(images) != len(set(images)):
+        flags.append('duplicate_image_urls')
+    
+    is_valid = 'invalid_rent' not in flags and 'missing_building_id' not in flags
+    return is_valid, flags
+
+
+# ============ DUPLICATE DETECTION ============
+
+async def calculate_building_duplicate_score(building_data: Dict) -> Tuple[float, Optional[str]]:
+    """
+    Calculate duplicate score for a building by comparing with existing production buildings.
+    
+    Returns:
+        Tuple of (duplicate_score, matched_production_id)
+        Score: 0.0 = unique, 1.0 = exact duplicate
+    """
+    normalized_address = normalize_address(building_data.get('address', ''))
+    normalized_city = normalize_city(building_data.get('city', ''))
+    normalized_state = normalize_state(building_data.get('state', ''))
+    normalized_zip = normalize_zip(building_data.get('zip_code', ''))
+    
+    # Check production buildings
+    production_buildings = await db.buildings.find({}, {"_id": 0}).to_list(1000)
+    
+    best_score = 0.0
+    matched_id = None
+    
+    for prod_building in production_buildings:
+        score = 0.0
+        
+        # Exact address match
+        prod_normalized = normalize_address(prod_building.get('address', ''))
+        if prod_normalized.lower() == normalized_address.lower():
+            score += 0.5
+        elif normalized_address.lower() in prod_normalized.lower() or prod_normalized.lower() in normalized_address.lower():
+            score += 0.3
+        
+        # City match
+        if normalize_city(prod_building.get('city', '')).lower() == normalized_city.lower():
+            score += 0.2
+        
+        # State match
+        if normalize_state(prod_building.get('state', '')).lower() == normalized_state.lower():
+            score += 0.1
+        
+        # ZIP match
+        if normalize_zip(prod_building.get('zip_code', '')) == normalized_zip:
+            score += 0.2
+        
+        if score > best_score:
+            best_score = score
+            matched_id = prod_building.get('id')
+    
+    return min(best_score, 1.0), matched_id
+
+
+async def calculate_unit_duplicate_score(unit_data: Dict, building_id: str) -> Tuple[float, Optional[str]]:
+    """
+    Calculate duplicate score for a unit by comparing with existing production units.
+    
+    Returns:
+        Tuple of (duplicate_score, matched_production_id)
+    """
+    unit_number = unit_data.get('unit_number', '')
+    rent = unit_data.get('rent', 0)
+    bedrooms = unit_data.get('bedrooms', -1)
+    
+    # Check production units for this building
+    production_units = await db.units.find(
+        {'building_id': building_id},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    best_score = 0.0
+    matched_id = None
+    
+    for prod_unit in production_units:
+        score = 0.0
+        
+        # Exact unit number match
+        if prod_unit.get('unit_number', '').lower() == unit_number.lower():
+            score += 0.5
+        
+        # Similar rent (within 5%)
+        prod_rent = prod_unit.get('rent', 0)
+        if prod_rent > 0 and rent > 0:
+            rent_diff = abs(prod_rent - rent) / max(prod_rent, rent)
+            if rent_diff < 0.05:
+                score += 0.3
+            elif rent_diff < 0.15:
+                score += 0.15
+        
+        # Same bedroom count
+        if prod_unit.get('bedrooms', -1) == bedrooms:
+            score += 0.2
+        
+        if score > best_score:
+            best_score = score
+            matched_id = prod_unit.get('id')
+    
+    return min(best_score, 1.0), matched_id
+
+
+# ============ IMAGE PROCESSING ============
 
 async def download_and_upload_to_gcs(
     image_url: str,
@@ -34,18 +394,8 @@ async def download_and_upload_to_gcs(
 ) -> str:
     """
     Download image from URL and upload to GCS.
-    
-    Args:
-        image_url: Source image URL
-        building_id: Building ID
-        unit_id: Unit ID
-        session: aiohttp session for downloading
-    
-    Returns:
-        GCS public URL or original URL if upload fails
     """
     try:
-        # Download image
         async with session.get(image_url, timeout=aiohttp.ClientTimeout(total=20)) as response:
             if response.status != 200:
                 logger.warning(f"Failed to download image: HTTP {response.status}")
@@ -58,16 +408,14 @@ async def download_and_upload_to_gcs(
             
             image_bytes = await response.read()
         
-        # Upload to GCS
         result = await upload_apartment_image(
             image_file=image_bytes,
             building_id=building_id,
             unit_id=unit_id
         )
         
-        # Return medium-sized image URL
         gcs_url = result['urls']['medium']
-        logger.info(f"✅ Uploaded to GCS: {image_url[:50]}... -> {gcs_url[:50]}...")
+        logger.info(f"Uploaded to GCS: {image_url[:50]}... -> {gcs_url[:50]}...")
         return gcs_url
         
     except Exception as e:
@@ -80,37 +428,27 @@ async def process_images_for_unit(
     building_id: str,
     unit_id: str
 ) -> List[str]:
-    """
-    Process image URLs: either keep original or upload to GCS.
-    
-    Args:
-        image_urls: List of source image URLs
-        building_id: Building ID
-        unit_id: Unit ID
-    
-    Returns:
-        List of processed image URLs (GCS or original)
-    """
+    """Process image URLs: either keep original or upload to GCS."""
     if not USE_GCS_FOR_IMAGES or not image_urls:
         return image_urls
     
     processed_urls = []
     
-    # Create session for downloading
     async with aiohttp.ClientSession() as session:
         for image_url in image_urls:
-            # Skip if already a GCS URL
             if 'storage.googleapis.com' in image_url or 'nofeesapts-images' in image_url:
                 processed_urls.append(image_url)
                 continue
             
-            # Download and upload to GCS
             gcs_url = await download_and_upload_to_gcs(
                 image_url, building_id, unit_id, session
             )
             processed_urls.append(gcs_url)
     
     return processed_urls
+
+
+# ============ SITE-SPECIFIC CRAWLERS ============
 
 async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     """Crawl fortysixfifty.com - handles iframe-based availability widget"""
@@ -121,11 +459,8 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
-            
-            # Wait for iframe to load
             await page.wait_for_timeout(3000)
             
-            # Look for rosenyc iframe (common availability widget)
             frames = page.frames
             iframe_content = None
             for frame in frames:
@@ -134,13 +469,11 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
                     iframe_content = await frame.content()
                     break
             
-            # Use iframe content if found, otherwise use main page
             content = iframe_content if iframe_content else await page.content()
+            raw_html = content  # Store raw HTML
             await browser.close()
             
             soup = BeautifulSoup(content, 'html.parser')
-            
-            # Parse table-based availability widget (rosenyc.com format)
             tables = soup.find_all('table')
             
             for table in tables:
@@ -148,15 +481,12 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
                 if len(rows) < 2:
                     continue
                 
-                # Check if first row has availability headers
                 header_row = rows[0]
                 headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
                 
-                # Skip if not an availability table
                 if not any(h in headers for h in ['unit', 'rent', 'bedroom']):
                     continue
                 
-                # Parse data rows
                 for row in rows[1:]:
                     try:
                         cells = row.find_all(['td', 'th'])
@@ -172,26 +502,23 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
                             'images': [],
                             'amenities': [],
                             'description': '',
-                            'available_date': 'Immediate'
+                            'available_date': 'Immediate',
+                            'raw_data': str(row)  # Store raw row HTML
                         }
                         
-                        # Map cells to data based on headers
                         for idx, cell in enumerate(cells):
                             text = cell.get_text(strip=True)
                             header = headers[idx] if idx < len(headers) else ''
                             
-                            # Unit number
                             if 'unit' in header or idx == 0:
                                 if text and text.isdigit() or re.match(r'^[A-Z0-9-]+$', text):
                                     unit_data['unit_number'] = text
                             
-                            # Rent
                             if 'rent' in header or '$' in text:
                                 rent_match = re.search(r'\$([0-9,]+)', text)
                                 if rent_match:
                                     unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
                             
-                            # Bedrooms
                             if 'bedroom' in header or 'br' in header:
                                 if 'studio' in text.lower():
                                     unit_data['bedrooms'] = 0
@@ -200,24 +527,20 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
                                     if bed_match:
                                         unit_data['bedrooms'] = int(bed_match.group(1))
                             
-                            # Bathrooms
                             if 'bathroom' in header or 'ba' in header:
                                 bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
                                 if bath_match:
                                     unit_data['bathrooms'] = float(bath_match.group(1))
                             
-                            # Square feet
                             if 'sq' in header or 'sq.' in text.lower():
                                 sqft_match = re.search(r'(\d+)', text)
                                 if sqft_match:
                                     unit_data['square_feet'] = int(sqft_match.group(1))
                             
-                            # Availability date
                             if 'availability' in header:
                                 if text and text != 'Immediate':
                                     unit_data['available_date'] = text
                         
-                        # Only add if we have minimum required data
                         if unit_data['unit_number'] and unit_data['rent'] > 0:
                             units.append(unit_data)
                     
@@ -230,6 +553,7 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     
     return units
 
+
 async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
     """Crawl mercedeshouseny.com - custom parser for their format"""
     units = []
@@ -239,18 +563,15 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
-            
-            # Wait for dynamic content to load
             await page.wait_for_timeout(5000)
             
             content = await page.content()
+            raw_html = content
             await browser.close()
             
             soup = BeautifulSoup(content, 'html.parser')
             all_text = soup.get_text()
             
-            # Mercedes House uses pattern: "Bedroom Type#UnitNumber|$Price"
-            # Examples: "Studio#2004|$3817", "1 Bedroom#1617|$4331"
             pattern = re.findall(
                 r'(Studio|[\d]+\s*Bedroom[s]?)[^\d#]*#?(\d+)[^\d\$]*\$([0-9,]+)',
                 all_text,
@@ -263,7 +584,6 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
                     unit_number = match[1].strip()
                     rent = float(match[2].replace(',', ''))
                     
-                    # Parse bedroom count
                     if 'studio' in bedroom_type.lower():
                         bedrooms = 0
                     else:
@@ -274,12 +594,13 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
                         'unit_number': unit_number,
                         'rent': rent,
                         'bedrooms': bedrooms,
-                        'bathrooms': 1.0,  # Default, not specified
+                        'bathrooms': 1.0,
                         'square_feet': None,
                         'images': [],
                         'amenities': [],
                         'description': f"{bedroom_type} apartment",
-                        'available_date': 'Immediate'
+                        'available_date': 'Immediate',
+                        'raw_data': f"{bedroom_type}#{unit_number}|${rent}"
                     }
                     
                     units.append(unit_data)
@@ -293,72 +614,6 @@ async def crawl_mercedes_house(url: str) -> List[Dict[str, Any]]:
     
     return units
 
-async def crawl_twotrees(url: str) -> List[Dict[str, Any]]:
-    """Crawl twotreesny.com"""
-    units = []
-    
-    try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page()
-            await page.goto(url, wait_until='networkidle', timeout=30000)
-            
-            content = await page.content()
-            await browser.close()
-            
-            soup = BeautifulSoup(content, 'html.parser')
-            
-            listing_containers = soup.find_all(['div', 'article'], class_=re.compile(r'unit|apartment|listing|availability', re.I))
-            
-            for container in listing_containers:
-                try:
-                    unit_data = {
-                        'unit_number': '',
-                        'rent': 0.0,
-                        'bedrooms': 0,
-                        'bathrooms': 1.0,
-                        'images': [],
-                        'amenities': [],
-                        'description': ''
-                    }
-                    
-                    text = container.get_text(separator=' ', strip=True)
-                    
-                    rent_match = re.search(r'\$([0-9,]+)', text)
-                    if rent_match:
-                        unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
-                    
-                    bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
-                    if bed_match:
-                        unit_data['bedrooms'] = int(bed_match.group(1))
-                    elif re.search(r'studio', text, re.I):
-                        unit_data['bedrooms'] = 0
-                    
-                    bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
-                    if bath_match:
-                        unit_data['bathrooms'] = float(bath_match.group(1))
-                    
-                    unit_match = re.search(r'(?:unit|apt|#)\s*([A-Z0-9-]+)', text, re.I)
-                    if unit_match:
-                        unit_data['unit_number'] = unit_match.group(1)
-                    
-                    images = container.find_all('img')
-                    for img in images:
-                        src = img.get('src') or img.get('data-src')
-                        if src and 'http' in src:
-                            unit_data['images'].append(src)
-                    
-                    if unit_data['rent'] > 0:
-                        units.append(unit_data)
-                
-                except Exception as e:
-                    logger.error(f"Error parsing unit: {e}")
-                    continue
-    
-    except Exception as e:
-        logger.error(f"Error crawling twotrees: {e}")
-    
-    return units
 
 async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
     """Crawl harrisonyards.com - uses RealPage/LeaseStar widget"""
@@ -369,11 +624,8 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
-            
-            # Wait for the floor plan widget to fully load
             await page.wait_for_timeout(8000)
             
-            # Wait for specific floor plan elements to be visible
             try:
                 await page.wait_for_selector('.rpfp-card, .rpfp-card-details', timeout=5000)
             except:
@@ -383,8 +635,6 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
             await browser.close()
             
             soup = BeautifulSoup(content, 'html.parser')
-            
-            # Find all floor plan cards - RealPage uses specific structure
             floor_plan_cards = soup.find_all('div', class_=re.compile(r'rpfp-card', re.I))
             
             logger.info(f"Found {len(floor_plan_cards)} floor plan cards")
@@ -400,41 +650,36 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
                         'images': [],
                         'amenities': [],
                         'description': '',
-                        'available_date': 'Immediate'
+                        'available_date': 'Immediate',
+                        'raw_data': str(card)
                     }
                     
                     text = card.get_text(separator=' ', strip=True)
                     
-                    # Extract rent - look for price in specific elements
                     price_elem = card.find(['span', 'div'], class_=re.compile(r'price|rent|rate', re.I))
                     if price_elem:
                         rent_match = re.search(r'\$([0-9,]+)', price_elem.get_text())
                         if rent_match:
                             unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
                     else:
-                        # Fallback to text search
                         rent_match = re.search(r'\$([0-9,]+)', text)
                         if rent_match:
                             unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
                     
-                    # Extract bedrooms
                     bed_match = re.search(r'(\d+)\s*(?:bed|br|bedroom)', text, re.I)
                     if bed_match:
                         unit_data['bedrooms'] = int(bed_match.group(1))
                     elif re.search(r'studio', text, re.I):
                         unit_data['bedrooms'] = 0
                     
-                    # Extract bathrooms
                     bath_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:bath|ba)', text, re.I)
                     if bath_match:
                         unit_data['bathrooms'] = float(bath_match.group(1))
                     
-                    # Extract square feet
                     sqft_match = re.search(r'(\d+)\s*(?:sq|sqft|sf)', text, re.I)
                     if sqft_match:
                         unit_data['square_feet'] = int(sqft_match.group(1))
                     
-                    # Extract unit number - look in data attributes or specific elements
                     unit_num_elem = card.find(['span', 'div'], class_=re.compile(r'unit|name|title', re.I))
                     if unit_num_elem:
                         unit_text = unit_num_elem.get_text(strip=True)
@@ -443,28 +688,22 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
                             unit_data['unit_number'] = unit_match.group(1)
                     
                     if not unit_data['unit_number']:
-                        # Generate unit number based on bedroom count
                         bed_type = "Studio" if unit_data['bedrooms'] == 0 else f"{unit_data['bedrooms']}BR"
                         unit_data['unit_number'] = f"{bed_type}-{len(units)+1}"
                     
-                    # Extract images - look in multiple places
-                    # 1. Direct img tags
                     images = card.find_all('img')
                     for img in images:
                         src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
                         if src:
-                            # Clean up URL
                             if src.startswith('//'):
                                 src = 'https:' + src
                             elif src.startswith('/') and not src.startswith('http'):
                                 src = 'https://harrisonyards.com' + src
                             
-                            # Include images from LeaseStar API or other valid sources, exclude icons/logos
                             if src.startswith('https://') and not any(x in src.lower() for x in ['icon', 'logo', 'spinner', 'browser']):
                                 if src not in unit_data['images']:
                                     unit_data['images'].append(src)
                     
-                    # 2. Check for background images in style attributes
                     for elem in card.find_all(style=re.compile(r'background-image')):
                         style = elem.get('style', '')
                         bg_match = re.search(r'url\(["\']?([^"\']+)["\']?\)', style)
@@ -479,7 +718,6 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
                                 if src not in unit_data['images']:
                                     unit_data['images'].append(src)
                     
-                    # Only add if we have minimum data
                     if unit_data['rent'] > 0:
                         units.append(unit_data)
                         logger.info(f"Found Harrison Yards unit: {unit_data['unit_number']} - ${unit_data['rent']} - {len(unit_data['images'])} images")
@@ -493,6 +731,7 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
     
     return units
 
+
 async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
     """Generic crawler for other sites - checks tables first, then divs"""
     units = []
@@ -502,11 +741,8 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=30000)
-            
-            # Wait for dynamic content
             await page.wait_for_timeout(5000)
             
-            # Check for iframes first
             frames = page.frames
             iframe_content = None
             for frame in frames:
@@ -523,7 +759,7 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
             
             soup = BeautifulSoup(content, 'html.parser')
             
-            # First try table-based parsing
+            # Try table-based parsing
             tables = soup.find_all('table')
             if tables:
                 for table in tables:
@@ -552,7 +788,8 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                                 'images': [],
                                 'amenities': [],
                                 'description': '',
-                                'available_date': 'Immediate'
+                                'available_date': 'Immediate',
+                                'raw_data': str(row)
                             }
                             
                             for idx, cell in enumerate(cells):
@@ -581,7 +818,6 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                                     if bath_match:
                                         unit_data['bathrooms'] = float(bath_match.group(1))
                             
-                            # Extract images from table row
                             images = row.find_all('img')
                             for img in images:
                                 src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
@@ -618,7 +854,8 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                             'bathrooms': 1.0,
                             'images': [],
                             'amenities': [],
-                            'description': ''
+                            'description': '',
+                            'raw_data': str(container)[:1000]  # Limit raw data size
                         }
                         
                         text = container.get_text(separator=' ', strip=True)
@@ -641,14 +878,12 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                         if unit_match:
                             unit_data['unit_number'] = unit_match.group(1)
                         else:
-                            # Generate unit number if not found
                             unit_data['unit_number'] = f"Unit-{len(units)+1}"
                         
                         images = container.find_all('img')
                         for img in images:
                             src = img.get('src') or img.get('data-src') or img.get('data-lazy-src') or img.get('data-original')
                             if src:
-                                # Clean up URL
                                 if src.startswith('//'):
                                     src = 'https:' + src
                                 elif src.startswith('/') and not src.startswith('http'):
@@ -656,11 +891,9 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
                                     parsed_url = urlparse(url)
                                     src = f"{parsed_url.scheme}://{parsed_url.netloc}{src}"
                                 
-                                # Only add valid image URLs
                                 if src.startswith('http') and not any(x in src for x in ['logo', 'icon', 'sprite']):
                                     unit_data['images'].append(src)
                         
-                        # Get description
                         desc_elem = container.find(['p', 'div'], class_=re.compile(r'desc|detail|info', re.I))
                         if desc_elem:
                             unit_data['description'] = desc_elem.get_text(strip=True)[:500]
@@ -677,23 +910,189 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
     
     return units
 
-async def crawl_building(building_id: str):
-    """Crawl a specific building and update units"""
+
+# ============ STAGING INSERTION (NO DIRECT PRODUCTION WRITES) ============
+
+async def insert_building_to_staging(
+    building_data: Dict,
+    crawler_source: str,
+    batch_id: str
+) -> str:
+    """
+    Insert a building into the staging collection.
+    
+    IMPORTANT: This is the ONLY way crawlers should insert buildings.
+    Direct writes to the production 'buildings' collection are NOT allowed.
+    
+    Returns:
+        The ID of the created staging building
+    """
+    # Normalize address components
+    normalized_address = normalize_address(building_data.get('address', ''))
+    normalized_city = normalize_city(building_data.get('city', ''))
+    normalized_state = normalize_state(building_data.get('state', ''))
+    normalized_zip = normalize_zip(building_data.get('zip_code', ''))
+    
+    # Validate
+    is_valid, validation_flags = validate_building_data(building_data)
+    
+    # Calculate duplicate score
+    duplicate_score, matched_id = await calculate_building_duplicate_score(building_data)
+    
+    # Generate address hash for future duplicate detection
+    address_hash = generate_address_hash(
+        building_data.get('address', ''),
+        building_data.get('city', ''),
+        building_data.get('state', ''),
+        building_data.get('zip_code', '')
+    )
+    
+    staging_building = {
+        'id': str(uuid.uuid4()),
+        # Core fields
+        'name': building_data.get('name', ''),
+        'address': building_data.get('address', ''),
+        'normalized_address': normalized_address,
+        'neighborhood': building_data.get('neighborhood', ''),
+        'city': building_data.get('city', ''),
+        'normalized_city': normalized_city,
+        'state': building_data.get('state', ''),
+        'normalized_state': normalized_state,
+        'zip_code': building_data.get('zip_code', ''),
+        'normalized_zip': normalized_zip,
+        'address_hash': address_hash,
+        'source_url': building_data.get('source_url', ''),
+        'latitude': building_data.get('latitude'),
+        'longitude': building_data.get('longitude'),
+        'last_crawled': datetime.now(timezone.utc).isoformat(),
+        # Staging-specific fields
+        'review_status': 'pending',
+        'crawler_source': crawler_source,
+        'crawler_batch_id': batch_id,
+        'validation_flags': validation_flags,
+        'duplicate_score': duplicate_score,
+        'matched_production_id': matched_id,
+        'raw_data': building_data.get('raw_data', {}),
+        'reviewer_notes': None,
+        'reviewed_by': None,
+        'reviewed_at': None,
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.buildings_staging.insert_one(staging_building)
+    logger.info(f"Inserted building to staging: {staging_building['name']} (dup_score: {duplicate_score:.2f})")
+    
+    return staging_building['id']
+
+
+async def insert_unit_to_staging(
+    unit_data: Dict,
+    building_id: str,
+    crawler_source: str,
+    batch_id: str
+) -> str:
+    """
+    Insert a unit into the staging collection.
+    
+    IMPORTANT: This is the ONLY way crawlers should insert units.
+    Direct writes to the production 'units' collection are NOT allowed.
+    
+    Returns:
+        The ID of the created staging unit
+    """
+    unit_id = str(uuid.uuid4())
+    
+    # Validate
+    unit_data_with_building = {**unit_data, 'building_id': building_id}
+    is_valid, validation_flags = validate_unit_data(unit_data_with_building)
+    
+    # Calculate duplicate score
+    duplicate_score, matched_id = await calculate_unit_duplicate_score(unit_data, building_id)
+    
+    # Process images if needed
+    processed_images = await process_images_for_unit(
+        unit_data.get('images', []),
+        building_id,
+        unit_id
+    )
+    
+    staging_unit = {
+        'id': unit_id,
+        # Core fields
+        'building_id': building_id,
+        'unit_number': unit_data.get('unit_number', ''),
+        'rent': unit_data.get('rent', 0),
+        'bedrooms': unit_data.get('bedrooms', 0),
+        'bathrooms': unit_data.get('bathrooms', 1.0),
+        'square_feet': unit_data.get('square_feet'),
+        'available_date': unit_data.get('available_date', 'Immediate'),
+        'amenities': unit_data.get('amenities', []),
+        'images': processed_images,
+        'original_images': unit_data.get('images', []),  # Store original URLs
+        'description': unit_data.get('description', ''),
+        'is_available': True,
+        'latitude': unit_data.get('latitude'),
+        'longitude': unit_data.get('longitude'),
+        # Staging-specific fields
+        'review_status': 'pending',
+        'crawler_source': crawler_source,
+        'crawler_batch_id': batch_id,
+        'validation_flags': validation_flags,
+        'duplicate_score': duplicate_score,
+        'matched_production_id': matched_id,
+        'raw_data': unit_data.get('raw_data', ''),
+        'reviewer_notes': None,
+        'reviewed_by': None,
+        'reviewed_at': None,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'updated_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.units_staging.insert_one(staging_unit)
+    logger.info(f"Inserted unit to staging: {staging_unit['unit_number']} (dup_score: {duplicate_score:.2f}, flags: {validation_flags})")
+    
+    return unit_id
+
+
+# ============ MAIN CRAWL FUNCTIONS ============
+
+def generate_batch_id() -> str:
+    """Generate a unique batch ID for this crawl session."""
+    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+    unique_id = str(uuid.uuid4())[:8]
+    return f"crawl_{timestamp}_{unique_id}"
+
+
+def extract_crawler_source(url: str) -> str:
+    """Extract the crawler source from URL."""
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    return parsed.netloc.replace('www.', '')
+
+
+async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = None):
+    """
+    Crawl a specific building and insert results to STAGING collections.
+    
+    This function reads building info from the production collection,
+    but ALL crawled data goes to staging for review.
+    """
     building = await db.buildings.find_one({'id': building_id})
     if not building:
         logger.error(f"Building {building_id} not found")
         return
     
     url = building['source_url']
-    logger.info(f"Crawling {building['name']} at {url}")
+    crawler_source = extract_crawler_source(url)
+    batch_id = batch_id or generate_batch_id()
     
-    # Determine which crawler to use based on URL
+    logger.info(f"Crawling {building['name']} at {url} (batch: {batch_id})")
+    
+    # Determine which crawler to use
     if 'fortysixfifty' in url:
         units_data = await crawl_fortysixfifty(url)
     elif 'mercedeshouseny' in url:
         units_data = await crawl_mercedes_house(url)
-    elif 'twotrees' in url:
-        units_data = await crawl_twotrees(url)
     elif 'harrisonyards' in url:
         units_data = await crawl_harrison_yards(url)
     else:
@@ -701,72 +1100,155 @@ async def crawl_building(building_id: str):
     
     logger.info(f"Found {len(units_data)} units for {building['name']}")
     
-    # Update or create units
+    # Insert all units to staging (NOT production)
     for unit_data in units_data:
-        # Check if unit exists
-        existing = await db.units.find_one({
-            'building_id': building_id,
-            'unit_number': unit_data['unit_number']
-        })
-        
-        # Generate unit ID (use existing or create new)
-        unit_id = existing['id'] if existing else str(__import__('uuid').uuid4())
-        
-        # Process images (upload to GCS if enabled)
-        processed_images = await process_images_for_unit(
-            unit_data['images'],
-            building_id,
-            unit_id
-        )
-        
-        if existing:
-            # Update existing unit
-            update_data = {
-                'rent': unit_data['rent'],
-                'bedrooms': unit_data['bedrooms'],
-                'bathrooms': unit_data['bathrooms'],
-                'images': processed_images,
-                'amenities': unit_data['amenities'],
-                'description': unit_data.get('description', ''),
-                'is_available': True,
-                'updated_at': datetime.now(timezone.utc).isoformat()
-            }
-            await db.units.update_one(
-                {'id': existing['id']},
-                {'$set': update_data}
+        try:
+            await insert_unit_to_staging(
+                unit_data=unit_data,
+                building_id=building_id,
+                crawler_source=crawler_source,
+                batch_id=batch_id
             )
-        else:
-            # Create new unit
-            new_unit = {
-                'id': unit_id,
-                'building_id': building_id,
-                'unit_number': unit_data['unit_number'],
-                'rent': unit_data['rent'],
-                'bedrooms': unit_data['bedrooms'],
-                'bathrooms': unit_data['bathrooms'],
-                'images': processed_images,
-                'amenities': unit_data['amenities'],
-                'description': unit_data.get('description', ''),
-                'is_available': True,
-                'created_at': datetime.now(timezone.utc).isoformat(),
-                'updated_at': datetime.now(timezone.utc).isoformat()
-            }
-            await db.units.insert_one(new_unit)
+        except Exception as e:
+            logger.error(f"Error inserting unit to staging: {e}")
+            continue
     
-    # Update building last_crawled
+    # Update building's last_crawled timestamp (this is a metadata update, not data insertion)
     await db.buildings.update_one(
         {'id': building_id},
         {'$set': {'last_crawled': datetime.now(timezone.utc).isoformat()}}
     )
-
-async def crawl_all_buildings():
-    """Crawl all buildings"""
-    buildings = await db.buildings.find({}).to_list(1000)
-    logger.info(f"Crawling {len(buildings)} buildings")
     
+    return {
+        'building_id': building_id,
+        'building_name': building['name'],
+        'batch_id': batch_id,
+        'units_found': len(units_data),
+        'destination': 'staging'
+    }
+
+
+async def crawl_new_building_to_staging(
+    name: str,
+    address: str,
+    neighborhood: str,
+    city: str,
+    state: str,
+    zip_code: str,
+    source_url: str,
+    batch_id: Optional[str] = None
+) -> Dict:
+    """
+    Crawl a new building that doesn't exist in production yet.
+    Both building and units go to staging.
+    """
+    batch_id = batch_id or generate_batch_id()
+    crawler_source = extract_crawler_source(source_url)
+    
+    # First, insert building to staging
+    building_data = {
+        'name': name,
+        'address': address,
+        'neighborhood': neighborhood,
+        'city': city,
+        'state': state,
+        'zip_code': zip_code,
+        'source_url': source_url
+    }
+    
+    staging_building_id = await insert_building_to_staging(
+        building_data=building_data,
+        crawler_source=crawler_source,
+        batch_id=batch_id
+    )
+    
+    logger.info(f"Crawling new building: {name} at {source_url}")
+    
+    # Determine which crawler to use
+    if 'fortysixfifty' in source_url:
+        units_data = await crawl_fortysixfifty(source_url)
+    elif 'mercedeshouseny' in source_url:
+        units_data = await crawl_mercedes_house(source_url)
+    elif 'harrisonyards' in source_url:
+        units_data = await crawl_harrison_yards(source_url)
+    else:
+        units_data = await crawl_generic_site(source_url)
+    
+    logger.info(f"Found {len(units_data)} units for {name}")
+    
+    # Insert all units to staging
+    for unit_data in units_data:
+        try:
+            await insert_unit_to_staging(
+                unit_data=unit_data,
+                building_id=staging_building_id,
+                crawler_source=crawler_source,
+                batch_id=batch_id
+            )
+        except Exception as e:
+            logger.error(f"Error inserting unit to staging: {e}")
+            continue
+    
+    return {
+        'staging_building_id': staging_building_id,
+        'building_name': name,
+        'batch_id': batch_id,
+        'units_found': len(units_data),
+        'destination': 'staging'
+    }
+
+
+async def crawl_all_buildings_to_staging():
+    """
+    Crawl all buildings and insert results to STAGING collections.
+    This is the scheduled crawl function.
+    """
+    batch_id = generate_batch_id()
+    buildings = await db.buildings.find({}).to_list(1000)
+    
+    logger.info(f"Starting batch crawl: {batch_id} - {len(buildings)} buildings")
+    
+    results = []
     for building in buildings:
         try:
-            await crawl_building(building['id'])
+            result = await crawl_building_to_staging(building['id'], batch_id)
+            results.append(result)
         except Exception as e:
             logger.error(f"Error crawling building {building['name']}: {e}")
+            results.append({
+                'building_id': building['id'],
+                'building_name': building['name'],
+                'error': str(e)
+            })
             continue
+    
+    total_units = sum(r.get('units_found', 0) for r in results if 'error' not in r)
+    logger.info(f"Batch crawl complete: {batch_id} - {total_units} total units to staging")
+    
+    return {
+        'batch_id': batch_id,
+        'buildings_crawled': len(results),
+        'total_units_to_staging': total_units,
+        'results': results
+    }
+
+
+# ============ LEGACY ALIASES (for backwards compatibility) ============
+# These redirect to staging functions to prevent accidental production writes
+
+async def crawl_building(building_id: str):
+    """
+    DEPRECATED: Use crawl_building_to_staging instead.
+    This function now redirects to staging to prevent direct production writes.
+    """
+    logger.warning("crawl_building() is deprecated. Redirecting to crawl_building_to_staging()")
+    return await crawl_building_to_staging(building_id)
+
+
+async def crawl_all_buildings():
+    """
+    DEPRECATED: Use crawl_all_buildings_to_staging instead.
+    This function now redirects to staging to prevent direct production writes.
+    """
+    logger.warning("crawl_all_buildings() is deprecated. Redirecting to crawl_all_buildings_to_staging()")
+    return await crawl_all_buildings_to_staging()

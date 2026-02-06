@@ -303,7 +303,10 @@ class PromotionService:
                     "created_at": datetime.now(timezone.utc).isoformat()
                 }
                 
-                await self.db.buildings.insert_one(production_building)
+                # Use authorized production write
+                await self._authorized_production_insert(
+                    'buildings', production_building, approved_by
+                )
                 
                 # Update staging building
                 await self.db.buildings_staging.update_one(
@@ -320,7 +323,7 @@ class PromotionService:
                 
                 building_id = production_building_id
                 result["building_created"] = True
-                logger.info(f"Created production building {production_building_id} from staging")
+                logger.info(f"Created production building {production_building_id} from staging (authorized)")
             else:
                 raise ValueError(f"Building {building_id} not found in production or staging")
         else:

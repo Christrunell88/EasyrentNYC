@@ -1,6 +1,13 @@
 """Web crawler for apartment listings - STAGING ONLY
+=======================================================
 All crawled data goes to staging collections for review before production.
-Direct writes to production collections are blocked.
+
+HARD RULE ENFORCED:
+- Crawlers can ONLY write to staging collections (units_staging, buildings_staging)
+- Direct writes to production collections (units, buildings) are BLOCKED
+- Production writes require manual admin approval or internal leasing system feeds
+
+This module uses DatabaseAccessControl to enforce these rules.
 """
 import logging
 from typing import List, Dict, Any, Optional, Tuple
@@ -27,8 +34,89 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Import access control (with fallback for standalone usage)
+try:
+    from db_access_control import (
+        DatabaseAccessControl, 
+        UnauthorizedWriteError,
+        get_access_control,
+        WriteSource
+    )
+    ACCESS_CONTROL_AVAILABLE = True
+    logger.info("Database access control loaded - production writes will be blocked")
+except ImportError:
+    ACCESS_CONTROL_AVAILABLE = False
+    logger.warning("Database access control not available - using direct writes")
+
 # Toggle for GCS image upload (set to True to use GCS, False to use original URLs)
 USE_GCS_FOR_IMAGES = os.environ.get('USE_GCS_FOR_IMAGES', 'true').lower() == 'true'
+
+# ============ PRODUCTION WRITE BLOCKER ============
+
+class CrawlerProductionWriteBlocker:
+    """
+    Blocks any attempt by the crawler to write to production collections.
+    This is a fail-safe to ensure crawlers never touch production data directly.
+    """
+    
+    BLOCKED_COLLECTIONS = {'units', 'buildings'}
+    ALLOWED_COLLECTIONS = {'units_staging', 'buildings_staging'}
+    
+    @classmethod
+    def check_collection(cls, collection_name: str, operation: str = "write"):
+        """
+        Check if a write to the given collection is allowed.
+        
+        Raises:
+            UnauthorizedWriteError: If trying to write to a blocked collection
+        """
+        if collection_name in cls.BLOCKED_COLLECTIONS:
+            error_msg = (
+                f"BLOCKED: Crawler attempted {operation} on production collection '{collection_name}'. "
+                f"Crawlers can ONLY write to staging collections: {cls.ALLOWED_COLLECTIONS}"
+            )
+            logger.error(error_msg)
+            if ACCESS_CONTROL_AVAILABLE:
+                raise UnauthorizedWriteError(error_msg)
+            else:
+                raise PermissionError(error_msg)
+        
+        if collection_name not in cls.ALLOWED_COLLECTIONS:
+            logger.warning(f"Crawler writing to non-standard collection: {collection_name}")
+
+
+async def _safe_staging_insert(collection_name: str, document: Dict, crawler_source: str):
+    """
+    Safely insert a document into a staging collection.
+    
+    This function enforces the hard rule that crawlers can only write to staging.
+    """
+    # HARD RULE: Block production writes
+    CrawlerProductionWriteBlocker.check_collection(collection_name, "insert")
+    
+    if ACCESS_CONTROL_AVAILABLE:
+        access_control = get_access_control(db)
+        return await access_control.staging_write(
+            collection=collection_name,
+            operation='insert',
+            document=document,
+            crawler_source=crawler_source
+        )
+    else:
+        # Fallback direct insert (still blocked for production)
+        await db[collection_name].insert_one(document)
+        return {"inserted_id": document.get('id')}
+
+
+async def _safe_staging_update(collection_name: str, query: Dict, update: Dict, crawler_source: str):
+    """
+    Safely update a document in a staging collection.
+    """
+    CrawlerProductionWriteBlocker.check_collection(collection_name, "update")
+    
+    result = await db[collection_name].update_one(query, update)
+    return {"matched": result.matched_count, "modified": result.modified_count}
+
 
 # ============ ADDRESS NORMALIZATION ============
 

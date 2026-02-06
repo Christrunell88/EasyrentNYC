@@ -97,11 +97,18 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Prioritized Backlog
 
+### P0 - Critical (Completed)
+- [x] **Database Access Control Layer** - Tested & Verified
+  - All 9 tests passed confirming proper access restrictions
+  - Crawler blocked from production writes
+  - Admin can write to production via promotion service
+
 ### P0 - Critical (Pending User Verification)
 - [ ] Login/Signup fix verification on `nofeesapts.com` (requires redeployment)
-- [ ] Sitemap fix verification (requires redeployment)
+- [ ] Stats display fix (63 units/24 buildings -> correct 180 units/34 buildings)
 
 ### P0 - High Priority
+- [ ] Wire up "Edit before approval" functionality in Admin Staging Review
 - [ ] Complete `#FeeFreeFinds` branding strategy
   - Add badges to listings
   - Update social sharing text

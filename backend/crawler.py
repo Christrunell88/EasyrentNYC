@@ -1090,6 +1090,11 @@ async def insert_building_to_staging(
     IMPORTANT: This is the ONLY way crawlers should insert buildings.
     Direct writes to the production 'buildings' collection are NOT allowed.
     
+    Deduplication checks:
+    1. Normalizes address
+    2. Checks production buildings for same normalized address
+    3. Flags possible duplicates (does NOT block insertion)
+    
     Returns:
         The ID of the created staging building
     """
@@ -1102,8 +1107,11 @@ async def insert_building_to_staging(
     # Validate
     is_valid, validation_flags = validate_building_data(building_data)
     
-    # Calculate duplicate score
-    duplicate_score, matched_id = await calculate_building_duplicate_score(building_data)
+    # Calculate duplicate score (now returns duplicate_flags too)
+    duplicate_score, matched_id, duplicate_flags = await calculate_building_duplicate_score(building_data)
+    
+    # Merge duplicate flags into validation flags
+    validation_flags.extend(duplicate_flags)
     
     # Generate address hash for future duplicate detection
     address_hash = generate_address_hash(
@@ -1146,7 +1154,12 @@ async def insert_building_to_staging(
     }
     
     await db.buildings_staging.insert_one(staging_building)
-    logger.info(f"Inserted building to staging: {staging_building['name']} (dup_score: {duplicate_score:.2f})")
+    
+    log_msg = f"Inserted building to staging: {staging_building['name']} (dup_score: {duplicate_score:.2f}"
+    if duplicate_flags:
+        log_msg += f", flags: {duplicate_flags}"
+    log_msg += ")"
+    logger.info(log_msg)
     
     return staging_building['id']
 
@@ -1155,7 +1168,8 @@ async def insert_unit_to_staging(
     unit_data: Dict,
     building_id: str,
     crawler_source: str,
-    batch_id: str
+    batch_id: str,
+    building_address: Optional[str] = None
 ) -> str:
     """
     Insert a unit into the staging collection.
@@ -1163,17 +1177,51 @@ async def insert_unit_to_staging(
     IMPORTANT: This is the ONLY way crawlers should insert units.
     Direct writes to the production 'units' collection are NOT allowed.
     
+    Deduplication checks:
+    1. Normalizes unit number
+    2. Checks production units for:
+       - Same building ID + same unit number
+       - Same building normalized address + same unit number
+    3. Flags possible duplicates (does NOT block insertion)
+    
+    Args:
+        unit_data: Unit data to insert
+        building_id: Building ID (staging or production)
+        crawler_source: Source website domain
+        batch_id: Crawl batch identifier
+        building_address: Optional building address for cross-building duplicate check
+    
     Returns:
         The ID of the created staging unit
     """
     unit_id = str(uuid.uuid4())
     
+    # Normalize unit number for logging and storage
+    normalized_unit_number = normalize_unit_number(unit_data.get('unit_number', ''))
+    
     # Validate
     unit_data_with_building = {**unit_data, 'building_id': building_id}
     is_valid, validation_flags = validate_unit_data(unit_data_with_building)
     
-    # Calculate duplicate score
-    duplicate_score, matched_id = await calculate_unit_duplicate_score(unit_data, building_id)
+    # Get building address if not provided
+    if not building_address:
+        # Try production buildings first
+        building = await db.buildings.find_one({'id': building_id}, {"_id": 0, "address": 1})
+        if building:
+            building_address = building.get('address')
+        else:
+            # Try staging buildings
+            staging_building = await db.buildings_staging.find_one({'id': building_id}, {"_id": 0, "address": 1})
+            if staging_building:
+                building_address = staging_building.get('address')
+    
+    # Comprehensive duplicate check against production
+    duplicate_score, matched_id, duplicate_flags = await check_unit_duplicate_against_production(
+        unit_data, building_id, building_address
+    )
+    
+    # Merge duplicate flags into validation flags
+    validation_flags.extend(duplicate_flags)
     
     # Process images if needed
     processed_images = await process_images_for_unit(
@@ -1187,6 +1235,7 @@ async def insert_unit_to_staging(
         # Core fields
         'building_id': building_id,
         'unit_number': unit_data.get('unit_number', ''),
+        'normalized_unit_number': normalized_unit_number,
         'rent': unit_data.get('rent', 0),
         'bedrooms': unit_data.get('bedrooms', 0),
         'bathrooms': unit_data.get('bathrooms', 1.0),
@@ -1215,7 +1264,14 @@ async def insert_unit_to_staging(
     }
     
     await db.units_staging.insert_one(staging_unit)
-    logger.info(f"Inserted unit to staging: {staging_unit['unit_number']} (dup_score: {duplicate_score:.2f}, flags: {validation_flags})")
+    
+    log_msg = f"Inserted unit to staging: {staging_unit['unit_number']} (normalized: {normalized_unit_number}, dup_score: {duplicate_score:.2f}"
+    if duplicate_flags:
+        log_msg += f", flags: {duplicate_flags}"
+    if matched_id:
+        log_msg += f", matched: {matched_id[:8]}..."
+    log_msg += ")"
+    logger.info(log_msg)
     
     return unit_id
 

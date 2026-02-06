@@ -925,13 +925,15 @@ async def crawl_harrison_yards(url: str) -> List[Dict[str, Any]]:
             
             content = await page.content()
             await browser.close()
-            
-            soup = BeautifulSoup(content, 'html.parser')
-            floor_plan_cards = soup.find_all('div', class_=re.compile(r'rpfp-card', re.I))
-            
-            logger.info(f"Found {len(floor_plan_cards)} floor plan cards")
-            
-            for card in floor_plan_cards:
+        finally:
+            await p.stop()
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        floor_plan_cards = soup.find_all('div', class_=re.compile(r'rpfp-card', re.I))
+        
+        logger.info(f"Found {len(floor_plan_cards)} floor plan cards")
+        
+        for card in floor_plan_cards:
                 try:
                     unit_data = {
                         'unit_number': '',

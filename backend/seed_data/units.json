@@ -29,16 +29,17 @@
     "bedrooms": 2,
     "bathrooms": 1,
     "images": [
-      "https://storage.googleapis.com/nofeesapts-images/apartments/building-mercedes-house/742a06d0-6c56-4536-95f6-48e41e45aa61/cef43da9-c22f-48d4-bde1-13dc9604647a_medium.jpg",
-      "https://storage.googleapis.com/nofeesapts-images/apartments/building-mercedes-house/742a06d0-6c56-4536-95f6-48e41e45aa61/f4d2a320-4f12-498e-bf58-0931ad7bd2f9_medium.jpg",
-      "https://storage.googleapis.com/nofeesapts-images/apartments/building-mercedes-house/742a06d0-6c56-4536-95f6-48e41e45aa61/666eab47-88f6-4d02-b029-e182cd6f0092_medium.jpg",
-      "https://storage.googleapis.com/nofeesapts-images/apartments/building-mercedes-house/742a06d0-6c56-4536-95f6-48e41e45aa61/92607f94-c26b-44e6-9de6-508e6283864b_medium.jpg"
+      "https://images.unsplash.com/photo-1610123172763-1f587473048f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBhcGFydG1lbnQlMjBsaXZpbmclMjByb29tJTIwbW9kZXJuJTIwTllDfGVufDB8fHx8MTc3MDQwNDk0Nnww&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1662454419736-de132ff75638?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBiZWRyb29tJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzcwNDA0OTUxfDA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1638454668466-e8dbd5462f20?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBiZWRyb29tJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzcwNDA0OTUxfDA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1757439402224-56c48352f719?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjBhcGFydG1lbnQlMjBiYXRocm9vbSUyMG1vZGVybnxlbnwwfHx8fDE3NzA0MDQ5NTV8MA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1759691554646-8155da2172ee?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBraXRjaGVuJTIwc3RhaW5sZXNzJTIwc3RlZWx8ZW58MHx8fHwxNzcwNDA0OTY1fDA&ixlib=rb-4.1.0&q=85"
     ],
     "amenities": [],
     "description": "2 Bedroom apartment",
     "is_available": true,
     "created_at": "2025-11-18T17:59:44.378504+00:00",
-    "updated_at": "2025-12-16T01:24:09.828437+00:00",
+    "updated_at": "2026-02-06T19:09:43.025Z",
     "latitude": 40.7675114,
     "longitude": -73.9916368,
     "is_featured": false

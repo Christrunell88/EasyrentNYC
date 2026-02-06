@@ -2105,7 +2105,21 @@ async def create_indexes():
         await db.password_resets.create_index([("token", 1)], unique=True)
         await db.password_resets.create_index([("expires_at", 1)])
         
-        logger.info("Database indexes created successfully")
+        # Staging collections indexes
+        await db.buildings_staging.create_index([("id", 1)], unique=True)
+        await db.buildings_staging.create_index([("review_status", 1)])
+        await db.buildings_staging.create_index([("crawler_batch_id", 1)])
+        await db.buildings_staging.create_index([("crawler_source", 1)])
+        await db.buildings_staging.create_index([("duplicate_score", -1)])
+        
+        await db.units_staging.create_index([("id", 1)], unique=True)
+        await db.units_staging.create_index([("building_id", 1)])
+        await db.units_staging.create_index([("review_status", 1)])
+        await db.units_staging.create_index([("crawler_batch_id", 1)])
+        await db.units_staging.create_index([("crawler_source", 1)])
+        await db.units_staging.create_index([("duplicate_score", -1)])
+        
+        logger.info("Database indexes created successfully (including staging collections)")
     except Exception as e:
         logger.warning(f"Index creation warning (may already exist): {e}")
 

@@ -6,11 +6,12 @@ import { API } from '../App';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail, ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertTriangle, Edit, Clock, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const AdminPanel = () => {
@@ -38,6 +39,17 @@ const AdminPanel = () => {
   const [crawling, setCrawling] = useState(false);
   const [unitsPage, setUnitsPage] = useState(1);
   const unitsPerPage = 25;
+
+  // Staging Review State
+  const [stagingUnits, setStagingUnits] = useState([]);
+  const [stagingStats, setStagingStats] = useState({ pending: 0, approved: 0, rejected: 0 });
+  const [stagingLoading, setStagingLoading] = useState(false);
+  const [editStagingDialogOpen, setEditStagingDialogOpen] = useState(false);
+  const [selectedStagingUnit, setSelectedStagingUnit] = useState(null);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [previewImages, setPreviewImages] = useState([]);
 
   useEffect(() => {
     fetchData();

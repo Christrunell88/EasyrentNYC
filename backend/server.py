@@ -66,6 +66,16 @@ except Exception as e:
     SEED_MODULE_AVAILABLE = False
     logger.warning(f"Database seeding module not available: {str(e)}")
 
+# Import promotion service
+PROMOTION_SERVICE_AVAILABLE = False
+try:
+    from promotion_service import PromotionService, get_promotion_service
+    PROMOTION_SERVICE_AVAILABLE = True
+    logger.info("Promotion service loaded successfully")
+except Exception as e:
+    PROMOTION_SERVICE_AVAILABLE = False
+    logger.warning(f"Promotion service not available: {str(e)}")
+
 # ============ MODELS ============
 
 class User(BaseModel):

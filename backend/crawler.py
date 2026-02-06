@@ -28,9 +28,40 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # Set Playwright browsers path for consistent browser location
-os.environ.setdefault('PLAYWRIGHT_BROWSERS_PATH', '/pw-browsers')
+PLAYWRIGHT_BROWSERS_PATH = '/pw-browsers'
+os.environ['PLAYWRIGHT_BROWSERS_PATH'] = PLAYWRIGHT_BROWSERS_PATH
 
 logger = logging.getLogger(__name__)
+
+
+async def get_browser():
+    """
+    Get a Playwright browser instance with the correct executable path.
+    Returns a context manager that yields the browser.
+    """
+    p = await async_playwright().start()
+    
+    # Try to find the chromium executable
+    executable_paths = [
+        f'{PLAYWRIGHT_BROWSERS_PATH}/chromium_headless_shell-1194/chrome-linux/headless_shell',
+        f'{PLAYWRIGHT_BROWSERS_PATH}/chromium-1194/chrome-linux/chrome',
+        f'{PLAYWRIGHT_BROWSERS_PATH}/chromium_headless_shell-1208/chrome-linux/headless_shell',
+    ]
+    
+    executable_path = None
+    for path in executable_paths:
+        if os.path.exists(path):
+            executable_path = path
+            break
+    
+    if executable_path:
+        browser = await p.chromium.launch(headless=True, executable_path=executable_path)
+    else:
+        # Fallback to default (will use PLAYWRIGHT_BROWSERS_PATH env var)
+        browser = await p.chromium.launch(headless=True)
+    
+    return p, browser
+
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']

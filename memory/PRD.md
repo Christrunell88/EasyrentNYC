@@ -62,6 +62,20 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 ## Changelog
 
 ### 2025-01-15
+- **Created:** MongoDB Index Management System
+  - 35+ indexes across all collections for query optimization
+  - Compound indexes for common query patterns
+  - Geospatial (2dsphere) index for map-based searches
+  - Unique indexes for data integrity
+  - Auto-created on server startup
+- **Created:** `/app/backend/create_indexes.py` - Comprehensive index management script
+- **Indexes by collection:**
+  - `units`: 12 indexes (building_id+unit_number, lifecycle_status, rent, updated_at, featured)
+  - `units_staging`: 8 indexes (review_status, duplicate_score DESC, normalized_unit)
+  - `buildings`: 7 indexes (normalized_address, location 2dsphere, city+state)
+  - `buildings_staging`: 5 indexes (review_status, duplicate_score, address_hash)
+  - `price_changes`: 3 indexes (unit_id+changed_at compound)
+  - `status_changes`: 4 indexes (unit_id+changed_at, new_status)
 - **Implemented:** Unit Lifecycle Management System
   - Automatic stale detection (units not updated in 14 days → status = "stale")
   - Rented status tracking with history

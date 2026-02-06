@@ -121,6 +121,72 @@ class Unit(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# ============ STAGING MODELS ============
+# These collections store crawled/unverified listings before production approval
+
+class ReviewStatus:
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+class BuildingStaging(BaseModel):
+    """Staging collection for crawled buildings awaiting review"""
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    # Core building fields (mirror production)
+    name: str
+    address: str
+    neighborhood: str
+    city: str
+    state: str
+    zip_code: str
+    source_url: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    last_crawled: Optional[datetime] = None
+    # Staging-specific fields
+    review_status: str = Field(default="pending")  # pending, approved, rejected
+    crawler_source: str = Field(default="")  # e.g., "mercedeshouseny.com", "tfc.com"
+    crawler_batch_id: str = Field(default="")  # unique identifier for the crawl batch
+    validation_flags: List[str] = Field(default_factory=list)  # e.g., ["missing_zip", "invalid_address"]
+    duplicate_score: float = Field(default=0.0)  # 0-1, higher means more likely duplicate
+    matched_production_id: Optional[str] = None  # ID of matching production building if duplicate
+    reviewer_notes: Optional[str] = None
+    reviewed_by: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UnitStaging(BaseModel):
+    """Staging collection for crawled units awaiting review"""
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    # Core unit fields (mirror production)
+    building_id: str  # References building_staging.id or buildings.id
+    unit_number: str
+    rent: float
+    bedrooms: int  # 0 for studio
+    bathrooms: float
+    square_feet: Optional[int] = None
+    available_date: Optional[str] = None
+    amenities: List[str] = []
+    images: List[str] = []
+    description: Optional[str] = None
+    is_available: bool = True
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    # Staging-specific fields
+    review_status: str = Field(default="pending")  # pending, approved, rejected
+    crawler_source: str = Field(default="")  # e.g., "mercedeshouseny.com", "tfc.com"
+    crawler_batch_id: str = Field(default="")  # unique identifier for the crawl batch
+    validation_flags: List[str] = Field(default_factory=list)  # e.g., ["missing_images", "invalid_rent", "duplicate_kitchen_images"]
+    duplicate_score: float = Field(default=0.0)  # 0-1, higher means more likely duplicate
+    matched_production_id: Optional[str] = None  # ID of matching production unit if duplicate
+    reviewer_notes: Optional[str] = None
+    reviewed_by: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Favorite(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

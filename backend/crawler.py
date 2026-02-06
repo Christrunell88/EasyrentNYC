@@ -737,6 +737,7 @@ async def process_images_for_unit(
 async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
     """Crawl fortysixfifty.com - handles iframe-based availability widget"""
     units = []
+    content = None
     
     try:
         p, browser = await get_browser()
@@ -758,11 +759,14 @@ async def crawl_fortysixfifty(url: str) -> List[Dict[str, Any]]:
             await browser.close()
         finally:
             await p.stop()
+        
+        if not content:
+            return units
             
-            soup = BeautifulSoup(content, 'html.parser')
-            tables = soup.find_all('table')
-            
-            for table in tables:
+        soup = BeautifulSoup(content, 'html.parser')
+        tables = soup.find_all('table')
+        
+        for table in tables:
                 rows = table.find_all('tr')
                 if len(rows) < 2:
                     continue

@@ -1333,6 +1333,264 @@ const AdminPanel = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Reject Staging Unit Dialog */}
+        <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+          <DialogContent className="bg-slate-800 border-red-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100 flex items-center gap-2">
+                <XCircle className="w-5 h-5 text-red-500" />
+                Reject Staging Unit
+              </DialogTitle>
+              <DialogDescription className="text-slate-400">
+                {selectedStagingUnit && (
+                  <>Rejecting unit <span className="text-amber-400">{selectedStagingUnit.unit_number}</span> at {selectedStagingUnit.building_name}</>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="reject-reason" className="text-slate-200">Rejection Reason *</Label>
+                <Textarea
+                  id="reject-reason"
+                  placeholder="Enter reason for rejection..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[100px]"
+                  data-testid="reject-reason-input"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRejectDialogOpen(false);
+                  setSelectedStagingUnit(null);
+                  setRejectReason('');
+                }}
+                className="border-slate-600 text-slate-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleRejectStaging}
+                disabled={!rejectReason.trim()}
+                className="bg-red-600 hover:bg-red-700 text-white"
+                data-testid="confirm-reject-btn"
+              >
+                Reject Unit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Staging Unit Dialog */}
+        <Dialog open={editStagingDialogOpen} onOpenChange={setEditStagingDialogOpen}>
+          <DialogContent className="bg-slate-800 border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100 flex items-center gap-2">
+                <Edit className="w-5 h-5 text-amber-500" />
+                Review & Edit Before Approval
+              </DialogTitle>
+              <DialogDescription className="text-slate-400">
+                Review the unit details and make any necessary changes before approving.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedStagingUnit && (
+              <form onSubmit={handleEditStagingUnit} className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Building</Label>
+                    <Input
+                      value={selectedStagingUnit.building_name || 'Unknown'}
+                      disabled
+                      className="bg-slate-700/30 border-slate-600 text-slate-400"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Address</Label>
+                    <Input
+                      value={selectedStagingUnit.building_address || 'N/A'}
+                      disabled
+                      className="bg-slate-700/30 border-slate-600 text-slate-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-unit-number" className="text-slate-200">Unit Number</Label>
+                    <Input
+                      id="edit-unit-number"
+                      name="unit_number"
+                      defaultValue={selectedStagingUnit.unit_number}
+                      className="bg-slate-700/50 border-slate-600 text-slate-100"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-rent" className="text-slate-200">Rent ($)</Label>
+                    <Input
+                      id="edit-rent"
+                      name="rent"
+                      type="number"
+                      defaultValue={selectedStagingUnit.rent}
+                      className="bg-slate-700/50 border-slate-600 text-slate-100"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-bedrooms" className="text-slate-200">Bedrooms</Label>
+                    <Input
+                      id="edit-bedrooms"
+                      name="bedrooms"
+                      type="number"
+                      defaultValue={selectedStagingUnit.bedrooms}
+                      className="bg-slate-700/50 border-slate-600 text-slate-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-bathrooms" className="text-slate-200">Bathrooms</Label>
+                    <Input
+                      id="edit-bathrooms"
+                      name="bathrooms"
+                      type="number"
+                      step="0.5"
+                      defaultValue={selectedStagingUnit.bathrooms}
+                      className="bg-slate-700/50 border-slate-600 text-slate-100"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-sqft" className="text-slate-200">Square Feet</Label>
+                    <Input
+                      id="edit-sqft"
+                      name="square_feet"
+                      type="number"
+                      defaultValue={selectedStagingUnit.square_feet || ''}
+                      className="bg-slate-700/50 border-slate-600 text-slate-100"
+                    />
+                  </div>
+                </div>
+
+                {/* Metadata Display */}
+                <div className="bg-slate-700/30 p-4 rounded-lg space-y-2">
+                  <h4 className="text-sm font-medium text-slate-300">Crawl Metadata</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-slate-500">Source:</span>{' '}
+                      <span className="text-slate-300">{selectedStagingUnit.crawler_source}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Duplicate Score:</span>{' '}
+                      <Badge className={getDuplicateScoreBadge(selectedStagingUnit.duplicate_score)}>
+                        {(selectedStagingUnit.duplicate_score * 100).toFixed(0)}%
+                      </Badge>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-slate-500">Flags:</span>{' '}
+                      <span className="text-slate-300">
+                        {selectedStagingUnit.validation_flags?.join(', ') || 'None'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Images Preview */}
+                {selectedStagingUnit.images && selectedStagingUnit.images.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Images ({selectedStagingUnit.images.length})</Label>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {selectedStagingUnit.images.slice(0, 5).map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={img}
+                          alt={`Unit image ${idx + 1}`}
+                          className="w-20 h-20 object-cover rounded border border-slate-600"
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
+                      ))}
+                      {selectedStagingUnit.images.length > 5 && (
+                        <div className="w-20 h-20 bg-slate-700 rounded border border-slate-600 flex items-center justify-center text-slate-400 text-sm">
+                          +{selectedStagingUnit.images.length - 5} more
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <DialogFooter className="pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditStagingDialogOpen(false);
+                      setSelectedStagingUnit(null);
+                    }}
+                    className="border-slate-600 text-slate-300"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      setEditStagingDialogOpen(false);
+                      setRejectDialogOpen(true);
+                    }}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Reject Instead
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => handleApproveStaging(selectedStagingUnit.id)}
+                    className="warm-gradient text-slate-900 font-semibold"
+                    data-testid="approve-from-edit-btn"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approve Unit
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Image Preview Dialog */}
+        <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
+          <DialogContent className="bg-slate-800 border-amber-500/30 max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-amber-500" />
+                Unit Images ({previewImages.length})
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4">
+              {previewImages.map((img, idx) => (
+                <div key={idx} className="relative aspect-video">
+                  <img
+                    src={img}
+                    alt={`Unit image ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-lg border border-slate-600"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                    }}
+                  />
+                  <a
+                    href={img}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-2 right-2 p-1 bg-slate-900/70 rounded hover:bg-slate-800"
+                  >
+                    <ExternalLink className="w-4 h-4 text-slate-300" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

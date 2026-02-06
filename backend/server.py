@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import subprocess
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
@@ -18,6 +19,34 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Ensure Playwright browsers are installed
+def ensure_playwright_browsers():
+    """Install Playwright browsers if not present"""
+    browsers_path = os.environ.get('PLAYWRIGHT_BROWSERS_PATH', '/pw-browsers')
+    chromium_path = Path(browsers_path) / 'chromium_headless_shell-1194'
+    
+    if not chromium_path.exists():
+        logging.info("Installing Playwright Chromium browser...")
+        try:
+            os.environ['PLAYWRIGHT_BROWSERS_PATH'] = browsers_path
+            result = subprocess.run(
+                ['playwright', 'install', 'chromium'],
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+            if result.returncode == 0:
+                logging.info("Playwright browser installed successfully")
+            else:
+                logging.warning(f"Playwright install warning: {result.stderr}")
+        except Exception as e:
+            logging.warning(f"Could not install Playwright browser: {e}")
+    else:
+        logging.info("Playwright browser already installed")
+
+# Run browser check at module load
+ensure_playwright_browsers()
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']

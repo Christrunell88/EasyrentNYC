@@ -510,8 +510,16 @@ const AdminPanel = () => {
         <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
           <Tabs defaultValue="dashboard" className="w-full">
             <CardHeader>
-              <TabsList className="grid w-full grid-cols-7 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-8 bg-slate-700/50">
                 <TabsTrigger value="dashboard" data-testid="dashboard-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">All Units</TabsTrigger>
+                <TabsTrigger value="staging" data-testid="staging-tab" onClick={fetchStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500 relative">
+                  Staging Review
+                  {stagingStats.pending > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {stagingStats.pending > 99 ? '99+' : stagingStats.pending}
+                    </span>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>

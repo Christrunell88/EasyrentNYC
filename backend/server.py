@@ -138,6 +138,12 @@ class Unit(BaseModel):
     is_featured: bool = False
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    # Lifecycle management fields
+    lifecycle_status: str = Field(default="available")  # available, stale, rented, unavailable
+    stale_since: Optional[datetime] = None
+    rented_at: Optional[datetime] = None
+    rented_notes: Optional[str] = None
+    lifecycle_updated_at: Optional[datetime] = None
     # Verification fields (set when approved from staging)
     is_verified: bool = False
     verified_at: Optional[datetime] = None

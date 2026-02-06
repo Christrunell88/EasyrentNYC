@@ -1290,6 +1290,378 @@ async def share_unit(input: ShareUnitInput, user: User = Depends(require_auth)):
 
 # ============ ADMIN ROUTES ============
 
+# ============ STAGING COLLECTIONS ROUTES ============
+
+@api_router.get("/admin/staging/buildings")
+async def get_staging_buildings(
+    status: Optional[str] = Query(None, description="Filter by review_status: pending, approved, rejected"),
+    batch_id: Optional[str] = Query(None, description="Filter by crawler_batch_id"),
+    limit: int = Query(100, le=500),
+    skip: int = Query(0),
+    user: User = Depends(require_admin)
+):
+    """Get all buildings in staging collection"""
+    query = {}
+    if status:
+        query["review_status"] = status
+    if batch_id:
+        query["crawler_batch_id"] = batch_id
+    
+    buildings = await db.buildings_staging.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
+    total = await db.buildings_staging.count_documents(query)
+    
+    return {
+        "items": buildings,
+        "total": total,
+        "pending": await db.buildings_staging.count_documents({"review_status": "pending"}),
+        "approved": await db.buildings_staging.count_documents({"review_status": "approved"}),
+        "rejected": await db.buildings_staging.count_documents({"review_status": "rejected"})
+    }
+
+@api_router.get("/admin/staging/buildings/{building_id}")
+async def get_staging_building(building_id: str, user: User = Depends(require_admin)):
+    """Get a specific staging building by ID"""
+    building = await db.buildings_staging.find_one({"id": building_id}, {"_id": 0})
+    if not building:
+        raise HTTPException(status_code=404, detail="Staging building not found")
+    return building
+
+@api_router.post("/admin/staging/buildings")
+async def create_staging_building(
+    building_input: BuildingStagingInput,
+    user: User = Depends(require_admin)
+):
+    """Create a new building in staging"""
+    building = BuildingStaging(
+        name=building_input.name,
+        address=building_input.address,
+        neighborhood=building_input.neighborhood,
+        city=building_input.city,
+        state=building_input.state,
+        zip_code=building_input.zip_code,
+        source_url=building_input.source_url,
+        latitude=building_input.latitude,
+        longitude=building_input.longitude,
+        crawler_source=building_input.crawler_source,
+        crawler_batch_id=building_input.crawler_batch_id,
+        validation_flags=building_input.validation_flags,
+        duplicate_score=building_input.duplicate_score
+    )
+    
+    await db.buildings_staging.insert_one(building.model_dump())
+    return {"id": building.id, "message": "Staging building created"}
+
+@api_router.put("/admin/staging/buildings/{building_id}/review")
+async def review_staging_building(
+    building_id: str,
+    review: StagingReviewInput,
+    user: User = Depends(require_admin)
+):
+    """Review a staging building (approve/reject)"""
+    if review.review_status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="review_status must be 'approved' or 'rejected'")
+    
+    result = await db.buildings_staging.update_one(
+        {"id": building_id},
+        {
+            "$set": {
+                "review_status": review.review_status,
+                "reviewer_notes": review.reviewer_notes,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Staging building not found")
+    
+    return {"message": f"Building {review.review_status}", "id": building_id}
+
+@api_router.post("/admin/staging/buildings/{building_id}/promote")
+async def promote_staging_building(
+    building_id: str,
+    user: User = Depends(require_admin)
+):
+    """Promote an approved staging building to production"""
+    staging_building = await db.buildings_staging.find_one({"id": building_id}, {"_id": 0})
+    if not staging_building:
+        raise HTTPException(status_code=404, detail="Staging building not found")
+    
+    if staging_building.get("review_status") != "approved":
+        raise HTTPException(status_code=400, detail="Building must be approved before promotion")
+    
+    # Create production building (exclude staging-specific fields)
+    production_building = {
+        "id": str(uuid.uuid4()),
+        "name": staging_building["name"],
+        "address": staging_building["address"],
+        "neighborhood": staging_building["neighborhood"],
+        "city": staging_building["city"],
+        "state": staging_building["state"],
+        "zip_code": staging_building["zip_code"],
+        "source_url": staging_building["source_url"],
+        "latitude": staging_building.get("latitude"),
+        "longitude": staging_building.get("longitude"),
+        "last_crawled": staging_building.get("last_crawled"),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.buildings.insert_one(production_building)
+    
+    # Mark staging as promoted
+    await db.buildings_staging.update_one(
+        {"id": building_id},
+        {"$set": {"review_status": "promoted", "matched_production_id": production_building["id"]}}
+    )
+    
+    return {
+        "message": "Building promoted to production",
+        "staging_id": building_id,
+        "production_id": production_building["id"]
+    }
+
+@api_router.delete("/admin/staging/buildings/{building_id}")
+async def delete_staging_building(building_id: str, user: User = Depends(require_admin)):
+    """Delete a staging building"""
+    result = await db.buildings_staging.delete_one({"id": building_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Staging building not found")
+    return {"message": "Staging building deleted"}
+
+# Units Staging Routes
+
+@api_router.get("/admin/staging/units")
+async def get_staging_units(
+    status: Optional[str] = Query(None, description="Filter by review_status: pending, approved, rejected"),
+    batch_id: Optional[str] = Query(None, description="Filter by crawler_batch_id"),
+    building_id: Optional[str] = Query(None, description="Filter by building_id"),
+    limit: int = Query(100, le=500),
+    skip: int = Query(0),
+    user: User = Depends(require_admin)
+):
+    """Get all units in staging collection"""
+    query = {}
+    if status:
+        query["review_status"] = status
+    if batch_id:
+        query["crawler_batch_id"] = batch_id
+    if building_id:
+        query["building_id"] = building_id
+    
+    units = await db.units_staging.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
+    total = await db.units_staging.count_documents(query)
+    
+    return {
+        "items": units,
+        "total": total,
+        "pending": await db.units_staging.count_documents({"review_status": "pending"}),
+        "approved": await db.units_staging.count_documents({"review_status": "approved"}),
+        "rejected": await db.units_staging.count_documents({"review_status": "rejected"})
+    }
+
+@api_router.get("/admin/staging/units/{unit_id}")
+async def get_staging_unit(unit_id: str, user: User = Depends(require_admin)):
+    """Get a specific staging unit by ID"""
+    unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    return unit
+
+@api_router.post("/admin/staging/units")
+async def create_staging_unit(
+    unit_input: UnitStagingInput,
+    user: User = Depends(require_admin)
+):
+    """Create a new unit in staging"""
+    unit = UnitStaging(
+        building_id=unit_input.building_id,
+        unit_number=unit_input.unit_number,
+        rent=unit_input.rent,
+        bedrooms=unit_input.bedrooms,
+        bathrooms=unit_input.bathrooms,
+        square_feet=unit_input.square_feet,
+        available_date=unit_input.available_date,
+        amenities=unit_input.amenities,
+        images=unit_input.images,
+        description=unit_input.description,
+        is_available=unit_input.is_available,
+        crawler_source=unit_input.crawler_source,
+        crawler_batch_id=unit_input.crawler_batch_id,
+        validation_flags=unit_input.validation_flags,
+        duplicate_score=unit_input.duplicate_score
+    )
+    
+    await db.units_staging.insert_one(unit.model_dump())
+    return {"id": unit.id, "message": "Staging unit created"}
+
+@api_router.put("/admin/staging/units/{unit_id}/review")
+async def review_staging_unit(
+    unit_id: str,
+    review: StagingReviewInput,
+    user: User = Depends(require_admin)
+):
+    """Review a staging unit (approve/reject)"""
+    if review.review_status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="review_status must be 'approved' or 'rejected'")
+    
+    result = await db.units_staging.update_one(
+        {"id": unit_id},
+        {
+            "$set": {
+                "review_status": review.review_status,
+                "reviewer_notes": review.reviewer_notes,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    
+    return {"message": f"Unit {review.review_status}", "id": unit_id}
+
+@api_router.post("/admin/staging/units/{unit_id}/promote")
+async def promote_staging_unit(
+    unit_id: str,
+    user: User = Depends(require_admin)
+):
+    """Promote an approved staging unit to production"""
+    staging_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staging_unit:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    
+    if staging_unit.get("review_status") != "approved":
+        raise HTTPException(status_code=400, detail="Unit must be approved before promotion")
+    
+    # Create production unit (exclude staging-specific fields)
+    production_unit = {
+        "id": str(uuid.uuid4()),
+        "building_id": staging_unit["building_id"],
+        "unit_number": staging_unit["unit_number"],
+        "rent": staging_unit["rent"],
+        "bedrooms": staging_unit["bedrooms"],
+        "bathrooms": staging_unit["bathrooms"],
+        "square_feet": staging_unit.get("square_feet"),
+        "available_date": staging_unit.get("available_date"),
+        "amenities": staging_unit.get("amenities", []),
+        "images": staging_unit.get("images", []),
+        "description": staging_unit.get("description"),
+        "is_available": staging_unit.get("is_available", True),
+        "is_featured": False,
+        "latitude": staging_unit.get("latitude"),
+        "longitude": staging_unit.get("longitude"),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.units.insert_one(production_unit)
+    
+    # Mark staging as promoted
+    await db.units_staging.update_one(
+        {"id": unit_id},
+        {"$set": {"review_status": "promoted", "matched_production_id": production_unit["id"]}}
+    )
+    
+    return {
+        "message": "Unit promoted to production",
+        "staging_id": unit_id,
+        "production_id": production_unit["id"]
+    }
+
+@api_router.delete("/admin/staging/units/{unit_id}")
+async def delete_staging_unit(unit_id: str, user: User = Depends(require_admin)):
+    """Delete a staging unit"""
+    result = await db.units_staging.delete_one({"id": unit_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    return {"message": "Staging unit deleted"}
+
+# Bulk Operations for Staging
+
+@api_router.post("/admin/staging/buildings/bulk-review")
+async def bulk_review_staging_buildings(
+    review: StagingBulkReviewInput,
+    user: User = Depends(require_admin)
+):
+    """Bulk review multiple staging buildings"""
+    if review.review_status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="review_status must be 'approved' or 'rejected'")
+    
+    result = await db.buildings_staging.update_many(
+        {"id": {"$in": review.ids}},
+        {
+            "$set": {
+                "review_status": review.review_status,
+                "reviewer_notes": review.reviewer_notes,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    return {
+        "message": f"{result.modified_count} buildings {review.review_status}",
+        "modified_count": result.modified_count
+    }
+
+@api_router.post("/admin/staging/units/bulk-review")
+async def bulk_review_staging_units(
+    review: StagingBulkReviewInput,
+    user: User = Depends(require_admin)
+):
+    """Bulk review multiple staging units"""
+    if review.review_status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="review_status must be 'approved' or 'rejected'")
+    
+    result = await db.units_staging.update_many(
+        {"id": {"$in": review.ids}},
+        {
+            "$set": {
+                "review_status": review.review_status,
+                "reviewer_notes": review.reviewer_notes,
+                "reviewed_by": user.id,
+                "reviewed_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    return {
+        "message": f"{result.modified_count} units {review.review_status}",
+        "modified_count": result.modified_count
+    }
+
+@api_router.get("/admin/staging/stats")
+async def get_staging_stats(user: User = Depends(require_admin)):
+    """Get staging collections statistics"""
+    buildings_pending = await db.buildings_staging.count_documents({"review_status": "pending"})
+    buildings_approved = await db.buildings_staging.count_documents({"review_status": "approved"})
+    buildings_rejected = await db.buildings_staging.count_documents({"review_status": "rejected"})
+    
+    units_pending = await db.units_staging.count_documents({"review_status": "pending"})
+    units_approved = await db.units_staging.count_documents({"review_status": "approved"})
+    units_rejected = await db.units_staging.count_documents({"review_status": "rejected"})
+    
+    # Get recent batch IDs
+    recent_batches = await db.units_staging.distinct("crawler_batch_id")
+    
+    return {
+        "buildings_staging": {
+            "total": buildings_pending + buildings_approved + buildings_rejected,
+            "pending": buildings_pending,
+            "approved": buildings_approved,
+            "rejected": buildings_rejected
+        },
+        "units_staging": {
+            "total": units_pending + units_approved + units_rejected,
+            "pending": units_pending,
+            "approved": units_approved,
+            "rejected": units_rejected
+        },
+        "recent_batch_ids": recent_batches[-10:] if recent_batches else []
+    }
+
 @api_router.get("/admin/users")
 async def get_users(user: User = Depends(require_admin)):
     """Get all users (admin only) - includes plain text passwords"""

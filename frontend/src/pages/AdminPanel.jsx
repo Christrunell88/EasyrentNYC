@@ -1418,42 +1418,46 @@ const AdminPanel = () => {
             </DialogHeader>
             {selectedStagingUnit && (
               <form onSubmit={handleEditStagingUnit} className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-slate-200">Building</Label>
-                    <Input
-                      value={selectedStagingUnit.building_name || 'Unknown'}
-                      disabled
-                      className="bg-slate-700/30 border-slate-600 text-slate-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Address</Label>
-                    <Input
-                      value={selectedStagingUnit.building_address || 'N/A'}
-                      disabled
-                      className="bg-slate-700/30 border-slate-600 text-slate-400"
-                    />
+                    <Label htmlFor="edit-building" className="text-slate-200">Building *</Label>
+                    <select
+                      id="edit-building"
+                      name="building_id"
+                      defaultValue={selectedStagingUnit.building_id || ''}
+                      className="w-full bg-slate-700/50 border border-slate-600 text-slate-100 rounded-md px-3 py-2"
+                      required
+                    >
+                      <option value="">-- Select Building --</option>
+                      {buildings.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} - {b.address}, {b.city}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-slate-500">Select the building this unit belongs to</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-unit-number" className="text-slate-200">Unit Number</Label>
+                    <Label htmlFor="edit-unit-number" className="text-slate-200">Unit Number *</Label>
                     <Input
                       id="edit-unit-number"
                       name="unit_number"
                       defaultValue={selectedStagingUnit.unit_number}
+                      required
                       className="bg-slate-700/50 border-slate-600 text-slate-100"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-rent" className="text-slate-200">Rent ($)</Label>
+                    <Label htmlFor="edit-rent" className="text-slate-200">Rent ($) *</Label>
                     <Input
                       id="edit-rent"
                       name="rent"
                       type="number"
                       defaultValue={selectedStagingUnit.rent}
+                      required
                       className="bg-slate-700/50 border-slate-600 text-slate-100"
                     />
                   </div>

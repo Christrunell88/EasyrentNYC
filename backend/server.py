@@ -1647,6 +1647,72 @@ async def review_staging_unit(
     
     return {"message": f"Unit {review.review_status}", "id": unit_id}
 
+@api_router.put("/admin/staging/units/{unit_id}/edit")
+async def edit_staging_unit(
+    unit_id: str,
+    edit_data: StagingUnitEditInput,
+    user: User = Depends(require_admin)
+):
+    """Edit staging unit details before approval (building, rent, etc.)"""
+    # Verify the staging unit exists
+    staging_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staging_unit:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    
+    # Build update dict with only provided fields
+    update_data = {}
+    
+    if edit_data.building_id is not None:
+        # Verify building exists
+        building = await db.buildings.find_one({"id": edit_data.building_id}, {"_id": 0})
+        if not building:
+            raise HTTPException(status_code=400, detail="Invalid building_id - building not found")
+        update_data["building_id"] = edit_data.building_id
+        update_data["building_name"] = building.get("name")
+        update_data["building_address"] = building.get("address")
+    
+    if edit_data.unit_number is not None:
+        update_data["unit_number"] = edit_data.unit_number
+        update_data["normalized_unit_number"] = edit_data.unit_number.strip().upper()
+    
+    if edit_data.rent is not None:
+        update_data["rent"] = edit_data.rent
+    
+    if edit_data.bedrooms is not None:
+        update_data["bedrooms"] = edit_data.bedrooms
+    
+    if edit_data.bathrooms is not None:
+        update_data["bathrooms"] = edit_data.bathrooms
+    
+    if edit_data.square_feet is not None:
+        update_data["square_feet"] = edit_data.square_feet
+    
+    if edit_data.available_date is not None:
+        update_data["available_date"] = edit_data.available_date
+    
+    if edit_data.description is not None:
+        update_data["description"] = edit_data.description
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    
+    # Add metadata
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    update_data["edited_by"] = user.id
+    update_data["edited_at"] = datetime.now(timezone.utc).isoformat()
+    
+    result = await db.units_staging.update_one(
+        {"id": unit_id},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        return {"message": "No changes made", "id": unit_id}
+    
+    # Return updated unit
+    updated_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    return {"message": "Unit updated", "id": unit_id, "unit": updated_unit}
+
 @api_router.post("/admin/staging/units/{unit_id}/promote")
 async def promote_staging_unit(
     unit_id: str,

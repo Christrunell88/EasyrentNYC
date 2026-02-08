@@ -406,6 +406,17 @@ class StagingReviewInput(BaseModel):
     review_status: str  # "approved" or "rejected"
     reviewer_notes: Optional[str] = None
 
+class StagingUnitEditInput(BaseModel):
+    """Input model for editing staging unit details before approval"""
+    building_id: Optional[str] = None
+    unit_number: Optional[str] = None
+    rent: Optional[float] = None
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[float] = None
+    square_feet: Optional[int] = None
+    available_date: Optional[str] = None
+    description: Optional[str] = None
+
 class StagingBulkReviewInput(BaseModel):
     """Input model for bulk reviewing staging items"""
     ids: List[str]

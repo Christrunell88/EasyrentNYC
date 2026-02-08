@@ -169,15 +169,25 @@ const AdminPanel = () => {
     if (!selectedStagingUnit) return;
     
     const formData = new FormData(e.target);
+    const building_id = formData.get('building_id');
+    
+    if (!building_id) {
+      toast.error('Please select a building');
+      return;
+    }
     
     try {
-      // Update the staging unit in the database
-      await axios.put(`${API}/admin/staging/units/${selectedStagingUnit.id}/review`, {
-        review_status: 'pending',
-        reviewer_notes: 'Edited before approval'
+      // First update the staging unit with edited data
+      await axios.put(`${API}/admin/staging/units/${selectedStagingUnit.id}/edit`, {
+        building_id: building_id,
+        unit_number: formData.get('unit_number'),
+        rent: parseFloat(formData.get('rent')),
+        bedrooms: parseInt(formData.get('bedrooms')) || 0,
+        bathrooms: parseFloat(formData.get('bathrooms')) || 1,
+        square_feet: formData.get('square_feet') ? parseInt(formData.get('square_feet')) : null
       }, { withCredentials: true });
       
-      // Then approve with updated data
+      // Then approve the unit
       await axios.post(`${API}/staging/approve/${selectedStagingUnit.id}?notes=Edited%20and%20approved`, {}, { withCredentials: true });
       
       toast.success('Unit edited and approved!');

@@ -53,7 +53,24 @@ const AdminPanel = () => {
 
   useEffect(() => {
     fetchData();
+    fetchStagingStats();
   }, []);
+
+  // Fetch just the staging stats (for badge count)
+  const fetchStagingStats = async () => {
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/admin/staging/units?status=pending&limit=1&_t=${timestamp}`, { withCredentials: true });
+      setStagingStats({
+        pending: response.data.pending || 0,
+        approved: response.data.approved || 0,
+        rejected: response.data.rejected || 0,
+        total: response.data.total || 0
+      });
+    } catch (error) {
+      console.error('Error fetching staging stats:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {

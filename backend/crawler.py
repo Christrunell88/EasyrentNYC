@@ -1638,6 +1638,8 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
         units_data = await crawl_mercedes_house(url)
     elif 'harrisonyards' in url:
         units_data = await crawl_harrison_yards(url)
+    elif '7w21' in url or '7w21.com' in url:
+        units_data = await crawl_7w21(url)
     else:
         units_data = await crawl_generic_site(url)
     

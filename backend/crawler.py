@@ -1211,6 +1211,160 @@ async def crawl_generic_site(url: str) -> List[Dict[str, Any]]:
     return units
 
 
+async def crawl_7w21(url: str) -> List[Dict[str, Any]]:
+    """
+    Crawl 7W21 (7 West 21st Street) - Rose NYC iframe-based availability.
+    
+    Site uses: https://www.rosenyc.com/availability/mgoublmo/
+    Wait for DOM to render the #availability section.
+    Extract: Unit Number, Bedrooms, Bathrooms, Price, Square Footage, Availability Date
+    """
+    units = []
+    
+    try:
+        p, browser = await get_browser()
+        try:
+            page = await browser.new_page()
+            
+            logger.info(f"Loading 7W21 main page...")
+            await page.goto('https://www.7w21.com/', wait_until='domcontentloaded', timeout=60000)
+            
+            # Wait for the page to load fully
+            await page.wait_for_timeout(15000)
+            
+            # Find the Rose NYC iframe
+            frames = page.frames
+            rosenyc_frame = None
+            
+            for frame in frames:
+                if 'rosenyc.com' in frame.url:
+                    rosenyc_frame = frame
+                    logger.info(f"Found Rose NYC iframe: {frame.url}")
+                    break
+            
+            if not rosenyc_frame:
+                logger.warning("Rose NYC iframe not found, trying direct URL")
+                await page.goto('https://www.rosenyc.com/availability/mgoublmo/', wait_until='domcontentloaded', timeout=60000)
+                await page.wait_for_timeout(10000)
+                content = await page.content()
+            else:
+                # Wait for iframe content to load
+                await rosenyc_frame.wait_for_load_state('domcontentloaded')
+                await asyncio.sleep(5)
+                content = await rosenyc_frame.content()
+            
+            await browser.close()
+        finally:
+            await p.stop()
+        
+        if not content:
+            logger.warning("No content retrieved from 7W21")
+            return units
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Check for "Please call for availability" message (no units available)
+        if 'please call for availability' in content.lower():
+            logger.info("7W21: No units currently available (please call message)")
+            return units
+        
+        # Look for table rows with unit data
+        rows = soup.find_all('tr', {'data-beds': True})
+        
+        if not rows:
+            # Fallback: look for any table rows with data
+            tables = soup.find_all('table')
+            for table in tables:
+                rows = table.find_all('tr')[1:]  # Skip header
+        
+        logger.info(f"Found {len(rows)} potential unit rows")
+        
+        for row in rows:
+            try:
+                cells = row.find_all('td')
+                if len(cells) < 5:
+                    continue
+                
+                # Extract data from cells
+                unit_data = {
+                    'unit_number': '',
+                    'rent': 0.0,
+                    'bedrooms': 0,
+                    'bathrooms': 1.0,
+                    'square_feet': None,
+                    'available_date': 'Immediate',
+                    'images': [],
+                    'amenities': [],
+                    'description': '7 West 21st Street - Flatiron District luxury apartment',
+                    'raw_data': str(row)[:2000]
+                }
+                
+                for cell in cells:
+                    label = cell.get('data-label', '').lower()
+                    text = cell.get_text(strip=True)
+                    
+                    if 'unit' in label or 'apt' in label:
+                        unit_data['unit_number'] = text
+                    
+                    elif 'bedroom' in label or 'bed' in label:
+                        if 'studio' in text.lower():
+                            unit_data['bedrooms'] = 0
+                        else:
+                            bed_match = re.search(r'(\d+)', text)
+                            if bed_match:
+                                unit_data['bedrooms'] = int(bed_match.group(1))
+                    
+                    elif 'bathroom' in label or 'bath' in label:
+                        bath_match = re.search(r'(\d+(?:\.\d+)?)', text)
+                        if bath_match:
+                            unit_data['bathrooms'] = float(bath_match.group(1))
+                    
+                    elif 'rent' in label or 'price' in label or '$' in text:
+                        rent_match = re.search(r'\$([0-9,]+)', text)
+                        if rent_match:
+                            unit_data['rent'] = float(rent_match.group(1).replace(',', ''))
+                    
+                    elif 'sqft' in label or 'sq' in label:
+                        sqft_match = re.search(r'([0-9,]+)', text)
+                        if sqft_match:
+                            unit_data['square_feet'] = int(sqft_match.group(1).replace(',', ''))
+                    
+                    elif 'availability' in label or 'available' in label:
+                        unit_data['available_date'] = text or 'Immediate'
+                
+                # Also try to get bedrooms from data attribute
+                beds_attr = row.get('data-beds')
+                if beds_attr and not unit_data['bedrooms']:
+                    try:
+                        unit_data['bedrooms'] = int(beds_attr)
+                    except:
+                        pass
+                
+                # Extract images from the row
+                images = row.find_all('a', class_='mfp-image')
+                for img_link in images:
+                    href = img_link.get('href')
+                    if href and href.startswith('http'):
+                        unit_data['images'].append(href)
+                
+                if unit_data['rent'] > 0:
+                    if not unit_data['unit_number']:
+                        unit_data['unit_number'] = f"Unit-{len(units)+1}"
+                    units.append(unit_data)
+                    logger.info(f"Found unit: {unit_data['unit_number']} - ${unit_data['rent']}")
+            
+            except Exception as e:
+                logger.error(f"Error parsing 7W21 unit row: {e}")
+                continue
+        
+        logger.info(f"7W21 crawl complete: found {len(units)} units")
+    
+    except Exception as e:
+        logger.error(f"Error crawling 7W21: {e}")
+    
+    return units
+
+
 # ============ STAGING INSERTION (NO DIRECT PRODUCTION WRITES) ============
 
 async def insert_building_to_staging(

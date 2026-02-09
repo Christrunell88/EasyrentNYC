@@ -1486,6 +1486,119 @@ async def crawl_rivercourt(url: str) -> List[Dict[str, Any]]:
     return units
 
 
+async def crawl_melar(url: str) -> List[Dict[str, Any]]:
+    """
+    Crawl The Melar - Rose NYC iframe-based availability.
+    
+    Site uses: https://www.rosenyc.com/availability/mgooldds/
+    Extract: Unit Number, Bedrooms, Bathrooms, Price, Square Footage, Availability Date
+    """
+    units = []
+    
+    try:
+        p, browser = await get_browser()
+        try:
+            page = await browser.new_page()
+            
+            logger.info("Loading The Melar page...")
+            await page.goto(url, wait_until='domcontentloaded', timeout=60000)
+            await page.wait_for_timeout(15000)
+            
+            # Find the Rose NYC iframe
+            frames = page.frames
+            rosenyc_frame = None
+            
+            for frame in frames:
+                if 'rosenyc.com' in frame.url:
+                    rosenyc_frame = frame
+                    logger.info(f"Found Rose NYC iframe: {frame.url}")
+                    break
+            
+            if rosenyc_frame:
+                await rosenyc_frame.wait_for_load_state('domcontentloaded')
+                await asyncio.sleep(5)
+                content = await rosenyc_frame.content()
+            else:
+                logger.warning("Rose NYC iframe not found")
+                content = await page.content()
+            
+            await browser.close()
+        finally:
+            await p.stop()
+        
+        if not content:
+            return units
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        rows = soup.find_all('tr', {'role': 'row'})
+        logger.info(f"Found {len(rows)} table rows")
+        
+        for row in rows:
+            if 't-header' in row.get('class', []):
+                continue
+            
+            cells = row.find_all('td')
+            if len(cells) < 5:
+                continue
+            
+            try:
+                unit_data = {
+                    'unit_number': '',
+                    'bedrooms': 0,
+                    'bathrooms': 1.0,
+                    'square_feet': None,
+                    'rent': 0.0,
+                    'available_date': 'Immediate',
+                    'images': [],
+                    'amenities': [],
+                    'description': 'The Melar - Upper West Side luxury apartment',
+                    'raw_data': str(row)[:2000]
+                }
+                
+                for cell in cells:
+                    label = cell.get('data-label', '').lower()
+                    text = cell.get_text(strip=True)
+                    
+                    if label == 'unit':
+                        unit_data['unit_number'] = text
+                    elif label == 'bedroom':
+                        if 'studio' in text.lower():
+                            unit_data['bedrooms'] = 0
+                        else:
+                            m = re.search(r'(\d+)', text)
+                            if m:
+                                unit_data['bedrooms'] = int(m.group(1))
+                    elif label == 'bathroom':
+                        m = re.search(r'([\d.]+)', text)
+                        if m:
+                            unit_data['bathrooms'] = float(m.group(1))
+                    elif label == 'sqft':
+                        m = re.search(r'([\d,]+)', text)
+                        if m:
+                            unit_data['square_feet'] = int(m.group(1).replace(',', ''))
+                    elif label == 'rent':
+                        m = re.search(r'[\$]([0-9,]+)', text)
+                        if m:
+                            unit_data['rent'] = float(m.group(1).replace(',', ''))
+                    elif label == 'availability':
+                        unit_data['available_date'] = text if text else 'Immediate'
+                
+                if unit_data['unit_number'] and unit_data['rent'] > 0:
+                    units.append(unit_data)
+                    logger.info(f"Found unit: {unit_data['unit_number']} - ${unit_data['rent']}")
+            
+            except Exception as e:
+                logger.error(f"Error parsing Melar unit row: {e}")
+                continue
+        
+        logger.info(f"Melar crawl complete: found {len(units)} units")
+    
+    except Exception as e:
+        logger.error(f"Error crawling Melar: {e}")
+    
+    return units
+
+
 # ============ STAGING INSERTION (NO DIRECT PRODUCTION WRITES) ============
 
 async def insert_building_to_staging(

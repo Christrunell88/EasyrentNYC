@@ -1716,6 +1716,8 @@ async def crawl_new_building_to_staging(
         units_data = await crawl_mercedes_house(source_url)
     elif 'harrisonyards' in source_url:
         units_data = await crawl_harrison_yards(source_url)
+    elif '7w21' in source_url or '7w21.com' in source_url:
+        units_data = await crawl_7w21(source_url)
     else:
         units_data = await crawl_generic_site(source_url)
     

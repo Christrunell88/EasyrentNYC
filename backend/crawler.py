@@ -1958,6 +1958,8 @@ async def crawl_new_building_to_staging(
         units_data = await crawl_7w21(source_url)
     elif 'rivercourt' in source_url or 'rentrivercourtnyc' in source_url:
         units_data = await crawl_rivercourt(source_url)
+    elif 'melar' in source_url or 'themelar' in source_url:
+        units_data = await crawl_melar(source_url)
     else:
         units_data = await crawl_generic_site(source_url)
     

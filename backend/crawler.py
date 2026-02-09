@@ -1876,6 +1876,8 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
         units_data = await crawl_7w21(url)
     elif 'rivercourt' in url or 'rentrivercourtnyc' in url:
         units_data = await crawl_rivercourt(url)
+    elif 'melar' in url or 'themelar' in url:
+        units_data = await crawl_melar(url)
     else:
         units_data = await crawl_generic_site(url)
     

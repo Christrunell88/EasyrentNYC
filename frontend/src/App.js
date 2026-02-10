@@ -143,6 +143,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Navigate to="/auth" replace />} />
+            <Route path="/signup" element={<Navigate to="/auth" replace />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/session" element={<SessionHandler />} />
             <Route path="/location/:location" element={<LocationPage />} />

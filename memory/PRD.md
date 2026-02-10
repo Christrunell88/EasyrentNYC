@@ -80,8 +80,13 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] Facebook Graph API connection
 
 ### 🟠 Pending User Verification
-- [ ] Stats display on live site (requires redeployment)
-- [ ] Login/Signup on custom domain (requires redeployment)
+- [x] ~~Stats display on live site~~ - Fixed, requires redeployment
+- [x] ~~Login/Signup on custom domain~~ - **FIXED** - requires redeployment
+
+### Recent Fixes (2026-02-10)
+- **Fixed login on custom domain**: Changed API URL logic to use `window.location.origin` in production
+- **Added /login and /signup routes**: Now redirect to /auth page
+- **Fixed CORS configuration**: Changed from `*` to explicit origins list (required for withCredentials)
 
 ### 🟡 Upcoming Tasks (P1-P2)
 - [ ] Complete #FeeFreeFinds branding (badges, social sharing)

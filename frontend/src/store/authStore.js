@@ -2,9 +2,19 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from '../utils/axiosConfig';
 
-// Use current origin for API calls to avoid cross-origin issues with custom domains
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
-const API = `${BACKEND_URL}/api`;
+// For authentication requests, always use the current origin to avoid CORS/cookie issues
+// This ensures cookies work correctly on custom domains like nofeesapts.com
+const getAuthApiUrl = () => {
+  // In production with custom domains, use current origin for auth
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;
+  }
+  // In development, use the configured backend URL
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+  return `${BACKEND_URL}/api`;
+};
+
+const API = getAuthApiUrl();
 
 const useAuthStore = create(
   persist(

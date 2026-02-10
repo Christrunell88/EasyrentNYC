@@ -16,57 +16,54 @@ The user wants to build a web application called NoFeesApts.com that functions s
 - **Notifications:** Send email notifications for contact form submissions and a welcome email for new user sign-ups.
 - **Appointment Scheduling:** Allow users to request a tour date/time, and integrate with Google Calendar.
 - **AI Search Agent:** An AI-powered agent to help users find apartments.
-- **Staging & Approval Pipeline (New):** A comprehensive system to crawl listings into a staging area for admin review, deduplication, and approval before they are promoted to the live, production database.
+- **Staging & Approval Pipeline:** A comprehensive system to crawl listings into a staging area for admin review, deduplication, and approval before they are promoted to the live, production database.
+- **Lifecycle Management:** Automatically track and update the status of listings (e.g., mark as stale if not updated recently).
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack platform (React, FastAPI, MongoDB) with a Luxury Dark Theme. The core functionality has been extended with a complete staging and promotion pipeline for apartment listings.
+The application is a full-stack platform (React/FastAPI/MongoDB) with a functional staging and promotion pipeline for apartment listings. The system includes a web crawler that writes exclusively to staging collections, an admin panel for review/approval, and a promotion service.
 
-This new system includes:
-- **Staging Collections:**  and  in MongoDB to hold all newly crawled data.
-- **Segregated Crawler:** The web crawler has been refactored to *only* write to the staging collections.
-- **Data Enrichment:** The crawler now normalizes addresses, generates unique hashes, and checks for potential duplicates against the production database, flagging them with a .
-- **Admin Review UI:** The admin panel has a new Staging Listings Review tab where admins can view pending listings, sorted by duplicate score, and see details like source, validation flags, and images.
-- **Approval Workflow:** Admins can Approve or Reject staged listings via dedicated API endpoints.
-- **Promotion Service:** An intelligent service that, upon approval, moves a staged listing to the production  collection. It updates existing units (tracking price/status history) or creates new ones, preventing duplicates in production.
-- **Database Access Control:** A new access control layer () enforces that only admin-authorized processes (like the promotion service) can write to production collections, while crawlers are restricted to staging.
-- **Database Seeding:** A data seeding script () was created to populate the production database on initial deployment, as a workaround for a direct DB migration failure.
+Key features implemented in the last session include:
+- A robust database access control layer that was tested and verified.
+- An automated unit lifecycle management service () that marks listings as stale if not updated within 14 days, with a corresponding scheduled job.
+- Comprehensive MongoDB indexes to optimize database performance.
+- A critical fix for the web crawler, which was failing silently due to Playwright browsers not being installed correctly for background tasks. This was resolved by forcing the browser path and adding an installation step on server startup.
+- A fully implemented Edit Staging Unit feature in the admin panel, allowing admins to modify unit details and assign buildings before approval.
+- Three new building-specific scrapers for , , and , which successfully added 56 new units to the staging collection.
+- Automatic image extraction and association for listings from two of the new scrapers.
 
 **Last working item**:
-- **Last item agent was working:** Implementing a database access control layer () to enforce a hard rule requested by the user: no automated process can write directly to production collections (, ). The agent created the access layer and refactored the crawler and promotion service to use it, but has not yet tested the changes.
+- **Last item agent was working:** The user provided three stock photos to be associated with the manually-added placeholder units for the 7 West 21st Street building (as its website currently has no public listings/images). The agent acknowledged the user's request and was about to perform the update.
 - **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** backend testing agent. A test script should be written to verify the access control rules:
-    1.  Confirm the crawler role is blocked from writing to .
-    2.  Confirm the admin role (used by the promotion service) is allowed to write to .
-    3.  Run a full end-to-end test: crawl -> stage -> approve -> promote to ensure the entire pipeline works with the new restrictions.
+- **Which testing method agent to use?** backend testing agent. The agent should write a script to update the  field for the three specific  units in the  collection and verify the update was successful. A screenshot of the admin Edit dialog for one of these units can provide visual confirmation.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** (P0) Test the Database Access Control Layer.
+- **Issue 1:** (P0) Assign user-provided stock images to the three  placeholder units in the staging database.
 - **Issue 2:** (P1) Landing page displays incorrect stats (63 units/24 buildings) on the live site.
 - **Issue 3:** (P2) Login and Signup fail on the live custom domain ().
 
 **Issues Detail:**
-- **Issue 1: Test the Database Access Control Layer**
-    - **Attempted fixes:** The code has been written and integrated into  and .
+- **Issue 1: Assign stock images to 7W21 units**
+    - **Attempted fixes:** None yet. The agent received the image URLs from the user at the end of the session.
     - **Next debug checklist:**
-        - Create a test script in  to simulate write attempts from different roles (, ).
-        - Assert that crawler writes to production collections raise a .
-        - Assert that admin writes to production collections succeed.
-        - Run an E2E test of the promotion flow to ensure it still works.
-    - **Why fix this issue and what will be achieved with the fix?** To ensure the critical security and data integrity rule requested by the user is working correctly, preventing accidental data corruption by automated processes.
+        1. Write a Python script to connect to the database.
+        2. Find the three  units in the  collection (batch ID ).
+        3. Update the  array field for each unit with the provided URLs.
+        4. Verify the update by querying the documents again.
+    - **Why fix this issue and what will be achieved with the fix?** To complete the manual data entry for the 7W21 building, ensuring the listings have images when viewed in the admin panel for approval.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Backend
+    - **Should Test frontend/backend/both after fix?** Backend.
     - **Blocked on other issue:** None.
 
 - **Issue 2: Incorrect stats on live site**
-    - **Attempted fixes:** This recurring issue was addressed in the preview environment by creating a  endpoint with cache-busting headers and updating the frontend to use it. The problem persists on the user's live site. The newly implemented database seeding mechanism should also resolve any data disparity on the next deployment.
+    - **Attempted fixes:** This was fixed in the preview environment. The issue persists on the live site because it requires a new deployment.
     - **Next debug checklist:**
-        1.  Instruct the user to redeploy the application to run the new database seeder and deploy the frontend fixes.
-        2.  Advise the user to perform a hard refresh (Cmd+Shift+R or Ctrl+F5) to clear their browser cache.
+        1.  Instruct the user to redeploy the application.
+        2.  Advise the user to perform a hard refresh (Cmd+Shift+R or Ctrl+F5).
     - **Why fix this issue and what will be achieved with the fix?** Fixes a critical UI bug that misrepresents the site's inventory.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
@@ -74,30 +71,30 @@ This new system includes:
     - **Blocked on other issue:** User redeployment.
 
 - **Issue 3: Login/Signup fails on custom domain**
-    - **Attempted fixes:** Backend CORS configuration has been verified as correct. The issue is likely on the frontend or with the production environment setup.
+    - **Attempted fixes:** Backend CORS is correct. This is pending user redeployment.
     - **Next debug checklist:**
         1.  After the next deployment, ask the user to test login/signup on the custom domain.
         2.  If it fails, ask the user to check the browser's developer console for new errors.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical bug blocking all user authentication on the production site.
+    - **Why fix this issue and what will be achieved with the fix?** Critical bug blocking all user authentication on the production site.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** Frontend
     - **Blocked on other issue:** User redeployment.
 
 **In progress Task List**:
-- **Task 1: Test Database Access Control** (P0)
-    - **Where to resume:** Create and execute a Python test script to validate the rules in .
-    - **What will be achieved with this?** Confirmation that the data integrity rules are correctly implemented.
+- **Task 1: Assign stock images to 7W21 units** (P0)
+    - **Where to resume:** Write and execute a database update script as outlined in Issue 1.
+    - **What will be achieved with this?** The placeholder listings for 7W21 will have images, making them ready for admin approval.
     - **Status:** IN PROGRESS
     - **Should Test frontend/backend/both after fix?** Backend
     - **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P1:** Implement Edit before approval functionality on the Admin Panel's Staging Review page. The UI/UX is built, but the edit dialog and API calls need to be wired up.
     - **P1:** Complete the  branding strategy (add badges to listings, update social sharing text).
-    - **P2:** Start **Option B: SEO Optimization** (enhance location-specific pages with rich content, add more blog content).
+    - **P2:** Start **Option B: SEO Optimization** (enhance location-specific pages, add more blog content).
     - **P2:** Add an Admin link back to the UI (e.g., in the footer).
+    - **P2:** Create a Lifecycle Dashboard UI for admins to view stale units, price changes, etc.
 - **Future Tasks:**
     - **P2:** Add Advanced Filters (move-in date, pet-friendly, etc.).
     - **P2:** Implement a backlink-building strategy.
@@ -106,16 +103,21 @@ This new system includes:
     - **P3:** Set up and manage Google/Facebook Ad campaigns.
 
 **Completed work in this session**
-- **Staging & Promotion Pipeline:** Built a full-featured system for crawling, reviewing, and promoting listings to production.
-- **Database Seeding Mechanism:** Created a  script to populate the database on initial deployment with 180 units and 34 buildings.
-- **Database Access Control Layer:** Implemented  to enforce role-based write permissions to the database.
-- **Admin Panel Staging UI:** Extended the React admin panel with a Staging Listings Review tab for managing the approval workflow.
-- **Crawler Enhancements:** The crawler now writes exclusively to staging, normalizes addresses, and flags potential duplicates.
-- **Promotion Service with History:** Created  to handle updates to existing listings and track price/status changes over time.
-- **Bug Fix - Inaccurate Images:** Investigated and fixed incorrect images for a listing by replacing them with appropriate stock photos and updating the seed data file.
+- **Tested Database Access Control:** Wrote and executed  to confirm crawler permissions are correctly enforced.
+- **Implemented Unit Lifecycle Management:** Created  to automatically mark units as stale if not updated in 14 days, with a daily scheduled job.
+- **Created MongoDB Indexes:** Implemented a comprehensive index script () and integrated it into server startup for performance.
+- **Fixed Web Crawler:** Diagnosed and fixed the Playwright browsers not installed issue, enabling the crawler to run successfully in background tasks. Refactored  with a centralized  helper.
+- **Fixed Admin Panel Staging UI:** Corrected the API endpoint for fetching staging units and ensured stats load on the initial render.
+- **Implemented Edit Staging Unit Feature:** Built the backend endpoint () and wired up the frontend dialog in  to allow editing of staged units.
+- **Added 3 New Building Scrapers:** Created scrapers for , , and  in , adding 56 new units to staging.
+- **Scraped and Associated Listing Images:** Automatically extracted and matched images for 15 units from the  and  scrapers.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1:** The  definition is duplicated across  and . This should be centralized into a single configuration/utility file.
+- **Issue 1: Duplicated  constant**
+    - **Debug checklist:** Centralize the  definition into a single configuration or utility file (e.g., ) and import it in  and .
+    - **Why to solve this issue and what will be achieved with this?** Improves code maintainability and reduces the risk of configuration errors.
+    - **Should Test frontend/backend/both after fix:** Frontend
+    - **Is recurring issue?** Y
 
 **Known issue recurrence from previous fork**
 - **Issue recurrence in previous fork:** Authentication issues on the custom domain, and incorrect stats display on the landing page.
@@ -126,17 +128,15 @@ This new system includes:
 
 
 **Key Technical Concepts**
-- **Staging/Promotion Pipeline:** A multi-step process for data ingestion and quality control before it becomes public.
-- **Database Seeding:** A strategy to initialize a database with a predefined dataset, used here as a workaround for a failed direct migration.
-- **Role-Based Access Control (RBAC):** An application-level security model implemented to control database write access based on the process's role (e.g., 'crawler' vs. 'admin').
-- **Data Normalization & Deduplication:** Techniques used in the crawler to standardize addresses and identify potential duplicate listings before they enter the review queue.
-- **Stateful React UI:** The Admin Panel was significantly updated with new state management, API calls, and conditional rendering for the staging workflow.
+- **Background Job Scheduling:** Using  to run daily jobs (stale check) and trigger long-running tasks (crawling).
+- **Web Scraping with Playwright:** Handling complex sites with iframes, dynamic content loading, and environment-specific browser paths.
+- **MongoDB Indexing:** Applying indexes on various fields (, , , ) to optimize query performance.
+- **Full-Stack Feature Development:** Building features from the database schema change up to the React frontend component (e.g., the Edit Staging Unit feature).
+- **Environment Configuration:** Managing differences between local/preview and production environments, specifically the Playwright browser installation path.
 
 **key DB schema**
-- **buildings_staging / units_staging**: Mirrored production collections plus 
-- **units / buildings**: Added 
-- **price_history**: 
-- **status_history**: 
+- : Added  (defaults to available).
+- Indexes added to , , , , , .
 
 **All files of reference**
 - **Created:**
@@ -144,58 +144,116 @@ This new system includes:
     - 
     - 
     - 
-    - 
+    - Checking Playwright browser installation...
+Installing Playwright Chromium browser...
+Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux-arm64.zip
+|                                                                                |   0% of 175.9 MiB
+|■■■■■■■■                                                                        |  10% of 175.9 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 175.9 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 175.9 MiB
+Chromium 141.0.7390.37 (playwright build v1194) downloaded to /pw-browsers/chromium-1194
+Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux-arm64.zip
+|                                                                                |   0% of 106.1 MiB
+|■■■■■■■■                                                                        |  10% of 106.1 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 106.1 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 106.1 MiB
+Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /pw-browsers/chromium_headless_shell-1194
+Playwright browser installed successfully
+Starting FastAPI server...
 - **Updated:**
-    -  (complete rewrite)
-    -  (extensive additions for new models and endpoints)
-    -  (major additions for staging UI)
+    - 
+    - 
+    - 
+    - 
 
 **Areas that need refactoring**:
-- The  definition is duplicated in  and .
-- The Edit button in the new Staging Review UI is present but its functionality (dialog and API logic) is not implemented.
+- The  constant is duplicated in  and .
+-  is becoming large. The individual scraper functions could be moved to a dedicated  directory to improve modularity.
 
 **key api endpoints**
-- ****: Manually triggers the database seeding.
-- ****: Fetches staged units by their review status.
-- ****: Approves a staged unit (simple approval, likely superseded by promotion service).
-- ****: Rejects a staged unit.
-- ****: Promotes a staged unit to production, intelligently creating or updating.
+- : Edits a specific staging unit.
+- : Manually triggers the stale unit check.
+- : Gets a summary of unit counts by lifecycle status.
+- : Retrieves all units currently marked as stale.
+- : Triggers a background crawl for all buildings.
 
 **Critical Info for New Agent**
-- **The DB Migration task is OBSOLETE.** It failed and has been replaced by a database seeding mechanism (). The immediate priority is to test the new Database Access Control layer.
-- **The Staging Pipeline is the core feature.** The entire workflow from crawling to staging to promotion has been built in this session. Your next tasks will likely involve testing and refining this pipeline.
-- **Frontend testing was challenging.** The agent had trouble with automated browser login for screenshots. When testing the admin panel, it may be more efficient to test the APIs directly and trust the React code if it compiles, or to perform a manual login if necessary.
-- **Instruct the user to redeploy.** The persistent bugs on the user's live site (stats, auth) can only be verified after a new deployment, which will apply all the backend fixes and run the new database seeder.
+- **Redeployment is required for production fixes.** The user's primary complaint is not seeing crawled units in their live admin panel. This is because the critical crawler fixes (Playwright browser installation) and frontend API path corrections have been made in the preview environment but not yet deployed to production. You must guide the user to redeploy and then trigger a crawl from their admin panel.
+- The crawler now works reliably in background tasks. The key was creating  to run Downloading Firefox 142.0.1 (playwright build v1495) from https://cdn.playwright.dev/dbazure/download/playwright/builds/firefox/1495/firefox-debian-12-arm64.zip
+|                                                                                |   0% of 88 MiB
+|■■■■■■■■                                                                        |  10% of 88 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 88 MiB
+Firefox 142.0.1 (playwright build v1495) downloaded to /pw-browsers/firefox-1495
+Downloading Webkit 26.0 (playwright build v2215) from https://cdn.playwright.dev/dbazure/download/playwright/builds/webkit/2215/webkit-debian-12-arm64.zip
+|                                                                                |   0% of 88 MiB
+|■■■■■■■■                                                                        |  10% of 88 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 88 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 88 MiB
+Webkit 26.0 (playwright build v2215) downloaded to /pw-browsers/webkit-2215 and hardcoding the browser path in a helper function within .
+- The Edit before approval feature is now fully implemented. Admins can select a building from a dropdown and edit unit details in a dialog before approving.
 
 **documents and test reports created in this job**
 -  (updated)
+- 
+- 
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** Implement a hard rule to restrict production writes to crawlers. (Status: **In Progress**)
-9. **User:** Confirm the promotion service handles duplicate updates correctly. (Status: **Completed**)
-8. **User:** Build a promotion service to move staged listings to production. (Status: **Completed**)
-7. **User:** Build an approval system for staged listings (GET/POST endpoints). (Status: **Completed**)
-6. **User:** Extend the admin dashboard with a staging review section. (Status: **Completed**)
-5. **User:** Add deduplication checks to the staging pipeline. (Status: **Completed**)
-4. **User:** Update the crawler to write *only* to staging collections. (Status: **Completed**)
-3. **User:** Create  and  collections. (Status: **Completed**)
-2. **User:** Images for a specific unit are inaccurate. (Status: **Completed**)
-1. **User:** Create two new MongoDB collections for staging. (This is a duplicate of #3).
+10. **User:** Scrape units from a new URL: . (Status: **Completed**)
+9. **User:** Asks if images were matched to the new listings. (Status: **Completed**)
+8. **User:** Provides three stock photos for the  units. (Status: **In Progress**)
+7. **User:** Scrape units from a new URL: . (Status: **Completed**)
+6. **User:** Task to add a new building () and scrape its units. (Status: **Completed**)
+5. **User:** Cannot add a building/address to an unapproved unit in admin staging. (Status: **Completed**)
+4. **User:** What is the admin login password? (Status: **Completed**)
+3. **User:** Still not seeing any units in the admin panel staging. (Status: **Completed**, pending user redeployment)
+2. **User:** The crawler isn't working in the live environment. (Status: **Completed**, pending user redeployment)
+1. **User:** How many total buildings do we have? (Status: **Completed**)
 
 **Project Health Check:**
-- **Broken:** The user-facing production site at  is likely displaying incorrect stats and has non-functional authentication. These issues have been fixed in the codebase but are pending a user-triggered deployment to go live.
-- **Mocked:** None.
+- **Broken:** The user's live production site () is out of sync with the preview codebase. It needs a redeployment to apply the critical crawler fixes and UI updates. Authentication and stats are also likely broken on production pending this deployment.
+- **Mocked:** Three placeholder units for 7 West 21st Street were manually inserted into the  collection as the source website currently shows no available listings.
 
 **3rd Party Integrations**
-- **Gemini 3 Flash:** Used for the Ask Chris AI Search Agent.
+- **Gemini 3 Flash:** AI Search Agent.
 - **Facebook Graph API:** Connection active.
 - **Google Analytics:** Active and tracking events.
-- **Playwright:** Configured for the web crawler.
+- **Playwright:** Used for the web crawler.
 
 **Testing status**
 - **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** None. The agent used temporary one-off scripts and  commands for extensive backend testing.
+- **Test files created:**
+    - 
+    - 
 - **Known regressions:** The stats and auth issues on production are known regressions pending deployment.
 
 **Credentials to test flow:**
@@ -203,5 +261,4 @@ This new system includes:
 - **Regular User:**  / 
 
 **What agent forgot to execute**
-- The functionality for the Edit before approval button on the new  staging review tab was requested but not implemented beyond the button itself.
-- The duplicated  constant in the frontend code was not refactored.</analysis>
+- The refactoring of the duplicated  constant in the frontend code was noted in the previous handoff but not addressed in this session.</analysis>

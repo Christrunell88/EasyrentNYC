@@ -2019,7 +2019,7 @@ async def approve_staging_unit(
                 detail=f"Building {building_id} not found in production or staging. Cannot approve unit."
             )
     
-    # Step 2: Check for duplicates in production (prevent double insertion)
+    # Step 2: Check for duplicates in production
     # Use normalized unit number if available
     normalized_unit = staged_unit.get("normalized_unit_number", staged_unit["unit_number"])
     
@@ -2029,29 +2029,42 @@ async def approve_staging_unit(
             {"unit_number": staged_unit["unit_number"]},
             {"unit_number": normalized_unit}
         ]
-    }, {"_id": 0, "id": 1, "unit_number": 1})
+    }, {"_id": 0})
+    
+    action = "created"
     
     if existing_unit:
-        # Update staging status to rejected with duplicate info
-        await db.units_staging.update_one(
-            {"id": unit_id},
-            {
-                "$set": {
-                    "review_status": "rejected",
-                    "reviewer_notes": f"Duplicate of production unit {existing_unit['id']} (unit {existing_unit['unit_number']})",
-                    "matched_production_id": existing_unit["id"],
-                    "reviewed_by": user.id,
-                    "reviewed_at": datetime.now(timezone.utc).isoformat()
-                }
-            }
-        )
-        raise HTTPException(
-            status_code=409,
-            detail=f"Unit already exists in production: {existing_unit['unit_number']} (ID: {existing_unit['id']})"
-        )
-    
-    # Step 3: Create production unit
-    production_unit_id = str(uuid.uuid4())
+        # UPDATE existing production unit instead of rejecting
+        production_unit_id = existing_unit["id"]
+        update_data = {
+            "rent": staged_unit["rent"],
+            "bedrooms": staged_unit["bedrooms"],
+            "bathrooms": staged_unit["bathrooms"],
+            "square_feet": staged_unit.get("square_feet"),
+            "available_date": staged_unit.get("available_date", existing_unit.get("available_date", "Immediate")),
+            "amenities": staged_unit.get("amenities", existing_unit.get("amenities", [])),
+            "images": staged_unit.get("images") if staged_unit.get("images") else existing_unit.get("images", []),
+            "description": staged_unit.get("description") or existing_unit.get("description", ""),
+            "is_available": staged_unit.get("is_available", True),
+            "latitude": staged_unit.get("latitude") or existing_unit.get("latitude"),
+            "longitude": staged_unit.get("longitude") or existing_unit.get("longitude"),
+            # Update verification
+            "is_verified": True,
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "verified_by": user.id,
+            # Update source metadata
+            "crawler_source": staged_unit.get("crawler_source", existing_unit.get("crawler_source", "")),
+            "crawler_batch_id": staged_unit.get("crawler_batch_id", existing_unit.get("crawler_batch_id", "")),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.units.update_one({"id": production_unit_id}, {"$set": update_data})
+        action = "updated"
+        
+        logger.info(f"Updated existing production unit {production_unit_id} from staging {unit_id}")
+    else:
+        # Step 3: Create NEW production unit
+        production_unit_id = str(uuid.uuid4())
     production_unit = {
         "id": production_unit_id,
         "building_id": production_building_id,

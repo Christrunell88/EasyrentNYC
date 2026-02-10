@@ -1726,39 +1726,66 @@ async def promote_staging_unit(
     if staging_unit.get("review_status") != "approved":
         raise HTTPException(status_code=400, detail="Unit must be approved before promotion")
     
-    # Create production unit (exclude staging-specific fields)
-    production_unit = {
-        "id": str(uuid.uuid4()),
+    # Check if unit already exists in production (same building + unit number)
+    existing_unit = await db.units.find_one({
         "building_id": staging_unit["building_id"],
-        "unit_number": staging_unit["unit_number"],
-        "rent": staging_unit["rent"],
-        "bedrooms": staging_unit["bedrooms"],
-        "bathrooms": staging_unit["bathrooms"],
-        "square_feet": staging_unit.get("square_feet"),
-        "available_date": staging_unit.get("available_date"),
-        "amenities": staging_unit.get("amenities", []),
-        "images": staging_unit.get("images", []),
-        "description": staging_unit.get("description"),
-        "is_available": staging_unit.get("is_available", True),
-        "is_featured": False,
-        "latitude": staging_unit.get("latitude"),
-        "longitude": staging_unit.get("longitude"),
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "updated_at": datetime.now(timezone.utc).isoformat()
-    }
+        "unit_number": staging_unit["unit_number"]
+    }, {"_id": 0})
     
-    await db.units.insert_one(production_unit)
+    if existing_unit:
+        # Update existing production unit
+        production_id = existing_unit["id"]
+        update_data = {
+            "rent": staging_unit["rent"],
+            "bedrooms": staging_unit["bedrooms"],
+            "bathrooms": staging_unit["bathrooms"],
+            "square_feet": staging_unit.get("square_feet"),
+            "available_date": staging_unit.get("available_date"),
+            "amenities": staging_unit.get("amenities", []),
+            "images": staging_unit.get("images", []) if staging_unit.get("images") else existing_unit.get("images", []),
+            "description": staging_unit.get("description") or existing_unit.get("description"),
+            "is_available": staging_unit.get("is_available", True),
+            "latitude": staging_unit.get("latitude"),
+            "longitude": staging_unit.get("longitude"),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.units.update_one({"id": production_id}, {"$set": update_data})
+        message = "Unit updated in production (existing unit found)"
+    else:
+        # Create new production unit
+        production_id = str(uuid.uuid4())
+        production_unit = {
+            "id": production_id,
+            "building_id": staging_unit["building_id"],
+            "unit_number": staging_unit["unit_number"],
+            "rent": staging_unit["rent"],
+            "bedrooms": staging_unit["bedrooms"],
+            "bathrooms": staging_unit["bathrooms"],
+            "square_feet": staging_unit.get("square_feet"),
+            "available_date": staging_unit.get("available_date"),
+            "amenities": staging_unit.get("amenities", []),
+            "images": staging_unit.get("images", []),
+            "description": staging_unit.get("description"),
+            "is_available": staging_unit.get("is_available", True),
+            "is_featured": False,
+            "latitude": staging_unit.get("latitude"),
+            "longitude": staging_unit.get("longitude"),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.units.insert_one(production_unit)
+        message = "Unit promoted to production (new unit created)"
     
     # Mark staging as promoted
     await db.units_staging.update_one(
         {"id": unit_id},
-        {"$set": {"review_status": "promoted", "matched_production_id": production_unit["id"]}}
+        {"$set": {"review_status": "promoted", "matched_production_id": production_id}}
     )
     
     return {
-        "message": "Unit promoted to production",
+        "message": message,
         "staging_id": unit_id,
-        "production_id": production_unit["id"]
+        "production_id": production_id
     }
 
 @api_router.delete("/admin/staging/units/{unit_id}")

@@ -22,9 +22,17 @@ import AISearchAgent from './components/AISearchAgent';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
 
-// Use current origin for API calls to avoid cross-origin issues with custom domains
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
-const API = `${BACKEND_URL}/api`;
+// Use current origin for API calls to ensure proper routing on custom domains
+// This ensures /api calls go through the same domain and avoid CORS issues
+const getApiUrl = () => {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;
+  }
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+  return `${BACKEND_URL}/api`;
+};
+
+const API = getApiUrl();
 
 export { API };
 

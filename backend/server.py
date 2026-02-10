@@ -2065,36 +2065,36 @@ async def approve_staging_unit(
     else:
         # Step 3: Create NEW production unit
         production_unit_id = str(uuid.uuid4())
-    production_unit = {
-        "id": production_unit_id,
-        "building_id": production_building_id,
-        "unit_number": staged_unit["unit_number"],
-        "rent": staged_unit["rent"],
-        "bedrooms": staged_unit["bedrooms"],
-        "bathrooms": staged_unit["bathrooms"],
-        "square_feet": staged_unit.get("square_feet"),
-        "available_date": staged_unit.get("available_date", "Immediate"),
-        "amenities": staged_unit.get("amenities", []),
-        "images": staged_unit.get("images", []),
-        "description": staged_unit.get("description", ""),
-        "is_available": staged_unit.get("is_available", True),
-        "is_featured": False,
-        "latitude": staged_unit.get("latitude"),
-        "longitude": staged_unit.get("longitude"),
-        # Verification flags
-        "is_verified": True,
-        "verified_at": datetime.now(timezone.utc).isoformat(),
-        "verified_by": user.id,
-        # Source metadata
-        "crawler_source": staged_unit.get("crawler_source", ""),
-        "crawler_batch_id": staged_unit.get("crawler_batch_id", ""),
-        "original_staging_id": unit_id,
-        # Timestamps
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "updated_at": datetime.now(timezone.utc).isoformat()
-    }
-    
-    await db.units.insert_one(production_unit)
+        production_unit = {
+            "id": production_unit_id,
+            "building_id": production_building_id,
+            "unit_number": staged_unit["unit_number"],
+            "rent": staged_unit["rent"],
+            "bedrooms": staged_unit["bedrooms"],
+            "bathrooms": staged_unit["bathrooms"],
+            "square_feet": staged_unit.get("square_feet"),
+            "available_date": staged_unit.get("available_date", "Immediate"),
+            "amenities": staged_unit.get("amenities", []),
+            "images": staged_unit.get("images", []),
+            "description": staged_unit.get("description", ""),
+            "is_available": staged_unit.get("is_available", True),
+            "is_featured": False,
+            "latitude": staged_unit.get("latitude"),
+            "longitude": staged_unit.get("longitude"),
+            # Verification flags
+            "is_verified": True,
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "verified_by": user.id,
+            # Source metadata
+            "crawler_source": staged_unit.get("crawler_source", ""),
+            "crawler_batch_id": staged_unit.get("crawler_batch_id", ""),
+            "original_staging_id": unit_id,
+            # Timestamps
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.units.insert_one(production_unit)
     
     # Step 4: Update staging unit status
     await db.units_staging.update_one(
@@ -2113,11 +2113,12 @@ async def approve_staging_unit(
     logger.info(f"Approved staging unit {unit_id} -> production unit {production_unit_id}")
     
     return {
-        "message": "Unit approved and moved to production",
+        "message": f"Unit approved and {'updated in' if action == 'updated' else 'moved to'} production",
         "staging_id": unit_id,
         "production_id": production_unit_id,
         "building_id": production_building_id,
         "unit_number": staged_unit["unit_number"],
+        "action": action,
         "approved_at": datetime.now(timezone.utc).isoformat()
     }
 

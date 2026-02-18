@@ -7,25 +7,48 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
-import { Mail, Copy, Check, Facebook, Twitter, MessageCircle } from 'lucide-react';
+import { Mail, Copy, Check, Facebook, Twitter, MessageCircle, Linkedin, Code, ExternalLink } from 'lucide-react';
 
 const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   const [emailTo, setEmailTo] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
 
-  // Generate share URL
-  const shareUrl = `${window.location.origin}/unit/${unit.id}`;
+  // Generate share URL - use production URL for SEO value
+  const shareUrl = `https://nofeesapts.com/unit/${unit.id}`;
   
-  // Generate share text
-  const shareText = `Check out this no-fee apartment at ${building?.name || 'NYC'}! ${unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`} for $${unit.rent.toLocaleString()}/month`;
+  // Generate bedroom text
+  const bedroomText = unit.bedrooms === 0 ? 'Studio' : unit.bedrooms === 1 ? '1 Bedroom' : `${unit.bedrooms} Bedrooms`;
+  
+  // Generate share text with hashtags for better visibility
+  const shareText = `🏠 No broker fee ${bedroomText} in ${building?.neighborhood || building?.city || 'NYC'}! $${unit.rent.toLocaleString()}/mo at ${building?.name || 'this amazing building'}. Save thousands! #NoFeeApartments #NYC #NoBrokerFee`;
+  
+  // Short share text for platforms with character limits
+  const shortShareText = `No-fee ${bedroomText} - $${unit.rent.toLocaleString()}/mo in ${building?.neighborhood || 'NYC'}`;
+
+  // Embed code for blogs (generates backlinks)
+  const embedCode = `<div style="border:1px solid #D4AF37;border-radius:8px;padding:16px;max-width:350px;font-family:system-ui;background:#1a1a1a;">
+  <a href="${shareUrl}" target="_blank" rel="noopener" style="text-decoration:none;">
+    <div style="color:#D4AF37;font-size:16px;font-weight:bold;margin-bottom:6px;">${bedroomText} at ${building?.name || 'NYC'}</div>
+    <div style="color:#fff;font-size:22px;font-weight:bold;">$${unit.rent.toLocaleString()}/mo</div>
+    <div style="color:#888;font-size:13px;margin:6px 0;">${building?.neighborhood || building?.city || 'NYC'} • No Broker Fee</div>
+    <div style="background:#D4AF37;color:#000;padding:8px;text-align:center;border-radius:4px;font-weight:bold;margin-top:10px;">View Listing →</div>
+  </a>
+  <div style="font-size:9px;color:#666;margin-top:8px;text-align:center;">via <a href="https://nofeesapts.com" style="color:#D4AF37;">NoFeesApts.com</a></div>
+</div>`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     toast.success('Link copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyEmbed = () => {
+    navigator.clipboard.writeText(embedCode);
+    toast.success('Embed code copied! Paste it on any website or blog.');
   };
 
   const handleEmailShare = async () => {
@@ -56,120 +79,187 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   const handleSocialShare = (platform) => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
+    const encodedShortText = encodeURIComponent(shortShareText);
     
     let shareLink = '';
     
     switch(platform) {
       case 'facebook':
-        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
         break;
       case 'twitter':
-        shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+        shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShortText}&hashtags=NoFeeApartments,NYC,NoBrokerFee`;
         break;
       case 'whatsapp':
         shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
+        break;
+      case 'linkedin':
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        break;
+      case 'reddit':
+        shareLink = `https://reddit.com/submit?url=${encodedUrl}&title=${encodedShortText}`;
+        break;
+      case 'pinterest':
+        const imageUrl = unit.images?.[0] ? encodeURIComponent(unit.images[0]) : '';
+        shareLink = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedText}${imageUrl ? `&media=${imageUrl}` : ''}`;
         break;
       default:
         return;
     }
     
-    window.open(shareLink, '_blank', 'width=600,height=400');
-    toast.success(`Sharing on ${platform}!`);
+    window.open(shareLink, '_blank', 'width=600,height=500');
+    toast.success(`Opening ${platform}...`);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100 max-w-md">
+      <DialogContent className="bg-[#1a1a1a] border-[#D4AF37]/20 text-[#F5F5F5] max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-slate-100">Share This Apartment</DialogTitle>
-          <DialogDescription className="text-slate-300">
-            Share this listing with friends and family
+          <DialogTitle className="text-[#D4AF37] font-philosopher">Share This Apartment</DialogTitle>
+          <DialogDescription className="text-[#888]">
+            Share with friends or embed on your website
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-5 py-4">
           {/* Social Media Share Buttons */}
           <div className="space-y-2">
-            <Label className="text-slate-200">Share on Social Media</Label>
+            <Label className="text-[#F5F5F5] text-sm">Share on Social Media</Label>
             <div className="grid grid-cols-3 gap-2">
               <Button
                 onClick={() => handleSocialShare('facebook')}
                 variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
+                size="sm"
+                className="border-blue-500/50 hover:bg-blue-500/20 text-blue-400"
               >
-                <Facebook className="w-4 h-4 mr-2" />
+                <Facebook className="w-4 h-4 mr-1" />
                 Facebook
               </Button>
               <Button
                 onClick={() => handleSocialShare('twitter')}
                 variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
+                size="sm"
+                className="border-sky-400/50 hover:bg-sky-400/20 text-sky-400"
               >
-                <Twitter className="w-4 h-4 mr-2" />
+                <Twitter className="w-4 h-4 mr-1" />
                 Twitter
+              </Button>
+              <Button
+                onClick={() => handleSocialShare('linkedin')}
+                variant="outline"
+                size="sm"
+                className="border-blue-600/50 hover:bg-blue-600/20 text-blue-500"
+              >
+                <Linkedin className="w-4 h-4 mr-1" />
+                LinkedIn
               </Button>
               <Button
                 onClick={() => handleSocialShare('whatsapp')}
                 variant="outline"
-                className="border-slate-600 hover:bg-slate-700 text-slate-200 hover:text-white"
+                size="sm"
+                className="border-green-500/50 hover:bg-green-500/20 text-green-400"
               >
-                <MessageCircle className="w-4 h-4 mr-2" />
+                <MessageCircle className="w-4 h-4 mr-1" />
                 WhatsApp
+              </Button>
+              <Button
+                onClick={() => handleSocialShare('reddit')}
+                variant="outline"
+                size="sm"
+                className="border-orange-500/50 hover:bg-orange-500/20 text-orange-400"
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                Reddit
+              </Button>
+              <Button
+                onClick={() => handleSocialShare('pinterest')}
+                variant="outline"
+                size="sm"
+                className="border-red-500/50 hover:bg-red-500/20 text-red-400"
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                Pinterest
               </Button>
             </div>
           </div>
 
           {/* Copy Link */}
           <div className="space-y-2">
-            <Label className="text-slate-200">Copy Link</Label>
+            <Label className="text-[#F5F5F5] text-sm">Copy Link</Label>
             <div className="flex gap-2">
               <Input
                 value={shareUrl}
                 readOnly
-                className="bg-slate-700/50 border-slate-600 text-slate-300"
+                className="bg-[#0a0a0a] border-[#333] text-[#888] text-sm"
               />
               <Button
                 onClick={handleCopyLink}
-                className="warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+                className="bg-[#D4AF37] hover:bg-[#B8963E] text-black font-semibold"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
           </div>
 
+          {/* Embed Code for Backlinks */}
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowEmbed(!showEmbed)}
+              variant="outline"
+              size="sm"
+              className="w-full border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/10"
+            >
+              <Code className="w-4 h-4 mr-2" />
+              {showEmbed ? 'Hide Embed Code' : 'Get Embed Code (for blogs)'}
+            </Button>
+            
+            {showEmbed && (
+              <div className="space-y-2 p-3 bg-[#0a0a0a] rounded-lg border border-[#333]">
+                <Textarea
+                  value={embedCode}
+                  readOnly
+                  rows={6}
+                  className="bg-transparent border-none text-[#666] text-xs font-mono"
+                />
+                <Button
+                  onClick={handleCopyEmbed}
+                  size="sm"
+                  className="w-full bg-[#D4AF37] hover:bg-[#B8963E] text-black font-semibold"
+                >
+                  <Copy className="w-4 h-4 mr-2" /> Copy Embed Code
+                </Button>
+                <p className="text-[#666] text-xs">
+                  Paste this on your blog or website to create a backlink
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Email Share */}
-          <div className="space-y-3 pt-2">
-            <Label className="text-slate-200 flex items-center gap-2">
+          <div className="space-y-3 pt-2 border-t border-[#333]">
+            <Label className="text-[#F5F5F5] text-sm flex items-center gap-2">
               <Mail className="w-4 h-4" />
               Send via Email
             </Label>
             <div className="space-y-3">
-              <div>
-                <Label htmlFor="email-to" className="text-slate-300 text-sm">Recipient Email</Label>
-                <Input
-                  id="email-to"
-                  type="email"
-                  placeholder="friend@example.com"
-                  value={emailTo}
-                  onChange={(e) => setEmailTo(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
-                />
-              </div>
-              <div>
-                <Label htmlFor="email-message" className="text-slate-300 text-sm">Personal Message (Optional)</Label>
-                <Textarea
-                  id="email-message"
-                  placeholder="I thought you might be interested in this apartment..."
-                  value={emailMessage}
-                  onChange={(e) => setEmailMessage(e.target.value)}
-                  rows={3}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
-                />
-              </div>
+              <Input
+                type="email"
+                placeholder="friend@example.com"
+                value={emailTo}
+                onChange={(e) => setEmailTo(e.target.value)}
+                className="bg-[#0a0a0a] border-[#333] text-[#F5F5F5] placeholder:text-[#666]"
+              />
+              <Textarea
+                placeholder="I thought you might like this apartment..."
+                value={emailMessage}
+                onChange={(e) => setEmailMessage(e.target.value)}
+                rows={2}
+                className="bg-[#0a0a0a] border-[#333] text-[#F5F5F5] placeholder:text-[#666]"
+              />
               <Button
                 onClick={handleEmailShare}
                 disabled={isSending}
-                className="w-full warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
+                className="w-full bg-[#D4AF37] hover:bg-[#B8963E] text-black font-semibold"
               >
                 {isSending ? 'Sending...' : 'Send Email'}
               </Button>

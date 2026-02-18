@@ -264,7 +264,7 @@ const Landing = () => {
                 </p>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-10">
-                  You are Interesting.<br />So is your Apartment.
+                  Explore. Discover.<br />Create Your Place.
                 </h1>
                 
                 {/* SEO-only text - hidden visually but accessible to search engines */}

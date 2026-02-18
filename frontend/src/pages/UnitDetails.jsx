@@ -364,11 +364,26 @@ const UnitDetails = () => {
       
       <SEO
         title={`${bedroomText} at ${buildingName} - $${unit.rent.toLocaleString()}/mo - No Fee`}
-        description={`No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath.`}
-        keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}`}
+        description={`No broker fee ${bedroomText.toLowerCase()} apartment for rent in ${neighborhood}, ${unit.building?.city || 'NYC'}. $${unit.rent.toLocaleString()}/mo, ${unit.bathrooms} bath${unit.square_feet ? `, ${unit.square_feet} sq ft` : ''}. Available ${unit.available_date || 'now'}. Save thousands on broker fees!`}
+        keywords={`no fee apartment ${neighborhood}, ${bedroomText} ${neighborhood}, ${buildingName}, no broker fee ${unit.building?.city || 'NYC'}, ${neighborhood} apartments for rent, ${bedroomText.toLowerCase()} no fee NYC, cheap apartments ${neighborhood}, ${unit.building?.state === 'NJ' ? 'New Jersey no fee apartments' : 'NYC no fee apartments'}`}
         url={`/unit/${unit.id}`}
         image={images.length > 0 ? images[0] : null}
         type="product"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Apartments', url: '/dashboard' },
+          { name: unit.building?.state || 'NY', url: `/location/${(unit.building?.state || 'NY').toLowerCase()}` },
+          { name: neighborhood, url: `/dashboard?neighborhood=${encodeURIComponent(neighborhood)}` },
+          { name: `${buildingName} #${unit.unit_number}` }
+        ]}
+        product={{
+          name: `${bedroomText} No-Fee Apartment at ${buildingName}`,
+          description: `No broker fee ${bedroomText.toLowerCase()} in ${neighborhood}`,
+          image: images.length > 0 ? images[0] : null,
+          price: unit.rent,
+          brand: buildingName,
+          available: unit.is_available
+        }}
       />
       
       {/* Header */}

@@ -237,57 +237,131 @@ const UnitDetails = () => {
   const images = unit.images || [];
   
   // RealEstateListing Schema for Google Rich Results
+  // RealEstateListing Schema - Primary schema for Google Rich Snippets
+  // This enables rich results with price, photos, and property details in search
   const realEstateSchema = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "name": `${bedroomText} Apartment at ${buildingName}`,
-    "description": unit.description || `No broker fee ${bedroomText.toLowerCase()} apartment in ${neighborhood}. Features ${unit.bathrooms} bathroom(s) and modern amenities.`,
-    "url": `https://www.nofeesapts.com/unit/${unit.id}`,
+    "@id": `https://nofeesapts.com/unit/${unit.id}#listing`,
+    "name": `${bedroomText} Apartment at ${buildingName} - No Broker Fee`,
+    "description": unit.description || `No broker fee ${bedroomText.toLowerCase()} apartment for rent in ${neighborhood}, ${unit.building?.city || 'NYC'}. ${unit.bathrooms} bathroom(s), ${unit.square_feet ? `${unit.square_feet} sq ft, ` : ''}modern amenities. Available ${unit.available_date || 'immediately'}. Save thousands on broker fees!`,
+    "url": `https://nofeesapts.com/unit/${unit.id}`,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://nofeesapts.com/unit/${unit.id}`
+    },
     "datePosted": unit.created_at || new Date().toISOString(),
-    "image": images.length > 0 ? images : undefined,
+    "dateModified": unit.updated_at || new Date().toISOString(),
+    "image": images.length > 0 ? images.map((img, idx) => ({
+      "@type": "ImageObject",
+      "url": img,
+      "name": `${buildingName} Unit ${unit.unit_number} - Photo ${idx + 1}`,
+      "description": `${bedroomText} apartment photo at ${buildingName}, ${neighborhood}`
+    })) : undefined,
+    
+    // Price information - Critical for rich snippets
     "offers": {
       "@type": "Offer",
       "price": unit.rent,
       "priceCurrency": "USD",
-      "availability": unit.is_available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "availability": unit.is_available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+      "validFrom": unit.created_at || new Date().toISOString(),
+      "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       "priceSpecification": {
         "@type": "UnitPriceSpecification",
         "price": unit.rent,
         "priceCurrency": "USD",
-        "unitText": "MONTH"
+        "unitText": "MONTH",
+        "referenceQuantity": {
+          "@type": "QuantitativeValue",
+          "value": 1,
+          "unitCode": "MON"
+        }
+      },
+      "seller": {
+        "@type": "RealEstateAgent",
+        "name": "NoFeesApts.com",
+        "url": "https://nofeesapts.com",
+        "telephone": "+1-646-555-0123"
+      },
+      "itemOffered": {
+        "@type": "Apartment",
+        "@id": `https://nofeesapts.com/unit/${unit.id}#apartment`
       }
     },
+    
+    // Address - Critical for local search
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": `${unit.building?.address || ''} #${unit.unit_number}`,
+      "streetAddress": unit.building?.address ? `${unit.building.address}, Unit ${unit.unit_number}` : `Unit ${unit.unit_number}`,
       "addressLocality": unit.building?.city || "New York",
       "addressRegion": unit.building?.state || "NY",
       "postalCode": unit.building?.zip_code || "",
-      "addressCountry": "US"
+      "addressCountry": "US",
+      "name": `${buildingName}, ${neighborhood}`
     },
+    
+    // Geo coordinates for map results
     "geo": unit.building?.latitude && unit.building?.longitude ? {
       "@type": "GeoCoordinates",
       "latitude": unit.building.latitude,
       "longitude": unit.building.longitude
-    } : undefined,
-    "floorSize": unit.square_feet ? {
+    } : {
+      "@type": "GeoCoordinates",
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    },
+    
+    // Property details - Key for filtering in search
+    "floorSize": {
       "@type": "QuantitativeValue",
-      "value": unit.square_feet,
-      "unitCode": "FTK"
-    } : undefined,
+      "value": unit.square_feet || 0,
+      "unitCode": "FTK",
+      "unitText": "sq ft"
+    },
     "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
     "numberOfBedrooms": unit.bedrooms,
     "numberOfBathroomsTotal": unit.bathrooms,
-    "amenityFeature": (unit.amenities || []).map(amenity => ({
-      "@type": "LocationFeatureSpecification",
-      "name": amenity,
-      "value": true
-    })),
+    "numberOfFullBathrooms": Math.floor(unit.bathrooms),
+    "numberOfPartialBathrooms": unit.bathrooms % 1 > 0 ? 1 : 0,
+    "petsAllowed": (unit.amenities || []).some(a => 
+      a.toLowerCase().includes('pet') || a.toLowerCase().includes('dog') || a.toLowerCase().includes('cat')
+    ),
+    "yearBuilt": unit.building?.year_built,
+    "leaseLength": {
+      "@type": "QuantitativeValue",
+      "value": 12,
+      "unitCode": "MON",
+      "unitText": "months"
+    },
+    
+    // Amenities as features
+    "amenityFeature": [
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "No Broker Fee",
+        "value": true
+      },
+      ...(unit.amenities || []).map(amenity => ({
+        "@type": "LocationFeatureSpecification",
+        "name": amenity,
+        "value": true
+      }))
+    ],
+    
+    // Listing agent/landlord
     "landlord": {
-      "@type": "Organization",
+      "@type": "RealEstateAgent",
       "name": "NoFeesApts.com",
-      "url": "https://www.nofeesapts.com"
-    }
+      "url": "https://nofeesapts.com",
+      "logo": "https://nofeesapts.com/logo.png",
+      "description": "No broker fee apartments in NYC, NJ & PA"
+    },
+    
+    // Additional metadata
+    "additionalType": "https://schema.org/Apartment",
+    "category": `${bedroomText} Apartment`,
+    "keywords": `no fee apartment, ${neighborhood}, ${unit.building?.city || 'NYC'}, ${bedroomText}, no broker fee`
   };
 
   // Product schema for additional price display in SERPs

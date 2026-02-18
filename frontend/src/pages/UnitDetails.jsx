@@ -428,16 +428,28 @@ const UnitDetails = () => {
       "value": unit.square_feet || 0,
       "unitCode": "FTK"
     },
-      "unitCode": "FTK"
-    } : undefined,
     "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
     "numberOfBedrooms": unit.bedrooms,
     "numberOfBathroomsTotal": unit.bathrooms,
-    "petsAllowed": (unit.amenities || []).some(a => a.toLowerCase().includes('pet')) || false,
+    "numberOfFullBathrooms": Math.floor(unit.bathrooms),
+    "petsAllowed": (unit.amenities || []).some(a => 
+      a.toLowerCase().includes('pet') || a.toLowerCase().includes('dog') || a.toLowerCase().includes('cat')
+    ),
     "amenityFeature": (unit.amenities || []).map(amenity => ({
       "@type": "LocationFeatureSpecification", 
-      "name": amenity
-    }))
+      "name": amenity,
+      "value": true
+    })),
+    "containedInPlace": {
+      "@type": "ApartmentComplex",
+      "name": buildingName,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": unit.building?.address || '',
+        "addressLocality": unit.building?.city || "New York",
+        "addressRegion": unit.building?.state || "NY"
+      }
+    }
   };
   
   return (

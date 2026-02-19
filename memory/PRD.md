@@ -63,7 +63,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Implementation Status
 
-### ✅ Completed (as of 2026-02-10)
+### ✅ Completed (as of 2026-02-19)
 - [x] Full-stack app with React frontend + FastAPI backend
 - [x] MongoDB database with optimized indexes
 - [x] JWT authentication + Google social login
@@ -72,18 +72,27 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] Admin panel with staging management
 - [x] "Edit Staging Unit" feature
 - [x] Unit lifecycle management (stale detection)
-- [x] 37 buildings, 180+ units in production
-- [x] 60 units in staging (including 7W21, Rivercourt, The Melar)
+- [x] 37 buildings, 183+ units in production
 - [x] **7W21 stock images assigned** (3 units with living room + bedroom images)
 - [x] AI Search Agent (Gemini 3 Flash)
 - [x] Google Analytics integration
 - [x] Facebook Graph API connection
+- [x] **Image Carousel on ListingCard** - Desktop (hover with arrows, thumbnails, auto-advance) + Mobile (swipe)
+- [x] **End-to-End Renter Path** - Verified: Landing → Auth → Dashboard → Unit Detail
 
-### 🟠 Pending User Verification
-- [x] ~~Stats display on live site~~ - Fixed, requires redeployment
-- [x] ~~Login/Signup on custom domain~~ - **FIXED** - requires redeployment
+### Recent Work (2026-02-19)
+- **Image Carousel on Listing Cards**: 
+  - Desktop: Navigation arrows + thumbnail strip on hover, auto-advance every 2 seconds
+  - Mobile: Swipe gesture support with visual "< Swipe >" hint
+  - Photo count badge and dot indicators
+- **E2E Testing Completed**: Full renter path verified (94% backend, 100% frontend pass rate)
+- **Pytest tests created**: `/app/backend/tests/test_nofeesapts.py`
 
-### Recent Fixes (2026-02-10)
+### 🟠 Pending User Verification (Requires Redeployment)
+- [x] ~~Stats display on live site~~ - Fixed in preview
+- [x] ~~Login/Signup on custom domain~~ - **FIXED** in preview
+
+### Previous Fixes (2026-02-10)
 - **Fixed login on custom domain**: Changed API URL logic to use `window.location.origin` in production
 - **Added /login and /signup routes**: Now redirect to /auth page
 - **Fixed CORS configuration**: Changed from `*` to explicit origins list (required for withCredentials)

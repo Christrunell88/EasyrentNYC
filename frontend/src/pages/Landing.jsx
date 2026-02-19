@@ -8,6 +8,7 @@ import SignupModal from '../components/SignupModal';
 import EmailCaptureModal from '../components/EmailCaptureModal';
 import ListingCard from '../components/ListingCard';
 import SEO from '@/components/SEO';
+import Footer from '@/components/Footer';
 
 const Landing = () => {
   const navigate = useNavigate();

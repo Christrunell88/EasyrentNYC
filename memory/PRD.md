@@ -87,6 +87,16 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - Photo count badge and dot indicators
 - **E2E Testing Completed**: Full renter path verified (94% backend, 100% frontend pass rate)
 - **Pytest tests created**: `/app/backend/tests/test_nofeesapts.py`
+- **Backlink-building Technical Implementation**:
+  - Added LocalBusiness schema markup (RealEstateAgent type) to SEO.jsx
+  - Created `/app/frontend/src/components/Footer.jsx` with internal linking (Locations, Neighborhoods, Resources, Company)
+  - Created `/app/frontend/src/components/RelatedListings.jsx` for similar apartments on unit detail pages
+  - ShareDialog already had embed code for backlinks
+- **Google Business Profile Technical Integration**:
+  - Added comprehensive LocalBusiness schema to SEO.jsx with geo coordinates, hours, aggregate rating
+  - Created `/app/frontend/src/components/GoogleMapEmbed.jsx` with static map + interactive buttons
+  - Created `/app/frontend/src/pages/Neighborhoods.jsx` as location index page with FAQ schema
+  - Added Google Maps embed to unit detail pages with "View on Google Maps" and "Get Directions" buttons
 
 ### 🟠 Pending User Verification (Requires Redeployment)
 - [x] ~~Stats display on live site~~ - Fixed in preview

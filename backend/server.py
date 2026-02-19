@@ -976,6 +976,165 @@ async def get_units(
     
     return units
 
+
+@api_router.get("/recommendations")
+async def get_recommendations():
+    """Get smart filter recommendations based on current inventory"""
+    try:
+        today = datetime.now(timezone.utc)
+        week_ago = today - timedelta(days=7)
+        
+        # 1. Most Popular Buildings - buildings with most available units
+        pipeline_popular = [
+            {"$match": {"is_available": True}},
+            {"$group": {"_id": "$building_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 5}
+        ]
+        popular_results = await db.units.aggregate(pipeline_popular).to_list(5)
+        popular_building_ids = [r["_id"] for r in popular_results]
+        
+        # Get building names
+        popular_buildings = []
+        if popular_building_ids:
+            buildings = await db.buildings.find(
+                {"id": {"$in": popular_building_ids}}, 
+                {"_id": 0, "id": 1, "name": 1}
+            ).to_list(5)
+            buildings_map = {b["id"]: b["name"] for b in buildings}
+            popular_buildings = [
+                {"id": r["_id"], "name": buildings_map.get(r["_id"], "Unknown"), "count": r["count"]}
+                for r in popular_results if r["_id"] in buildings_map
+            ]
+        
+        # 2. Best Value - lowest price per square foot (only units with sqft data)
+        pipeline_value = [
+            {"$match": {"is_available": True, "square_feet": {"$gt": 0}}},
+            {"$project": {
+                "id": 1,
+                "building_id": 1,
+                "rent": 1,
+                "square_feet": 1,
+                "bedrooms": 1,
+                "price_per_sqft": {"$divide": ["$rent", "$square_feet"]}
+            }},
+            {"$sort": {"price_per_sqft": 1}},
+            {"$limit": 20}
+        ]
+        value_units = await db.units.aggregate(pipeline_value).to_list(20)
+        avg_price_per_sqft = sum(u["price_per_sqft"] for u in value_units) / len(value_units) if value_units else 0
+        value_threshold = avg_price_per_sqft * 0.85  # 15% below average
+        best_value_count = len([u for u in value_units if u["price_per_sqft"] <= value_threshold])
+        
+        # 3. New This Week - units created in last 7 days
+        new_count = await db.units.count_documents({
+            "is_available": True,
+            "created_at": {"$gte": week_ago.isoformat()}
+        })
+        
+        # Also check updated_at for recent updates
+        if new_count == 0:
+            new_count = await db.units.count_documents({
+                "is_available": True,
+                "updated_at": {"$gte": week_ago.isoformat()}
+            })
+        
+        # 4. Luxury Picks - high-end apartments ($5k+)
+        luxury_count = await db.units.count_documents({
+            "is_available": True,
+            "rent": {"$gte": 5000}
+        })
+        
+        # 5. Studios - always popular for first-time renters
+        studio_count = await db.units.count_documents({
+            "is_available": True,
+            "bedrooms": 0
+        })
+        
+        # 6. Budget Friendly - under $3k
+        budget_count = await db.units.count_documents({
+            "is_available": True,
+            "rent": {"$lte": 3000}
+        })
+        
+        # 7. Family Size - 2+ bedrooms
+        family_count = await db.units.count_documents({
+            "is_available": True,
+            "bedrooms": {"$gte": 2}
+        })
+        
+        # Total available
+        total_available = await db.units.count_documents({"is_available": True})
+        
+        return {
+            "recommendations": [
+                {
+                    "id": "popular_buildings",
+                    "label": "Most Popular Buildings",
+                    "description": f"Top {len(popular_buildings)} buildings by listings",
+                    "count": sum(b["count"] for b in popular_buildings),
+                    "filter": {"building_ids": popular_building_ids},
+                    "buildings": popular_buildings[:3],
+                    "icon": "building"
+                },
+                {
+                    "id": "best_value",
+                    "label": "Best Value",
+                    "description": "Lowest $/sq ft",
+                    "count": best_value_count,
+                    "filter": {"sort": "value"},
+                    "threshold": round(value_threshold, 2),
+                    "icon": "dollar"
+                },
+                {
+                    "id": "new_this_week",
+                    "label": "New This Week",
+                    "description": "Added in last 7 days",
+                    "count": new_count,
+                    "filter": {"new": True},
+                    "icon": "sparkle"
+                },
+                {
+                    "id": "luxury",
+                    "label": "Luxury Picks",
+                    "description": "$5,000+/month",
+                    "count": luxury_count,
+                    "filter": {"min_rent": 5000},
+                    "icon": "crown"
+                },
+                {
+                    "id": "studios",
+                    "label": "Studios",
+                    "description": "Perfect for singles",
+                    "count": studio_count,
+                    "filter": {"bedrooms": 0},
+                    "icon": "bed"
+                },
+                {
+                    "id": "budget",
+                    "label": "Budget Friendly",
+                    "description": "Under $3,000/month",
+                    "count": budget_count,
+                    "filter": {"max_rent": 3000},
+                    "icon": "piggy"
+                },
+                {
+                    "id": "family",
+                    "label": "Family Size",
+                    "description": "2+ bedrooms",
+                    "count": family_count,
+                    "filter": {"min_bedrooms": 2},
+                    "icon": "users"
+                }
+            ],
+            "total_available": total_available,
+            "generated_at": today.isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting recommendations: {e}")
+        return {"recommendations": [], "total_available": 0, "error": str(e)}
+
+
 @api_router.get("/units/{unit_id}")
 async def get_unit(unit_id: str):
     """Get unit by ID"""

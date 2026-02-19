@@ -643,22 +643,11 @@ const Landing = () => {
               </div>
             </div>
           </div>
-
-          {/* Bottom Bar */}
-          <div className="border-t border-[#D4AF37]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-[#666666]">
-              © 2025 NoFeesApts.com. All rights reserved. | No Broker Fee Apartments NYC & NJ
-            </p>
-            <div className="flex gap-6 text-xs text-[#666666]">
-              <span>New York, NY</span>
-              <span>•</span>
-              <span>Harrison, NJ</span>
-              <span>•</span>
-              <span>Brooklyn, NY</span>
-            </div>
-          </div>
         </div>
       </footer>
+
+      {/* Footer with Internal Links */}
+      <Footer />
 
       {/* Signup Modal */}
       <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)} />

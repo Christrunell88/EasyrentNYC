@@ -278,90 +278,155 @@ const Dashboard = () => {
           </div>
         )}
         
-        {/* Filters */}
-        <Card className="mb-8 shadow-2xl shadow-amber-500/5 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-amber-500/30">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-200 mb-2">State</label>
-                <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
-                  <SelectTrigger data-testid="state-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="All States" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="any" className="text-slate-200">All States</SelectItem>
-                    <SelectItem value="NY" className="text-slate-200">New York (NY)</SelectItem>
-                    <SelectItem value="NJ" className="text-slate-200">New Jersey (NJ)</SelectItem>
-                    <SelectItem value="PA" className="text-slate-200">Pennsylvania (PA)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-200 mb-2">Bedrooms</label>
-                <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
-                  <SelectTrigger data-testid="bedrooms-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Any" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="any" className="text-slate-200">Any</SelectItem>
-                    <SelectItem value="0" className="text-slate-200">Studio</SelectItem>
-                    <SelectItem value="1" className="text-slate-200">1 BR</SelectItem>
-                    <SelectItem value="2" className="text-slate-200">2 BR</SelectItem>
-                    <SelectItem value="3" className="text-slate-200">3 BR</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-200 mb-2">Min Rent</label>
-                <Input
-                  type="number"
-                  placeholder="$1,000"
-                  value={minRent}
-                  onChange={(e) => setMinRent(e.target.value)}
-                  data-testid="min-rent-filter"
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-200 mb-2">Max Rent</label>
-                <Input
-                  type="number"
-                  placeholder="$5,000"
-                  value={maxRent}
-                  onChange={(e) => setMaxRent(e.target.value)}
-                  data-testid="max-rent-filter"
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-200 mb-2">Bathrooms</label>
-                <Select value={bathrooms || "any"} onValueChange={(val) => setBathrooms(val === "any" ? "" : val)}>
-                  <SelectTrigger data-testid="bathrooms-filter" className="bg-slate-700/50 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Any" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="any" className="text-slate-200">Any</SelectItem>
-                    <SelectItem value="1" className="text-slate-200">1 Bath</SelectItem>
-                    <SelectItem value="1.5" className="text-slate-200">1.5 Bath</SelectItem>
-                    <SelectItem value="2" className="text-slate-200">2 Bath</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Compact Filter Bar */}
+        <div className="mb-6 space-y-4">
+          {/* Main Filter Row - Compact */}
+          <div className="flex flex-wrap items-center gap-3 p-4 bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-lg">
+            {/* Location */}
+            <div className="flex items-center gap-2">
+              <Map className="w-4 h-4 text-[#D4AF37]" />
+              <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
+                <SelectTrigger data-testid="state-filter" className="w-[130px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                  <SelectValue placeholder="All Areas" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                  <SelectItem value="any" className="text-[#F5F5F5]">All Areas</SelectItem>
+                  <SelectItem value="NY" className="text-[#F5F5F5]">New York</SelectItem>
+                  <SelectItem value="NJ" className="text-[#F5F5F5]">New Jersey</SelectItem>
+                  <SelectItem value="PA" className="text-[#F5F5F5]">Pennsylvania</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
+            <div className="w-px h-6 bg-[#333]" />
+            
+            {/* Beds */}
+            <div className="flex items-center gap-2">
+              <BedDouble className="w-4 h-4 text-[#D4AF37]" />
+              <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
+                <SelectTrigger data-testid="bedrooms-filter" className="w-[100px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                  <SelectValue placeholder="Beds" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                  <SelectItem value="any" className="text-[#F5F5F5]">Any Beds</SelectItem>
+                  <SelectItem value="0" className="text-[#F5F5F5]">Studio</SelectItem>
+                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bed</SelectItem>
+                  <SelectItem value="2" className="text-[#F5F5F5]">2 Beds</SelectItem>
+                  <SelectItem value="3" className="text-[#F5F5F5]">3+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Baths */}
+            <div className="flex items-center gap-2">
+              <Bath className="w-4 h-4 text-[#D4AF37]" />
+              <Select value={bathrooms || "any"} onValueChange={(val) => setBathrooms(val === "any" ? "" : val)}>
+                <SelectTrigger data-testid="bathrooms-filter" className="w-[100px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                  <SelectValue placeholder="Baths" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                  <SelectItem value="any" className="text-[#F5F5F5]">Any Baths</SelectItem>
+                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bath</SelectItem>
+                  <SelectItem value="1.5" className="text-[#F5F5F5]">1.5 Bath</SelectItem>
+                  <SelectItem value="2" className="text-[#F5F5F5]">2+ Baths</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="w-px h-6 bg-[#333]" />
+            
+            {/* Price Range */}
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-[#D4AF37]" />
+              <Input
+                type="number"
+                placeholder="Min"
+                value={minRent}
+                onChange={(e) => setMinRent(e.target.value)}
+                data-testid="min-rent-filter"
+                className="w-[90px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm placeholder:text-[#666]"
+              />
+              <span className="text-[#666]">—</span>
+              <Input
+                type="number"
+                placeholder="Max"
+                value={maxRent}
+                onChange={(e) => setMaxRent(e.target.value)}
+                data-testid="max-rent-filter"
+                className="w-[90px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm placeholder:text-[#666]"
+              />
+            </div>
+            
+            {/* Clear Filters */}
             {(bedrooms || minRent || maxRent || bathrooms || state) && (
-              <div className="mt-4">
-                <Button variant="outline" onClick={clearFilters} data-testid="clear-filters-btn" className="border-amber-500/30 text-amber-500 hover:bg-slate-700">
-                  Clear Filters
+              <>
+                <div className="w-px h-6 bg-[#333]" />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={clearFilters} 
+                  data-testid="clear-filters-btn" 
+                  className="text-[#888] hover:text-[#D4AF37] hover:bg-transparent text-sm h-9"
+                >
+                  Clear
                 </Button>
-              </div>
+              </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+          
+          {/* Quick Filter Chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[#888] text-sm mr-1">Quick filters:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setState('NY'); setMaxRent('4000'); setBedrooms(''); setBathrooms(''); setMinRent(''); }}
+              className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
+                state === 'NY' && maxRent === '4000' && !bedrooms
+                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
+                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+              }`}
+            >
+              NYC under $4k
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setBedrooms('0'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); }}
+              className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
+                bedrooms === '0' && !state && !maxRent
+                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
+                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+              }`}
+            >
+              Studios only
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setState('NJ'); setMinRent('3500'); setBedrooms(''); setBathrooms(''); setMaxRent(''); }}
+              className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
+                state === 'NJ' && minRent === '3500' && !bedrooms
+                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
+                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+              }`}
+            >
+              NJ luxury
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setBedrooms('2'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); }}
+              className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
+                bedrooms === '2' && !state && !maxRent
+                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
+                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+              }`}
+            >
+              2 Bedrooms
+            </Button>
+          </div>
+        </div>
 
         {/* Results Header with View Toggle */}
         <div className="mb-6 flex justify-between items-center">

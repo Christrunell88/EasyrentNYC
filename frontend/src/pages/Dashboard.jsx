@@ -477,21 +477,86 @@ const Dashboard = () => {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="units-grid">
-            {units.map((unit) => (
-              <ListingCard
-                key={unit.id}
-                unit={unit}
-                user={user}
-                isFavorite={favorites.has(unit.id)}
-                onToggleFavorite={toggleFavorite}
-                onShare={(u) => {
-                  setSelectedUnit(u);
-                  setShareDialogOpen(true);
-                }}
-                showBlur={!user}
-              />
-            ))}
+          <div className="space-y-12" data-testid="units-grid">
+            {/* Group units into sections of 9 (3x3 grid) */}
+            {Array.from({ length: Math.ceil(units.length / 9) }, (_, groupIndex) => {
+              const startIndex = groupIndex * 9;
+              const groupUnits = units.slice(startIndex, startIndex + 9);
+              const isLastGroup = groupIndex === Math.ceil(units.length / 9) - 1;
+              
+              return (
+                <div key={groupIndex} className="relative">
+                  {/* Section Header */}
+                  {groupIndex > 0 && (
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+                      <span className="text-[#666] text-xs font-philosopher tracking-widest uppercase">
+                        {startIndex + 1}–{Math.min(startIndex + 9, units.length)} of {units.length}
+                      </span>
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+                    </div>
+                  )}
+                  
+                  {/* Cards Grid with increased gap */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {groupUnits.map((unit) => (
+                      <ListingCard
+                        key={unit.id}
+                        unit={unit}
+                        user={user}
+                        isFavorite={favorites.has(unit.id)}
+                        onToggleFavorite={toggleFavorite}
+                        onShare={(u) => {
+                          setSelectedUnit(u);
+                          setShareDialogOpen(true);
+                        }}
+                        showBlur={!user}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Back to Top / Filters button after each group (except last if small) */}
+                  {!isLastGroup && (
+                    <div className="flex justify-center mt-10">
+                      <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] border border-[#D4AF37]/30 rounded-full text-sm text-[#888] hover:text-[#D4AF37] hover:border-[#D4AF37]/60 transition-all duration-300"
+                      >
+                        <svg 
+                          className="w-4 h-4 transform group-hover:-translate-y-0.5 transition-transform" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                        Back to Filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            
+            {/* Final Back to Top button */}
+            {units.length > 9 && (
+              <div className="flex justify-center pt-4 pb-8">
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="group flex items-center gap-2 px-6 py-3 bg-[#D4AF37]/10 border border-[#D4AF37]/40 rounded-full text-sm font-medium text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:border-[#D4AF37] transition-all duration-300"
+                >
+                  <svg 
+                    className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  </svg>
+                  Back to Top
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

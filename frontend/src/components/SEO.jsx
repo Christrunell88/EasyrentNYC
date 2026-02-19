@@ -290,6 +290,11 @@ const SEO = ({
         {JSON.stringify(organizationSchema)}
       </script>
 
+      {/* Structured Data - LocalBusiness (Google Business Profile) */}
+      <script type="application/ld+json">
+        {JSON.stringify(localBusinessSchema)}
+      </script>
+
       {/* Structured Data - WebSite with SearchAction */}
       <script type="application/ld+json">
         {JSON.stringify(websiteSchema)}

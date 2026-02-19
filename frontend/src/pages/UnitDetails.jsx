@@ -13,6 +13,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, Info, CalendarPlus, CheckCircle2 } from 'lucide-react';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
+import RelatedListings from '@/components/RelatedListings';
+import GoogleMapEmbed from '@/components/GoogleMapEmbed';
+import Footer from '@/components/Footer';
 import { trackApartmentView } from '../utils/analytics';
 
 // Generate Google Calendar URL

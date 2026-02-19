@@ -430,8 +430,8 @@ const Dashboard = () => {
 
         {/* Results Header with View Toggle */}
         <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-100">
-            Available Apartments <span className="warm-gradient-text">({units.length})</span>
+          <h2 className="text-xl font-philosopher font-bold text-[#F5F5F5]">
+            {units.length} Apartments Available
           </h2>
           
           <div className="flex gap-2">
@@ -439,30 +439,34 @@ const Dashboard = () => {
               onClick={() => setViewMode('list')}
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
-              className={viewMode === 'list' ? 'warm-gradient text-slate-900' : 'border-amber-500/30 text-amber-500 hover:bg-slate-700'}
+              className={viewMode === 'list' 
+                ? 'bg-[#D4AF37] text-[#0a0a0a] hover:bg-[#E5C158]' 
+                : 'border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}
             >
               <Building2 className="w-4 h-4 mr-2" />
-              List View
+              List
             </Button>
             <Button
               onClick={() => setViewMode('map')}
               variant={viewMode === 'map' ? 'default' : 'outline'}
               size="sm"
-              className={viewMode === 'map' ? 'warm-gradient text-slate-900' : 'border-amber-500/30 text-amber-500 hover:bg-slate-700'}
+              className={viewMode === 'map' 
+                ? 'bg-[#D4AF37] text-[#0a0a0a] hover:bg-[#E5C158]' 
+                : 'border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}
             >
               <Map className="w-4 h-4 mr-2" />
-              Map View
+              Map
             </Button>
           </div>
         </div>
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-xl text-amber-500">Loading apartments...</div>
+            <div className="text-xl text-[#D4AF37]">Loading apartments...</div>
           </div>
         ) : units.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-xl text-slate-400">No apartments found. Try adjusting your filters.</div>
+            <div className="text-xl text-[#888]">No apartments found. Try adjusting your filters.</div>
           </div>
         ) : viewMode === 'map' ? (
           <div className="mb-8">

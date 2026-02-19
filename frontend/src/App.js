@@ -164,6 +164,7 @@ function App() {
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/fee-free-finds" element={<FeeFreeFinds />} />
+            <Route path="/neighborhoods" element={<Neighborhoods />} />
             <Route
               path="/dashboard"
               element={

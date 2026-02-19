@@ -175,10 +175,10 @@ const ListingCard = ({
           {showBlur && !user ? (
             <div className="relative">
               <h3 className="font-philosopher font-semibold text-white blur-sm select-none">
-                123 Example Street #4B
+                {unit.building?.address ? unit.building.address.substring(0, 15) + '...' : 'Premium Location'} #{unit.unit_number || 'XXX'}
               </h3>
               <p className="text-sm text-[#888888] blur-sm select-none font-philosopher">
-                Manhattan, New York
+                {unit.building?.neighborhood || unit.building?.city || 'Manhattan'}, {unit.building?.state || 'NY'}
               </p>
               <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/50">
                 <span className="text-xs text-[#D4AF37] font-philosopher font-medium tracking-wide">Sign up to view</span>
@@ -190,9 +190,16 @@ const ListingCard = ({
                 {unit.building?.address || 'Address Available'}
                 {unit.unit_number && ` #${unit.unit_number}`}
               </h3>
-              <div className="flex items-center gap-1.5 text-sm text-[#888888] font-philosopher">
+              {/* Neighborhood Tag - e.g., "Kips Bay - Luxury Rental" */}
+              <div className="flex items-center gap-1.5 text-sm text-[#888888] font-philosopher mt-1">
                 <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>{unit.building?.neighborhood || unit.building?.city || 'New York'}</span>
+                <span className="text-[#D4AF37]/90 font-medium">
+                  {unit.building?.neighborhood || unit.building?.city || 'Manhattan'}
+                </span>
+                <span className="text-[#666]">•</span>
+                <span className="text-[#888888]">
+                  {getRentalType(unit)}
+                </span>
               </div>
             </>
           )}

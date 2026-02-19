@@ -72,7 +72,7 @@ const ListingCard = ({
 
   return (
     <div
-      className="group bg-[#1a1a1a] overflow-hidden transition-all duration-400 cursor-pointer border border-[#D4AF37]/10 hover:border-[#D4AF37]/50 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_30px_rgba(212,175,55,0.1)]"
+      className="group bg-[#1a1a1a] rounded-lg overflow-hidden transition-all duration-400 cursor-pointer border border-[#D4AF37]/10 hover:border-[#D4AF37]/40 shadow-lg shadow-black/20 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(212,175,55,0.08)] hover:-translate-y-1"
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

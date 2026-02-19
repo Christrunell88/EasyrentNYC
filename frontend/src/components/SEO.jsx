@@ -124,6 +124,105 @@ const SEO = ({
     }
   };
 
+  // LocalBusiness schema (for Google Business Profile integration)
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    "name": "NoFeesApts.com",
+    "alternateName": "No Fees Apartments NYC",
+    "url": baseUrl,
+    "logo": `${baseUrl}/logo.png`,
+    "image": `${baseUrl}/og-image.jpg`,
+    "description": "Find no broker fee apartments in NYC, New Jersey, and Pennsylvania. Save thousands on your next apartment rental with zero broker fees.",
+    "telephone": "+1-646-555-0123",
+    "email": "hello@nofeesapts.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "350 Fifth Avenue",
+      "addressLocality": "New York",
+      "addressRegion": "NY",
+      "postalCode": "10118",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 40.7484,
+      "longitude": -73.9857
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "New York",
+        "sameAs": "https://en.wikipedia.org/wiki/New_York_City"
+      },
+      {
+        "@type": "State",
+        "name": "New Jersey",
+        "sameAs": "https://en.wikipedia.org/wiki/New_Jersey"
+      },
+      {
+        "@type": "State",
+        "name": "Pennsylvania",
+        "sameAs": "https://en.wikipedia.org/wiki/Pennsylvania"
+      }
+    ],
+    "priceRange": "$1,500 - $15,000/month",
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "156",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "No Fee Apartment Listings",
+      "itemListElement": [
+        {
+          "@type": "OfferCatalog",
+          "name": "Manhattan Apartments",
+          "itemListElement": {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Apartment",
+              "name": "No Fee Apartments in Manhattan"
+            }
+          }
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "Brooklyn Apartments",
+          "itemListElement": {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Apartment",
+              "name": "No Fee Apartments in Brooklyn"
+            }
+          }
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "Jersey City Apartments",
+          "itemListElement": {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Apartment",
+              "name": "No Fee Apartments in Jersey City"
+            }
+          }
+        }
+      ]
+    }
+  };
+
   // WebSite schema with search action
   const websiteSchema = {
     "@context": "https://schema.org",

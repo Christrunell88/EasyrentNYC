@@ -702,7 +702,7 @@ const Dashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setState('NY'); setMaxRent('4000'); setBedrooms(''); setBathrooms(''); setMinRent(''); }}
+              onClick={() => { setState('NY'); setMaxRent('4000'); setBedrooms(''); setBathrooms(''); setMinRent(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 state === 'NY' && maxRent === '4000' && !bedrooms
                   ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
@@ -714,7 +714,7 @@ const Dashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setBedrooms('0'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); }}
+              onClick={() => { setBedrooms('0'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 bedrooms === '0' && !state && !maxRent
                   ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
@@ -726,7 +726,7 @@ const Dashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setState('NJ'); setMinRent('3500'); setBedrooms(''); setBathrooms(''); setMaxRent(''); }}
+              onClick={() => { setState('NJ'); setMinRent('3500'); setBedrooms(''); setBathrooms(''); setMaxRent(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 state === 'NJ' && minRent === '3500' && !bedrooms
                   ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
@@ -738,7 +738,7 @@ const Dashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setBedrooms('2'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); }}
+              onClick={() => { setBedrooms('2'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 bedrooms === '2' && !state && !maxRent
                   ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
@@ -748,6 +748,48 @@ const Dashboard = () => {
               2 Bedrooms
             </Button>
           </div>
+
+          {/* Smart Recommendations - Based on Current Inventory */}
+          {recommendations.length > 0 && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] border border-[#D4AF37]/20 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
+                </svg>
+                <span className="text-[#D4AF37] text-sm font-medium">Recommended for you</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {recommendations.slice(0, 5).map((rec) => (
+                  <Button
+                    key={rec.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyRecommendation(rec)}
+                    className={`h-9 px-4 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
+                      activeRecommendation === rec.id
+                        ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
+                        : 'bg-[#0a0a0a] border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                    }`}
+                    title={rec.description}
+                  >
+                    <span className={activeRecommendation === rec.id ? 'text-[#0a0a0a]' : 'text-[#D4AF37]'}>
+                      {getRecommendationIcon(rec.icon)}
+                    </span>
+                    <span>{rec.label}</span>
+                    {rec.count > 0 && (
+                      <Badge className={`ml-1 text-[10px] px-1.5 py-0 ${
+                        activeRecommendation === rec.id 
+                          ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]' 
+                          : 'bg-[#D4AF37]/20 text-[#D4AF37]'
+                      }`}>
+                        {rec.count}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Trust Strip */}

@@ -6,93 +6,93 @@ The user wants to build a web application called NoFeesApts.com that functions s
 - **Database:** Use MongoDB to store all crawled data.
 - **Authentication:** Support JWT-based custom sign-up/login and Google social login.
 - **Web Crawler:** Should run automatically every 48 hours, with a manual trigger button in an admin panel.
+- **Staging & Approval Pipeline:** A comprehensive system to crawl listings into a staging area for admin review, deduplication, and approval before they are promoted to the live, production database.
 - **Frontend:**
     - Display apartment listings with search, filters, and an interactive map view.
-    - Favorites feature for logged-in users.
     - A smart, intuitive, sexy, sleek, and modern design, currently a Luxury Dark Theme.
     - Sign up for full details feature with blurred addresses on the landing page.
 - **SEO:** The site should be optimized for search engines, including a dynamic sitemap, descriptive alt text, and structured data (Schema.org).
 - **Admin Panel:** An admin-only section to view listings, analytics, and trigger crawls.
-- **Notifications:** Send email notifications for contact form submissions and a welcome email for new user sign-ups.
-- **Appointment Scheduling:** Allow users to request a tour date/time, and integrate with Google Calendar.
 - **AI Search Agent:** An AI-powered agent to help users find apartments.
-- **Staging & Approval Pipeline:** A comprehensive system to crawl listings into a staging area for admin review, deduplication, and approval before they are promoted to the live, production database.
-- **Lifecycle Management:** Automatically track and update the status of listings (e.g., mark as stale if not updated recently).
+- **Lifecycle Management:** Automatically track and update the status of listings.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack platform (React/FastAPI/MongoDB) with a functional staging and promotion pipeline for apartment listings. The system includes a web crawler that writes exclusively to staging collections, an admin panel for review/approval, and a promotion service.
+The application is a full-stack platform (React/FastAPI/MongoDB) with a functional staging and promotion pipeline for apartment listings. In this session, the agent performed a major overhaul of the UI/UX and fixed several critical bugs.
 
-Key features implemented in the last session include:
-- A robust database access control layer that was tested and verified.
-- An automated unit lifecycle management service () that marks listings as stale if not updated within 14 days, with a corresponding scheduled job.
-- Comprehensive MongoDB indexes to optimize database performance.
-- A critical fix for the web crawler, which was failing silently due to Playwright browsers not being installed correctly for background tasks. This was resolved by forcing the browser path and adding an installation step on server startup.
-- A fully implemented Edit Staging Unit feature in the admin panel, allowing admins to modify unit details and assign buildings before approval.
-- Three new building-specific scrapers for , , and , which successfully added 56 new units to the staging collection.
-- Automatic image extraction and association for listings from two of the new scrapers.
+**Key features implemented/fixed in this session:**
+- **Critical Bug Fixes:**
+    - Resolved live site login failures by correcting CORS policies () and frontend API URL logic to handle custom domains.
+    - Fixed the unit approval/promotion workflow to correctly handle and update duplicate listings instead of failing.
+- **UI/UX Overhaul:**
+    - Redesigned the Dashboard filter bar to be a compact horizontal bar on desktop and a responsive bottom sheet on mobile.
+    - Implemented one-click Smart Recommendation filter chips (e.g., 'Most Popular', 'Best Value', 'New This Week') on the dashboard.
+    - Redesigned the landing page hero section for a cleaner, more focused call-to-action.
+    - Improved the listing card UI with an image carousel, neighborhood tags, and better visual separation (whitespace, dividers).
+    - Added a Trust Strip above the dashboard results to build user confidence.
+- **SEO Enhancements:**
+    - Implemented comprehensive , , and  schema.org markup on unit detail pages for Google Rich Snippets.
+    - Enhanced the dynamic sitemap generation and improved the  component with more social options.
 
 **Last working item**:
-- **Last item agent was working:** The user provided three stock photos to be associated with the manually-added placeholder units for the 7 West 21st Street building (as its website currently has no public listings/images). The agent acknowledged the user's request and was about to perform the update.
+- **Last item agent was working:** Implementing an image carousel on the  component, allowing users to hover (desktop) or swipe (mobile) to see more photos without leaving the page.
 - **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** backend testing agent. The agent should write a script to update the  field for the three specific  units in the  collection and verify the update was successful. A screenshot of the admin Edit dialog for one of these units can provide visual confirmation.
+- **Which testing method agent to use?** frontend testing agent. It should verify that the image carousel on the listing cards on the dashboard page is functional on both desktop (hover) and mobile (swipe/touch) views.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** (P0) Assign user-provided stock images to the three  placeholder units in the staging database.
-- **Issue 2:** (P1) Landing page displays incorrect stats (63 units/24 buildings) on the live site.
+- **Issue 1:** (P0) Test and verify the new image carousel on the  component.
+- **Issue 2:** (P1) Landing page displays incorrect stats on the live site ().
 - **Issue 3:** (P2) Login and Signup fail on the live custom domain ().
 
 **Issues Detail:**
-- **Issue 1: Assign stock images to 7W21 units**
-    - **Attempted fixes:** None yet. The agent received the image URLs from the user at the end of the session.
+- **Issue 1: Test Image Carousel**
+    - **Attempted fixes:** The agent has written the code for the carousel in .
     - **Next debug checklist:**
-        1. Write a Python script to connect to the database.
-        2. Find the three  units in the  collection (batch ID ).
-        3. Update the  array field for each unit with the provided URLs.
-        4. Verify the update by querying the documents again.
-    - **Why fix this issue and what will be achieved with the fix?** To complete the manual data entry for the 7W21 building, ensuring the listings have images when viewed in the admin panel for approval.
-    - **Status:** NOT STARTED
+        1.  Use the screenshot tool to view the dashboard on both desktop and mobile resolutions.
+        2.  Verify that multiple images can be cycled through on the listing cards.
+        3.  Ensure thumbnails and navigation controls appear and function correctly.
+    - **Why fix this issue and what will be achieved with the fix?** To complete the last user-requested feature, enhancing user engagement by allowing quick photo previews.
+    - **Status:** IN PROGRESS
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Backend.
+    - **Should Test frontend/backend/both after fix?** Frontend
     - **Blocked on other issue:** None.
 
 - **Issue 2: Incorrect stats on live site**
-    - **Attempted fixes:** This was fixed in the preview environment. The issue persists on the live site because it requires a new deployment.
+    - **Attempted fixes:** The underlying data and API are now correct after fixing the promotion workflow. The issue persists on the live site because it requires a new deployment.
     - **Next debug checklist:**
         1.  Instruct the user to redeploy the application.
-        2.  Advise the user to perform a hard refresh (Cmd+Shift+R or Ctrl+F5).
-    - **Why fix this issue and what will be achieved with the fix?** Fixes a critical UI bug that misrepresents the site's inventory.
+        2.  After deployment, advise the user to perform a hard refresh (Cmd+Shift+R or Ctrl+F5) and check the live site.
+    - **Why fix this issue and what will be achieved with the fix?** Fixes a UI bug that misrepresents the site's inventory on the production domain.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** Frontend
     - **Blocked on other issue:** User redeployment.
 
 - **Issue 3: Login/Signup fails on custom domain**
-    - **Attempted fixes:** Backend CORS is correct. This is pending user redeployment.
+    - **Attempted fixes:** The agent fixed this by setting a specific  list in  and modifying  and  to use  for API calls on production, avoiding cross-domain cookie issues.
     - **Next debug checklist:**
-        1.  After the next deployment, ask the user to test login/signup on the custom domain.
-        2.  If it fails, ask the user to check the browser's developer console for new errors.
-    - **Why fix this issue and what will be achieved with the fix?** Critical bug blocking all user authentication on the production site.
+        1.  Instruct the user to redeploy the application to apply the CORS and frontend logic fixes.
+        2.  After deployment, ask the user to test login/signup on the custom domain.
+    - **Why fix this issue and what will be achieved with the fix?** Fixes a critical bug blocking all user authentication on the production site.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Frontend
+    - **Should Test frontend/backend/both after fix?** Both
     - **Blocked on other issue:** User redeployment.
 
 **In progress Task List**:
-- **Task 1: Assign stock images to 7W21 units** (P0)
-    - **Where to resume:** Write and execute a database update script as outlined in Issue 1.
-    - **What will be achieved with this?** The placeholder listings for 7W21 will have images, making them ready for admin approval.
+- **Task 1: Complete and Test Image Carousel on ListingCard** (P0)
+    - **Where to resume:** The agent just finished the implementation in . The next step is to lint the file and then test it using screenshots on desktop and mobile resolutions.
+    - **What will be achieved with this?** A richer user experience on the main apartment browsing pages (Landing, Dashboard).
     - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Backend
+    - **Should Test frontend/backend/both after fix?** Frontend
     - **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
     - **P1:** Complete the  branding strategy (add badges to listings, update social sharing text).
-    - **P2:** Start **Option B: SEO Optimization** (enhance location-specific pages, add more blog content).
     - **P2:** Add an Admin link back to the UI (e.g., in the footer).
     - **P2:** Create a Lifecycle Dashboard UI for admins to view stale units, price changes, etc.
 - **Future Tasks:**
@@ -103,144 +103,101 @@ Key features implemented in the last session include:
     - **P3:** Set up and manage Google/Facebook Ad campaigns.
 
 **Completed work in this session**
-- **Tested Database Access Control:** Wrote and executed  to confirm crawler permissions are correctly enforced.
-- **Implemented Unit Lifecycle Management:** Created  to automatically mark units as stale if not updated in 14 days, with a daily scheduled job.
-- **Created MongoDB Indexes:** Implemented a comprehensive index script () and integrated it into server startup for performance.
-- **Fixed Web Crawler:** Diagnosed and fixed the Playwright browsers not installed issue, enabling the crawler to run successfully in background tasks. Refactored  with a centralized  helper.
-- **Fixed Admin Panel Staging UI:** Corrected the API endpoint for fetching staging units and ensured stats load on the initial render.
-- **Implemented Edit Staging Unit Feature:** Built the backend endpoint () and wired up the frontend dialog in  to allow editing of staged units.
-- **Added 3 New Building Scrapers:** Created scrapers for , , and  in , adding 56 new units to staging.
-- **Scraped and Associated Listing Images:** Automatically extracted and matched images for 15 units from the  and  scrapers.
+- **Fixed Critical Live Site Login Failure:** Diagnosed and fixed CORS and API URL issues that were breaking authentication on the production domain.
+- **Fixed Unit Approval/Promotion Workflow:** Modified the backend logic ( and ) to correctly update existing production units instead of failing on duplicates, unblocking the admin workflow.
+- **Assigned Images to 7W21 Units:** Successfully updated the manually-added 7W21 units in the staging database with the user-provided stock photos.
+- **Redesigned Dashboard Filters:** Replaced the old filters with a compact horizontal bar (desktop) and a responsive bottom sheet (mobile) in .
+- **Implemented Smart Recommendation Filters:** Added a new backend endpoint () and frontend chips to allow one-click filtering for 'Most Popular', 'Best Value', 'New This Week', etc.
+- **Redesigned Hero Section:** Updated  with a cleaner, more focused headline, subheading, and a single primary call-to-action.
+- **Enhanced Listing Card UI:**
+    - Replaced the static placeholder address with blurred real addresses for logged-out users in .
+    - Added dynamic neighborhood and rental-type tags.
+    - Improved layout with more whitespace, section dividers, and a Back to Filters button on the dashboard.
+- **Implemented Comprehensive SEO Schema:** Added detailed  schema to  to enable Google Rich Snippets.
+- **Added Dashboard Trust Strip:** Implemented a new UI element above the search results to build user trust.
+- **Resolved Deployment Blockers:** Cleaned up  and  to pass deployment agent checks.
 
 **Earlier issues found/mentioned but not fixed**
 - **Issue 1: Duplicated  constant**
-    - **Debug checklist:** Centralize the  definition into a single configuration or utility file (e.g., ) and import it in  and .
+    - **Debug checklist:** While the agent refactored some URL logic to use , the core issue of a duplicated constant definition in  and  may still exist. Centralize it into a single configuration file ().
     - **Why to solve this issue and what will be achieved with this?** Improves code maintainability and reduces the risk of configuration errors.
     - **Should Test frontend/backend/both after fix:** Frontend
     - **Is recurring issue?** Y
 
+- **Issue 2: Large  file**
+    - **Debug checklist:** Move individual scraper functions from  into a dedicated  directory.
+    - **Why to solve this issue and what will be achieved with this?** Improves code modularity and makes the crawler easier to maintain and extend.
+    - **Should Test frontend/backend/both after fix:** Backend (by running a test crawl).
+    - **Is recurring issue?** N
+
 **Known issue recurrence from previous fork**
-- **Issue recurrence in previous fork:** Authentication issues on the custom domain, and incorrect stats display on the landing page.
+- **Issue recurrence in previous fork:** Authentication issues and incorrect stats display on the custom domain.
 - **Recurrence count:** High.
-- **Status:** USER VERIFICATION PENDING (pending user redeployment of all recent fixes).
+- **Status:** IN PROGRESS (Fixes have been implemented in the preview environment but are pending user redeployment to be resolved on the live site).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Background Job Scheduling:** Using  to run daily jobs (stale check) and trigger long-running tasks (crawling).
-- **Web Scraping with Playwright:** Handling complex sites with iframes, dynamic content loading, and environment-specific browser paths.
-- **MongoDB Indexing:** Applying indexes on various fields (, , , ) to optimize query performance.
-- **Full-Stack Feature Development:** Building features from the database schema change up to the React frontend component (e.g., the Edit Staging Unit feature).
-- **Environment Configuration:** Managing differences between local/preview and production environments, specifically the Playwright browser installation path.
+- **Responsive UI Design:** Building separate UIs for desktop (horizontal bar) and mobile (bottom sheet drawer) for the same feature.
+- **Advanced Schema.org for SEO:** Implementing detailed, nested JSON-LD schema (, , ) to qualify for Google Rich Snippets.
+- **Database Aggregation:** Using MongoDB aggregation pipelines on the backend to power the Smart Recommendations feature.
+- **Complex Frontend State Management:** Using Zustand to manage a complex set of interactive filters, including quick filters, smart recommendations, and user inputs.
+- **UI Component Enhancement:** Adding an interactive image carousel with hover/swipe functionality to an existing React component.
+- **CORS and Cookie Authentication:** Debugging and fixing cross-origin issues for authenticated requests on a custom domain by using specific origin whitelists instead of a wildcard.
 
 **key DB schema**
-- : Added  (defaults to available).
-- Indexes added to , , , , , .
+No new collections or breaking schema changes were made. The logic for handling  and  collections during the approval/promotion process was significantly improved in .
 
 **All files of reference**
-- **Created:**
-    - 
-    - 
-    - 
-    - 
-    - Checking Playwright browser installation...
-Installing Playwright Chromium browser...
-Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux-arm64.zip
-|                                                                                |   0% of 175.9 MiB
-|■■■■■■■■                                                                        |  10% of 175.9 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 175.9 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 175.9 MiB
-Chromium 141.0.7390.37 (playwright build v1194) downloaded to /pw-browsers/chromium-1194
-Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux-arm64.zip
-|                                                                                |   0% of 106.1 MiB
-|■■■■■■■■                                                                        |  10% of 106.1 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 106.1 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 106.1 MiB
-Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /pw-browsers/chromium_headless_shell-1194
-Playwright browser installed successfully
-Starting FastAPI server...
 - **Updated:**
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
     - 
     - 
     - 
     - 
 
 **Areas that need refactoring**:
-- The  constant is duplicated in  and .
--  is becoming large. The individual scraper functions could be moved to a dedicated  directory to improve modularity.
+- The  constant is potentially still duplicated across frontend files.
+-  is large and could be broken down into smaller, scraper-specific modules in a  directory.
 
 **key api endpoints**
-- : Edits a specific staging unit.
-- : Manually triggers the stale unit check.
-- : Gets a summary of unit counts by lifecycle status.
-- : Retrieves all units currently marked as stale.
-- : Triggers a background crawl for all buildings.
+- **New:** : Fetches data for the smart recommendation filter chips.
+- **Modified:**
+    - : Logic was checked and confirmed.
+    - : Now correctly updates existing production units.
+    - : Now correctly updates existing production units instead of rejecting them.
 
 **Critical Info for New Agent**
-- **Redeployment is required for production fixes.** The user's primary complaint is not seeing crawled units in their live admin panel. This is because the critical crawler fixes (Playwright browser installation) and frontend API path corrections have been made in the preview environment but not yet deployed to production. You must guide the user to redeploy and then trigger a crawl from their admin panel.
-- The crawler now works reliably in background tasks. The key was creating  to run Downloading Firefox 142.0.1 (playwright build v1495) from https://cdn.playwright.dev/dbazure/download/playwright/builds/firefox/1495/firefox-debian-12-arm64.zip
-|                                                                                |   0% of 88 MiB
-|■■■■■■■■                                                                        |  10% of 88 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 88 MiB
-Firefox 142.0.1 (playwright build v1495) downloaded to /pw-browsers/firefox-1495
-Downloading Webkit 26.0 (playwright build v2215) from https://cdn.playwright.dev/dbazure/download/playwright/builds/webkit/2215/webkit-debian-12-arm64.zip
-|                                                                                |   0% of 88 MiB
-|■■■■■■■■                                                                        |  10% of 88 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 88 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 88 MiB
-Webkit 26.0 (playwright build v2215) downloaded to /pw-browsers/webkit-2215 and hardcoding the browser path in a helper function within .
-- The Edit before approval feature is now fully implemented. Admins can select a building from a dropdown and edit unit details in a dialog before approving.
+- **A USER REDEPLOYMENT IS REQUIRED.** This is the most critical piece of information. The live site at  is currently broken (blank page, failing login). The agent has implemented all the necessary fixes for CORS, API URLs, and the approval workflow, but these changes only exist in the preview environment. You must guide the user to redeploy the application to push all the recent bug fixes and UI/UX improvements to production.
+- After deployment, instruct the user to test the login functionality and the admin approval workflow on their live domain.
 
 **documents and test reports created in this job**
--  (updated)
-- 
-- 
+-  (updated with completed tasks)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** Scrape units from a new URL: . (Status: **Completed**)
-9. **User:** Asks if images were matched to the new listings. (Status: **Completed**)
-8. **User:** Provides three stock photos for the  units. (Status: **In Progress**)
-7. **User:** Scrape units from a new URL: . (Status: **Completed**)
-6. **User:** Task to add a new building () and scrape its units. (Status: **Completed**)
-5. **User:** Cannot add a building/address to an unapproved unit in admin staging. (Status: **Completed**)
-4. **User:** What is the admin login password? (Status: **Completed**)
-3. **User:** Still not seeing any units in the admin panel staging. (Status: **Completed**, pending user redeployment)
-2. **User:** The crawler isn't working in the live environment. (Status: **Completed**, pending user redeployment)
-1. **User:** How many total buildings do we have? (Status: **Completed**)
+10. **User:** Redesign the dashboard listing cards with more whitespace, dividers, and a Back to top button. (Status: **Completed**)
+9. **User:** Add a trust strip above the dashboard results. (Status: **Completed**)
+8. **User:** Redesign the dashboard filters to be a horizontal bar on desktop and a bottom sheet on mobile. (Status: **Completed**)
+7. **User:** Add one-click recommended filter chips to the dashboard. (Status: **Completed**)
+6. **User:** Add an image carousel to the listing cards. (Status: **In Progress**, implementation done, testing pending)
+5. **User:** Implement  Schema.org markup. (Status: **Completed**)
+4. **User:** Replace placeholder addresses on listing cards with real (blurred) addresses and add neighborhood tags. (Status: **Completed**)
+3. **User:** Redesign the hero section with a single, clear call-to-action. (Status: **Completed**)
+2. **User:** I approved units, but they are not live. (Status: **Completed**, the promotion workflow bug was found and fixed).
+1. **User:** Update the hero section text. (Status: **Completed**)
 
 **Project Health Check:**
-- **Broken:** The user's live production site () is out of sync with the preview codebase. It needs a redeployment to apply the critical crawler fixes and UI updates. Authentication and stats are also likely broken on production pending this deployment.
-- **Mocked:** Three placeholder units for 7 West 21st Street were manually inserted into the  collection as the source website currently shows no available listings.
+- **Broken:** The user's live production site () is out of sync and non-functional. It displays a blank page and login does not work. It is **awaiting a new deployment** to apply the numerous fixes and improvements from this session.
+- **Mocked:** The listings for the 7 West 21st Street building are still based on manually entered data and stock photos, as the source website has no public listings.
 
 **3rd Party Integrations**
 - **Gemini 3 Flash:** AI Search Agent.
@@ -251,14 +208,12 @@ Webkit 26.0 (playwright build v2215) downloaded to /pw-browsers/webkit-2215 and 
 **Testing status**
 - **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:**
-    - 
-    - 
-- **Known regressions:** The stats and auth issues on production are known regressions pending deployment.
+- **Test files created:** []
+- **Known regressions:** The login and stats issues on the production site are known regressions that are fixed in the preview environment and are pending deployment.
 
 **Credentials to test flow:**
 - **Admin User:**  / 
 - **Regular User:**  / 
 
 **What agent forgot to execute**
-- The refactoring of the duplicated  constant in the frontend code was noted in the previous handoff but not addressed in this session.</analysis>
+- The agent did not address the suggested refactoring of the large  file or fully centralize the  constant. These were non-critical good to have tasks and did not block the user-requested feature work.</analysis>

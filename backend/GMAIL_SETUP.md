@@ -89,7 +89,7 @@ Once credentials are added, you can test the contact form:
 
 ```bash
 # Test the backend API directly
-curl -X POST "https://apartmentfinder-1.preview.emergentagent.com/api/contact" \
+curl -X POST "https://apartments-qa-env.preview.emergentagent.com/api/contact" \
   -H "Content-Type: application/json" \
   -H "Cookie: session_token=YOUR_SESSION_TOKEN" \
   -d '{

@@ -41,7 +41,7 @@
 
 ### Backend (FastAPI + MongoDB)
 - **Host**: Emergent servers
-- **API URL**: https://apartmentfinder-1.preview.emergentagent.com/api
+- **API URL**: https://apartments-qa-env.preview.emergentagent.com/api
 - **Database**: MongoDB (test_database)
 - **Tech Stack**: Python 3.11, FastAPI, Motor (async MongoDB), Playwright
 - **Features**:
@@ -226,7 +226,7 @@
 - **Access Level**: Full admin (manage buildings, users, crawls)
 
 ### API Endpoints
-- **Base URL**: https://apartmentfinder-1.preview.emergentagent.com/api
+- **Base URL**: https://apartments-qa-env.preview.emergentagent.com/api
 - **Auth**: Cookie-based sessions
 - **Key Endpoints**:
   - GET /units - List apartments
@@ -286,7 +286,7 @@ sudo supervisorctl restart backend
 tail -f /var/log/supervisor/backend.err.log
 
 # Test API
-curl https://apartmentfinder-1.preview.emergentagent.com/api/units?limit=5
+curl https://apartments-qa-env.preview.emergentagent.com/api/units?limit=5
 ```
 
 ### Frontend
@@ -314,7 +314,7 @@ db.buildings.find({})
 ### Crawler
 ```bash
 # Manual crawl via API
-curl -X POST https://apartmentfinder-1.preview.emergentagent.com/api/admin/crawl/BUILDING_ID \
+curl -X POST https://apartments-qa-env.preview.emergentagent.com/api/admin/crawl/BUILDING_ID \
   -H "Authorization: Bearer SESSION_TOKEN"
 ```
 

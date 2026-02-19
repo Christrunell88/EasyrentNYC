@@ -43,6 +43,10 @@ const Dashboard = () => {
   const [maxRent, setMaxRent] = useState('');
   const [bathrooms, setBathrooms] = useState('');
   const [state, setState] = useState('');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Count active filters
+  const activeFilterCount = [bedrooms, minRent, maxRent, bathrooms, state].filter(Boolean).length;
 
   useEffect(() => {
     fetchUnits();

@@ -201,6 +201,38 @@ const Dashboard = () => {
     setMaxRent('');
     setBathrooms('');
     setState('');
+    setSortBy('');
+    setActiveRecommendation('');
+  };
+
+  // Recommendation icon mapping
+  const getRecommendationIcon = (iconName) => {
+    switch(iconName) {
+      case 'building': return <Building2 className="w-4 h-4" />;
+      case 'dollar': return <DollarSign className="w-4 h-4" />;
+      case 'sparkle': return (
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
+        </svg>
+      );
+      case 'crown': return (
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/>
+        </svg>
+      );
+      case 'bed': return <BedDouble className="w-4 h-4" />;
+      case 'piggy': return (
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 10c0-1.1-.9-2-2-2V6c0-1.1-.9-2-2-2H9C7.9 4 7 4.9 7 6v2c-1.1 0-2 .9-2 2v3c0 .55.45 1 1 1h1v3c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2v-3h1c.55 0 1-.45 1-1v-3zM9 6h6v2H9V6z"/>
+        </svg>
+      );
+      case 'users': return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+      );
+      default: return <Building2 className="w-4 h-4" />;
+    }
   };
 
   return (

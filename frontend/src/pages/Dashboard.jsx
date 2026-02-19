@@ -284,10 +284,10 @@ const Dashboard = () => {
           </div>
         )}
         
-        {/* Compact Filter Bar */}
+        {/* Responsive Filter Bar */}
         <div className="mb-6 space-y-4">
-          {/* Main Filter Row - Compact */}
-          <div className="flex flex-wrap items-center gap-3 p-4 bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-lg">
+          {/* Desktop Filter Bar - Hidden on mobile */}
+          <div className="hidden md:flex flex-wrap items-center gap-3 p-4 bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-lg">
             {/* Location */}
             <div className="flex items-center gap-2">
               <Map className="w-4 h-4 text-[#D4AF37]" />
@@ -379,9 +379,264 @@ const Dashboard = () => {
               </>
             )}
           </div>
+
+          {/* Mobile Filter Bar - Visible only on mobile */}
+          <div className="md:hidden">
+            {/* Quick Access Buttons */}
+            <div className="flex gap-2 mb-3">
+              {/* Main Filter & Sort Button */}
+              <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]"
+                  >
+                    <SlidersHorizontal className="w-4 h-4 mr-2 text-[#D4AF37]" />
+                    Filter & Sort
+                    {activeFilterCount > 0 && (
+                      <Badge className="ml-2 bg-[#D4AF37] text-[#0a0a0a] text-xs px-1.5 py-0">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="bg-[#1a1a1a] border-t border-[#D4AF37]/30 rounded-t-2xl h-[85vh]">
+                  <SheetHeader className="pb-4 border-b border-[#333]">
+                    <div className="flex items-center justify-between">
+                      <SheetTitle className="text-[#F5F5F5] font-philosopher text-xl">Filter & Sort</SheetTitle>
+                      {activeFilterCount > 0 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={clearFilters}
+                          className="text-[#D4AF37] hover:text-[#E5C158] hover:bg-transparent"
+                        >
+                          Clear all
+                        </Button>
+                      )}
+                    </div>
+                  </SheetHeader>
+                  
+                  <div className="py-6 space-y-6 overflow-y-auto max-h-[calc(85vh-140px)]">
+                    {/* Price Range - Most Used */}
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
+                        <DollarSign className="w-5 h-5 text-[#D4AF37]" />
+                        Price Range
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <Input
+                            type="number"
+                            placeholder="Min price"
+                            value={minRent}
+                            onChange={(e) => setMinRent(e.target.value)}
+                            className="h-12 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-base placeholder:text-[#666]"
+                          />
+                        </div>
+                        <span className="text-[#666]">to</span>
+                        <div className="flex-1">
+                          <Input
+                            type="number"
+                            placeholder="Max price"
+                            value={maxRent}
+                            onChange={(e) => setMaxRent(e.target.value)}
+                            className="h-12 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-base placeholder:text-[#666]"
+                          />
+                        </div>
+                      </div>
+                      {/* Quick Price Presets */}
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'Under $3k', max: '3000' },
+                          { label: 'Under $4k', max: '4000' },
+                          { label: 'Under $5k', max: '5000' },
+                          { label: '$5k+', min: '5000' },
+                        ].map((preset) => (
+                          <Button
+                            key={preset.label}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setMinRent(preset.min || '');
+                              setMaxRent(preset.max || '');
+                            }}
+                            className={`h-8 rounded-full text-xs ${
+                              (preset.max && maxRent === preset.max && !minRent) || (preset.min && minRent === preset.min && !maxRent)
+                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
+                                : 'border-[#333] text-[#888] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                            }`}
+                          >
+                            {preset.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bedrooms - Most Used */}
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
+                        <BedDouble className="w-5 h-5 text-[#D4AF37]" />
+                        Bedrooms
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'Any', value: '' },
+                          { label: 'Studio', value: '0' },
+                          { label: '1 Bed', value: '1' },
+                          { label: '2 Beds', value: '2' },
+                          { label: '3+ Beds', value: '3' },
+                        ].map((option) => (
+                          <Button
+                            key={option.label}
+                            variant="outline"
+                            onClick={() => setBedrooms(option.value)}
+                            className={`h-11 px-5 rounded-lg ${
+                              bedrooms === option.value
+                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
+                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                            }`}
+                          >
+                            {option.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Location - Most Used */}
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
+                        <Map className="w-5 h-5 text-[#D4AF37]" />
+                        Location
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'All Areas', value: '' },
+                          { label: 'New York', value: 'NY' },
+                          { label: 'New Jersey', value: 'NJ' },
+                          { label: 'Pennsylvania', value: 'PA' },
+                        ].map((option) => (
+                          <Button
+                            key={option.label}
+                            variant="outline"
+                            onClick={() => setState(option.value)}
+                            className={`h-11 px-5 rounded-lg ${
+                              state === option.value
+                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
+                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                            }`}
+                          >
+                            {option.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bathrooms */}
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
+                        <Bath className="w-5 h-5 text-[#D4AF37]" />
+                        Bathrooms
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'Any', value: '' },
+                          { label: '1 Bath', value: '1' },
+                          { label: '1.5 Bath', value: '1.5' },
+                          { label: '2+ Baths', value: '2' },
+                        ].map((option) => (
+                          <Button
+                            key={option.label}
+                            variant="outline"
+                            onClick={() => setBathrooms(option.value)}
+                            className={`h-11 px-5 rounded-lg ${
+                              bathrooms === option.value
+                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
+                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                            }`}
+                          >
+                            {option.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Apply Button - Fixed at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#1a1a1a] border-t border-[#333]">
+                    <Button 
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="w-full h-12 bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-semibold text-base"
+                    >
+                      Show {units.length} Apartments
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Quick Beds Button */}
+              <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
+                <SelectTrigger className="w-auto h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:border-[#D4AF37]">
+                  <BedDouble className="w-4 h-4 mr-1.5 text-[#D4AF37]" />
+                  <span className="text-sm">{bedrooms === '' ? 'Beds' : bedrooms === '0' ? 'Studio' : `${bedrooms} Bed`}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                  <SelectItem value="any" className="text-[#F5F5F5]">Any Beds</SelectItem>
+                  <SelectItem value="0" className="text-[#F5F5F5]">Studio</SelectItem>
+                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bed</SelectItem>
+                  <SelectItem value="2" className="text-[#F5F5F5]">2 Beds</SelectItem>
+                  <SelectItem value="3" className="text-[#F5F5F5]">3+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Quick Area Button */}
+              <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
+                <SelectTrigger className="w-auto h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:border-[#D4AF37]">
+                  <Map className="w-4 h-4 mr-1.5 text-[#D4AF37]" />
+                  <span className="text-sm">{state || 'Area'}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                  <SelectItem value="any" className="text-[#F5F5F5]">All Areas</SelectItem>
+                  <SelectItem value="NY" className="text-[#F5F5F5]">New York</SelectItem>
+                  <SelectItem value="NJ" className="text-[#F5F5F5]">New Jersey</SelectItem>
+                  <SelectItem value="PA" className="text-[#F5F5F5]">Pennsylvania</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Active Filter Pills - Mobile */}
+            {activeFilterCount > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {state && (
+                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                    {state === 'NY' ? 'New York' : state === 'NJ' ? 'New Jersey' : 'Pennsylvania'}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setState('')} />
+                  </Badge>
+                )}
+                {bedrooms && (
+                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                    {bedrooms === '0' ? 'Studio' : `${bedrooms} Bed`}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setBedrooms('')} />
+                  </Badge>
+                )}
+                {(minRent || maxRent) && (
+                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                    {minRent && maxRent ? `$${minRent}-$${maxRent}` : minRent ? `$${minRent}+` : `Under $${maxRent}`}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => { setMinRent(''); setMaxRent(''); }} />
+                  </Badge>
+                )}
+                {bathrooms && (
+                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                    {bathrooms} Bath
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setBathrooms('')} />
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
           
-          {/* Quick Filter Chips */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Filter Chips - Desktop Only */}
+          <div className="hidden md:flex flex-wrap items-center gap-2">
             <span className="text-[#888] text-sm mr-1">Quick filters:</span>
             <Button
               variant="outline"

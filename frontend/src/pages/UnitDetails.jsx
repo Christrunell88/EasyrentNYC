@@ -820,10 +820,29 @@ const UnitDetails = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Google Map Embed */}
+              <div className="mt-6">
+                <GoogleMapEmbed
+                  address={unit.building?.address}
+                  city={unit.building?.city}
+                  state={unit.building?.state}
+                  zipCode={unit.building?.zip_code}
+                  buildingName={unit.building?.name}
+                  lat={unit.building?.latitude}
+                  lng={unit.building?.longitude}
+                />
+              </div>
             </div>
           </div>
+
+          {/* Related Listings Section - Internal Linking for SEO */}
+          <RelatedListings currentUnit={unit} limit={4} />
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Share Dialog */}
       {unit && (

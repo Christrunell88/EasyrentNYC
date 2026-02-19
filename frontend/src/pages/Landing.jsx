@@ -259,49 +259,33 @@ const Landing = () => {
                 {/* Decorative line */}
                 <div className="w-16 h-px bg-[#D4AF37] mb-8" />
                 
-                <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-6">
-                  NYC Belongs To You
-                </p>
-                
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-10">
-                  Explore. Discover.<br />Create Your Place.
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-6">
+                  Find Your<br />No-Fee Apartment
                 </h1>
+                
+                <p className="text-lg text-[#B8B8B8] font-philosopher mb-10 leading-relaxed">
+                  Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37]">zero broker fees</span>, ready in minutes.
+                </p>
                 
                 {/* SEO-only text - hidden visually but accessible to search engines */}
                 <p className="sr-only">
                   An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="flex flex-col items-start gap-2">
-                    <Button
-                      data-testid="get-started-btn"
-                      onClick={handleGetStarted}
-                      size="lg"
-                      className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-10 py-6 text-base rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
-                    >
-                      EXPLORE COLLECTION
-                      <ArrowRight className="w-5 h-5 ml-3" />
-                    </Button>
-                    <span className="text-[#4ade80] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
-                      <span className="w-1.5 h-1.5 bg-[#4ade80] rounded-full animate-pulse"></span>
-                      100% FREE • No Credit Card Required
-                    </span>
-                  </div>
-                </div>
-
-                {/* State buttons */}
-                <div className="flex gap-4 mt-8">
-                  {['NY', 'NJ', 'PA'].map((state) => (
-                    <Button
-                      key={state}
-                      onClick={handleGetStarted}
-                      variant="outline"
-                      className="border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] font-philosopher font-bold px-8 py-4 rounded-none tracking-[0.2em] transition-all duration-300 backdrop-blur-sm"
-                    >
-                      {state}
-                    </Button>
-                  ))}
+                <div className="flex flex-col items-start gap-3">
+                  <Button
+                    data-testid="get-started-btn"
+                    onClick={handleGetStarted}
+                    size="lg"
+                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.4)]"
+                  >
+                    EXPLORE COLLECTION
+                    <ArrowRight className="w-5 h-5 ml-3" />
+                  </Button>
+                  <span className="text-[#4ade80] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
+                    <span className="w-1.5 h-1.5 bg-[#4ade80] rounded-full animate-pulse"></span>
+                    100% FREE • No Credit Card Required
+                  </span>
                 </div>
               </div>
               

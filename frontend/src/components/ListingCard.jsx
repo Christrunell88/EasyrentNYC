@@ -3,6 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, ChevronLeft, ChevronRight, MapPin, BedDouble, Bath, Maximize } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+// Helper function to determine rental type based on unit characteristics
+const getRentalType = (unit) => {
+  const rent = unit.rent || 0;
+  const amenities = (unit.amenities || []).map(a => a.toLowerCase()).join(' ');
+  const buildingName = (unit.building?.name || '').toLowerCase();
+  
+  // Luxury indicators
+  const luxuryKeywords = ['luxury', 'penthouse', 'doorman', 'concierge', 'rooftop', 'pool', 'gym', 'spa', 'terrace', 'balcony'];
+  const hasLuxuryAmenities = luxuryKeywords.some(kw => amenities.includes(kw) || buildingName.includes(kw));
+  
+  // Price-based categorization (NYC market)
+  if (rent >= 5000 || hasLuxuryAmenities) {
+    return 'Luxury Rental';
+  } else if (rent >= 3500) {
+    return 'Modern Rental';
+  } else if (rent >= 2500) {
+    return 'Prime Rental';
+  } else if (unit.bedrooms === 0) {
+    return 'Studio Rental';
+  } else {
+    return 'No Fee Rental';
+  }
+};
+
 const ListingCard = ({ 
   unit, 
   user, 

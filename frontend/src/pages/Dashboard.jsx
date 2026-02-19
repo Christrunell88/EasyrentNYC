@@ -46,6 +46,9 @@ const Dashboard = () => {
   const [bathrooms, setBathrooms] = useState('');
   const [state, setState] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [sortBy, setSortBy] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
+  const [activeRecommendation, setActiveRecommendation] = useState('');
 
   // Count active filters
   const activeFilterCount = [bedrooms, minRent, maxRent, bathrooms, state].filter(Boolean).length;
@@ -53,7 +56,33 @@ const Dashboard = () => {
   useEffect(() => {
     fetchUnits();
     fetchFavorites();
+    fetchRecommendations();
   }, [bedrooms, minRent, maxRent, bathrooms, state]);
+
+  const fetchRecommendations = async () => {
+    try {
+      const response = await axios.get(`${API}/recommendations`);
+      setRecommendations(response.data.recommendations || []);
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    }
+  };
+
+  const applyRecommendation = (rec) => {
+    // Clear existing filters first
+    clearFilters();
+    setActiveRecommendation(rec.id);
+    
+    // Apply the recommendation's filters
+    if (rec.filter) {
+      if (rec.filter.bedrooms !== undefined) setBedrooms(String(rec.filter.bedrooms));
+      if (rec.filter.min_bedrooms !== undefined) setBedrooms(String(rec.filter.min_bedrooms));
+      if (rec.filter.min_rent) setMinRent(String(rec.filter.min_rent));
+      if (rec.filter.max_rent) setMaxRent(String(rec.filter.max_rent));
+      if (rec.filter.sort) setSortBy(rec.filter.sort);
+      if (rec.filter.new) setSortBy('newest');
+    }
+  };
 
   const fetchUnits = async () => {
     try {

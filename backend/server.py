@@ -1885,6 +1885,109 @@ async def edit_staging_unit(
     updated_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
     return {"message": "Unit updated", "id": unit_id, "unit": updated_unit}
 
+@api_router.post("/admin/staging/units/{unit_id}/upload-images")
+async def upload_staging_unit_images(
+    unit_id: str,
+    files: List[UploadFile] = File(...),
+    user: User = Depends(require_admin)
+):
+    """Upload images for a staging unit"""
+    # Verify unit exists
+    staging_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staging_unit:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    
+    uploaded_urls = []
+    upload_dir = Path(__file__).parent / "uploads" / unit_id
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    
+    for file in files:
+        if not file.content_type.startswith("image/"):
+            continue
+        
+        # Generate unique filename
+        ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+        file_path = upload_dir / filename
+        
+        # Save the file
+        with open(file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Create URL path (relative to backend)
+        image_url = f"/api/uploads/{unit_id}/{filename}"
+        uploaded_urls.append(image_url)
+    
+    if not uploaded_urls:
+        raise HTTPException(status_code=400, detail="No valid images uploaded")
+    
+    # Update the staging unit with new images (append to existing)
+    existing_images = staging_unit.get("images", []) or []
+    all_images = existing_images + uploaded_urls
+    
+    await db.units_staging.update_one(
+        {"id": unit_id},
+        {
+            "$set": {
+                "images": all_images,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            "$pull": {"validation_flags": "no_images"}
+        }
+    )
+    
+    return {
+        "message": f"Uploaded {len(uploaded_urls)} images",
+        "uploaded_urls": uploaded_urls,
+        "total_images": len(all_images)
+    }
+
+@api_router.delete("/admin/staging/units/{unit_id}/images")
+async def delete_staging_unit_image(
+    unit_id: str,
+    image_url: str = Query(...),
+    user: User = Depends(require_admin)
+):
+    """Delete a specific image from a staging unit"""
+    staging_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+    if not staging_unit:
+        raise HTTPException(status_code=404, detail="Staging unit not found")
+    
+    existing_images = staging_unit.get("images", []) or []
+    
+    if image_url not in existing_images:
+        raise HTTPException(status_code=404, detail="Image not found in unit")
+    
+    # Remove from list
+    updated_images = [img for img in existing_images if img != image_url]
+    
+    # Delete file if it's a local upload
+    if image_url.startswith("/api/uploads/"):
+        file_path = Path(__file__).parent / "uploads" / image_url.replace("/api/uploads/", "")
+        if file_path.exists():
+            file_path.unlink()
+    
+    # Update staging unit
+    update_data = {
+        "images": updated_images,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Re-add no_images flag if no images left
+    if len(updated_images) == 0:
+        await db.units_staging.update_one(
+            {"id": unit_id},
+            {"$addToSet": {"validation_flags": "no_images"}}
+        )
+    
+    await db.units_staging.update_one(
+        {"id": unit_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Image deleted", "remaining_images": len(updated_images)}
+
 @api_router.post("/admin/staging/units/{unit_id}/promote")
 async def promote_staging_unit(
     unit_id: str,

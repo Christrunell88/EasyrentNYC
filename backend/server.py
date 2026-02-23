@@ -2616,7 +2616,7 @@ async def reject_batch_staging_units(
 # ============ PROMOTION SERVICE ENDPOINTS ============
 
 @api_router.post("/staging/promote/{unit_id}")
-async def promote_staging_unit(
+async def promote_staging_unit_via_service(
     unit_id: str,
     notes: Optional[str] = Query(None, description="Optional promotion notes"),
     user: User = Depends(require_admin)

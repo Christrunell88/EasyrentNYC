@@ -416,6 +416,7 @@ class StagingUnitEditInput(BaseModel):
     square_feet: Optional[int] = None
     available_date: Optional[str] = None
     description: Optional[str] = None
+    images: Optional[List[str]] = None  # Allow updating images
 
 class StagingBulkReviewInput(BaseModel):
     """Input model for bulk reviewing staging items"""

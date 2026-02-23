@@ -1853,6 +1853,15 @@ async def edit_staging_unit(
     if edit_data.description is not None:
         update_data["description"] = edit_data.description
     
+    if edit_data.images is not None:
+        update_data["images"] = edit_data.images
+        # Remove no_images flag if images are being added
+        if edit_data.images and len(edit_data.images) > 0:
+            await db.units_staging.update_one(
+                {"id": unit_id},
+                {"$pull": {"validation_flags": "no_images"}}
+            )
+    
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
     

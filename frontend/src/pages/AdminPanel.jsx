@@ -918,6 +918,7 @@ const AdminPanel = () => {
                                     size="sm"
                                     onClick={() => {
                                       setSelectedStagingUnit(unit);
+                                      setStagingUnitImages(unit.images || []);
                                       setEditStagingDialogOpen(true);
                                     }}
                                     className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"

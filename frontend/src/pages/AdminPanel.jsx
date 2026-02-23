@@ -1603,28 +1603,78 @@ const AdminPanel = () => {
                   </div>
                 </div>
 
-                {/* Images Preview */}
-                {selectedStagingUnit.images && selectedStagingUnit.images.length > 0 && (
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Images ({selectedStagingUnit.images.length})</Label>
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      {selectedStagingUnit.images.slice(0, 5).map((img, idx) => (
-                        <img
-                          key={idx}
-                          src={img}
-                          alt={`Unit image ${idx + 1}`}
-                          className="w-20 h-20 object-cover rounded border border-slate-600"
-                          onError={(e) => e.target.style.display = 'none'}
-                        />
-                      ))}
-                      {selectedStagingUnit.images.length > 5 && (
-                        <div className="w-20 h-20 bg-slate-700 rounded border border-slate-600 flex items-center justify-center text-slate-400 text-sm">
-                          +{selectedStagingUnit.images.length - 5} more
-                        </div>
-                      )}
-                    </div>
+                {/* Images Section with Upload */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-slate-200 flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-amber-500" />
+                      Images ({selectedStagingUnit.images?.length || 0})
+                    </Label>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleStagingImageUpload}
+                        className="hidden"
+                        disabled={uploadingImages}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+                        disabled={uploadingImages}
+                        asChild
+                      >
+                        <span>
+                          {uploadingImages ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Images
+                            </>
+                          )}
+                        </span>
+                      </Button>
+                    </label>
                   </div>
-                )}
+                  
+                  {/* Images Grid */}
+                  {selectedStagingUnit.images && selectedStagingUnit.images.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 bg-slate-700/30 rounded-lg">
+                      {selectedStagingUnit.images.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img.startsWith('/api') ? `${API.replace('/api', '')}${img}` : img}
+                            alt={`Unit image ${idx + 1}`}
+                            className="w-full h-20 object-cover rounded border border-slate-600"
+                            onError={(e) => {
+                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="%23666"><rect width="80" height="80"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="10">No Image</text></svg>';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteStagingImage(img)}
+                            className="absolute -top-1 -right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-slate-700/30 rounded-lg p-6 text-center">
+                      <ImageIcon className="w-10 h-10 text-slate-500 mx-auto mb-2" />
+                      <p className="text-slate-400 text-sm">No images yet</p>
+                      <p className="text-slate-500 text-xs mt-1">Click "Upload Images" to add photos</p>
+                    </div>
+                  )}
+                </div>
 
                 <DialogFooter className="pt-4">
                   <Button

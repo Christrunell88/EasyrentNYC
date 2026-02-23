@@ -209,6 +209,76 @@ const AdminPanel = () => {
     setImagePreviewOpen(true);
   };
 
+  // Handle image upload for staging unit
+  const handleStagingImageUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedStagingUnit) return;
+    
+    setUploadingImages(true);
+    const formData = new FormData();
+    
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    
+    try {
+      const response = await axios.post(
+        `${API}/admin/staging/units/${selectedStagingUnit.id}/upload-images`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+      );
+      
+      toast.success(`Uploaded ${response.data.uploaded_urls.length} images`);
+      
+      // Update local state with new images
+      setStagingUnitImages(prev => [...prev, ...response.data.uploaded_urls]);
+      
+      // Also update the selectedStagingUnit
+      setSelectedStagingUnit(prev => ({
+        ...prev,
+        images: [...(prev.images || []), ...response.data.uploaded_urls]
+      }));
+      
+      // Clear the file input
+      e.target.value = '';
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error(error.response?.data?.detail || 'Failed to upload images');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Delete image from staging unit
+  const handleDeleteStagingImage = async (imageUrl) => {
+    if (!selectedStagingUnit) return;
+    
+    try {
+      await axios.delete(
+        `${API}/admin/staging/units/${selectedStagingUnit.id}/images`,
+        {
+          params: { image_url: imageUrl },
+          withCredentials: true
+        }
+      );
+      
+      toast.success('Image deleted');
+      
+      // Update local state
+      setStagingUnitImages(prev => prev.filter(img => img !== imageUrl));
+      setSelectedStagingUnit(prev => ({
+        ...prev,
+        images: (prev.images || []).filter(img => img !== imageUrl)
+      }));
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete image');
+    }
+  };
+
   // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

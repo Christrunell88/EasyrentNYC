@@ -179,7 +179,7 @@ All Share Listing via Email features are working correctly:
 ## Live Production Auth Testing Session: December 30, 2025 - Testing Agent
 
 ### URGENT: Live Production Auth Testing Results
-**Site:** https://apartments-qa-env.preview.emergentagent.com/auth
+**Site:** https://malt-drive-images.preview.emergentagent.com/auth
 **Issue Reported:** User reports login and signup failing in fresh browser window
 
 ### Test Results Summary

@@ -8,7 +8,7 @@ import requests
 import os
 
 # Get base URL from environment
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://apartments-qa-env.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://malt-drive-images.preview.emergentagent.com').rstrip('/')
 
 class TestHealthAndStats:
     """Health check and stats endpoints"""

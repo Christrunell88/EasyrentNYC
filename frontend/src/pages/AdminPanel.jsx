@@ -48,6 +48,8 @@ const AdminPanel = () => {
   const [selectedStagingUnit, setSelectedStagingUnit] = useState(null);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [stagingUnitImages, setStagingUnitImages] = useState([]);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
 

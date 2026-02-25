@@ -696,17 +696,17 @@ const Dashboard = () => {
             )}
           </div>
           
-          {/* Quick Filter Chips - Desktop Only */}
+          {/* Quick Filter Chips - Desktop Only - Light Theme */}
           <div className="hidden md:flex flex-wrap items-center gap-2">
-            <span className="text-[#888] text-sm mr-1">Quick filters:</span>
+            <span className="text-gray-500 text-sm mr-1">Quick filters:</span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => { setState('NY'); setMaxRent('4000'); setBedrooms(''); setBathrooms(''); setMinRent(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 state === 'NY' && maxRent === '4000' && !bedrooms
-                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
-                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                  ? 'bg-amber-500 text-white border-amber-500' 
+                  : 'bg-transparent border-amber-400 text-amber-600 hover:bg-amber-50 hover:border-amber-500'
               }`}
             >
               NYC under $4k
@@ -717,8 +717,8 @@ const Dashboard = () => {
               onClick={() => { setBedrooms('0'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 bedrooms === '0' && !state && !maxRent
-                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
-                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                  ? 'bg-amber-500 text-white border-amber-500' 
+                  : 'bg-transparent border-amber-400 text-amber-600 hover:bg-amber-50 hover:border-amber-500'
               }`}
             >
               Studios only
@@ -729,8 +729,8 @@ const Dashboard = () => {
               onClick={() => { setState('NJ'); setMinRent('3500'); setBedrooms(''); setBathrooms(''); setMaxRent(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 state === 'NJ' && minRent === '3500' && !bedrooms
-                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
-                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                  ? 'bg-amber-500 text-white border-amber-500' 
+                  : 'bg-transparent border-amber-400 text-amber-600 hover:bg-amber-50 hover:border-amber-500'
               }`}
             >
               NJ luxury
@@ -741,22 +741,22 @@ const Dashboard = () => {
               onClick={() => { setBedrooms('2'); setState(''); setMinRent(''); setMaxRent(''); setBathrooms(''); setActiveRecommendation(''); }}
               className={`h-8 px-4 rounded-full text-xs font-medium transition-all ${
                 bedrooms === '2' && !state && !maxRent
-                  ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
-                  : 'bg-transparent border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                  ? 'bg-amber-500 text-white border-amber-500' 
+                  : 'bg-transparent border-amber-400 text-amber-600 hover:bg-amber-50 hover:border-amber-500'
               }`}
             >
               2 Bedrooms
             </Button>
           </div>
 
-          {/* Smart Recommendations - Based on Current Inventory */}
+          {/* Smart Recommendations - Light Theme */}
           {recommendations.length > 0 && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] border border-[#D4AF37]/20 rounded-lg">
+            <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
                 </svg>
-                <span className="text-[#D4AF37] text-sm font-medium">Recommended for you</span>
+                <span className="text-amber-700 text-sm font-medium">Recommended for you</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {recommendations.slice(0, 5).map((rec) => (
@@ -767,20 +767,20 @@ const Dashboard = () => {
                     onClick={() => applyRecommendation(rec)}
                     className={`h-9 px-4 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
                       activeRecommendation === rec.id
-                        ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]' 
-                        : 'bg-[#0a0a0a] border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                        ? 'bg-amber-500 text-white border-amber-500' 
+                        : 'bg-white border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
                     }`}
                     title={rec.description}
                   >
-                    <span className={activeRecommendation === rec.id ? 'text-[#0a0a0a]' : 'text-[#D4AF37]'}>
+                    <span className={activeRecommendation === rec.id ? 'text-white' : 'text-amber-600'}>
                       {getRecommendationIcon(rec.icon)}
                     </span>
                     <span>{rec.label}</span>
                     {rec.count > 0 && (
                       <Badge className={`ml-1 text-[10px] px-1.5 py-0 ${
                         activeRecommendation === rec.id 
-                          ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]' 
-                          : 'bg-[#D4AF37]/20 text-[#D4AF37]'
+                          ? 'bg-white/20 text-white' 
+                          : 'bg-amber-100 text-amber-700'
                       }`}>
                         {rec.count}
                       </Badge>
@@ -792,25 +792,25 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Trust Strip */}
-        <div className="mb-6 py-4 px-6 bg-[#0a0a0a] border border-[#D4AF37]/20 rounded-lg">
+        {/* Trust Strip - Light Theme */}
+        <div className="mb-6 py-4 px-6 bg-gray-50 border border-gray-200 rounded-lg">
           <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 text-sm">
-            <div className="flex items-center gap-2 text-[#B8B8B8]">
-              <svg className="w-5 h-5 text-[#4ade80]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               <span>100% verified no-fee buildings</span>
             </div>
-            <div className="hidden sm:block w-px h-4 bg-[#333]" />
-            <div className="flex items-center gap-2 text-[#B8B8B8]">
-              <svg className="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="hidden sm:block w-px h-4 bg-gray-300" />
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>Updated daily</span>
             </div>
-            <div className="hidden sm:block w-px h-4 bg-[#333]" />
-            <div className="flex items-center gap-2 text-[#B8B8B8]">
-              <svg className="w-5 h-5 text-[#60a5fa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="hidden sm:block w-px h-4 bg-gray-300" />
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <span>Direct from owners & landlords</span>
@@ -818,9 +818,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Results Header with View Toggle */}
+        {/* Results Header with View Toggle - Light Theme */}
         <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-xl font-philosopher font-bold text-[#F5F5F5]">
+          <h2 className="text-xl font-philosopher font-bold text-gray-900">
             {units.length} Apartments Available
           </h2>
           
@@ -830,8 +830,8 @@ const Dashboard = () => {
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               className={viewMode === 'list' 
-                ? 'bg-[#D4AF37] text-[#0a0a0a] hover:bg-[#E5C158]' 
-                : 'border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}
+                ? 'bg-amber-500 text-white hover:bg-amber-600' 
+                : 'border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-amber-500'}
             >
               <Building2 className="w-4 h-4 mr-2" />
               List
@@ -841,8 +841,8 @@ const Dashboard = () => {
               variant={viewMode === 'map' ? 'default' : 'outline'}
               size="sm"
               className={viewMode === 'map' 
-                ? 'bg-[#D4AF37] text-[#0a0a0a] hover:bg-[#E5C158]' 
-                : 'border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}
+                ? 'bg-amber-500 text-white hover:bg-amber-600' 
+                : 'border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-amber-500'}
             >
               <Map className="w-4 h-4 mr-2" />
               Map

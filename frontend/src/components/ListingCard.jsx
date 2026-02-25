@@ -253,8 +253,8 @@ const ListingCard = ({
             )}
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-[#111111]">
-            <div className="text-center text-[#888888]">
+          <div className={`w-full h-full flex items-center justify-center ${isLight ? 'bg-gray-100' : 'bg-[#111111]'}`}>
+            <div className={`text-center ${isLight ? 'text-gray-400' : 'text-[#888888]'}`}>
               <BedDouble className="w-12 h-12 mx-auto mb-2 opacity-30" />
               <span className="text-sm font-philosopher">No image</span>
             </div>
@@ -264,25 +264,25 @@ const ListingCard = ({
         {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 w-9 h-9 bg-[#0a0a0a]/80 hover:bg-[#D4AF37]/20 border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110"
+          className={`absolute top-3 right-3 w-9 h-9 ${isLight ? 'bg-white/90 hover:bg-amber-50 border-amber-300' : 'bg-[#0a0a0a]/80 hover:bg-[#D4AF37]/20 border-[#D4AF37]/30'} border flex items-center justify-center transition-all hover:scale-110 rounded-full`}
         >
           <Heart
             className={`w-5 h-5 transition-colors ${
               isFavorite 
-                ? 'fill-[#D4AF37] text-[#D4AF37]' 
-                : 'text-[#D4AF37]/70 hover:text-[#D4AF37]'
+                ? isLight ? 'fill-amber-500 text-amber-500' : 'fill-[#D4AF37] text-[#D4AF37]'
+                : isLight ? 'text-amber-400 hover:text-amber-500' : 'text-[#D4AF37]/70 hover:text-[#D4AF37]'
             }`}
           />
         </button>
         
         {/* No Fee Badge */}
-        <Badge className="absolute top-3 left-3 bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide">
+        <Badge className={`absolute top-3 left-3 ${isLight ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a]'} font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide`}>
           NO FEE
         </Badge>
         
         {/* Featured Badge */}
         {unit.is_featured && (
-          <Badge className="absolute top-12 left-3 bg-[#0a0a0a]/80 border border-[#D4AF37]/50 text-[#D4AF37] font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide">
+          <Badge className={`absolute top-12 left-3 ${isLight ? 'bg-white/90 border-amber-400 text-amber-600' : 'bg-[#0a0a0a]/80 border-[#D4AF37]/50 text-[#D4AF37]'} border font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide`}>
             FEATURED
           </Badge>
         )}
@@ -293,26 +293,26 @@ const ListingCard = ({
         {/* Price Row */}
         <div className="flex items-baseline justify-between mb-2">
           <div className="flex items-baseline">
-            <span className="text-2xl font-philosopher font-bold text-[#D4AF37]">
+            <span className={`text-2xl font-philosopher font-bold ${isLight ? 'text-amber-600' : 'text-[#D4AF37]'}`}>
               ${unit.rent?.toLocaleString()}
             </span>
-            <span className="text-[#888888] text-sm ml-1 font-philosopher">/mo</span>
+            <span className={`text-sm ml-1 font-philosopher ${textMuted}`}>/mo</span>
           </div>
           {sqftText && (
-            <span className="text-[#888888] text-sm font-philosopher">
+            <span className={`text-sm font-philosopher ${textMuted}`}>
               ${Math.round(unit.rent / unit.square_feet)}/ft²
             </span>
           )}
         </div>
         
         {/* Details Row */}
-        <div className="flex items-center gap-1 text-[#F5F5F5] text-sm mb-3 font-philosopher">
+        <div className={`flex items-center gap-1 text-sm mb-3 font-philosopher ${textPrimary}`}>
           <span className="font-medium">{bedroomText}</span>
-          <span className="text-[#D4AF37]/50">|</span>
+          <span className={isLight ? 'text-amber-400' : 'text-[#D4AF37]/50'}>|</span>
           <span className="font-medium">{bathText}</span>
           {sqftText && (
             <>
-              <span className="text-[#D4AF37]/50">|</span>
+              <span className={isLight ? 'text-amber-400' : 'text-[#D4AF37]/50'}>|</span>
               <span className="font-medium">{sqftText}</span>
             </>
           )}
@@ -322,30 +322,30 @@ const ListingCard = ({
         <div className="mb-2">
           {showBlur && !user ? (
             <div className="relative">
-              <h3 className="font-philosopher font-semibold text-white blur-sm select-none">
+              <h3 className={`font-philosopher font-semibold blur-sm select-none ${textPrimary}`}>
                 {unit.building?.address ? unit.building.address.substring(0, 15) + '...' : 'Premium Location'} #{unit.unit_number || 'XXX'}
               </h3>
-              <p className="text-sm text-[#888888] blur-sm select-none font-philosopher">
+              <p className={`text-sm blur-sm select-none font-philosopher ${textMuted}`}>
                 {unit.building?.neighborhood || unit.building?.city || 'Manhattan'}, {unit.building?.state || 'NY'}
               </p>
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/50">
-                <span className="text-xs text-[#D4AF37] font-philosopher font-medium tracking-wide">Sign up to view</span>
+              <div className={`absolute inset-0 flex items-center justify-center ${isLight ? 'bg-white/70' : 'bg-[#0a0a0a]/50'}`}>
+                <span className={`text-xs font-philosopher font-medium tracking-wide ${accentColor}`}>Sign up to view</span>
               </div>
             </div>
           ) : (
             <>
-              <h3 className="font-philosopher font-semibold text-white truncate">
+              <h3 className={`font-philosopher font-semibold truncate ${textPrimary}`}>
                 {unit.building?.address || 'Address Available'}
                 {unit.unit_number && ` #${unit.unit_number}`}
               </h3>
               {/* Neighborhood Tag - e.g., "Kips Bay - Luxury Rental" */}
-              <div className="flex items-center gap-1.5 text-sm text-[#888888] font-philosopher mt-1">
-                <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span className="text-[#D4AF37]/90 font-medium">
+              <div className={`flex items-center gap-1.5 text-sm font-philosopher mt-1 ${textMuted}`}>
+                <MapPin className={`w-3.5 h-3.5 ${accentColor}`} />
+                <span className={`font-medium ${isLight ? 'text-amber-600' : 'text-[#D4AF37]/90'}`}>
                   {unit.building?.neighborhood || unit.building?.city || 'Manhattan'}
                 </span>
-                <span className="text-[#666]">•</span>
-                <span className="text-[#888888]">
+                <span className={isLight ? 'text-gray-400' : 'text-[#666]'}>•</span>
+                <span className={textMuted}>
                   {getRentalType(unit)}
                 </span>
               </div>
@@ -355,9 +355,9 @@ const ListingCard = ({
         
         {/* Building Name Badge */}
         {user && unit.building?.name && (
-          <div className="mt-3 pt-3 border-t border-[#D4AF37]/10">
-            <span className="text-xs text-[#888888] uppercase tracking-wider font-philosopher">Building</span>
-            <p className="text-sm font-philosopher font-medium text-[#F5F5F5] truncate">{unit.building.name}</p>
+          <div className={`mt-3 pt-3 border-t ${isLight ? 'border-gray-200' : 'border-[#D4AF37]/10'}`}>
+            <span className={`text-xs uppercase tracking-wider font-philosopher ${textMuted}`}>Building</span>
+            <p className={`text-sm font-philosopher font-medium truncate ${textPrimary}`}>{unit.building.name}</p>
           </div>
         )}
       </div>

@@ -264,17 +264,17 @@ const Dashboard = () => {
         }}
       />
       
-      {/* Header */}
-      <header className="glass-window border-b border-amber-500/20 sticky top-0 z-50 shadow-xl shadow-amber-500/5">
+      {/* Header - Light Theme */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Logo size="default" />
+            <Logo size="default" variant="dark" />
             
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate('/fee-free-finds')}
-                className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 font-semibold"
+                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 font-semibold"
               >
                 #FeeFreeFinds
               </Button>
@@ -283,7 +283,7 @@ const Dashboard = () => {
                 variant="ghost"
                 onClick={() => navigate('/favorites')}
                 data-testid="nav-favorites-btn"
-                className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
+                className="text-gray-600 hover:text-amber-600 hover:bg-gray-100"
               >
                 <Heart className="w-5 h-5 mr-2" />
                 Favorites
@@ -294,7 +294,7 @@ const Dashboard = () => {
                   variant="ghost"
                   onClick={() => navigate('/admin')}
                   data-testid="nav-admin-btn"
-                  className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
+                  className="text-gray-600 hover:text-amber-600 hover:bg-gray-100"
                 >
                   <Settings className="w-5 h-5 mr-2" />
                   Admin
@@ -303,14 +303,14 @@ const Dashboard = () => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" data-testid="user-menu-btn" className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50">
+                  <Button variant="ghost" size="icon" data-testid="user-menu-btn" className="text-gray-600 hover:text-amber-600 hover:bg-gray-100">
                     <User className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
-                  <DropdownMenuItem className="font-medium text-slate-200">{user?.name}</DropdownMenuItem>
-                  <DropdownMenuItem className="text-sm text-slate-400">{user?.email}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout} data-testid="logout-btn" className="text-slate-300 hover:text-amber-500">
+                <DropdownMenuContent align="end" className="bg-white border-gray-200">
+                  <DropdownMenuItem className="font-medium text-gray-900">{user?.name}</DropdownMenuItem>
+                  <DropdownMenuItem className="text-sm text-gray-500">{user?.email}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout} data-testid="logout-btn" className="text-gray-700 hover:text-amber-600">
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </DropdownMenuItem>

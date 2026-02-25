@@ -441,7 +441,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Mobile Filter Bar - Visible only on mobile */}
+          {/* Mobile Filter Bar - Light Theme */}
           <div className="md:hidden">
             {/* Quick Access Buttons */}
             <div className="flex gap-2 mb-3">
@@ -450,27 +450,27 @@ const Dashboard = () => {
                 <SheetTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="flex-1 h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]"
+                    className="flex-1 h-11 bg-white border-amber-300 text-gray-700 hover:bg-amber-50 hover:border-amber-500"
                   >
-                    <SlidersHorizontal className="w-4 h-4 mr-2 text-[#D4AF37]" />
+                    <SlidersHorizontal className="w-4 h-4 mr-2 text-amber-600" />
                     Filter & Sort
                     {activeFilterCount > 0 && (
-                      <Badge className="ml-2 bg-[#D4AF37] text-[#0a0a0a] text-xs px-1.5 py-0">
+                      <Badge className="ml-2 bg-amber-500 text-white text-xs px-1.5 py-0">
                         {activeFilterCount}
                       </Badge>
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="bg-[#1a1a1a] border-t border-[#D4AF37]/30 rounded-t-2xl h-[85vh]">
-                  <SheetHeader className="pb-4 border-b border-[#333]">
+                <SheetContent side="bottom" className="bg-white border-t border-gray-200 rounded-t-2xl h-[85vh]">
+                  <SheetHeader className="pb-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
-                      <SheetTitle className="text-[#F5F5F5] font-philosopher text-xl">Filter & Sort</SheetTitle>
+                      <SheetTitle className="text-gray-900 font-philosopher text-xl">Filter & Sort</SheetTitle>
                       {activeFilterCount > 0 && (
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           onClick={clearFilters}
-                          className="text-[#D4AF37] hover:text-[#E5C158] hover:bg-transparent"
+                          className="text-amber-600 hover:text-amber-700 hover:bg-transparent"
                         >
                           Clear all
                         </Button>
@@ -479,10 +479,10 @@ const Dashboard = () => {
                   </SheetHeader>
                   
                   <div className="py-6 space-y-6 overflow-y-auto max-h-[calc(85vh-140px)]">
-                    {/* Price Range - Most Used */}
+                    {/* Price Range */}
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
-                        <DollarSign className="w-5 h-5 text-[#D4AF37]" />
+                      <label className="flex items-center gap-2 text-gray-900 font-medium">
+                        <DollarSign className="w-5 h-5 text-amber-600" />
                         Price Range
                       </label>
                       <div className="flex items-center gap-3">
@@ -492,17 +492,17 @@ const Dashboard = () => {
                             placeholder="Min price"
                             value={minRent}
                             onChange={(e) => setMinRent(e.target.value)}
-                            className="h-12 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-base placeholder:text-[#666]"
+                            className="h-12 bg-white border-gray-300 text-gray-900 text-base placeholder:text-gray-400"
                           />
                         </div>
-                        <span className="text-[#666]">to</span>
+                        <span className="text-gray-400">to</span>
                         <div className="flex-1">
                           <Input
                             type="number"
                             placeholder="Max price"
                             value={maxRent}
                             onChange={(e) => setMaxRent(e.target.value)}
-                            className="h-12 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-base placeholder:text-[#666]"
+                            className="h-12 bg-white border-gray-300 text-gray-900 text-base placeholder:text-gray-400"
                           />
                         </div>
                       </div>
@@ -524,8 +524,8 @@ const Dashboard = () => {
                             }}
                             className={`h-8 rounded-full text-xs ${
                               (preset.max && maxRent === preset.max && !minRent) || (preset.min && minRent === preset.min && !maxRent)
-                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
-                                : 'border-[#333] text-[#888] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'border-gray-300 text-gray-600 hover:border-amber-500 hover:text-amber-600'
                             }`}
                           >
                             {preset.label}
@@ -534,10 +534,10 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    {/* Bedrooms - Most Used */}
+                    {/* Bedrooms */}
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
-                        <BedDouble className="w-5 h-5 text-[#D4AF37]" />
+                      <label className="flex items-center gap-2 text-gray-900 font-medium">
+                        <BedDouble className="w-5 h-5 text-amber-600" />
                         Bedrooms
                       </label>
                       <div className="flex flex-wrap gap-2">
@@ -554,8 +554,8 @@ const Dashboard = () => {
                             onClick={() => setBedrooms(option.value)}
                             className={`h-11 px-5 rounded-lg ${
                               bedrooms === option.value
-                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
-                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
                             }`}
                           >
                             {option.label}
@@ -564,10 +564,10 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    {/* Location - Most Used */}
+                    {/* Location */}
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
-                        <Map className="w-5 h-5 text-[#D4AF37]" />
+                      <label className="flex items-center gap-2 text-gray-900 font-medium">
+                        <Map className="w-5 h-5 text-amber-600" />
                         Location
                       </label>
                       <div className="flex flex-wrap gap-2">
@@ -583,8 +583,8 @@ const Dashboard = () => {
                             onClick={() => setState(option.value)}
                             className={`h-11 px-5 rounded-lg ${
                               state === option.value
-                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
-                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
                             }`}
                           >
                             {option.label}
@@ -595,8 +595,8 @@ const Dashboard = () => {
 
                     {/* Bathrooms */}
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-[#F5F5F5] font-medium">
-                        <Bath className="w-5 h-5 text-[#D4AF37]" />
+                      <label className="flex items-center gap-2 text-gray-900 font-medium">
+                        <Bath className="w-5 h-5 text-amber-600" />
                         Bathrooms
                       </label>
                       <div className="flex flex-wrap gap-2">
@@ -612,8 +612,8 @@ const Dashboard = () => {
                             onClick={() => setBathrooms(option.value)}
                             className={`h-11 px-5 rounded-lg ${
                               bathrooms === option.value
-                                ? 'bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]'
-                                : 'border-[#333] text-[#F5F5F5] hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
                             }`}
                           >
                             {option.label}
@@ -623,11 +623,11 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Apply Button - Fixed at bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#1a1a1a] border-t border-[#333]">
+                  {/* Apply Button */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
                     <Button 
                       onClick={() => setMobileFilterOpen(false)}
-                      className="w-full h-12 bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-semibold text-base"
+                      className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-base"
                     >
                       Show {units.length} Apartments
                     </Button>
@@ -637,30 +637,30 @@ const Dashboard = () => {
 
               {/* Quick Beds Button */}
               <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
-                <SelectTrigger className="w-auto h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:border-[#D4AF37]">
-                  <BedDouble className="w-4 h-4 mr-1.5 text-[#D4AF37]" />
+                <SelectTrigger className="w-auto h-11 bg-white border-gray-300 text-gray-700 hover:border-amber-500">
+                  <BedDouble className="w-4 h-4 mr-1.5 text-amber-600" />
                   <span className="text-sm">{bedrooms === '' ? 'Beds' : bedrooms === '0' ? 'Studio' : `${bedrooms} Bed`}</span>
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
-                  <SelectItem value="any" className="text-[#F5F5F5]">Any Beds</SelectItem>
-                  <SelectItem value="0" className="text-[#F5F5F5]">Studio</SelectItem>
-                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bed</SelectItem>
-                  <SelectItem value="2" className="text-[#F5F5F5]">2 Beds</SelectItem>
-                  <SelectItem value="3" className="text-[#F5F5F5]">3+ Beds</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="any" className="text-gray-900">Any Beds</SelectItem>
+                  <SelectItem value="0" className="text-gray-900">Studio</SelectItem>
+                  <SelectItem value="1" className="text-gray-900">1 Bed</SelectItem>
+                  <SelectItem value="2" className="text-gray-900">2 Beds</SelectItem>
+                  <SelectItem value="3" className="text-gray-900">3+ Beds</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Quick Area Button */}
               <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
-                <SelectTrigger className="w-auto h-11 bg-[#1a1a1a] border-[#D4AF37]/30 text-[#F5F5F5] hover:border-[#D4AF37]">
-                  <Map className="w-4 h-4 mr-1.5 text-[#D4AF37]" />
+                <SelectTrigger className="w-auto h-11 bg-white border-gray-300 text-gray-700 hover:border-amber-500">
+                  <Map className="w-4 h-4 mr-1.5 text-amber-600" />
                   <span className="text-sm">{state || 'Area'}</span>
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
-                  <SelectItem value="any" className="text-[#F5F5F5]">All Areas</SelectItem>
-                  <SelectItem value="NY" className="text-[#F5F5F5]">New York</SelectItem>
-                  <SelectItem value="NJ" className="text-[#F5F5F5]">New Jersey</SelectItem>
-                  <SelectItem value="PA" className="text-[#F5F5F5]">Pennsylvania</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="any" className="text-gray-900">All Areas</SelectItem>
+                  <SelectItem value="NY" className="text-gray-900">New York</SelectItem>
+                  <SelectItem value="NJ" className="text-gray-900">New Jersey</SelectItem>
+                  <SelectItem value="PA" className="text-gray-900">Pennsylvania</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -669,25 +669,25 @@ const Dashboard = () => {
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap gap-2">
                 {state && (
-                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                  <Badge className="bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1 flex items-center gap-1.5">
                     {state === 'NY' ? 'New York' : state === 'NJ' ? 'New Jersey' : 'Pennsylvania'}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => setState('')} />
                   </Badge>
                 )}
                 {bedrooms && (
-                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                  <Badge className="bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1 flex items-center gap-1.5">
                     {bedrooms === '0' ? 'Studio' : `${bedrooms} Bed`}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => setBedrooms('')} />
                   </Badge>
                 )}
                 {(minRent || maxRent) && (
-                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                  <Badge className="bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1 flex items-center gap-1.5">
                     {minRent && maxRent ? `$${minRent}-$${maxRent}` : minRent ? `$${minRent}+` : `Under $${maxRent}`}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => { setMinRent(''); setMaxRent(''); }} />
                   </Badge>
                 )}
                 {bathrooms && (
-                  <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 flex items-center gap-1.5">
+                  <Badge className="bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1 flex items-center gap-1.5">
                     {bathrooms} Bath
                     <X className="w-3 h-3 cursor-pointer" onClick={() => setBathrooms('')} />
                   </Badge>

@@ -33,7 +33,8 @@ const ListingCard = ({
   isFavorite = false, 
   onToggleFavorite, 
   onShare,
-  showBlur = false 
+  showBlur = false,
+  theme = 'dark'
 }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -41,6 +42,20 @@ const ListingCard = ({
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const imageContainerRef = useRef(null);
+
+  // Theme-aware colors
+  const isLight = theme === 'light';
+  const cardBg = isLight ? 'bg-white' : 'bg-[#1a1a1a]';
+  const cardBorder = isLight ? 'border-gray-200 hover:border-amber-400' : 'border-[#D4AF37]/10 hover:border-[#D4AF37]/40';
+  const cardShadow = isLight 
+    ? 'shadow-md hover:shadow-xl hover:shadow-amber-100/50' 
+    : 'shadow-lg shadow-black/20 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(212,175,55,0.08)]';
+  const textPrimary = isLight ? 'text-gray-900' : 'text-[#F5F5F5]';
+  const textSecondary = isLight ? 'text-gray-600' : 'text-[#A0A0A0]';
+  const textMuted = isLight ? 'text-gray-500' : 'text-[#888]';
+  const accentColor = isLight ? 'text-amber-600' : 'text-[#D4AF37]';
+  const bgAccent = isLight ? 'bg-amber-500' : 'bg-[#D4AF37]';
+  const bgMuted = isLight ? 'bg-gray-100' : 'bg-[#111]';
 
   const images = unit.images?.length > 0 ? unit.images : [];
   const hasMultipleImages = images.length > 1;

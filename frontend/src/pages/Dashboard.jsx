@@ -236,7 +236,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-white">
       <SEO
         title="Browse No-Fee Apartments"
         description={`Search ${units.length}+ no broker fee apartments in NYC & NJ. Filter by bedrooms, price, and location. Real photos, verified listings, zero fees.`}

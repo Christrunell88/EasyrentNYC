@@ -7,7 +7,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - **Web Crawler:** Automatically crawl websites every 48 hours with manual trigger option
 - **Database:** MongoDB for storing crawled apartment data
 - **Authentication:** JWT-based custom sign-up/login + Google social login
-- **Frontend:** Luxury dark theme with search, filters, interactive map, favorites
+- **Frontend:** Dark landing page (pre-login), light theme for logged-in users, search, filters, interactive map, favorites
 - **Admin Panel:** View listings, analytics, trigger crawls, staging/approval pipeline
 - **SEO:** Dynamic sitemap, structured data (Schema.org)
 - **Notifications:** Email for contact forms and welcome emails

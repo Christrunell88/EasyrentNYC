@@ -529,7 +529,7 @@ const UnitDetails = () => {
           {/* LEFT COLUMN - Image Gallery (60-65%) */}
           <div className="lg:w-[62%]">
             {/* Main Image */}
-            <div className="relative bg-[#1a1a1a] overflow-hidden mb-3 border border-[#D4AF37]/10">
+            <div className="relative bg-gray-50 overflow-hidden mb-3 border border-gray-200">
               {images.length > 0 ? (
                 <>
                   <div className="relative aspect-[4/3]">
@@ -540,7 +540,7 @@ const UnitDetails = () => {
                     />
                     
                     {/* Image Counter Badge */}
-                    <div className="absolute bottom-4 left-4 bg-[#0a0a0a]/90 text-[#D4AF37] px-4 py-2 text-sm font-philosopher tracking-wide border border-[#D4AF37]/30">
+                    <div className="absolute bottom-4 left-4 bg-white/90 text-amber-600 px-4 py-2 text-sm font-philosopher tracking-wide border border-amber-300">
                       {currentImageIndex + 1} of {images.length}
                     </div>
                     
@@ -549,23 +549,23 @@ const UnitDetails = () => {
                       <>
                         <button
                           onClick={prevImage}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#0a0a0a]/80 hover:bg-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-amber-500 border border-amber-300 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
                         >
-                          <ChevronLeft className="w-6 h-6 text-[#D4AF37] group-hover:text-[#0a0a0a]" />
+                          <ChevronLeft className="w-6 h-6 text-amber-600 group-hover:text-[#0a0a0a]" />
                         </button>
                         <button
                           onClick={nextImage}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#0a0a0a]/80 hover:bg-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-amber-500 border border-amber-300 hover:border-[#D4AF37] flex items-center justify-center transition-all group"
                         >
-                          <ChevronRight className="w-6 h-6 text-[#D4AF37] group-hover:text-[#0a0a0a]" />
+                          <ChevronRight className="w-6 h-6 text-amber-600 group-hover:text-[#0a0a0a]" />
                         </button>
                       </>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="aspect-[4/3] bg-[#1a1a1a] flex items-center justify-center">
-                  <Building2 className="w-24 h-24 text-[#D4AF37]/30" />
+                <div className="aspect-[4/3] bg-gray-50 flex items-center justify-center">
+                  <Building2 className="w-24 h-24 text-amber-600/30" />
                 </div>
               )}
             </div>
@@ -580,7 +580,7 @@ const UnitDetails = () => {
                     className={`flex-shrink-0 w-20 h-16 overflow-hidden border transition-all ${
                       index === currentImageIndex 
                         ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]/30' 
-                        : 'border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
+                        : 'border-gray-200 hover:border-[#D4AF37]/50'
                     }`}
                   >
                     <img
@@ -591,7 +591,7 @@ const UnitDetails = () => {
                   </button>
                 ))}
                 {images.length > 8 && (
-                  <div className="flex-shrink-0 w-20 h-16 bg-[#1a1a1a] border border-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] text-sm font-philosopher">
+                  <div className="flex-shrink-0 w-20 h-16 bg-gray-50 border border-gray-200 flex items-center justify-center text-amber-600 text-sm font-philosopher">
                     +{images.length - 8}
                   </div>
                 )}
@@ -599,14 +599,14 @@ const UnitDetails = () => {
             )}
 
             {/* About Section - Below Images */}
-            <div className="mt-8 pt-6 border-t border-[#D4AF37]/10">
+            <div className="mt-8 pt-6 border-t border-gray-200">
               <h2 className="text-xl font-philosopher font-bold text-white mb-4">About</h2>
               {unit.description ? (
-                <p className="text-[#F5F5F5] leading-relaxed">
+                <p className="text-gray-900 leading-relaxed">
                   {formatDescription(unit.description, unit)}
                 </p>
               ) : (
-                <p className="text-[#888888]">
+                <p className="text-gray-500">
                   {bedroomText === 'Studio' ? 'Studio' : `${unit.bedrooms} bedroom`} apartment with {unit.bathrooms} bathroom{unit.bathrooms > 1 ? 's' : ''} in {neighborhood}. No broker fee required.
                 </p>
               )}
@@ -617,7 +617,7 @@ const UnitDetails = () => {
                   <h3 className="text-lg font-philosopher font-semibold text-white mb-3">Features & Amenities</h3>
                   <div className="flex flex-wrap gap-2">
                     {unit.amenities.map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="px-3 py-1.5 text-sm bg-[#1a1a1a] text-[#F5F5F5] border border-[#D4AF37]/20 rounded-none font-philosopher">
+                      <Badge key={index} variant="secondary" className="px-3 py-1.5 text-sm bg-gray-50 text-gray-900 border border-gray-200 rounded-none font-philosopher">
                         {amenity}
                       </Badge>
                     ))}
@@ -635,45 +635,45 @@ const UnitDetails = () => {
                 <h1 className="text-2xl md:text-3xl font-philosopher font-bold text-white mb-1">
                   {unit.building?.address}
                 </h1>
-                <p className="text-lg text-[#888888] font-philosopher">#{unit.unit_number}</p>
+                <p className="text-lg text-gray-500 font-philosopher">#{unit.unit_number}</p>
               </div>
 
               {/* Price Section */}
               <div className="mb-6">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl md:text-4xl font-philosopher font-bold text-[#D4AF37]">${unit.rent.toLocaleString()}</span>
-                  <span className="text-[#888888] text-sm font-philosopher tracking-wide">FOR RENT</span>
+                  <span className="text-3xl md:text-4xl font-philosopher font-bold text-amber-600">${unit.rent.toLocaleString()}</span>
+                  <span className="text-gray-500 text-sm font-philosopher tracking-wide">FOR RENT</span>
                 </div>
-                <p className="text-sm text-[#888888] mt-2 font-philosopher">No broker fee. Move-in ready.</p>
+                <p className="text-sm text-gray-500 mt-2 font-philosopher">No broker fee. Move-in ready.</p>
               </div>
 
               {/* Key Details Row */}
-              <div className="flex items-center gap-4 text-[#F5F5F5] py-4 border-y border-[#D4AF37]/20 mb-6 font-philosopher">
+              <div className="flex items-center gap-4 text-gray-900 py-4 border-y border-gray-200 mb-6 font-philosopher">
                 {unit.square_feet && (
                   <>
                     <span className="font-medium">{unit.square_feet} ft²</span>
-                    <span className="text-[#D4AF37]/50">|</span>
+                    <span className="text-amber-600/50">|</span>
                   </>
                 )}
                 <span className="font-medium">{unit.bedrooms + 1} rooms</span>
-                <span className="text-[#D4AF37]/50">|</span>
+                <span className="text-amber-600/50">|</span>
                 <span className="font-medium">{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`}</span>
-                <span className="text-[#D4AF37]/50">|</span>
+                <span className="text-amber-600/50">|</span>
                 <span className="font-medium">{unit.bathrooms} bath</span>
               </div>
 
               {/* Location */}
               <div className="mb-6 text-sm font-philosopher">
-                <p className="text-[#888888]">Rental unit</p>
-                <p className="text-[#D4AF37] font-medium">{neighborhood}</p>
+                <p className="text-gray-500">Rental unit</p>
+                <p className="text-amber-600 font-medium">{neighborhood}</p>
               </div>
 
               {/* No Fee Notice */}
-              <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 p-4 mb-6">
+              <div className="bg-amber-500/10 border border-amber-300 p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[#F5F5F5] font-philosopher">
-                    <strong className="text-[#D4AF37]">No broker fee</strong> - You won't be charged a broker fee for this property.
+                  <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-900 font-philosopher">
+                    <strong className="text-amber-600">No broker fee</strong> - You won't be charged a broker fee for this property.
                   </p>
                 </div>
               </div>
@@ -682,45 +682,45 @@ const UnitDetails = () => {
               <Dialog open={contactOpen} onOpenChange={setContactOpen}>
                 <DialogTrigger asChild>
                   <Button 
-                    className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 text-base font-philosopher font-bold mb-4 flex items-center justify-center gap-2 transition-all rounded-none tracking-wide hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]" 
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-5 text-base font-philosopher font-bold mb-4 flex items-center justify-center gap-2 transition-all rounded-none tracking-wide hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]" 
                     data-testid="contact-btn"
                   >
                     <Calendar className="w-5 h-5" />
                     Schedule Viewing
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/20 text-white max-w-md rounded-none">
+                <DialogContent className="bg-gray-50 border border-gray-200 text-white max-w-md rounded-none">
                   <DialogHeader>
                     <DialogTitle className="text-white text-xl font-philosopher">Schedule a Viewing</DialogTitle>
-                    <DialogDescription className="text-[#888888] font-philosopher">
+                    <DialogDescription className="text-gray-500 font-philosopher">
                       Pick a time that works for you. We'll confirm your appointment shortly.
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleContact} className="space-y-4 mt-2">
                     {/* Schedule Section - Primary */}
-                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 p-4">
+                    <div className="bg-amber-500/10 border border-amber-300 p-4">
                       <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="w-5 h-5 text-[#D4AF37]" />
-                        <span className="text-[#D4AF37] font-philosopher font-semibold">Select Your Preferred Time</span>
+                        <Calendar className="w-5 h-5 text-amber-600" />
+                        <span className="text-amber-600 font-philosopher font-semibold">Select Your Preferred Time</span>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="preferred_date" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Date</Label>
+                          <Label htmlFor="preferred_date" className="text-gray-900 text-sm mb-1 block font-philosopher">Date</Label>
                           <Input 
                             id="preferred_date" 
                             name="preferred_date" 
                             type="date"
                             min={new Date().toISOString().split('T')[0]}
-                            className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none"
+                            className="border-amber-300 bg-white text-white rounded-none"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="preferred_time" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Time</Label>
+                          <Label htmlFor="preferred_time" className="text-gray-900 text-sm mb-1 block font-philosopher">Time</Label>
                           <select 
                             id="preferred_time" 
                             name="preferred_time"
-                            className="w-full h-10 px-3 border border-[#D4AF37]/30 bg-[#0a0a0a] text-white focus:outline-none focus:border-[#D4AF37] font-philosopher"
+                            className="w-full h-10 px-3 border border-amber-300 bg-white text-white focus:outline-none focus:border-[#D4AF37] font-philosopher"
                           >
                             <option value="">Select time</option>
                             <option value="morning">Morning (9-12pm)</option>
@@ -735,32 +735,32 @@ const UnitDetails = () => {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="name" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Name *</Label>
-                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
+                          <Label htmlFor="name" className="text-gray-900 text-sm mb-1 block font-philosopher">Name *</Label>
+                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
                         </div>
                         <div>
-                          <Label htmlFor="phone" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Phone</Label>
-                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
+                          <Label htmlFor="phone" className="text-gray-900 text-sm mb-1 block font-philosopher">Phone</Label>
+                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Email *</Label>
-                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none font-philosopher placeholder:text-[#666666]" />
+                        <Label htmlFor="email" className="text-gray-900 text-sm mb-1 block font-philosopher">Email *</Label>
+                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
                       </div>
                       <div>
-                        <Label htmlFor="message" className="text-[#F5F5F5] text-sm mb-1 block font-philosopher">Message (optional)</Label>
+                        <Label htmlFor="message" className="text-gray-900 text-sm mb-1 block font-philosopher">Message (optional)</Label>
                         <Textarea
                           id="message"
                           name="message"
                           rows={2}
                           placeholder="Any questions or special requests?"
                           data-testid="contact-message-input"
-                          className="border-[#D4AF37]/30 bg-[#0a0a0a] text-white rounded-none resize-none font-philosopher placeholder:text-[#666666]"
+                          className="border-amber-300 bg-white text-white rounded-none resize-none font-philosopher placeholder:text-gray-400"
                         />
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide" data-testid="contact-submit-btn">
+                    <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-5 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide" data-testid="contact-submit-btn">
                       <Calendar className="w-4 h-4" />
                       Request Viewing
                     </Button>
@@ -773,7 +773,7 @@ const UnitDetails = () => {
                 <Button
                   onClick={toggleFavorite}
                   variant="outline"
-                  className={`flex-1 border-[#D4AF37]/30 rounded-none font-philosopher ${isFavorite ? 'bg-[#D4AF37]/10 border-[#D4AF37] text-[#D4AF37]' : 'text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'}`}
+                  className={`flex-1 border-amber-300 rounded-none font-philosopher ${isFavorite ? 'bg-amber-500/10 border-[#D4AF37] text-amber-600' : 'text-gray-900 hover:bg-amber-500/10 hover:border-[#D4AF37]'}`}
                   data-testid="toggle-favorite-btn"
                 >
                   <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
@@ -782,7 +782,7 @@ const UnitDetails = () => {
                 <Button
                   onClick={() => setShareOpen(true)}
                   variant="outline"
-                  className="flex-1 border-[#D4AF37]/30 text-[#F5F5F5] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] rounded-none font-philosopher"
+                  className="flex-1 border-amber-300 text-gray-900 hover:bg-amber-500/10 hover:border-[#D4AF37] rounded-none font-philosopher"
                   data-testid="share-btn"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
@@ -791,30 +791,30 @@ const UnitDetails = () => {
               </div>
 
               {/* Building Details Card */}
-              <Card className="border border-[#D4AF37]/20 bg-[#1a1a1a] rounded-none">
+              <Card className="border border-gray-200 bg-gray-50 rounded-none">
                 <CardContent className="p-4">
-                  <h3 className="font-philosopher font-semibold text-[#D4AF37] mb-3">Building Details</h3>
+                  <h3 className="font-philosopher font-semibold text-amber-600 mb-3">Building Details</h3>
                   <div className="space-y-2 text-sm font-philosopher">
                     <div className="flex justify-between">
-                      <span className="text-[#888888]">Building</span>
-                      <span className="text-[#F5F5F5] font-medium">{unit.building?.name}</span>
+                      <span className="text-gray-500">Building</span>
+                      <span className="text-gray-900 font-medium">{unit.building?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#888888]">Address</span>
-                      <span className="text-[#F5F5F5]">{unit.building?.address}</span>
+                      <span className="text-gray-500">Address</span>
+                      <span className="text-gray-900">{unit.building?.address}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#888888]">Neighborhood</span>
-                      <span className="text-[#F5F5F5]">{unit.building?.neighborhood}</span>
+                      <span className="text-gray-500">Neighborhood</span>
+                      <span className="text-gray-900">{unit.building?.neighborhood}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#888888]">City</span>
-                      <span className="text-[#F5F5F5]">{unit.building?.city}, {unit.building?.state}</span>
+                      <span className="text-gray-500">City</span>
+                      <span className="text-gray-900">{unit.building?.city}, {unit.building?.state}</span>
                     </div>
                     {unit.available_date && (
                       <div className="flex justify-between">
-                        <span className="text-[#888888]">Available</span>
-                        <span className="text-[#D4AF37] font-medium">{unit.available_date}</span>
+                        <span className="text-gray-500">Available</span>
+                        <span className="text-amber-600 font-medium">{unit.available_date}</span>
                       </div>
                     )}
                   </div>
@@ -856,20 +856,20 @@ const UnitDetails = () => {
 
       {/* Success Dialog with Google Calendar */}
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
-        <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/20 text-white max-w-md text-center rounded-none">
+        <DialogContent className="bg-gray-50 border border-gray-200 text-white max-w-md text-center rounded-none">
           <div className="flex flex-col items-center py-4">
-            <div className="w-16 h-16 bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-10 h-10 text-[#D4AF37]" />
+            <div className="w-16 h-16 bg-amber-500/10 border border-amber-300 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-10 h-10 text-amber-600" />
             </div>
             <DialogTitle className="text-white text-xl font-philosopher mb-2">Viewing Request Sent!</DialogTitle>
-            <DialogDescription className="text-[#888888] font-philosopher mb-6">
+            <DialogDescription className="text-gray-500 font-philosopher mb-6">
               We'll confirm your appointment shortly. Add it to your calendar so you don't forget!
             </DialogDescription>
             
             {/* Google Calendar Button */}
             <Button 
               onClick={openGoogleCalendar}
-              className="w-full bg-[#0a0a0a] hover:bg-[#D4AF37]/10 text-[#F5F5F5] border border-[#D4AF37]/30 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 mb-3 rounded-none"
+              className="w-full bg-white hover:bg-amber-500/10 text-gray-900 border border-amber-300 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 mb-3 rounded-none"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
@@ -881,7 +881,7 @@ const UnitDetails = () => {
 
             <Button 
               onClick={() => setSuccessOpen(false)}
-              className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] py-5 font-philosopher font-bold rounded-none tracking-wide"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-5 font-philosopher font-bold rounded-none tracking-wide"
             >
               Done
             </Button>

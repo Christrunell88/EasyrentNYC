@@ -100,7 +100,7 @@ const FeeFreeFinds = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 overflow-hidden">
+    <div className="min-h-screen bg-white overflow-hidden">
       <SEO
         title="#FeeFreeFinds - No Broker Fee Apartments NYC & NJ"
         description="Discover #FeeFreeFinds - curated no broker fee apartments in NYC and New Jersey. Save thousands on your next apartment. Real listings, real savings, zero fees."
@@ -133,7 +133,7 @@ const FeeFreeFinds = () => {
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 glass-window border-b border-amber-500/10">
+      <nav className="fixed top-0 w-full z-50 bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Logo size="default" />
@@ -144,7 +144,7 @@ const FeeFreeFinds = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/favorites')}
-                    className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
+                    className="text-gray-600 hover:text-amber-500 hover:bg-gray-50/50"
                   >
                     <Heart className="w-5 h-5 mr-2" />
                     Favorites
@@ -161,7 +161,7 @@ const FeeFreeFinds = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/auth')}
-                    className="text-slate-300 hover:text-amber-500 hover:bg-slate-800/50"
+                    className="text-gray-600 hover:text-amber-500 hover:bg-gray-50/50"
                   >
                     Sign In
                   </Button>
@@ -216,24 +216,24 @@ const FeeFreeFinds = () => {
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
             Every apartment in our collection is a <span className="text-amber-400 font-semibold">#FeeFreeFind</span> — 
             verified no-fee listings that save you thousands on broker costs.
           </p>
 
           {/* Stats Row */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-            <div className="glass-window border border-amber-500/30 rounded-xl px-8 py-4 text-center">
+            <div className="bg-white shadow-sm border border-amber-500/30 rounded-xl px-8 py-4 text-center">
               <div className="text-3xl font-bold warm-gradient-text">{stats.totalUnits}+</div>
-              <div className="text-sm text-slate-400">No-Fee Apartments</div>
+              <div className="text-sm text-gray-500">No-Fee Apartments</div>
             </div>
-            <div className="glass-window border border-emerald-500/30 rounded-xl px-8 py-4 text-center">
+            <div className="bg-white shadow-sm border border-emerald-500/30 rounded-xl px-8 py-4 text-center">
               <div className="text-3xl font-bold text-emerald-400">{formatCurrency(stats.totalSavings)}</div>
-              <div className="text-sm text-slate-400">Total Savings Available</div>
+              <div className="text-sm text-gray-500">Total Savings Available</div>
             </div>
-            <div className="glass-window border border-amber-500/30 rounded-xl px-8 py-4 text-center">
+            <div className="bg-white shadow-sm border border-amber-500/30 rounded-xl px-8 py-4 text-center">
               <div className="text-3xl font-bold warm-gradient-text">$0</div>
-              <div className="text-sm text-slate-400">Broker Fees</div>
+              <div className="text-sm text-gray-500">Broker Fees</div>
             </div>
           </div>
 
@@ -264,13 +264,13 @@ const FeeFreeFinds = () => {
       </section>
 
       {/* What Makes a #FeeFreeFind */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/50 border-y border-amber-500/10">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50 border-y border-gray-200">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               What Makes a <span className="warm-gradient-text">#FeeFreeFind</span>?
             </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Every listing in our collection meets these standards
             </p>
           </div>
@@ -298,14 +298,14 @@ const FeeFreeFinds = () => {
             ].map((feature, index) => (
               <Card 
                 key={index} 
-                className="bg-slate-900/50 border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 group"
+                className="bg-white/50 border-gray-200 hover:border-amber-500/40 transition-all duration-300 group"
               >
                 <CardContent className="p-8 text-center">
                   <div className="w-16 h-16 rounded-2xl warm-gradient flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
                     <feature.icon className="w-8 h-8 text-slate-900" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                  <p className="text-slate-400 mb-4">{feature.description}</p>
+                  <p className="text-gray-500 mb-4">{feature.description}</p>
                   <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1">
                     {feature.highlight}
                   </Badge>
@@ -327,7 +327,7 @@ const FeeFreeFinds = () => {
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
               Latest <span className="warm-gradient-text">#FeeFreeFinds</span>
             </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Fresh no-fee apartments added to our collection. Sign up to unlock full details.
             </p>
           </div>
@@ -382,24 +382,24 @@ const FeeFreeFinds = () => {
             See How Much You&apos;ll <span className="text-emerald-400">Save</span>
           </h2>
           
-          <div className="glass-window border border-emerald-500/30 rounded-2xl p-8 mb-8">
+          <div className="bg-white shadow-sm border border-emerald-500/30 rounded-2xl p-8 mb-8">
             <div className="grid md:grid-cols-3 gap-8">
               <div>
-                <p className="text-slate-400 text-sm mb-2">Typical Broker Fee</p>
+                <p className="text-gray-500 text-sm mb-2">Typical Broker Fee</p>
                 <p className="text-3xl font-bold text-red-400 line-through">15% Annual Rent</p>
               </div>
               <div>
-                <p className="text-slate-400 text-sm mb-2">Your Cost with Us</p>
+                <p className="text-gray-500 text-sm mb-2">Your Cost with Us</p>
                 <p className="text-4xl font-bold text-emerald-400">$0</p>
               </div>
               <div>
-                <p className="text-slate-400 text-sm mb-2">Average Savings</p>
+                <p className="text-gray-500 text-sm mb-2">Average Savings</p>
                 <p className="text-3xl font-bold warm-gradient-text">$4,500+</p>
               </div>
             </div>
           </div>
 
-          <p className="text-lg text-slate-300 mb-8">
+          <p className="text-lg text-gray-600 mb-8">
             The average NYC renter pays <span className="text-red-400 font-semibold">$4,500 or more</span> in broker fees. 
             With #FeeFreeFinds, that money stays in your pocket.
           </p>
@@ -422,7 +422,7 @@ const FeeFreeFinds = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Find #FeeFreeFinds by Location
             </h2>
-            <p className="text-lg text-slate-300">
+            <p className="text-lg text-gray-600">
               Explore no-fee apartments in your preferred neighborhood
             </p>
           </div>
@@ -441,10 +441,10 @@ const FeeFreeFinds = () => {
               <button
                 key={location.name}
                 onClick={() => navigate(location.url)}
-                className="glass-window border border-amber-500/20 rounded-xl p-4 hover:border-amber-500/40 transition-all group text-center"
+                className="bg-white shadow-sm border border-gray-200 rounded-xl p-4 hover:border-amber-500/40 transition-all group text-center"
               >
                 <MapPin className="w-6 h-6 text-amber-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-semibold text-slate-100 group-hover:text-amber-400 transition-colors">
+                <span className="text-sm font-semibold text-gray-900 group-hover:text-amber-400 transition-colors">
                   {location.name}
                 </span>
               </button>
@@ -456,7 +456,7 @@ const FeeFreeFinds = () => {
       {/* Social Share CTA */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/20 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full mb-6">
             <Hash className="w-5 h-5 text-slate-900" />
             <span className="font-bold text-slate-900">Share the Savings</span>
           </div>
@@ -476,7 +476,7 @@ const FeeFreeFinds = () => {
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
               }}
               size="lg"
-              className="bg-slate-900 hover:bg-slate-800 text-amber-500 font-bold px-8 py-6"
+              className="bg-white hover:bg-gray-50 text-amber-500 font-bold px-8 py-6"
             >
               Share on X/Twitter
             </Button>
@@ -487,7 +487,7 @@ const FeeFreeFinds = () => {
               }}
               size="lg"
               variant="outline"
-              className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-amber-500 font-bold px-8 py-6"
+              className="border-2 border-slate-900 text-slate-900 hover:bg-white hover:text-amber-500 font-bold px-8 py-6"
             >
               Share on Facebook
             </Button>
@@ -496,27 +496,27 @@ const FeeFreeFinds = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8">
+      <footer className="bg-slate-950 border-t border-gray-300 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <Logo size="default" />
-          <p className="text-slate-400 mt-4 mb-6">
+          <p className="text-gray-500 mt-4 mb-6">
             #FeeFreeFinds - Saving NYC & NJ renters thousands on broker fees.
           </p>
           <div className="flex gap-6 justify-center text-sm">
-            <button onClick={() => navigate('/')} className="text-slate-400 hover:text-amber-500 transition-colors">
+            <button onClick={() => navigate('/')} className="text-gray-500 hover:text-amber-500 transition-colors">
               Home
             </button>
-            <button onClick={() => navigate('/dashboard')} className="text-slate-400 hover:text-amber-500 transition-colors">
+            <button onClick={() => navigate('/dashboard')} className="text-gray-500 hover:text-amber-500 transition-colors">
               Browse Apartments
             </button>
-            <button onClick={() => navigate('/blog')} className="text-slate-400 hover:text-amber-500 transition-colors">
+            <button onClick={() => navigate('/blog')} className="text-gray-500 hover:text-amber-500 transition-colors">
               Blog
             </button>
-            <button onClick={() => navigate('/faq')} className="text-slate-400 hover:text-amber-500 transition-colors">
+            <button onClick={() => navigate('/faq')} className="text-gray-500 hover:text-amber-500 transition-colors">
               FAQ
             </button>
           </div>
-          <p className="text-sm text-slate-500 mt-8">
+          <p className="text-sm text-gray-500 mt-8">
             © 2025 NoFeesApts.com. All rights reserved. • #FeeFreeFinds
           </p>
         </div>

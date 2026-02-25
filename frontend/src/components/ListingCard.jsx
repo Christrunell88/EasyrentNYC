@@ -129,7 +129,7 @@ const ListingCard = ({
 
   return (
     <div
-      className="group bg-[#1a1a1a] rounded-lg overflow-hidden transition-all duration-400 cursor-pointer border border-[#D4AF37]/10 hover:border-[#D4AF37]/40 shadow-lg shadow-black/20 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(212,175,55,0.08)] hover:-translate-y-1"
+      className={`group ${cardBg} rounded-lg overflow-hidden transition-all duration-400 cursor-pointer border ${cardBorder} ${cardShadow} hover:-translate-y-1`}
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); setCurrentImageIndex(0); }}
@@ -137,7 +137,7 @@ const ListingCard = ({
       {/* Image Section with Carousel */}
       <div 
         ref={imageContainerRef}
-        className="relative aspect-[4/3] bg-[#111111] overflow-hidden"
+        className={`relative aspect-[4/3] ${isLight ? 'bg-gray-100' : 'bg-[#111111]'} overflow-hidden`}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}

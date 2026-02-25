@@ -83,7 +83,26 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
-### Recent Work (2026-02-19)
+### Recent Work (2026-02-25)
+- **Theme Switch Implementation**:
+  - Landing page: Dark luxury theme (unchanged)
+  - Dashboard: White background, gray header, amber accents
+  - ListingCard: Theme-aware with `theme="light"` prop
+  - Favorites: Light theme with amber gradient title
+  - Unit Details: Light theme with clean professional look
+  - FeeFreeFinds: Light theme consistent with dashboard
+  - All logged-in pages now use clean, professional white background
+
+- **New Buildings Added to Staging**:
+  - **The Larstrand** (227 W 77th St, Upper West Side)
+    - 3 units: Studio 05C ($4,850), Studio 16J ($4,897), 1BR 17H ($7,100)
+    - All with images from building gallery
+  - **The Greenpoint** (21 India Street, Brooklyn)
+    - 10 units: 4 Studios, 5 One-Bedrooms, 1 Two-Bedroom
+    - Rent range: $4,074 - $7,148
+    - Square footage included (492-972 sq ft)
+
+### Previous Work (2026-02-19)
 - **Image Carousel on Listing Cards**: 
   - Desktop: Navigation arrows + thumbnail strip on hover, auto-advance every 2 seconds
   - Mobile: Swipe gesture support with visual "< Swipe >" hint

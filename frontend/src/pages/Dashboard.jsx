@@ -852,11 +852,11 @@ const Dashboard = () => {
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-xl text-[#D4AF37]">Loading apartments...</div>
+            <div className="text-xl text-amber-600">Loading apartments...</div>
           </div>
         ) : units.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-xl text-[#888]">No apartments found. Try adjusting your filters.</div>
+            <div className="text-xl text-gray-500">No apartments found. Try adjusting your filters.</div>
           </div>
         ) : viewMode === 'map' ? (
           <div className="mb-8">
@@ -879,11 +879,11 @@ const Dashboard = () => {
                   {/* Section Header */}
                   {groupIndex > 0 && (
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
-                      <span className="text-[#666] text-xs font-philosopher tracking-widest uppercase">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+                      <span className="text-gray-500 text-xs font-philosopher tracking-widest uppercase">
                         {startIndex + 1}–{Math.min(startIndex + 9, units.length)} of {units.length}
                       </span>
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
                     </div>
                   )}
                   
@@ -901,6 +901,7 @@ const Dashboard = () => {
                           setShareDialogOpen(true);
                         }}
                         showBlur={!user}
+                        theme="light"
                       />
                     ))}
                   </div>
@@ -910,7 +911,7 @@ const Dashboard = () => {
                     <div className="flex justify-center mt-10">
                       <button
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="group flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] border border-[#D4AF37]/30 rounded-full text-sm text-[#888] hover:text-[#D4AF37] hover:border-[#D4AF37]/60 transition-all duration-300"
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm text-gray-500 hover:text-amber-600 hover:border-amber-400 transition-all duration-300"
                       >
                         <svg 
                           className="w-4 h-4 transform group-hover:-translate-y-0.5 transition-transform" 
@@ -933,7 +934,7 @@ const Dashboard = () => {
               <div className="flex justify-center pt-4 pb-8">
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="group flex items-center gap-2 px-6 py-3 bg-[#D4AF37]/10 border border-[#D4AF37]/40 rounded-full text-sm font-medium text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:border-[#D4AF37] transition-all duration-300"
+                  className="group flex items-center gap-2 px-6 py-3 bg-amber-50 border border-amber-300 rounded-full text-sm font-medium text-amber-600 hover:bg-amber-100 hover:border-amber-400 transition-all duration-300"
                 >
                   <svg 
                     className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform" 

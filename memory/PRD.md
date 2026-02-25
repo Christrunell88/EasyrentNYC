@@ -63,7 +63,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 
 ## Implementation Status
 
-### ✅ Completed (as of 2026-02-19)
+### ✅ Completed (as of 2026-02-25)
 - [x] Full-stack app with React frontend + FastAPI backend
 - [x] MongoDB database with optimized indexes
 - [x] JWT authentication + Google social login
@@ -79,6 +79,9 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] Facebook Graph API connection
 - [x] **Image Carousel on ListingCard** - Desktop (hover with arrows, thumbnails, auto-advance) + Mobile (swipe)
 - [x] **End-to-End Renter Path** - Verified: Landing → Auth → Dashboard → Unit Detail
+- [x] **The Larstrand Building** - Added to staging (3 units with images)
+- [x] **The Greenpoint Building** - Added to staging (10 units with images)
+- [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
 ### Recent Work (2026-02-19)
 - **Image Carousel on Listing Cards**: 

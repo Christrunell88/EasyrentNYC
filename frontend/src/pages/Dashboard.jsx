@@ -347,93 +347,93 @@ const Dashboard = () => {
         
         {/* Responsive Filter Bar */}
         <div className="mb-6 space-y-4">
-          {/* Desktop Filter Bar - Hidden on mobile */}
-          <div className="hidden md:flex flex-wrap items-center gap-3 p-4 bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-lg">
+          {/* Desktop Filter Bar - Light Theme */}
+          <div className="hidden md:flex flex-wrap items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
             {/* Location */}
             <div className="flex items-center gap-2">
-              <Map className="w-4 h-4 text-[#D4AF37]" />
+              <Map className="w-4 h-4 text-amber-600" />
               <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
-                <SelectTrigger data-testid="state-filter" className="w-[130px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                <SelectTrigger data-testid="state-filter" className="w-[130px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
                   <SelectValue placeholder="All Areas" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
-                  <SelectItem value="any" className="text-[#F5F5F5]">All Areas</SelectItem>
-                  <SelectItem value="NY" className="text-[#F5F5F5]">New York</SelectItem>
-                  <SelectItem value="NJ" className="text-[#F5F5F5]">New Jersey</SelectItem>
-                  <SelectItem value="PA" className="text-[#F5F5F5]">Pennsylvania</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="any" className="text-gray-900">All Areas</SelectItem>
+                  <SelectItem value="NY" className="text-gray-900">New York</SelectItem>
+                  <SelectItem value="NJ" className="text-gray-900">New Jersey</SelectItem>
+                  <SelectItem value="PA" className="text-gray-900">Pennsylvania</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
-            <div className="w-px h-6 bg-[#333]" />
+            <div className="w-px h-6 bg-gray-300" />
             
             {/* Beds */}
             <div className="flex items-center gap-2">
-              <BedDouble className="w-4 h-4 text-[#D4AF37]" />
+              <BedDouble className="w-4 h-4 text-amber-600" />
               <Select value={bedrooms || "any"} onValueChange={(val) => setBedrooms(val === "any" ? "" : val)}>
-                <SelectTrigger data-testid="bedrooms-filter" className="w-[100px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                <SelectTrigger data-testid="bedrooms-filter" className="w-[100px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
                   <SelectValue placeholder="Beds" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
-                  <SelectItem value="any" className="text-[#F5F5F5]">Any Beds</SelectItem>
-                  <SelectItem value="0" className="text-[#F5F5F5]">Studio</SelectItem>
-                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bed</SelectItem>
-                  <SelectItem value="2" className="text-[#F5F5F5]">2 Beds</SelectItem>
-                  <SelectItem value="3" className="text-[#F5F5F5]">3+ Beds</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="any" className="text-gray-900">Any Beds</SelectItem>
+                  <SelectItem value="0" className="text-gray-900">Studio</SelectItem>
+                  <SelectItem value="1" className="text-gray-900">1 Bed</SelectItem>
+                  <SelectItem value="2" className="text-gray-900">2 Beds</SelectItem>
+                  <SelectItem value="3" className="text-gray-900">3+ Beds</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             {/* Baths */}
             <div className="flex items-center gap-2">
-              <Bath className="w-4 h-4 text-[#D4AF37]" />
+              <Bath className="w-4 h-4 text-amber-600" />
               <Select value={bathrooms || "any"} onValueChange={(val) => setBathrooms(val === "any" ? "" : val)}>
-                <SelectTrigger data-testid="bathrooms-filter" className="w-[100px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm">
+                <SelectTrigger data-testid="bathrooms-filter" className="w-[100px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
                   <SelectValue placeholder="Baths" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
-                  <SelectItem value="any" className="text-[#F5F5F5]">Any Baths</SelectItem>
-                  <SelectItem value="1" className="text-[#F5F5F5]">1 Bath</SelectItem>
-                  <SelectItem value="1.5" className="text-[#F5F5F5]">1.5 Bath</SelectItem>
-                  <SelectItem value="2" className="text-[#F5F5F5]">2+ Baths</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="any" className="text-gray-900">Any Baths</SelectItem>
+                  <SelectItem value="1" className="text-gray-900">1 Bath</SelectItem>
+                  <SelectItem value="1.5" className="text-gray-900">1.5 Bath</SelectItem>
+                  <SelectItem value="2" className="text-gray-900">2+ Baths</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
-            <div className="w-px h-6 bg-[#333]" />
+            <div className="w-px h-6 bg-gray-300" />
             
             {/* Price Range */}
             <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-[#D4AF37]" />
+              <DollarSign className="w-4 h-4 text-amber-600" />
               <Input
                 type="number"
                 placeholder="Min"
                 value={minRent}
                 onChange={(e) => setMinRent(e.target.value)}
                 data-testid="min-rent-filter"
-                className="w-[90px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm placeholder:text-[#666]"
+                className="w-[90px] h-9 bg-white border-gray-300 text-gray-900 text-sm placeholder:text-gray-400"
               />
-              <span className="text-[#666]">—</span>
+              <span className="text-gray-400">—</span>
               <Input
                 type="number"
                 placeholder="Max"
                 value={maxRent}
                 onChange={(e) => setMaxRent(e.target.value)}
                 data-testid="max-rent-filter"
-                className="w-[90px] h-9 bg-[#0a0a0a] border-[#333] text-[#F5F5F5] text-sm placeholder:text-[#666]"
+                className="w-[90px] h-9 bg-white border-gray-300 text-gray-900 text-sm placeholder:text-gray-400"
               />
             </div>
             
             {/* Clear Filters */}
             {(bedrooms || minRent || maxRent || bathrooms || state) && (
               <>
-                <div className="w-px h-6 bg-[#333]" />
+                <div className="w-px h-6 bg-gray-300" />
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={clearFilters} 
                   data-testid="clear-filters-btn" 
-                  className="text-[#888] hover:text-[#D4AF37] hover:bg-transparent text-sm h-9"
+                  className="text-gray-500 hover:text-amber-600 hover:bg-transparent text-sm h-9"
                 >
                   Clear
                 </Button>

@@ -712,7 +712,7 @@ const UnitDetails = () => {
                             name="preferred_date" 
                             type="date"
                             min={new Date().toISOString().split('T')[0]}
-                            className="border-amber-300 bg-white text-white rounded-none"
+                            className="border-amber-300 bg-white text-gray-900 rounded-none"
                           />
                         </div>
                         <div>
@@ -720,7 +720,7 @@ const UnitDetails = () => {
                           <select 
                             id="preferred_time" 
                             name="preferred_time"
-                            className="w-full h-10 px-3 border border-amber-300 bg-white text-white focus:outline-none focus:border-[#D4AF37] font-philosopher"
+                            className="w-full h-10 px-3 border border-amber-300 bg-white text-gray-900 focus:outline-none focus:border-[#D4AF37] font-philosopher"
                           >
                             <option value="">Select time</option>
                             <option value="morning">Morning (9-12pm)</option>

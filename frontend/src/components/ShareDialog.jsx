@@ -78,7 +78,8 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
 
   const handleSocialShare = (platform) => {
     // Use the share endpoint for Facebook/LinkedIn to get proper og:image
-    const shareApiUrl = `https://nofeesapts.com/api/share/${unit.id}`;
+    // Use the actual backend URL for the share endpoint
+    const shareApiUrl = `${API}/share/${unit.id}`;
     const encodedShareApiUrl = encodeURIComponent(shareApiUrl);
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);

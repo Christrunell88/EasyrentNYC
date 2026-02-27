@@ -340,7 +340,24 @@ const ListingCard = ({
         
         {/* Address */}
         <div className="mb-2">
-          {showBlur && !user ? (
+          {hideAddress ? (
+            // Show only building name and neighborhood when hideAddress is true
+            <div>
+              <h3 className={`font-philosopher font-semibold truncate ${textPrimary}`}>
+                {unit.building?.name || 'Premium Building'}
+              </h3>
+              <div className={`flex items-center gap-1.5 text-sm font-philosopher mt-1 ${textMuted}`}>
+                <MapPin className={`w-3.5 h-3.5 ${accentColor}`} />
+                <span className={`font-medium ${isLight ? 'text-amber-600' : 'text-[#D4AF37]/90'}`}>
+                  {unit.building?.neighborhood || unit.building?.city || 'Manhattan'}
+                </span>
+                <span className={isLight ? 'text-gray-400' : 'text-[#666]'}>•</span>
+                <span className={textMuted}>
+                  {getRentalType(unit)}
+                </span>
+              </div>
+            </div>
+          ) : showBlur && !user ? (
             <div className="relative">
               <h3 className={`font-philosopher font-semibold blur-sm select-none ${textPrimary}`}>
                 {unit.building?.address ? unit.building.address.substring(0, 15) + '...' : 'Premium Location'} #{unit.unit_number || 'XXX'}

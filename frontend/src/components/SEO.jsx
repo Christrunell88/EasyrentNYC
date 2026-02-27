@@ -135,8 +135,8 @@ const SEO = ({
     "logo": `${baseUrl}/logo.png`,
     "image": `${baseUrl}/og-image.jpg`,
     "description": "Find no broker fee apartments in NYC, New Jersey, and Pennsylvania. Save thousands on your next apartment rental with zero broker fees.",
-    "telephone": "+1-646-555-0123",
-    "email": "hello@nofeesapts.com",
+    "telephone": "+1-646-408-8048",
+    "email": "placesfirm@gmail.com",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "350 Fifth Avenue",

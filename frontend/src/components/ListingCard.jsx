@@ -34,7 +34,8 @@ const ListingCard = ({
   onToggleFavorite, 
   onShare,
   showBlur = false,
-  theme = 'dark'
+  theme = 'dark',
+  hideAddress = false
 }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

@@ -113,7 +113,7 @@ const SEO = ({
     "sameAs": [
       "https://www.facebook.com/NoFeesApts",
       "https://twitter.com/NoFeesApts",
-      "https://www.instagram.com/NoFeesApts"
+      "https://www.instagram.com/nofeesapts"
     ],
     "contactPoint": {
       "@type": "ContactPoint",

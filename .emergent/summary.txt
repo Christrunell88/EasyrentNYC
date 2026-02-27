@@ -9,7 +9,7 @@ The user wants to build a web application called NoFeesApts.com that functions s
 - **Staging & Approval Pipeline:** A comprehensive system to crawl listings into a staging area for admin review, deduplication, and approval before they are promoted to the live, production database.
 - **Frontend:**
     - Display apartment listings with search, filters, and an interactive map view.
-    - A smart, intuitive, sexy, sleek, and modern design, currently a Luxury Dark Theme.
+    - A smart, intuitive, sexy, sleek, and modern design, which has evolved into a Luxury Dark Theme for the landing page and a Light Theme for logged-in users.
     - Sign up for full details feature with blurred addresses on the landing page.
 - **SEO:** The site should be optimized for search engines, including a dynamic sitemap, descriptive alt text, and structured data (Schema.org).
 - **Admin Panel:** An admin-only section to view listings, analytics, and trigger crawls.
@@ -19,22 +19,13 @@ The user wants to build a web application called NoFeesApts.com that functions s
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI/MongoDB platform. This session focused on completing user-requested features, implementing significant SEO enhancements, and adding new admin capabilities.
-
-**Key features implemented/fixed in this session:**
-- **Feature Completion:** Successfully tested and verified the  image carousel feature.
-- **End-to-End Testing:** Used the testing agent to validate the entire renter path from the homepage to sign-up, confirming its functionality.
-- **Technical SEO Implementation:** Built out a robust internal linking and local SEO strategy by creating new components (, , ) and pages ().
-- **Staging System Enhancements:**
-    - Investigated and confirmed the existing staging approval system is fully functional, addressing user concerns.
-    - Enriched staging data by adding images to 'Anagram Columbus Circle' units.
-    - Implemented a new feature allowing admins to **upload images directly to staging units** via a new UI in the admin panel.
+The application is a full-stack React/FastAPI/MongoDB platform. The agent has successfully added new listings to the staging database, implemented a major UI theme overhaul, updated SEO and analytics configurations, and fixed the social media sharing functionality to display dynamic, listing-specific content.
 
 **Last working item**:
-- **Last item agent was working:** Finding and scraping images for 'Malt Drive' listings from the URL provided by the user (). The agent determined that the site uses dynamic JavaScript-based sliders, making direct scraping difficult. The agent then discovered an image URL pattern from an existing production unit and was attempting to find more images using that pattern.
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** manual testing by curl/python -c. Once images are found and a script is created to update the database, the agent should run the script and then use a  command to query the API and verify the  field for the updated units is populated correctly.
+- **Last item agent was working:** Fixing the Facebook sharing feature. When a user shared a specific apartment, it showed a generic site-wide image instead of the apartment's actual image. The agent implemented a server-side endpoint () that generates a temporary HTML page with dynamic Open Graph meta tags (, , etc.) specific to that listing.
+- **Status:** USER VERIFICATION PENDING
+- **Agent Testing Done:** Y
+- **Which testing method agent to use?** N/A. The feature is implemented. The user needs to be instructed to use Facebook's [Sharing Debugger](https://developers.facebook.com/tools/debug/) to verify the fix, as social media platforms cache these images.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
@@ -44,36 +35,32 @@ The application is a full-stack React/FastAPI/MongoDB platform. This session foc
 
 **Issues Detail:**
 - **Issue 1: Find and add images to Malt Drive units**
-    - **Attempted fixes:** The agent attempted to scrape the provided URL but was blocked by a dynamic JS image slider. The agent then found an existing production unit and its image URL pattern () and started to probe for more images using that pattern.
+    - **Attempted fixes:** None in this session. This was the top priority from the previous fork but was superseded by new user requests. The last attempt involved analyzing a website with a dynamic JS slider.
     - **Next debug checklist:**
-        1.  Continue exploring the WordPress upload directory pattern () to discover more image URLs.
-        2.  If the pattern search fails, use  to find Malt Drive apartment photos on other real estate portals (e.g., StreetEasy) which might have public image galleries.
-        3.  Once a collection of images is gathered, use the new admin image upload feature or a backend script to associate them with the correct Malt Drive units in the database.
-    - **Why fix this issue and what will be achieved with the fix?** To fulfill a direct user request and improve the quality and appeal of the Malt Drive listings.
-    - **Status:** IN PROGRESS
+        1.  Resume investigation to find image URLs for Malt Drive apartments.
+        2.  Use  to find photos on other real estate portals (e.g., StreetEasy).
+        3.  Use the admin image upload feature (created in the previous session) to add the images to the staging units.
+    - **Why fix this issue and what will be achieved with the fix?** To fulfill a direct user request from a previous session and improve the quality of the listings.
+    - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** Both (Backend data verification and Frontend UI screenshot).
     - **Blocked on other issue:** None.
 
 - **Issue 2 & 3: Incorrect stats and Login/Signup failure on live site**
-    - **Attempted fixes:** In a previous session, fixes were implemented (CORS policies, frontend API URL logic). The user has since forked the project.
-    - **Next debug checklist:** These issues are resolved in the current codebase. The user needs to deploy this new forked project to the live domain () for the fixes to take effect. No further coding is needed for this.
+    - **Attempted fixes:** These issues are resolved in the current codebase.
+    - **Next debug checklist:** The user needs to deploy this forked project to the live domain () for the fixes to take effect. No further coding is needed.
     - **Why fix this issue and what will be achieved with the fix?** Makes the production website functional for users.
-    - **Status:** USER VERIFICATION PENDING (Awaiting user deployment of the forked project).
+    - **Status:** USER VERIFICATION PENDING (Awaiting user deployment).
     - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Both
+    - **Should Test frontend/backend/both after fix?** Both.
     - **Blocked on other issue:** User redeployment.
 
 **In progress Task List**:
-- **Task 1: Add images to Malt Drive units** (P0)
-    - **Where to resume:** The agent was trying to discover more image URLs based on a pattern found in an existing production unit's data. Continue this investigation.
-    - **What will be achieved with this?** The Malt Drive listings will have high-quality interior photos.
-    - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Both
-    - **Blocked on something:** Locating the image files/URLs.
+- None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
+    - **P0:** Create and verify a  and add a  file to guide crawlers. (This was offered by the agent and is a quick SEO win).
     - **P1:** Complete the  branding strategy (add badges to listings, update social sharing text).
     - **P2:** Add an Admin link back to the main UI (e.g., in the footer) for easy access.
     - **P2:** Create a Lifecycle Dashboard UI for admins to view stale units, price changes, etc.
@@ -83,17 +70,14 @@ The application is a full-stack React/FastAPI/MongoDB platform. This session foc
     - **P3:** Set up and manage Google/Facebook Ad campaigns.
 
 **Completed work in this session**
-- **Image Carousel Verified:** Confirmed the  image carousel works on desktop (hover) and mobile (swipe).
-- **End-to-End Renter Path Tested:** Used the testing agent to validate the user flow from homepage to sign-up.
-- **Technical SEO and Internal Linking Implemented:**
-    - Added  schema and created a reusable .
-    - Created , , and  components to enhance internal linking and local SEO.
-- **Admin Image Upload Feature Created:**
-    - Built a backend endpoint () and a frontend UI in the Edit Staging dialog for admins to upload images to listings before approval.
-- **Staging System Validated & Enriched:**
-    - Investigated and confirmed the staging approval workflow is fully functional.
-    - Updated backend logic to allow image editing on staging units.
-    - Successfully added images to all 'Anagram Columbus Circle' units in staging.
+- **New Listings Added:** Scraped and added new apartment listings for The Larstrand and The Greenpoint to the staging database.
+- **Light Theme UI Implemented:** Refactored the UI to be dark-themed on the public landing page and light-themed (white background) on all authenticated pages, including , , , and .
+- **Dynamic Social Sharing Fixed:**
+    - Created a backend endpoint () in  to serve dynamic HTML with listing-specific Open Graph tags (, ).
+    - Updated  to use this endpoint, ensuring Facebook shares show the correct apartment image and details.
+- **SEO & Analytics Updated:**
+    - Replaced the default social share image () with a new on-brand NYC skyline graphic.
+    - Updated the Google Analytics tag across the application to the user-provided ID ().
 
 **Earlier issues found/mentioned but not fixed**
 - **Issue 1: Duplicated  constant**
@@ -113,28 +97,26 @@ The application is a full-stack React/FastAPI/MongoDB platform. This session foc
 - **Status:** RESOLVED (in code). The fixes are present in this forked codebase and are pending user redeployment to the live site.
 
 **Code Architecture**
-
+/api/share/unit/{unit_id}theme
 
 **Key Technical Concepts**
-- **Backend File I/O:** Using  to save uploaded files from a FastAPI endpoint to a persistent  directory.
-- **FastAPI File Uploads:** Implementing endpoints with  to handle multipart/form-data and using  to serve the stored images.
-- **Frontend File Uploads:** Managing file state in React and using  with  to send images to the backend.
-- **Dynamic UI for Data Management:** Building a React UI for an image gallery with add, preview, and delete functionality within a modal.
-- **Technical SEO Strategy:** Implementing a practical internal linking architecture via a shared footer, related content components, and index pages.
-- **Web Scraping Investigation:** Analyzing websites with dynamic, JavaScript-loaded content (e.g., Smart Slider 3) and pivoting to alternative data-sourcing strategies when direct scraping is difficult.
+- **Dynamic Open Graph Tags:** Solved a common SPA limitation by creating a backend endpoint to serve temporary HTML with dynamic  meta tags based on a unit's ID. This allows social media scrapers to pull unique content (image, title, description) for each shared item.
+- **Conditional CSS Theming in React:** Refactored multiple components to accept a  prop and apply conditional Tailwind CSS classes, enabling a dual-theme (light/dark) system.
+- **Web Scraping & Data Ingestion:** Used  and  to scrape apartment data. Wrote one-off Python scripts to structure this data and insert it into the MongoDB  collection.
+- **Playwright for Verification:** Used Playwright to automate browser actions (login, navigation) to capture screenshots and verify UI changes and application state.
 
 **key DB schema**
-- The Pydantic model  in  was modified to accept an optional  field, allowing the image array of a staging unit to be updated via the  endpoint.
+- No database schema changes were made in this session. The agent interacted with the existing  collection.
 
 **All files of reference**
 - **Created:**
     - 
-    - 
-    - 
-    - 
-    - 
-    -  (directory)
 - **Updated:**
+    - 
+    - 
+    - 
+    - 
+    - 
     - 
     - 
     - 
@@ -148,42 +130,43 @@ The application is a full-stack React/FastAPI/MongoDB platform. This session foc
 
 **key api endpoints**
 - **New:**
-    - : Uploads an image file for a specific staging unit.
-- **Modified:**
-    - : Now accepts an  array in the request body to fully replace a unit's image list.
+    - : Serves an HTML page with dynamic Open Graph tags for a specific listing to enable correct social media sharing.
 
 **Critical Info for New Agent**
-- The user's highest priority is adding images for the Malt Drive building. Your primary task is to resume the investigation to find these images. The new admin image upload feature is the intended tool for adding them once found.
-- The user has forked this session. The previous critical bugs (live site login, stats) are fixed in *this* codebase. They will be resolved on the production domain once the user deploys this version. Do not attempt to re-fix them.
+- The user is actively providing new tasks which have been taking priority over the existing backlog. The highest priority task from the *previous* session, **Find and add images to Malt Drive building units,** was not worked on and should be re-proposed as the top priority.
+- Issues with the live domain (), including login failures and incorrect stats, are resolved in this codebase but are **awaiting user deployment**. Do not attempt to re-fix them. Advise the user to redeploy.
+- The most recently completed task was fixing the Facebook share preview. Inform the user they can verify this using Facebook's Sharing Debugger tool, as the changes may not appear immediately due to caching.
 
 **documents and test reports created in this job**
-- 
-- 
+-  (updated)
 - 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- **7.** User provided priorities: test carousel, acknowledged the project fork, and requested end-to-end renter path testing before backlog items. (Status: **Completed**)
-- **6.** User selected Backlink-building strategy and Google Business Profile as the next tasks. (Status: **Completed**)
-- **5.** User specified they wanted the technical implementation for the SEO/GBP tasks. (Status: **Completed**)
-- **4.** User reported: Staging agent/tool is not functioning in admin panel... staging not approving units. (Status: **Investigated and Resolved**; agent confirmed the system is functional).
-- **3.** User requested images be added to Anagram Columbus Circle staging units and provided a URL. (Status: **Completed**)
-- **2.** User requested: ...add a function to allow me the admin to upload images before i approve the listing. (Status: **Completed**)
-- **1.** User requested images for the Malt Drive building and provided a URL. (Status: **In Progress**)
+- **10. User:** Requested that sharing an apartment to Facebook should show the specific listing's first image. (Status: **Completed**)
+- **9. User:** Reported that the share preview image showed an old site design. (Status: **Completed**)
+- **8. User:** Provided a new Google Analytics tag ID to be implemented. (Status: **Completed**)
+- **7. User:** Confirmed Google ownership verification was done and asked what to do next. (Status: **Agent advised**)
+- **6. User:** Asked for the value to paste into GoDaddy for third-party verification. (Status: **Agent advised**)
+- **5. User:** Asked what value to provide GoDaddy to verify ownership for Google. (Status: **Agent advised**)
+- **4. User:** Asked if Google web stream details were needed. (Status: **Agent clarified**)
+- **3. User:** Requested a check to ensure Google meta tags are present and working. (Status: **Completed**)
+- **2. User:** Requested to change the theme to a white background for logged-in users while keeping the landing page dark. (Status: **Completed**)
+- **1. User:** Requested to scrape and add listings from . (Status: **Completed**)
 
 **Project Health Check:**
-- **Broken:** The user's live production site () is out of sync and likely non-functional (login fails, stats are wrong). It is **awaiting a new deployment** from this forked project to apply all the recent fixes.
+- **Broken:** The user's live production site () is out of sync and non-functional (login fails, stats are wrong). It is **awaiting a new deployment** from this forked project to apply all the recent fixes.
 - **Mocked:** The listings for the 7 West 21st Street building are still based on manually entered data and stock photos.
 
 **3rd Party Integrations**
-- **Gemini 3 Flash:** AI Search Agent.
+- **Gemini 3 Flash:** Used for the AI Search Agent.
 - **Facebook Graph API:** Connection active.
-- **Google Analytics:** Active and tracking events.
-- **Playwright:** Used for the web crawler.
+- **Google Analytics:** Active and tracking events (ID: ).
+- **Playwright:** Used for web crawling and UI testing.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES (for the end-to-end renter path)
+- **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** []
+- **Test files created:** None
 - **Known regressions:** The login and stats issues on the production site are known regressions that are fixed in this preview environment and are pending deployment.
 
 **Credentials to test flow:**
@@ -191,4 +174,6 @@ The application is a full-stack React/FastAPI/MongoDB platform. This session foc
 - **Regular User:**  / 
 
 **What agent forgot to execute**
-- The agent did not address the non-critical refactoring of the large  file or the centralization of the  constant. These tech-debt tasks were deprioritized in favor of user-requested features.</analysis>
+- The agent did not address the high-priority task from the previous fork: finding and adding images for the **Malt Drive** building. This was superseded by new user requests.
+- The agent offered to create a  and  but did not complete this task.
+- The non-critical refactoring of the large  file and the centralization of the  constant were not addressed.</analysis>

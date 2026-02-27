@@ -7,7 +7,7 @@
 ### What Was Happening:
 ```
 User visits: https://nofeesapts.com
-Frontend tries to login at: https://malt-drive-images.preview.emergentagent.com/api/auth/login
+Frontend tries to login at: https://apartment-hub-dev-1.preview.emergentagent.com/api/auth/login
 Backend responds from: Preview server (not production)
 Result: Authentication fails because preview and production are different environments
 ```
@@ -26,7 +26,7 @@ Result: Authentication fails because preview and production are different enviro
 
 **Before:**
 ```
-REACT_APP_BACKEND_URL=https://malt-drive-images.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://apartment-hub-dev-1.preview.emergentagent.com
 ```
 
 **After:**
@@ -39,8 +39,8 @@ REACT_APP_BACKEND_URL=https://nofeesapts.com
 
 **Before:**
 ```javascript
-const defaultImage = 'https://malt-drive-images.preview.emergentagent.com/og-image.jpg';
-const baseUrl = 'https://malt-drive-images.preview.emergentagent.com';
+const defaultImage = 'https://apartment-hub-dev-1.preview.emergentagent.com/og-image.jpg';
+const baseUrl = 'https://apartment-hub-dev-1.preview.emergentagent.com';
 ```
 
 **After:**
@@ -54,8 +54,8 @@ const baseUrl = 'https://nofeesapts.com';
 
 **Before:**
 ```javascript
-"url": "https://malt-drive-images.preview.emergentagent.com",
-"logo": "https://malt-drive-images.preview.emergentagent.com/logo.png",
+"url": "https://apartment-hub-dev-1.preview.emergentagent.com",
+"logo": "https://apartment-hub-dev-1.preview.emergentagent.com/logo.png",
 ```
 
 **After:**

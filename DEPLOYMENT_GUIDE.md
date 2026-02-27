@@ -16,7 +16,7 @@ This guide will help you deploy the NoFeesApts.com full-stack application to you
 - **Hosted on**: Firebase Hosting
 
 ### Backend (Emergent/Your Server)
-- **Current URL**: https://malt-drive-images.preview.emergentagent.com/api
+- **Current URL**: https://apartment-hub-dev-1.preview.emergentagent.com/api
 - **Tech**: FastAPI + MongoDB + Web Crawler
 - **Hosted on**: Emergent platform (or your own server)
 
@@ -50,7 +50,7 @@ Before building, update the backend URL to point to your production backend:
 REACT_APP_BACKEND_URL=https://your-backend-domain.com
 
 # Or if keeping on Emergent preview:
-REACT_APP_BACKEND_URL=https://malt-drive-images.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://apartment-hub-dev-1.preview.emergentagent.com
 ```
 
 **Important**: After changing .env, rebuild:
@@ -166,7 +166,7 @@ PLAYWRIGHT_BROWSERS_PATH="/usr/local/share/playwright"
 ## Step 7: Backend Deployment Options
 
 ### Option A: Keep on Emergent (Current Setup)
-- Backend URL: https://malt-drive-images.preview.emergentagent.com
+- Backend URL: https://apartment-hub-dev-1.preview.emergentagent.com
 - No changes needed
 - Limited to Emergent environment
 

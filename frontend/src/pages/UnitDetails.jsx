@@ -736,16 +736,16 @@ const UnitDetails = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label htmlFor="name" className="text-gray-900 text-sm mb-1 block font-philosopher">Name *</Label>
-                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
+                          <Input id="name" name="name" required placeholder="Your name" data-testid="contact-name-input" className="border-amber-300 bg-white text-gray-900 rounded-none font-philosopher placeholder:text-gray-400" />
                         </div>
                         <div>
                           <Label htmlFor="phone" className="text-gray-900 text-sm mb-1 block font-philosopher">Phone</Label>
-                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
+                          <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" data-testid="contact-phone-input" className="border-amber-300 bg-white text-gray-900 rounded-none font-philosopher placeholder:text-gray-400" />
                         </div>
                       </div>
                       <div>
                         <Label htmlFor="email" className="text-gray-900 text-sm mb-1 block font-philosopher">Email *</Label>
-                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-amber-300 bg-white text-white rounded-none font-philosopher placeholder:text-gray-400" />
+                        <Input id="email" name="email" type="email" required placeholder="you@example.com" data-testid="contact-email-input" className="border-amber-300 bg-white text-gray-900 rounded-none font-philosopher placeholder:text-gray-400" />
                       </div>
                       <div>
                         <Label htmlFor="message" className="text-gray-900 text-sm mb-1 block font-philosopher">Message (optional)</Label>
@@ -755,7 +755,7 @@ const UnitDetails = () => {
                           rows={2}
                           placeholder="Any questions or special requests?"
                           data-testid="contact-message-input"
-                          className="border-amber-300 bg-white text-white rounded-none resize-none font-philosopher placeholder:text-gray-400"
+                          className="border-amber-300 bg-white text-gray-900 rounded-none resize-none font-philosopher placeholder:text-gray-400"
                         />
                       </div>
                     </div>

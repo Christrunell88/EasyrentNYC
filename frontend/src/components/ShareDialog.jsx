@@ -86,6 +86,9 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     const listingImage = unit.images?.[0] || '';
     const encodedImage = encodeURIComponent(listingImage);
     
+    // Instagram caption for stories/posts
+    const instagramCaption = `🏠 NO BROKER FEE! ${bedroomText} in ${building?.neighborhood || building?.city || 'NYC'}\n\n💰 $${unit.rent.toLocaleString()}/mo\n📍 ${building?.name || 'Prime Location'}\n\n✨ Save thousands on broker fees!\n\n🔗 Link in bio or visit nofeesapts.com\n\n#NoFeesApts #NoBrokerFee #NYCApartments #NoFeeApartments #ApartmentHunting #NYCRentals #${(building?.neighborhood || 'NYC').replace(/\s+/g, '')}`;
+    
     let shareLink = '';
     
     switch(platform) {
@@ -109,6 +112,15 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
       case 'pinterest':
         shareLink = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedText}${listingImage ? `&media=${encodedImage}` : ''}`;
         break;
+      case 'instagram':
+        // Copy caption to clipboard and open Instagram
+        navigator.clipboard.writeText(instagramCaption);
+        toast.success('Caption copied! Opening Instagram...', {
+          description: 'Paste the caption when creating your post or story'
+        });
+        // Open Instagram profile - user can then create post/story
+        window.open('https://www.instagram.com/nofeesapts/', '_blank');
+        return;
       default:
         return;
     }

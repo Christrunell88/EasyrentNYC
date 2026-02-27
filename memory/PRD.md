@@ -84,12 +84,23 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
 ### Recent Work (2026-02-27)
-- **Malt Drive Building Added to Staging**:
+- **Malt Drive Building - PROMOTED TO PRODUCTION**:
   - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)
     - 3 units: Studio 312 ($2,150), 1BR 101 ($2,450), 2BR 205 ($2,850)
-    - All 3 units have 5 professional images attached (user-provided AVIF images)
+    - All 3 units have 8 professional images attached (user-provided AVIF images)
     - Amenities: No Fee, Doorman, Fitness Center, Rooftop, In-Unit Laundry, Pet Friendly
-    - Status: Pending admin approval in staging
+    - Status: ✅ LIVE IN PRODUCTION
+
+- **The Smile Building - PROMOTED TO PRODUCTION**:
+  - **The Smile** (158 East 126th Street, Harlem, NY 10035)
+    - Designer: BIG (Bjarke Ingels Group)
+    - 4 units: 3 Studios + 1 Two-Bedroom
+      - Unit 929 (Studio) - $2,940/mo - 494 sq ft - 10 images
+      - Unit 1108 (Studio) - $2,964/mo - 477 sq ft - 10 images
+      - Unit 1123 (Studio) - $3,061/mo - 493 sq ft - 10 images
+      - Unit 1129 (2BR/2BA) - $5,652/mo - 1,008 sq ft - 11 images
+    - Amenities: No Fee, Rooftop Pool, Fitness Center, Doorman, Spa, Sauna, Steam Room, Co-Working Space, Game Room, Screening Room, Pet Friendly, Loft-Style
+    - Status: ✅ LIVE IN PRODUCTION
 
 ### Previous Work (2026-02-25)
 - **Theme Switch Implementation**:

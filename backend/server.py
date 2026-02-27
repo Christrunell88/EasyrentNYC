@@ -1157,6 +1157,68 @@ async def get_unit(unit_id: str):
     
     return unit
 
+@api_router.get("/share/{unit_id}", response_class=HTMLResponse)
+async def get_share_preview(unit_id: str):
+    """Generate HTML page with Open Graph meta tags for social sharing.
+    Facebook, LinkedIn, and other crawlers will scrape this page to get the preview."""
+    unit = await db.units.find_one({'id': unit_id}, {"_id": 0})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    building = await db.buildings.find_one({'id': unit['building_id']}, {"_id": 0})
+    
+    # Generate content
+    bedrooms = unit.get('bedrooms', 0)
+    bedroom_text = 'Studio' if bedrooms == 0 else f'{bedrooms} Bedroom' if bedrooms == 1 else f'{bedrooms} Bedrooms'
+    rent = unit.get('rent', 0)
+    neighborhood = building.get('neighborhood', '') if building else ''
+    city = building.get('city', 'NYC') if building else 'NYC'
+    building_name = building.get('name', '') if building else ''
+    
+    # Get first image or use default
+    images = unit.get('images', [])
+    image_url = images[0] if images else 'https://static.prod-images.emergentagent.com/jobs/809a99b2-794a-4bcc-9110-b50857b9c814/images/669505f9b273977a606a8fe480082945aab2c6997e18616eb33fb32a2c5e4eb9.png'
+    
+    title = f"{bedroom_text} at {building_name or neighborhood} - ${rent:,}/mo | No Fee"
+    description = f"No broker fee {bedroom_text.lower()} apartment for rent in {neighborhood}, {city}. ${rent:,}/month. Save thousands on broker fees! View on NoFeesApts.com"
+    canonical_url = f"https://nofeesapts.com/unit/{unit_id}"
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <meta name="description" content="{description}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{canonical_url}">
+    <meta property="og:title" content="{title}">
+    <meta property="og:description" content="{description}">
+    <meta property="og:image" content="{image_url}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="NoFeesApts.com">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{canonical_url}">
+    <meta name="twitter:title" content="{title}">
+    <meta name="twitter:description" content="{description}">
+    <meta name="twitter:image" content="{image_url}">
+    
+    <!-- Redirect to actual listing -->
+    <meta http-equiv="refresh" content="0;url={canonical_url}">
+    <link rel="canonical" href="{canonical_url}">
+</head>
+<body>
+    <p>Redirecting to <a href="{canonical_url}">{title}</a>...</p>
+</body>
+</html>"""
+    
+    return HTMLResponse(content=html)
+
 @api_router.post("/units", response_model=Unit)
 async def create_unit(input: UnitInput, user: User = Depends(require_admin)):
     """Create unit (admin only)"""

@@ -332,20 +332,20 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Featured Listings */}
+      {/* Featured Listings - Recent Additions */}
       <section className="py-24 px-6 bg-[#111111]">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
-              Featured Properties
+              Just Added
             </p>
             <h2 className="text-3xl sm:text-4xl font-philosopher font-bold text-white mb-4">
-              Exceptional Residences
+              New Arrivals
             </h2>
             <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {featuredUnits.map((unit) => (
               <ListingCard
                 key={unit.id}
@@ -354,6 +354,7 @@ const Landing = () => {
                 isFavorite={false}
                 onToggleFavorite={() => navigate('/auth')}
                 showBlur={true}
+                hideAddress={true}
               />
             ))}
           </div>

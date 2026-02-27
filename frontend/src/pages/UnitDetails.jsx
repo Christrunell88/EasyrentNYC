@@ -678,6 +678,24 @@ const UnitDetails = () => {
                 </div>
               </div>
 
+              {/* Direct Contact Buttons */}
+              <div className="flex gap-3 mb-4">
+                <Button
+                  onClick={() => window.location.href = 'mailto:placesfirm@gmail.com?subject=Inquiry about ' + (unit?.building?.address || 'Apartment') + ' #' + (unit?.unit_number || '')}
+                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-4 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email Agent
+                </Button>
+                <a
+                  href="tel:646-408-8048"
+                  className="flex-1 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 py-4 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  646-408-8048
+                </a>
+              </div>
+
               {/* Schedule Viewing Button */}
               <Dialog open={contactOpen} onOpenChange={setContactOpen}>
                 <DialogTrigger asChild>

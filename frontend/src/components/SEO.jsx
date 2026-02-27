@@ -117,8 +117,9 @@ const SEO = ({
     ],
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+1-646-555-0123",
+      "telephone": "+1-646-408-8048",
       "contactType": "customer service",
+      "email": "placesfirm@gmail.com",
       "areaServed": ["US-NY", "US-NJ", "US-PA"],
       "availableLanguage": "English"
     }

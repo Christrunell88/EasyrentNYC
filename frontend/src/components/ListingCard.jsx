@@ -275,10 +275,29 @@ const ListingCard = ({
           />
         </button>
         
-        {/* No Fee Badge */}
-        <Badge className={`absolute top-3 left-3 ${isLight ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a]'} font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide`}>
-          NO FEE
-        </Badge>
+        {/* Contact Agent Buttons */}
+        <div className="absolute top-3 left-3 flex gap-1.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = 'mailto:placesfirm@gmail.com?subject=Inquiry about ' + (unit.building?.address || 'Apartment') + ' #' + (unit.unit_number || '');
+            }}
+            className={`flex items-center gap-1 px-2 py-1 ${isLight ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a]'} font-philosopher font-bold text-xs rounded-none tracking-wide transition-colors`}
+            title="Email Agent"
+          >
+            <Mail className="w-3 h-3" />
+            <span>Email Agent</span>
+          </button>
+          <a
+            href="tel:646-408-8048"
+            onClick={(e) => e.stopPropagation()}
+            className={`flex items-center gap-1 px-2 py-1 ${isLight ? 'bg-white/90 border border-amber-400 text-amber-600 hover:bg-amber-50' : 'bg-[#0a0a0a]/80 border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/20'} font-philosopher font-bold text-xs rounded-none tracking-wide transition-colors`}
+            title="Call Agent"
+          >
+            <Phone className="w-3 h-3" />
+            <span>646-408-8048</span>
+          </a>
+        </div>
         
         {/* Featured Badge */}
         {unit.is_featured && (

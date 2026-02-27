@@ -16,7 +16,7 @@ const SEO = ({
 }) => {
   const siteName = 'NoFeesApts.com';
   const defaultDescription = 'Find your perfect no-fee apartment in NYC and Northern New Jersey. Browse 200+ verified listings with real photos. No broker fees ever.';
-  const defaultImage = 'https://nofeesapts.com/og-image.jpg';
+  const defaultImage = 'https://static.prod-images.emergentagent.com/jobs/809a99b2-794a-4bcc-9110-b50857b9c814/images/669505f9b273977a606a8fe480082945aab2c6997e18616eb33fb32a2c5e4eb9.png';
   const baseUrl = 'https://nofeesapts.com';
 
   const fullTitle = title ? `${title} | ${siteName}` : `${siteName} - No Broker Fee Apartments in NYC & NJ`;

@@ -1139,6 +1139,31 @@ async def get_recommendations():
         return {"recommendations": [], "total_available": 0, "error": str(e)}
 
 
+
+@api_router.get("/units/recent")
+async def get_recent_units(limit: int = Query(6, le=20)):
+    """Get most recently added units"""
+    try:
+        # Get units sorted by created_at descending (most recent first)
+        units = await db.units.find(
+            {'is_available': True},
+            {"_id": 0}
+        ).sort("created_at", -1).limit(limit).to_list(limit)
+        
+        # Enrich with building data
+        enriched_units = []
+        for unit in units:
+            building = await db.buildings.find_one({'id': unit.get('building_id')}, {"_id": 0})
+            unit['building'] = building
+            enriched_units.append(unit)
+        
+        return enriched_units
+    except Exception as e:
+        logger.error(f"Error getting recent units: {e}")
+        return []
+
+
+
 @api_router.get("/units/{unit_id}")
 async def get_unit(unit_id: str):
     """Get unit by ID"""

@@ -60,10 +60,18 @@ const Landing = () => {
 
   const fetchFeaturedUnits = async () => {
     try {
-      const response = await axios.get(`${API}/units?limit=3`);
+      // Fetch most recently added units
+      const response = await axios.get(`${API}/units/recent?limit=6`);
       setFeaturedUnits(response.data);
     } catch (error) {
       console.error('Error fetching featured units:', error);
+      // Fallback to regular units if recent endpoint fails
+      try {
+        const fallback = await axios.get(`${API}/units?limit=6`);
+        setFeaturedUnits(fallback.data);
+      } catch (e) {
+        console.error('Fallback also failed:', e);
+      }
     }
   };
 

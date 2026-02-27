@@ -83,7 +83,15 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
-### Recent Work (2026-02-25)
+### Recent Work (2026-02-27)
+- **Malt Drive Building Added to Staging**:
+  - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)
+    - 3 units: Studio 312 ($2,150), 1BR 101 ($2,450), 2BR 205 ($2,850)
+    - All 3 units have 5 professional images attached (user-provided AVIF images)
+    - Amenities: No Fee, Doorman, Fitness Center, Rooftop, In-Unit Laundry, Pet Friendly
+    - Status: Pending admin approval in staging
+
+### Previous Work (2026-02-25)
 - **Theme Switch Implementation**:
   - Landing page: Dark luxury theme (unchanged)
   - Dashboard: White background, gray header, amber accents

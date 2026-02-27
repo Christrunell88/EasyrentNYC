@@ -354,7 +354,6 @@ const Landing = () => {
                 isFavorite={false}
                 onToggleFavorite={() => navigate('/auth')}
                 showBlur={true}
-                hideAddress={true}
               />
             ))}
           </div>

@@ -77,6 +77,9 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   };
 
   const handleSocialShare = (platform) => {
+    // Use the share endpoint for Facebook/LinkedIn to get proper og:image
+    const shareApiUrl = `https://nofeesapts.com/api/share/${unit.id}`;
+    const encodedShareApiUrl = encodeURIComponent(shareApiUrl);
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
     const encodedShortText = encodeURIComponent(shortShareText);
@@ -87,13 +90,8 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     
     switch(platform) {
       case 'facebook':
-        // Use Feed Dialog format for custom image support
-        // Falls back to sharer if FB SDK not available
-        if (listingImage) {
-          shareLink = `https://www.facebook.com/dialog/feed?app_id=966242223397117&link=${encodedUrl}&picture=${encodedImage}&name=${encodeURIComponent(`${bedroomText} - $${unit.rent.toLocaleString()}/mo | No Fee`)}&caption=${encodeURIComponent('NoFeesApts.com')}&description=${encodeURIComponent(`No broker fee ${bedroomText.toLowerCase()} in ${building?.neighborhood || building?.city || 'NYC'}. Save thousands on broker fees!`)}&redirect_uri=${encodeURIComponent('https://nofeesapts.com')}`;
-        } else {
-          shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
-        }
+        // Use the share API endpoint which has proper og:meta tags with listing image
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedShareApiUrl}`;
         break;
       case 'twitter':
         shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShortText}&hashtags=NoFeeApartments,NYC,NoBrokerFee`;
@@ -102,7 +100,8 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
         shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
         break;
       case 'linkedin':
-        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        // LinkedIn also scrapes og:tags, use share API endpoint
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareApiUrl}`;
         break;
       case 'reddit':
         shareLink = `https://reddit.com/submit?url=${encodedUrl}&title=${encodedShortText}`;

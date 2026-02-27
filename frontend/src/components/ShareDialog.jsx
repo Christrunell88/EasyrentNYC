@@ -80,12 +80,20 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
     const encodedShortText = encodeURIComponent(shortShareText);
+    const listingImage = unit.images?.[0] || '';
+    const encodedImage = encodeURIComponent(listingImage);
     
     let shareLink = '';
     
     switch(platform) {
       case 'facebook':
-        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
+        // Use Feed Dialog format for custom image support
+        // Falls back to sharer if FB SDK not available
+        if (listingImage) {
+          shareLink = `https://www.facebook.com/dialog/feed?app_id=966242223397117&link=${encodedUrl}&picture=${encodedImage}&name=${encodeURIComponent(`${bedroomText} - $${unit.rent.toLocaleString()}/mo | No Fee`)}&caption=${encodeURIComponent('NoFeesApts.com')}&description=${encodeURIComponent(`No broker fee ${bedroomText.toLowerCase()} in ${building?.neighborhood || building?.city || 'NYC'}. Save thousands on broker fees!`)}&redirect_uri=${encodeURIComponent('https://nofeesapts.com')}`;
+        } else {
+          shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
+        }
         break;
       case 'twitter':
         shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShortText}&hashtags=NoFeeApartments,NYC,NoBrokerFee`;
@@ -100,8 +108,7 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
         shareLink = `https://reddit.com/submit?url=${encodedUrl}&title=${encodedShortText}`;
         break;
       case 'pinterest':
-        const imageUrl = unit.images?.[0] ? encodeURIComponent(unit.images[0]) : '';
-        shareLink = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedText}${imageUrl ? `&media=${imageUrl}` : ''}`;
+        shareLink = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedText}${listingImage ? `&media=${encodedImage}` : ''}`;
         break;
       default:
         return;

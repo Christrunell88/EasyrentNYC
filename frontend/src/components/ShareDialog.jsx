@@ -145,6 +145,15 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
             <Label className="text-[#F5F5F5] text-sm">Share on Social Media</Label>
             <div className="grid grid-cols-3 gap-2">
               <Button
+                onClick={() => handleSocialShare('instagram')}
+                variant="outline"
+                size="sm"
+                className="border-pink-500/50 hover:bg-pink-500/20 text-pink-400 col-span-3"
+              >
+                <Instagram className="w-4 h-4 mr-1" />
+                Share to @Nofeesapts Instagram
+              </Button>
+              <Button
                 onClick={() => handleSocialShare('facebook')}
                 variant="outline"
                 size="sm"

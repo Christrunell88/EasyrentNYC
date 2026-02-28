@@ -100,8 +100,9 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
     
     switch(platform) {
       case 'facebook':
-        // Use the share API endpoint which has proper og:meta tags with listing image
-        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedShareApiUrl}`;
+        // Use Facebook Feed Dialog with explicit image parameter for better control
+        // This bypasses Facebook's caching issues with og:image
+        shareLink = `https://www.facebook.com/dialog/feed?app_id=928436833448047&link=${encodedProductionUnitUrl}&picture=${encodedImage}&name=${encodedCaption}&description=${encodeURIComponent('No broker fee apartment on NoFeesApts.com')}&redirect_uri=${encodeURIComponent('https://nofeesapts.com')}`;
         break;
       case 'twitter':
         shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShortText}&hashtags=NoFeeApartments,NYC,NoBrokerFee`;

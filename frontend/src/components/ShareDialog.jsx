@@ -111,8 +111,8 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
         shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
         break;
       case 'linkedin':
-        // LinkedIn also scrapes og:tags, use share API endpoint
-        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareApiUrl}`;
+        // LinkedIn with production URL
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedProductionUnitUrl}`;
         break;
       case 'reddit':
         shareLink = `https://reddit.com/submit?url=${encodedUrl}&title=${encodedShortText}`;

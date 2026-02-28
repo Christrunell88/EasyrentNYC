@@ -77,15 +77,21 @@ const ShareDialog = ({ open, onOpenChange, unit, building }) => {
   };
 
   const handleSocialShare = (platform) => {
-    // Use the share endpoint for Facebook/LinkedIn to get proper og:image
-    // Use the actual backend URL for the share endpoint
-    const shareApiUrl = `${API}/share/${unit.id}`;
-    const encodedShareApiUrl = encodeURIComponent(shareApiUrl);
+    // For Facebook, use the production share endpoint with the unit's first image
+    // Facebook's sharer works best with feed dialog that includes explicit image
+    const productionShareUrl = `https://nofeesapts.com/api/share/${unit.id}`;
+    const productionUnitUrl = `https://nofeesapts.com/unit/${unit.id}`;
+    const encodedProductionShareUrl = encodeURIComponent(productionShareUrl);
+    const encodedProductionUnitUrl = encodeURIComponent(productionUnitUrl);
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
     const encodedShortText = encodeURIComponent(shortShareText);
     const listingImage = unit.images?.[0] || '';
     const encodedImage = encodeURIComponent(listingImage);
+    
+    // Share caption for various platforms
+    const shareCaption = `NO FEE ${bedroomText} in ${building?.neighborhood || 'NYC'} - $${unit.rent.toLocaleString()}/mo at ${building?.name || 'Premium Location'}`;
+    const encodedCaption = encodeURIComponent(shareCaption);
     
     // Instagram caption for stories/posts
     const instagramCaption = `🏠 NO BROKER FEE! ${bedroomText} in ${building?.neighborhood || building?.city || 'NYC'}\n\n💰 $${unit.rent.toLocaleString()}/mo\n📍 ${building?.name || 'Prime Location'}\n\n✨ Save thousands on broker fees!\n\n🔗 Link in bio or visit nofeesapts.com\n\n#NoFeesApts #NoBrokerFee #NYCApartments #NoFeeApartments #ApartmentHunting #NYCRentals #${(building?.neighborhood || 'NYC').replace(/\s+/g, '')}`;

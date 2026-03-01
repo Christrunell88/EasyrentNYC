@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, Info, CalendarPlus, CheckCircle2, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, CalendarPlus, CheckCircle2, Mail, Phone } from 'lucide-react';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import RelatedListings from '@/components/RelatedListings';

@@ -843,9 +843,6 @@ const UnitDetails = () => {
               </div>
             </div>
           </div>
-
-          {/* Related Listings Section - Internal Linking for SEO */}
-          <RelatedListings currentUnit={unit} limit={4} />
         </div>
       </div>
 

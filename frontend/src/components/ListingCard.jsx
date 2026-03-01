@@ -62,7 +62,13 @@ const ListingCard = ({
   const hasMultipleImages = images.length > 1;
   const displayImages = images.slice(0, 5); // Max 5 images for carousel
   
-  const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`;
+  // Convert bedrooms to rooms: Studio=2, 1BR=3, 2BR=4, etc.
+  const getRoomCount = (bedrooms) => {
+    if (bedrooms === 0) return 2; // Studio = 2 rooms
+    return bedrooms + 2; // 1BR = 3 rooms, 2BR = 4 rooms, etc.
+  };
+  const roomCount = getRoomCount(unit.bedrooms);
+  const roomText = `${roomCount} Rooms`;
   const bathText = `${unit.bathrooms} bath`;
   const sqftText = unit.square_feet ? `${unit.square_feet.toLocaleString()} ft²` : null;
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ChevronLeft, ChevronRight, MapPin, BedDouble, Bath, Maximize } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, MapPin, BedDouble, Bath, Maximize, Mail, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 // Helper function to determine rental type based on unit characteristics

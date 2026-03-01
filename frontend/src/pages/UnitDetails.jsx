@@ -234,6 +234,15 @@ const UnitDetails = () => {
   }
 
   const bedroomText = unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`;
+  
+  // Convert bedrooms to rooms: Studio=2, 1BR=3, 2BR=4, etc.
+  const getRoomCount = (bedrooms) => {
+    if (bedrooms === 0) return 2; // Studio = 2 rooms
+    return bedrooms + 2; // 1BR = 3 rooms, 2BR = 4 rooms, etc.
+  };
+  const roomCount = getRoomCount(unit.bedrooms);
+  const roomText = `${roomCount} Rooms`;
+  
   const buildingName = unit.building?.name || 'NYC Apartment';
   const neighborhood = unit.building?.neighborhood || unit.building?.city || 'NYC';
   const images = unit.images || [];

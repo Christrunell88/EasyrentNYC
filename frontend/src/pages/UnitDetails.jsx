@@ -330,7 +330,7 @@ const UnitDetails = () => {
       "unitCode": "FTK",
       "unitText": "sq ft"
     },
-    "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
+    "numberOfRooms": roomCount,
     "numberOfBedrooms": unit.bedrooms,
     "numberOfBathroomsTotal": unit.bathrooms,
     "numberOfFullBathrooms": Math.floor(unit.bathrooms),
@@ -439,7 +439,7 @@ const UnitDetails = () => {
       "value": unit.square_feet || 0,
       "unitCode": "FTK"
     },
-    "numberOfRooms": unit.bedrooms === 0 ? 1 : unit.bedrooms + 1,
+    "numberOfRooms": roomCount,
     "numberOfBedrooms": unit.bedrooms,
     "numberOfBathroomsTotal": unit.bathrooms,
     "numberOfFullBathrooms": Math.floor(unit.bathrooms),

@@ -615,7 +615,7 @@ const UnitDetails = () => {
                 </p>
               ) : (
                 <p className="text-gray-500">
-                  {bedroomText === 'Studio' ? 'Studio' : `${unit.bedrooms} bedroom`} apartment with {unit.bathrooms} bathroom{unit.bathrooms > 1 ? 's' : ''} in {neighborhood}. No broker fee required.
+                  {roomText} apartment with {unit.bathrooms} bathroom{unit.bathrooms > 1 ? 's' : ''} in {neighborhood}.
                 </p>
               )}
               

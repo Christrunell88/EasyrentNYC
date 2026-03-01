@@ -663,9 +663,7 @@ const UnitDetails = () => {
                     <span className="text-amber-600/50">|</span>
                   </>
                 )}
-                <span className="font-medium">{unit.bedrooms + 1} rooms</span>
-                <span className="text-amber-600/50">|</span>
-                <span className="font-medium">{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`}</span>
+                <span className="font-medium">{roomCount} rooms</span>
                 <span className="text-amber-600/50">|</span>
                 <span className="font-medium">{unit.bathrooms} bath</span>
               </div>

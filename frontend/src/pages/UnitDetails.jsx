@@ -668,16 +668,6 @@ const UnitDetails = () => {
                 <p className="text-amber-600 font-medium">{neighborhood}</p>
               </div>
 
-              {/* No Fee Notice */}
-              <div className="bg-amber-500/10 border border-amber-300 p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-gray-900 font-philosopher">
-                    <strong className="text-amber-600">No broker fee</strong> - You won't be charged a broker fee for this property.
-                  </p>
-                </div>
-              </div>
-
               {/* Direct Contact Buttons */}
               <div className="flex gap-3 mb-4">
                 <Button

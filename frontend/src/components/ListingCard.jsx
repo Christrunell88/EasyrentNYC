@@ -333,7 +333,7 @@ const ListingCard = ({
         
         {/* Details Row */}
         <div className={`flex items-center gap-1 text-sm mb-3 font-philosopher ${textPrimary}`}>
-          <span className="font-medium">{bedroomText}</span>
+          <span className="font-medium">{roomText}</span>
           <span className={isLight ? 'text-amber-400' : 'text-[#D4AF37]/50'}>|</span>
           <span className="font-medium">{bathText}</span>
           {sqftText && (

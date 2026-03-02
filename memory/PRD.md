@@ -145,13 +145,20 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
     - Migrated `App.js` and `authStore.js` to use centralized config
     - Removed duplicate `BACKEND_URL` / `API` definitions
     - Consistent URL handling for custom domains and CORS
-  - **Modular Scrapers**:
-    - Created `/app/backend/scrapers/` directory for site-specific scrapers
-    - `base.py` - Shared utilities (browser, parsing helpers)
-    - `fortysixfifty.py` - 4650 Center Blvd scraper
-    - `mercedes_house.py` - Mercedes House scraper
-    - `__init__.py` - Scraper registry with `get_scraper()` and `crawl_url()` functions
-    - Updated `crawler.py` to try modular scrapers first, fall back to legacy
+  - **Modular Scrapers - FULLY MIGRATED**:
+    - Created `/app/backend/scrapers/` directory with complete scraper suite
+    - **Base utilities** (`base.py`): Browser management, parsing helpers
+    - **Rose NYC base** (`rosenyc_base.py`): Shared logic for Rose NYC iframe sites
+    - **Site-specific scrapers**:
+      - `fortysixfifty.py` - 4650 Center Blvd (iframe table)
+      - `mercedes_house.py` - Mercedes House (regex patterns)
+      - `harrison_yards.py` - Harrison Yards (RealPage widget)
+      - `seven_w21.py` - 7 West 21st Street (Rose NYC iframe)
+      - `rivercourt.py` - Rivercourt LIC (Rose NYC iframe)
+      - `melar.py` - The Melar (Rose NYC iframe)
+      - `generic.py` - Fallback scraper for unknown sites
+    - **Registry** (`__init__.py`): Maps URL patterns to scrapers
+    - Updated `crawler.py` to use modular scrapers exclusively
   - Status: ✅ COMPLETED
 
 ### Recent Work (2026-02-27)

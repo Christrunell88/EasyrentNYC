@@ -8,6 +8,10 @@ HARD RULE ENFORCED:
 - Production writes require manual admin approval or internal leasing system feeds
 
 This module uses DatabaseAccessControl to enforce these rules.
+
+MODULAR SCRAPERS:
+Individual site scrapers are being migrated to /app/backend/scrapers/
+See scrapers/__init__.py for the list of modularized scrapers.
 """
 import asyncio
 import logging
@@ -24,6 +28,9 @@ import aiohttp
 import uuid
 import hashlib
 from cloud_storage_service import upload_apartment_image
+
+# Import modular scrapers
+from scrapers import get_scraper as get_modular_scraper
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

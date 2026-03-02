@@ -1142,17 +1142,43 @@ async def get_recommendations():
 
 @api_router.get("/units/recent")
 async def get_recent_units(limit: int = Query(6, le=20)):
-    """Get most recently added units"""
+    """Get most recently added units with variety - max one unit per building"""
     try:
-        # Get units sorted by created_at descending (most recent first)
-        units = await db.units.find(
+        # Get more units than needed to ensure variety
+        all_units = await db.units.find(
             {'is_available': True},
             {"_id": 0}
-        ).sort("created_at", -1).limit(limit).to_list(limit)
+        ).sort("created_at", -1).limit(limit * 5).to_list(limit * 5)
+        
+        # Select units ensuring variety - one per building
+        seen_buildings = set()
+        selected_units = []
+        
+        for unit in all_units:
+            building_id = unit.get('building_id')
+            
+            # Skip if we already have a unit from this building
+            if building_id in seen_buildings:
+                continue
+            
+            seen_buildings.add(building_id)
+            selected_units.append(unit)
+            
+            # Stop when we have enough
+            if len(selected_units) >= limit:
+                break
+        
+        # If we don't have enough unique buildings, fill with remaining units
+        if len(selected_units) < limit:
+            for unit in all_units:
+                if unit not in selected_units:
+                    selected_units.append(unit)
+                    if len(selected_units) >= limit:
+                        break
         
         # Enrich with building data
         enriched_units = []
-        for unit in units:
+        for unit in selected_units:
             building = await db.buildings.find_one({'id': unit.get('building_id')}, {"_id": 0})
             unit['building'] = building
             enriched_units.append(unit)

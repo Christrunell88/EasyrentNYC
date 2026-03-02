@@ -190,6 +190,10 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
     - Added smart image selector to prioritize interior images over exterior shots
     - Changed bedroom display from "X Rooms" to "Studio", "1 Bed", "2 Bed"
     - Capitalized "Bath" text
+  - **New Arrivals Variety**:
+    - Updated `/api/units/recent` to show max one unit per building
+    - Ensures 6 different buildings displayed, not duplicates from same building
+    - Each listing now has unique imagery
   - Status: ✅ COMPLETED
 
 ### Recent Work (2026-02-27)

@@ -272,9 +272,34 @@ const Landing = () => {
                   Find Your<br />No-Fee Apartment
                 </h1>
                 
-                <p className="text-lg text-[#B8B8B8] font-philosopher mb-10 leading-relaxed">
+                <p className="text-lg text-[#B8B8B8] font-philosopher mb-8 leading-relaxed">
                   Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37]">zero broker fees</span>, ready in minutes.
                 </p>
+
+                {/* Call to Action Box */}
+                <div className="bg-[#1a1a1a]/80 border border-[#D4AF37]/30 p-6 mb-8">
+                  <p className="text-[#D4AF37] font-philosopher tracking-[0.15em] uppercase text-xs mb-4">
+                    Free Sign Up for Full Access
+                  </p>
+                  <p className="text-white font-philosopher text-lg mb-4">
+                    Get <span className="text-[#D4AF37] font-bold">full access</span> and <span className="text-[#D4AF37] font-bold">new listings alerts</span>
+                  </p>
+                  
+                  <div className="space-y-3 text-[#B8B8B8]">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[#D4AF37]">📞</span>
+                      <a href="tel:646-408-8048" className="font-philosopher hover:text-[#D4AF37] transition-colors">
+                        Call Office: <span className="text-white font-semibold">646-408-8048</span>
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[#D4AF37]">✉️</span>
+                      <a href="mailto:Placesfirm@gmail.com" className="font-philosopher hover:text-[#D4AF37] transition-colors">
+                        Email: <span className="text-white font-semibold">Placesfirm@gmail.com</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
                 
                 {/* SEO-only text - hidden visually but accessible to search engines */}
                 <p className="sr-only">
@@ -288,7 +313,7 @@ const Landing = () => {
                     size="lg"
                     className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.4)]"
                   >
-                    EXPLORE COLLECTION
+                    FREE SIGN UP
                     <ArrowRight className="w-5 h-5 ml-3" />
                   </Button>
                   <span className="text-[#4ade80] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">

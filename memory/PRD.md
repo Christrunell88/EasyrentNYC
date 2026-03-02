@@ -94,6 +94,22 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - Fixed API endpoint path from `/contact` to `/api/contact`
   - Status: ✅ TESTED AND WORKING
 
+- **Unavailability Detection System - COMPLETED**:
+  - Added automatic detection of potentially unavailable units when crawling
+  - Compares crawled results against production units for each building
+  - Units in production but NOT in crawl → flagged for admin review
+  - New `unavailability_reviews` collection stores flags
+  - Tracks `consecutive_misses` to prioritize high-confidence cases
+  - New API Endpoints:
+    - `GET /api/admin/unavailability-reviews` - List flagged units
+    - `GET /api/admin/unavailability-reviews/stats` - Summary stats
+    - `PUT /api/admin/unavailability-reviews/{id}` - Review single flag
+    - `POST /api/admin/unavailability-reviews/bulk-review` - Bulk review
+  - Review Actions:
+    - `confirmed_unavailable` → Marks unit as rented, removes from listings
+    - `false_positive` → Dismisses flag, keeps unit available
+  - Status: ✅ TESTED AND WORKING (21 units detected on first test crawl)
+
 ### Recent Work (2026-02-27)
 - **Malt Drive Building - PROMOTED TO PRODUCTION**:
   - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)

@@ -286,55 +286,30 @@ const SEO = ({
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-      {/* Structured Data - Organization */}
+      {/* Structured Data - Combined Graph */}
       <script type="application/ld+json">
-        {JSON.stringify(organizationSchema)}
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            // Organization
+            { ...organizationSchema, "@context": undefined },
+            // LocalBusiness
+            { ...localBusinessSchema, "@context": undefined },
+            // WebSite
+            { ...websiteSchema, "@context": undefined },
+            // Breadcrumbs (if provided)
+            ...(breadcrumbSchema ? [{ ...breadcrumbSchema, "@context": undefined }] : []),
+            // FAQ (if provided)
+            ...(faqSchema ? [{ ...faqSchema, "@context": undefined }] : []),
+            // Article (if provided)
+            ...(articleSchema ? [{ ...articleSchema, "@context": undefined }] : []),
+            // Product (if provided)
+            ...(productSchema ? [{ ...productSchema, "@context": undefined }] : []),
+            // Custom structured data (if provided)
+            ...(structuredData ? [{ ...structuredData, "@context": undefined }] : [])
+          ].filter(Boolean)
+        })}
       </script>
-
-      {/* Structured Data - LocalBusiness (Google Business Profile) */}
-      <script type="application/ld+json">
-        {JSON.stringify(localBusinessSchema)}
-      </script>
-
-      {/* Structured Data - WebSite with SearchAction */}
-      <script type="application/ld+json">
-        {JSON.stringify(websiteSchema)}
-      </script>
-
-      {/* Structured Data - Custom */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
-
-      {/* Structured Data - Breadcrumbs */}
-      {breadcrumbSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-      )}
-
-      {/* Structured Data - FAQ */}
-      {faqSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
-      )}
-
-      {/* Structured Data - Article */}
-      {articleSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(articleSchema)}
-        </script>
-      )}
-
-      {/* Structured Data - Product */}
-      {productSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(productSchema)}
-        </script>
-      )}
     </Helmet>
   );
 };

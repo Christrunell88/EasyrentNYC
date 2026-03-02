@@ -379,14 +379,14 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Featured Listings - Recent Additions */}
-      <section className="py-24 px-6 bg-[#111111]">
+      {/* Recent Listings Section */}
+      <section className="py-24 px-6 bg-[#f8f8f8]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
               Just Added
             </p>
-            <h2 className="text-3xl sm:text-4xl font-philosopher font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-philosopher font-bold text-[#0a0a0a] mb-4">
               New Arrivals
             </h2>
             <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
@@ -410,7 +410,7 @@ const Landing = () => {
               onClick={() => navigate('/auth')}
               variant="outline"
               size="lg"
-              className="border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-10 py-5 rounded-none tracking-[0.15em] transition-all duration-300"
+              className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-10 py-5 rounded-none tracking-[0.15em] transition-all duration-300"
             >
               SIGN UP TO VIEW ALL {stats.units}+ PROPERTIES
               <ArrowRight className="w-4 h-4 ml-3" />

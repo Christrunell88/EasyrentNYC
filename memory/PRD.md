@@ -108,7 +108,15 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - Review Actions:
     - `confirmed_unavailable` → Marks unit as rented, removes from listings
     - `false_positive` → Dismisses flag, keeps unit available
-  - Status: ✅ TESTED AND WORKING (21 units detected on first test crawl)
+  - **Admin Panel UI - COMPLETED**:
+    - New "Unavailable" tab with orange badge showing pending count
+    - Stats display: Pending, Confirmed, False Positives, High Priority (3+ misses)
+    - Table showing: Unit, Building, Rent, Beds, Misses (badge), First Detected
+    - Quick action buttons: Green checkmark (dismiss), Red X (confirm unavailable)
+    - Checkboxes for bulk selection with bulk action buttons
+    - Confirmation dialog with unit details, notes field, and action buttons
+    - Refresh button to reload data
+  - Status: ✅ TESTED AND WORKING
 
 ### Recent Work (2026-02-27)
 - **Malt Drive Building - PROMOTED TO PRODUCTION**:

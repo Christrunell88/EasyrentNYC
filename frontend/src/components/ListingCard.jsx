@@ -50,6 +50,8 @@ const ListingCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
   const imageContainerRef = useRef(null);
 
   // Theme-aware colors

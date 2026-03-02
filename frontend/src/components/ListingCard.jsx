@@ -67,18 +67,52 @@ const ListingCard = ({
   const bgAccent = isLight ? 'bg-amber-500' : 'bg-[#D4AF37]';
   const bgMuted = isLight ? 'bg-gray-100' : 'bg-[#111]';
 
-  const images = unit.images?.length > 0 ? unit.images : [];
+  // Smart image selection - prioritize interior images over exterior shots
+  const getInteriorImages = (allImages) => {
+    if (!allImages || allImages.length === 0) return [];
+    
+    // Keywords that suggest exterior/building shots
+    const exteriorKeywords = ['slideshow', 'building', 'exterior', 'facade', 'street', 'aerial', '_web_', 'hero'];
+    
+    // Keywords that suggest interior shots
+    const interiorKeywords = ['living', 'bedroom', 'kitchen', 'bath', 'interior', 'unit_photos', 'apartment', 'room'];
+    
+    // Sort images: interior first, then others
+    const sortedImages = [...allImages].sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      
+      const aIsExterior = exteriorKeywords.some(kw => aLower.includes(kw));
+      const bIsExterior = exteriorKeywords.some(kw => bLower.includes(kw));
+      const aIsInterior = interiorKeywords.some(kw => aLower.includes(kw));
+      const bIsInterior = interiorKeywords.some(kw => bLower.includes(kw));
+      
+      // Interior images come first
+      if (aIsInterior && !bIsInterior) return -1;
+      if (bIsInterior && !aIsInterior) return 1;
+      
+      // Exterior images go last
+      if (aIsExterior && !bIsExterior) return 1;
+      if (bIsExterior && !aIsExterior) return -1;
+      
+      return 0;
+    });
+    
+    return sortedImages;
+  };
+
+  const images = getInteriorImages(unit.images);
   const hasMultipleImages = images.length > 1;
   const displayImages = images.slice(0, 5); // Max 5 images for carousel
   
-  // Convert bedrooms to rooms: Studio=2, 1BR=3, 2BR=4, etc.
-  const getRoomCount = (bedrooms) => {
-    if (bedrooms === 0) return 2; // Studio = 2 rooms
-    return bedrooms + 2; // 1BR = 3 rooms, 2BR = 4 rooms, etc.
+  // Simple bedroom text: Studio, 1 Bed, 2 Bed, etc.
+  const getBedText = (bedrooms) => {
+    if (bedrooms === 0) return 'Studio';
+    if (bedrooms === 1) return '1 Bed';
+    return `${bedrooms} Bed`;
   };
-  const roomCount = getRoomCount(unit.bedrooms);
-  const roomText = `${roomCount} Rooms`;
-  const bathText = `${unit.bathrooms} bath`;
+  const bedText = getBedText(unit.bedrooms);
+  const bathText = `${unit.bathrooms} Bath`;
   const sqftText = unit.square_feet ? `${unit.square_feet.toLocaleString()} ft²` : null;
 
   // Handle contact form submission
@@ -375,7 +409,7 @@ const ListingCard = ({
         
         {/* Details Row */}
         <div className={`flex items-center gap-1 text-sm mb-3 font-philosopher ${textPrimary}`}>
-          <span className="font-medium">{roomText}</span>
+          <span className="font-medium">{bedText}</span>
           <span className={isLight ? 'text-amber-400' : 'text-[#D4AF37]/50'}>|</span>
           <span className="font-medium">{bathText}</span>
           {sqftText && (

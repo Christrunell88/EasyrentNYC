@@ -186,6 +186,10 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
     - Dark text for contrast on white backgrounds
     - Removed "FEATURED" badge from all listing cards
     - Updated footer and all sections to match white theme
+  - **Listing Card Updates**:
+    - Added smart image selector to prioritize interior images over exterior shots
+    - Changed bedroom display from "X Rooms" to "Studio", "1 Bed", "2 Bed"
+    - Capitalized "Bath" text
   - Status: ✅ COMPLETED
 
 ### Recent Work (2026-02-27)

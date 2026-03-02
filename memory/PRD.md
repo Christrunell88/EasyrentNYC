@@ -167,6 +167,18 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
     - Updated `crawler.py` to use modular scrapers exclusively
   - Status: ✅ COMPLETED
 
+- **Landing Page Update - COMPLETED** (2026-03-02):
+  - Saved original layout to `Landing_OriginalLayout.jsx.bak`
+  - Added contact information box with:
+    - "Free Sign Up for Full Access" header
+    - "Get full access and new listings alerts" messaging
+    - Office phone: 646-408-8048 (clickable)
+    - Email: Placesfirm@gmail.com (clickable)
+  - Changed button text: "EXPLORE COLLECTION" → "FREE SIGN UP"
+  - Changed nav button: "GET STARTED" → "FREE SIGN UP"
+  - Changed "View All Properties" → "Sign Up to View All Properties"
+  - Status: ✅ COMPLETED
+
 ### Recent Work (2026-02-27)
 - **Malt Drive Building - PROMOTED TO PRODUCTION**:
   - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)

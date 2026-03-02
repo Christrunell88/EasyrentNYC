@@ -62,6 +62,19 @@ const AdminPanel = () => {
   const [selectedUnavailUnit, setSelectedUnavailUnit] = useState(null);
   const [unavailReviewNotes, setUnavailReviewNotes] = useState('');
 
+  // Unavailable Units State (for re-listing)
+  const [unavailableUnits, setUnavailableUnits] = useState([]);
+  const [unavailableUnitsLoading, setUnavailableUnitsLoading] = useState(false);
+  const [selectedUnavailableUnits, setSelectedUnavailableUnits] = useState([]);
+  const [relistDialogOpen, setRelistDialogOpen] = useState(false);
+  const [selectedRelistUnit, setSelectedRelistUnit] = useState(null);
+  const [relistRent, setRelistRent] = useState('');
+  const [relistNotes, setRelistNotes] = useState('');
+
+  // Rejected Staging Units State
+  const [rejectedStagingUnits, setRejectedStagingUnits] = useState([]);
+  const [rejectedStagingLoading, setRejectedStagingLoading] = useState(false);
+
   useEffect(() => {
     fetchData();
     fetchStagingStats();

@@ -875,6 +875,12 @@ const AdminPanel = () => {
                 <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
+                <TabsTrigger value="rented" data-testid="rented-tab" onClick={fetchUnavailableUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-purple-400">
+                  Rented/Off
+                </TabsTrigger>
+                <TabsTrigger value="rejected" data-testid="rejected-tab" onClick={fetchRejectedStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-red-400">
+                  Rejected
+                </TabsTrigger>
                 <TabsTrigger value="users" data-testid="users-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Users</TabsTrigger>
                 <TabsTrigger value="contacts" data-testid="contacts-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Contacts</TabsTrigger>
                 <TabsTrigger value="subscribers" data-testid="subscribers-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-emerald-500">Subscribers</TabsTrigger>

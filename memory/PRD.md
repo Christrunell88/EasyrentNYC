@@ -29,11 +29,18 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 │   ├── lifecycle_service.py   # Unit staleness management
 │   ├── create_indexes.py      # MongoDB index optimization
 │   ├── start.sh               # Server startup script
+│   ├── scrapers/              # Modular site-specific scrapers
+│   │   ├── __init__.py        # Scraper registry
+│   │   ├── base.py            # Shared scraper utilities
+│   │   ├── fortysixfifty.py   # 4650 Center Blvd scraper
+│   │   └── mercedes_house.py  # Mercedes House scraper
 │   └── tests/
 │       ├── test_db_access_control.py
 │       └── test_lifecycle_management.py
 └── frontend/
     └── src/
+        ├── config/
+        │   └── api.js         # Centralized API configuration
         └── pages/
             └── AdminPanel.jsx  # Admin dashboard with staging
 ```

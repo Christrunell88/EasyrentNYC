@@ -419,14 +419,14 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Value Props - Luxury Style */}
-      <section className="py-24 px-6 bg-[#0a0a0a]">
+      {/* Value Props - Clean Style */}
+      <section className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
               Why Choose Us
             </p>
-            <h2 className="text-3xl font-philosopher font-bold text-white">
+            <h2 className="text-3xl font-philosopher font-bold text-[#0a0a0a]">
               The NoFeesApts Difference
             </h2>
             <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
@@ -434,21 +434,21 @@ const Landing = () => {
           
           <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center group">
-              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+              <div className="w-16 h-16 border border-[#D4AF37]/50 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all duration-300">
                 <Shield className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Zero Broker Fees</h3>
-              <p className="text-[#888888] text-sm leading-relaxed">
+              <h3 className="text-lg font-philosopher font-bold text-[#0a0a0a] mb-3 tracking-wide">Zero Broker Fees</h3>
+              <p className="text-[#666666] text-sm leading-relaxed">
                 Save thousands on your next move. Every property listed is direct from management.
               </p>
             </div>
             
             <div className="text-center group">
-              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+              <div className="w-16 h-16 border border-[#D4AF37]/50 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all duration-300">
                 <Clock className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Updated Daily</h3>
-              <p className="text-[#888888] text-sm leading-relaxed">
+              <h3 className="text-lg font-philosopher font-bold text-[#0a0a0a] mb-3 tracking-wide">Updated Daily</h3>
+              <p className="text-[#666666] text-sm leading-relaxed">
                 Fresh listings every 48 hours. No outdated or unavailable properties.
               </p>
             </div>

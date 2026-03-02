@@ -6,38 +6,48 @@
  */
 
 /**
- * Get the API base URL
- * Uses environment variable if available, falls back to window.location.origin
- * @returns {string} The API base URL
+ * Get the API base URL with /api suffix
+ * Uses current origin for custom domains to avoid CORS issues,
+ * falls back to environment variable for local development
+ * @returns {string} The API base URL with /api suffix
  */
 export const getApiUrl = () => {
-  const envUrl = process.env.REACT_APP_BACKEND_URL;
-  if (envUrl) {
-    return envUrl;
+  // For production/custom domains, use current origin to avoid CORS
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;
   }
-  // Fallback for local development or when env var is not set
-  return window.location.origin;
+  // For local development, use environment variable
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+  return `${BACKEND_URL}/api`;
 };
 
 /**
  * The API base URL - use this constant throughout the application
+ * Already includes /api suffix
  */
-export const API_URL = getApiUrl();
+export const API = getApiUrl();
 
 /**
- * Convenience alias for API_URL
+ * Get the raw backend URL without /api suffix
+ * Useful for special cases like OAuth redirects
+ * @returns {string} The raw backend URL
  */
-export const API = API_URL;
+export const getRawBackendUrl = () => {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return window.location.origin;
+  }
+  return process.env.REACT_APP_BACKEND_URL || window.location.origin;
+};
 
 /**
  * Build a full API endpoint URL
- * @param {string} path - The API path (e.g., '/api/units')
+ * @param {string} path - The API path (e.g., '/units' - without /api prefix)
  * @returns {string} The full API URL
  */
 export const buildApiUrl = (path) => {
-  const base = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${base}${cleanPath}`;
+  return `${API}${cleanPath}`;
 };
 
-export default API_URL;
+export default API;
+

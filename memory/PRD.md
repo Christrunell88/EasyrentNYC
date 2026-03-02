@@ -83,6 +83,17 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
+### Recent Work (2026-03-02)
+- **Contact Modal Implementation - COMPLETED**:
+  - Created on-page contact form modal in `ListingCard.jsx`
+  - Users can now email the agent without leaving the page (no more `mailto:` redirect)
+  - Modal pre-fills user name, email, and unit-specific message
+  - Sends email to `placesfirm@gmail.com` via `/api/contact` endpoint
+  - Contact requests stored in database for admin tracking
+  - Emails sent via Gmail SMTP (configured with app password)
+  - Fixed API endpoint path from `/contact` to `/api/contact`
+  - Status: ✅ TESTED AND WORKING
+
 ### Recent Work (2026-02-27)
 - **Malt Drive Building - PROMOTED TO PRODUCTION**:
   - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)

@@ -336,8 +336,9 @@ const ListingCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              window.location.href = 'mailto:placesfirm@gmail.com?subject=Inquiry about ' + (unit.building?.address || 'Apartment') + ' #' + (unit.unit_number || '');
+              setContactOpen(true);
             }}
+            data-testid="email-agent-button"
             className={`flex items-center gap-1 px-2 py-1 ${isLight ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a]'} font-philosopher font-bold text-xs rounded-none tracking-wide transition-colors`}
             title="Email Agent"
           >

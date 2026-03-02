@@ -116,6 +116,20 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
     - Checkboxes for bulk selection with bulk action buttons
     - Confirmation dialog with unit details, notes field, and action buttons
     - Refresh button to reload data
+  - **Re-listing System - COMPLETED** (2026-03-02):
+    - New "Rented/Off" tab showing all unavailable/rented units
+    - New "Rejected" tab showing rejected staging units
+    - Re-list button opens dialog with rent update option and notes
+    - Bulk re-list functionality for multiple units
+    - "Reconsider" button moves rejected units back to pending
+    - "Approve" button directly approves rejected units to production
+    - API Endpoints:
+      - `GET /api/admin/units/unavailable` - List unavailable units
+      - `PUT /api/admin/units/{id}/relist` - Re-list a single unit
+      - `POST /api/admin/units/bulk-relist` - Bulk re-list units
+      - `GET /api/admin/staging/rejected` - List rejected staging units
+      - `PUT /api/admin/staging/rejected/{id}/reconsider` - Move to pending
+      - `PUT /api/admin/staging/rejected/{id}/approve-direct` - Approve directly
   - Status: ✅ TESTED AND WORKING
 
 ### Recent Work (2026-02-27)

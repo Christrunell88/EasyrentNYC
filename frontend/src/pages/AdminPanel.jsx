@@ -196,6 +196,127 @@ const AdminPanel = () => {
     }
   };
 
+  // Fetch unavailable units (for re-listing)
+  const fetchUnavailableUnits = async () => {
+    setUnavailableUnitsLoading(true);
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/admin/units/unavailable?limit=100&_t=${timestamp}`, { withCredentials: true });
+      setUnavailableUnits(response.data.items || []);
+      setSelectedUnavailableUnits([]);
+    } catch (error) {
+      console.error('Error fetching unavailable units:', error);
+      toast.error('Failed to load unavailable units');
+    } finally {
+      setUnavailableUnitsLoading(false);
+    }
+  };
+
+  // Fetch rejected staging units
+  const fetchRejectedStagingUnits = async () => {
+    setRejectedStagingLoading(true);
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/admin/staging/rejected?limit=100&_t=${timestamp}`, { withCredentials: true });
+      setRejectedStagingUnits(response.data.items || []);
+    } catch (error) {
+      console.error('Error fetching rejected staging units:', error);
+      toast.error('Failed to load rejected staging units');
+    } finally {
+      setRejectedStagingLoading(false);
+    }
+  };
+
+  // Re-list a single unavailable unit
+  const handleRelistUnit = async () => {
+    if (!selectedRelistUnit) return;
+    
+    try {
+      await axios.put(`${API}/admin/units/${selectedRelistUnit.id}/relist`, {
+        rent: relistRent ? parseInt(relistRent) : null,
+        notes: relistNotes || null
+      }, { withCredentials: true });
+      
+      toast.success(`Unit ${selectedRelistUnit.unit_number} has been re-listed!`);
+      setRelistDialogOpen(false);
+      setSelectedRelistUnit(null);
+      setRelistRent('');
+      setRelistNotes('');
+      fetchUnavailableUnits();
+      fetchData(); // Refresh main data
+    } catch (error) {
+      console.error('Error re-listing unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to re-list unit');
+    }
+  };
+
+  // Bulk re-list unavailable units
+  const handleBulkRelist = async () => {
+    if (selectedUnavailableUnits.length === 0) {
+      toast.error('No units selected');
+      return;
+    }
+    
+    try {
+      await axios.post(`${API}/admin/units/bulk-relist`, {
+        unit_ids: selectedUnavailableUnits,
+        notes: 'Bulk re-listed from admin panel'
+      }, { withCredentials: true });
+      
+      toast.success(`${selectedUnavailableUnits.length} units have been re-listed!`);
+      setSelectedUnavailableUnits([]);
+      fetchUnavailableUnits();
+      fetchData();
+    } catch (error) {
+      console.error('Error bulk re-listing:', error);
+      toast.error(error.response?.data?.detail || 'Failed to re-list units');
+    }
+  };
+
+  // Toggle selection for unavailable units
+  const toggleUnavailableSelection = (unitId) => {
+    setSelectedUnavailableUnits(prev => 
+      prev.includes(unitId) 
+        ? prev.filter(id => id !== unitId)
+        : [...prev, unitId]
+    );
+  };
+
+  // Select/deselect all unavailable units
+  const toggleSelectAllUnavailable = () => {
+    if (selectedUnavailableUnits.length === unavailableUnits.length) {
+      setSelectedUnavailableUnits([]);
+    } else {
+      setSelectedUnavailableUnits(unavailableUnits.map(u => u.id));
+    }
+  };
+
+  // Reconsider a rejected staging unit (move back to pending)
+  const handleReconsiderRejected = async (stagingId) => {
+    try {
+      await axios.put(`${API}/admin/staging/rejected/${stagingId}/reconsider`, {}, { withCredentials: true });
+      toast.success('Unit moved back to pending review');
+      fetchRejectedStagingUnits();
+      fetchStagingUnits();
+    } catch (error) {
+      console.error('Error reconsidering unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to reconsider unit');
+    }
+  };
+
+  // Approve a rejected staging unit directly to production
+  const handleApproveRejectedDirectly = async (stagingId) => {
+    try {
+      await axios.put(`${API}/admin/staging/rejected/${stagingId}/approve-direct`, {}, { withCredentials: true });
+      toast.success('Unit approved and added to production!');
+      fetchRejectedStagingUnits();
+      fetchData();
+    } catch (error) {
+      console.error('Error approving rejected unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to approve unit');
+    }
+  };
+
   const fetchData = async () => {
     try {
       const timestamp = Date.now(); // Cache busting

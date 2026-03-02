@@ -65,6 +65,7 @@ const AdminPanel = () => {
   useEffect(() => {
     fetchData();
     fetchStagingStats();
+    fetchUnavailStats();
   }, []);
 
   // Fetch just the staging stats (for badge count)
@@ -80,6 +81,105 @@ const AdminPanel = () => {
       });
     } catch (error) {
       console.error('Error fetching staging stats:', error);
+    }
+  };
+
+  // Fetch unavailability review stats (for badge count)
+  const fetchUnavailStats = async () => {
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/admin/unavailability-reviews/stats?_t=${timestamp}`, { withCredentials: true });
+      setUnavailStats({
+        pending: response.data.total_pending || 0,
+        confirmed: response.data.total_confirmed || 0,
+        false_positive: response.data.total_false_positive || 0,
+        high_priority: response.data.high_priority_count || 0
+      });
+    } catch (error) {
+      console.error('Error fetching unavailability stats:', error);
+    }
+  };
+
+  // Fetch unavailability reviews for review tab
+  const fetchUnavailReviews = async () => {
+    setUnavailLoading(true);
+    try {
+      const timestamp = Date.now();
+      const response = await axios.get(`${API}/admin/unavailability-reviews?status=pending&limit=100&_t=${timestamp}`, { withCredentials: true });
+      setUnavailReviews(response.data.items || []);
+      setSelectedUnavailReviews([]);
+    } catch (error) {
+      console.error('Error fetching unavailability reviews:', error);
+      toast.error('Failed to load unavailability reviews');
+    } finally {
+      setUnavailLoading(false);
+    }
+  };
+
+  // Handle single unavailability review
+  const handleUnavailReview = async (reviewId, status) => {
+    try {
+      await axios.put(`${API}/admin/unavailability-reviews/${reviewId}`, {
+        review_status: status,
+        reviewer_notes: unavailReviewNotes
+      }, { withCredentials: true });
+      
+      toast.success(status === 'confirmed_unavailable' 
+        ? 'Unit marked as unavailable' 
+        : 'Flag dismissed');
+      
+      setUnavailReviewDialogOpen(false);
+      setSelectedUnavailUnit(null);
+      setUnavailReviewNotes('');
+      fetchUnavailReviews();
+      fetchUnavailStats();
+      fetchData(); // Refresh main data
+    } catch (error) {
+      console.error('Error reviewing unavailability:', error);
+      toast.error(error.response?.data?.detail || 'Failed to process review');
+    }
+  };
+
+  // Handle bulk unavailability review
+  const handleBulkUnavailReview = async (status) => {
+    if (selectedUnavailReviews.length === 0) {
+      toast.error('No items selected');
+      return;
+    }
+    
+    try {
+      await axios.post(`${API}/admin/unavailability-reviews/bulk-review`, {
+        review_ids: selectedUnavailReviews,
+        review_status: status,
+        reviewer_notes: `Bulk review: ${selectedUnavailReviews.length} items`
+      }, { withCredentials: true });
+      
+      toast.success(`${selectedUnavailReviews.length} items ${status === 'confirmed_unavailable' ? 'marked unavailable' : 'dismissed'}`);
+      setSelectedUnavailReviews([]);
+      fetchUnavailReviews();
+      fetchUnavailStats();
+      fetchData();
+    } catch (error) {
+      console.error('Error bulk reviewing:', error);
+      toast.error(error.response?.data?.detail || 'Failed to process bulk review');
+    }
+  };
+
+  // Toggle selection for bulk actions
+  const toggleUnavailSelection = (reviewId) => {
+    setSelectedUnavailReviews(prev => 
+      prev.includes(reviewId) 
+        ? prev.filter(id => id !== reviewId)
+        : [...prev, reviewId]
+    );
+  };
+
+  // Select/deselect all unavailability reviews
+  const toggleSelectAllUnavail = () => {
+    if (selectedUnavailReviews.length === unavailReviews.length) {
+      setSelectedUnavailReviews([]);
+    } else {
+      setSelectedUnavailReviews(unavailReviews.map(r => r.id));
     }
   };
 

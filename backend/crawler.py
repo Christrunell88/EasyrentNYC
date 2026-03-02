@@ -1977,26 +1977,9 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
     
     logger.info(f"Crawling {building['name']} at {url} (batch: {batch_id})")
     
-    # Try modular scraper first
+    # Use modular scraper (now includes all scrapers including generic fallback)
     modular_scraper = get_modular_scraper(url)
-    if modular_scraper:
-        logger.info(f"Using modular scraper for {url}")
-        units_data = await modular_scraper.crawl(url)
-    # Fall back to legacy scrapers
-    elif 'fortysixfifty' in url:
-        units_data = await crawl_fortysixfifty(url)
-    elif 'mercedeshouseny' in url:
-        units_data = await crawl_mercedes_house(url)
-    elif 'harrisonyards' in url:
-        units_data = await crawl_harrison_yards(url)
-    elif '7w21' in url or '7w21.com' in url:
-        units_data = await crawl_7w21(url)
-    elif 'rivercourt' in url or 'rentrivercourtnyc' in url:
-        units_data = await crawl_rivercourt(url)
-    elif 'melar' in url or 'themelar' in url:
-        units_data = await crawl_melar(url)
-    else:
-        units_data = await crawl_generic_site(url)
+    units_data = await modular_scraper.crawl(url)
     
     logger.info(f"Found {len(units_data)} units for {building['name']}")
     

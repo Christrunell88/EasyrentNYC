@@ -97,6 +97,13 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
 ### Recent Work (2026-03-02)
+- **ListingCard UI Cleanup - COMPLETED**:
+  - Moved thumbnail images from hover overlay to below the main image
+  - Simplified card layout with minimal text (price, bed/bath, address only)
+  - Removed rental type labels, building name sections, and photo count badges
+  - Reduced text sizes throughout for cleaner look
+  - Contact buttons (Email/Call) moved to bottom of card
+  - Removed "Welcome back" message from Dashboard
 - **Contact Modal Implementation - COMPLETED**:
   - Created on-page contact form modal in `ListingCard.jsx`
   - Users can now email the agent without leaving the page (no more `mailto:` redirect)

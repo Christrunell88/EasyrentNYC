@@ -321,30 +321,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section - Light Theme */}
-        {user && (
-          <div className="mb-6 animate-fade-in">
-            <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-xl">
-                    {user.name?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                    Welcome back, {user.name?.split(' ')[0] || 'User'}
-                  </h1>
-                  <p className="text-gray-500 text-sm">
-                    Discover your perfect no-fee apartment
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Responsive Filter Bar */}
         <div className="mb-6 space-y-4">
           {/* Desktop Filter Bar - Light Theme */}

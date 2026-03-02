@@ -1075,6 +1075,172 @@ const AdminPanel = () => {
                 </div>
               </TabsContent>
 
+              {/* Unavailability Review Tab */}
+              <TabsContent value="unavailability">
+                <div className="space-y-6">
+                  {/* Header with stats and bulk actions */}
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-orange-400" />
+                        Unavailability Review
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Units not found in recent crawls - may be rented or temporarily unavailable
+                      </p>
+                      <div className="flex gap-4 mt-2 text-sm">
+                        <span className="text-orange-400">Pending: {unavailStats.pending}</span>
+                        <span className="text-red-400">Confirmed Unavailable: {unavailStats.confirmed}</span>
+                        <span className="text-green-400">False Positives: {unavailStats.false_positive}</span>
+                        {unavailStats.high_priority > 0 && (
+                          <span className="text-yellow-400 font-semibold">
+                            ⚠️ High Priority (3+ misses): {unavailStats.high_priority}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={fetchUnavailReviews} 
+                        variant="outline" 
+                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
+                        disabled={unavailLoading}
+                      >
+                        <RefreshCw className={`w-4 h-4 mr-2 ${unavailLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                      {selectedUnavailReviews.length > 0 && (
+                        <>
+                          <Button 
+                            onClick={() => handleBulkUnavailReview('false_positive')}
+                            variant="outline" 
+                            className="border-green-600 text-green-400 hover:bg-green-900/30"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Dismiss Selected ({selectedUnavailReviews.length})
+                          </Button>
+                          <Button 
+                            onClick={() => handleBulkUnavailReview('confirmed_unavailable')}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Mark Unavailable ({selectedUnavailReviews.length})
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Table of flagged units */}
+                  {unavailLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className="w-8 h-8 animate-spin text-orange-400" />
+                      <span className="ml-3 text-slate-400">Loading unavailability reviews...</span>
+                    </div>
+                  ) : unavailReviews.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                      <p className="text-lg">No pending unavailability reviews</p>
+                      <p className="text-sm mt-2">All flagged units have been reviewed</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-slate-700 hover:bg-transparent">
+                            <TableHead className="text-slate-300 w-10">
+                              <input
+                                type="checkbox"
+                                checked={selectedUnavailReviews.length === unavailReviews.length && unavailReviews.length > 0}
+                                onChange={toggleSelectAllUnavail}
+                                className="rounded border-slate-600"
+                              />
+                            </TableHead>
+                            <TableHead className="text-slate-300">Unit</TableHead>
+                            <TableHead className="text-slate-300">Building</TableHead>
+                            <TableHead className="text-slate-300">Rent</TableHead>
+                            <TableHead className="text-slate-300">Beds</TableHead>
+                            <TableHead className="text-slate-300 text-center">Misses</TableHead>
+                            <TableHead className="text-slate-300">First Detected</TableHead>
+                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {unavailReviews.map((review) => (
+                            <TableRow 
+                              key={review.id} 
+                              className={`border-slate-700 hover:bg-slate-700/30 ${
+                                review.consecutive_misses >= 3 ? 'bg-orange-900/10' : ''
+                              }`}
+                            >
+                              <TableCell>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUnavailReviews.includes(review.id)}
+                                  onChange={() => toggleUnavailSelection(review.id)}
+                                  className="rounded border-slate-600"
+                                />
+                              </TableCell>
+                              <TableCell className="text-slate-200 font-medium">
+                                #{review.unit_number}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-slate-200">{review.building_name}</div>
+                                <div className="text-xs text-slate-400">{review.building_address}</div>
+                              </TableCell>
+                              <TableCell className="text-amber-400 font-medium">
+                                ${review.rent?.toLocaleString()}/mo
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                {review.bedrooms === 0 ? 'Studio' : `${review.bedrooms} BR`}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge className={`${
+                                  review.consecutive_misses >= 3 
+                                    ? 'bg-red-500/20 text-red-400 border-red-500/30' 
+                                    : review.consecutive_misses >= 2 
+                                      ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                                      : 'bg-slate-600/50 text-slate-300 border-slate-500/30'
+                                }`}>
+                                  {review.consecutive_misses}x
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-slate-400 text-sm">
+                                {new Date(review.created_at).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-green-600 text-green-400 hover:bg-green-900/30"
+                                    onClick={() => handleUnavailReview(review.id, 'false_positive')}
+                                    title="Dismiss - unit is still available"
+                                  >
+                                    <CheckCircle className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={() => {
+                                      setSelectedUnavailUnit(review);
+                                      setUnavailReviewDialogOpen(true);
+                                    }}
+                                    title="Confirm unavailable"
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
               {/* Building Directory Tab - Export to Google Sheets */}
               <TabsContent value="directory">
                 <div className="space-y-6">

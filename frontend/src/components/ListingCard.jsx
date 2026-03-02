@@ -82,6 +82,45 @@ const ListingCard = ({
   const bathText = `${unit.bathrooms} bath`;
   const sqftText = unit.square_feet ? `${unit.square_feet.toLocaleString()} ft²` : null;
 
+  // Handle contact form submission
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast.error('Please sign in to contact agent');
+      navigate('/auth');
+      return;
+    }
+    
+    setContactLoading(true);
+    const formData = new FormData(e.target);
+    
+    try {
+      await axios.post(`${API}/contact`, {
+        unit_id: unit.id,
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone') || '',
+        message: formData.get('message'),
+      }, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
+      });
+      
+      toast.success('Message sent!', {
+        description: 'The agent will contact you shortly.'
+      });
+      setContactOpen(false);
+      e.target.reset();
+    } catch (error) {
+      toast.error('Failed to send message', {
+        description: error.response?.data?.detail || 'Please try again.'
+      });
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
   // Swipe detection threshold
   const minSwipeDistance = 50;
 

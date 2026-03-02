@@ -354,13 +354,6 @@ const ListingCard = ({
             <span>646-408-8048</span>
           </a>
         </div>
-        
-        {/* Featured Badge */}
-        {unit.is_featured && (
-          <Badge className={`absolute bottom-3 left-3 ${isLight ? 'bg-white/90 border-amber-400 text-amber-600' : 'bg-[#0a0a0a]/80 border-[#D4AF37]/50 text-[#D4AF37]'} border font-philosopher font-bold px-2.5 py-1 text-xs rounded-none tracking-wide`}>
-            FEATURED
-          </Badge>
-        )}
       </div>
       
       {/* Content Section */}

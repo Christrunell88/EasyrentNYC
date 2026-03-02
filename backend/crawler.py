@@ -1847,12 +1847,117 @@ def extract_crawler_source(url: str) -> str:
     return parsed.netloc.replace('www.', '')
 
 
+async def detect_potentially_unavailable_units(
+    building_id: str,
+    crawled_unit_numbers: List[str],
+    batch_id: str,
+    crawler_source: str
+) -> Dict[str, Any]:
+    """
+    Compare crawled units against production to detect potentially unavailable listings.
+    
+    Units in production but NOT in the fresh crawl are flagged for admin review.
+    
+    Args:
+        building_id: The building being crawled
+        crawled_unit_numbers: List of unit numbers found in the current crawl
+        batch_id: Current crawl batch ID
+        crawler_source: Source website domain
+    
+    Returns:
+        Summary of potentially unavailable units detected
+    """
+    # Get all available production units for this building
+    production_units = await db.units.find(
+        {
+            'building_id': building_id,
+            'is_available': True,
+            'lifecycle_status': {'$nin': ['rented', 'unavailable']}
+        },
+        {"_id": 0, "id": 1, "unit_number": 1, "rent": 1, "bedrooms": 1}
+    ).to_list(1000)
+    
+    if not production_units:
+        logger.info(f"No production units to check for building {building_id}")
+        return {'flagged_count': 0, 'flagged_units': []}
+    
+    # Normalize crawled unit numbers for comparison
+    normalized_crawled = set(normalize_unit_number(u) for u in crawled_unit_numbers)
+    
+    flagged_units = []
+    now = datetime.now(timezone.utc).isoformat()
+    
+    for prod_unit in production_units:
+        prod_unit_normalized = normalize_unit_number(prod_unit.get('unit_number', ''))
+        
+        # If production unit is NOT in the crawled results, flag it
+        if prod_unit_normalized not in normalized_crawled:
+            # Check if already flagged in this batch or recently
+            existing_flag = await db.unavailability_reviews.find_one({
+                'unit_id': prod_unit['id'],
+                'review_status': 'pending'
+            })
+            
+            if existing_flag:
+                # Update existing flag with new batch info
+                await db.unavailability_reviews.update_one(
+                    {'_id': existing_flag['_id']},
+                    {
+                        '$set': {
+                            'last_checked_batch': batch_id,
+                            'last_checked_at': now,
+                            'consecutive_misses': existing_flag.get('consecutive_misses', 1) + 1
+                        }
+                    }
+                )
+                logger.info(f"Updated unavailability flag for unit {prod_unit['unit_number']} (consecutive misses: {existing_flag.get('consecutive_misses', 1) + 1})")
+            else:
+                # Create new unavailability review entry
+                review_entry = {
+                    'id': str(uuid.uuid4()),
+                    'unit_id': prod_unit['id'],
+                    'building_id': building_id,
+                    'unit_number': prod_unit.get('unit_number', ''),
+                    'rent': prod_unit.get('rent', 0),
+                    'bedrooms': prod_unit.get('bedrooms', 0),
+                    'reason': 'not_found_in_crawl',
+                    'review_status': 'pending',  # pending, confirmed_unavailable, false_positive
+                    'crawler_source': crawler_source,
+                    'first_detected_batch': batch_id,
+                    'last_checked_batch': batch_id,
+                    'consecutive_misses': 1,
+                    'created_at': now,
+                    'last_checked_at': now,
+                    'reviewed_by': None,
+                    'reviewed_at': None,
+                    'reviewer_notes': None
+                }
+                await db.unavailability_reviews.insert_one(review_entry)
+                logger.info(f"Flagged unit {prod_unit['unit_number']} as potentially unavailable (not found in crawl)")
+            
+            flagged_units.append({
+                'unit_id': prod_unit['id'],
+                'unit_number': prod_unit.get('unit_number', ''),
+                'rent': prod_unit.get('rent', 0)
+            })
+    
+    return {
+        'flagged_count': len(flagged_units),
+        'flagged_units': flagged_units,
+        'production_count': len(production_units),
+        'crawled_count': len(crawled_unit_numbers)
+    }
+
+
 async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = None):
     """
     Crawl a specific building and insert results to STAGING collections.
     
     This function reads building info from the production collection,
     but ALL crawled data goes to staging for review.
+    
+    Also detects units that may no longer be available by comparing
+    crawl results against production units.
     """
     building = await db.buildings.find_one({'id': building_id})
     if not building:
@@ -1883,6 +1988,9 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
     
     logger.info(f"Found {len(units_data)} units for {building['name']}")
     
+    # Collect crawled unit numbers for unavailability detection
+    crawled_unit_numbers = [u.get('unit_number', '') for u in units_data if u.get('unit_number')]
+    
     # Insert all units to staging (NOT production)
     for unit_data in units_data:
         try:
@@ -1896,6 +2004,21 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
             logger.error(f"Error inserting unit to staging: {e}")
             continue
     
+    # Detect potentially unavailable units (in production but not in crawl)
+    unavailability_result = await detect_potentially_unavailable_units(
+        building_id=building_id,
+        crawled_unit_numbers=crawled_unit_numbers,
+        batch_id=batch_id,
+        crawler_source=crawler_source
+    )
+    
+    if unavailability_result['flagged_count'] > 0:
+        logger.warning(
+            f"Detected {unavailability_result['flagged_count']} potentially unavailable units "
+            f"for {building['name']} (production: {unavailability_result['production_count']}, "
+            f"crawled: {unavailability_result['crawled_count']})"
+        )
+    
     # Update building's last_crawled timestamp (this is a metadata update, not data insertion)
     await db.buildings.update_one(
         {'id': building_id},
@@ -1907,7 +2030,8 @@ async def crawl_building_to_staging(building_id: str, batch_id: Optional[str] = 
         'building_name': building['name'],
         'batch_id': batch_id,
         'units_found': len(units_data),
-        'destination': 'staging'
+        'destination': 'staging',
+        'unavailability_detection': unavailability_result
     }
 
 

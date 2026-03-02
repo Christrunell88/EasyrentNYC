@@ -2457,8 +2457,8 @@ async def bulk_review_unavailability(
     
     return {
         "message": f"Processed {processed} reviews",
-        "review_status": review_status,
-        "units_marked_unavailable": units_marked_unavailable if review_status == "confirmed_unavailable" else []
+        "review_status": input.review_status,
+        "units_marked_unavailable": units_marked_unavailable if input.review_status == "confirmed_unavailable" else []
     }
 
 

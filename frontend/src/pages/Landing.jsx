@@ -501,17 +501,15 @@ const Landing = () => {
       </section>
 
       {/* Email Signup */}
-      <section className="py-24 px-6 bg-[#0a0a0a] relative">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/5 via-transparent to-transparent pointer-events-none" />
-        
+      <section className="py-24 px-6 bg-white relative border-t border-gray-200">
         <div className="max-w-xl mx-auto text-center relative z-10">
           <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
             Stay Informed
           </p>
-          <h2 className="text-3xl font-philosopher font-bold text-white mb-4">
+          <h2 className="text-3xl font-philosopher font-bold text-[#0a0a0a] mb-4">
             New Listings in Your Inbox
           </h2>
-          <p className="text-[#888888] mb-10">
+          <p className="text-[#666666] mb-10">
             Be the first to know when exceptional properties become available.
           </p>
           
@@ -522,7 +520,7 @@ const Landing = () => {
               onChange={(e) => setSubscribeEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-6 py-4 bg-[#1a1a1a] border border-[#D4AF37]/20 text-white placeholder:text-[#666666] focus:outline-none focus:border-[#D4AF37] transition-colors font-philosopher"
+              className="flex-1 px-6 py-4 bg-[#f8f8f8] border border-gray-300 text-[#0a0a0a] placeholder:text-[#999999] focus:outline-none focus:border-[#D4AF37] transition-colors font-philosopher"
             />
             <Button
               type="submit"
@@ -533,25 +531,25 @@ const Landing = () => {
             </Button>
           </form>
           
-          <p className="text-xs text-[#666666] mt-6 font-philosopher">
+          <p className="text-xs text-[#888888] mt-6 font-philosopher">
             No spam. Unsubscribe anytime.
           </p>
         </div>
       </section>
 
-      {/* Footer - SEO Optimized */}
-      <footer className="py-16 px-6 border-t border-[#D4AF37]/10 bg-[#0a0a0a]">
+      {/* Footer - Clean Light Theme */}
+      <footer className="py-16 px-6 border-t border-gray-200 bg-[#f8f8f8]">
         <div className="max-w-6xl mx-auto">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             {/* Brand & Description */}
             <div className="lg:col-span-1">
-              <span className="text-2xl font-philosopher font-bold text-white tracking-wide">NoFeesApts</span>
-              <p className="text-sm text-[#888888] mt-3 leading-relaxed">
+              <span className="text-2xl font-philosopher font-bold text-[#0a0a0a] tracking-wide">NoFeesApts</span>
+              <p className="text-sm text-[#666666] mt-3 leading-relaxed">
                 Your trusted source for no broker fee apartments in NYC, Northern New Jersey, and Pennsylvania. 
                 Save thousands on broker fees with our curated collection of verified no-fee rentals.
               </p>
-              <p className="text-xs text-[#666666] mt-4">
+              <p className="text-xs text-[#888888] mt-4">
                 <a href="mailto:placesfirm@gmail.com" className="hover:text-[#D4AF37] transition-colors">
                   placesfirm@gmail.com
                 </a>
@@ -563,7 +561,7 @@ const Landing = () => {
               <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">Quick Links</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <button onClick={handleGetStarted} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={handleGetStarted} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Browse All Apartments
                   </button>
                 </li>

@@ -47,7 +47,7 @@ Since your app is already deployed, you need to configure the production environ
    - Find Environment Variables section
    - Update or add `CORS_ORIGINS` to include:
      ```
-     https://nofeesapts.com,https://direct-rent-nyc.emergent.host,https://apartment-hub-dev-1.preview.emergentagent.com
+     https://nofeesapts.com,https://direct-rent-nyc.emergent.host,https://fee-free-apartments.preview.emergentagent.com
      ```
 
 2. **After updating:**
@@ -79,12 +79,12 @@ I've updated `/app/backend/.env` to include nofeesapts.com in CORS_ORIGINS:
 
 **Before:**
 ```
-CORS_ORIGINS="https://apartment-hub-dev-1.preview.emergentagent.com,https://nofeesapts-2b5c9.web.app,https://nofeesapts-2b5c9.firebaseapp.com"
+CORS_ORIGINS="https://fee-free-apartments.preview.emergentagent.com,https://nofeesapts-2b5c9.web.app,https://nofeesapts-2b5c9.firebaseapp.com"
 ```
 
 **After:**
 ```
-CORS_ORIGINS="https://nofeesapts.com,https://apartment-hub-dev-1.preview.emergentagent.com,https://nofeesapts-2b5c9.web.app,https://nofeesapts-2b5c9.firebaseapp.com"
+CORS_ORIGINS="https://nofeesapts.com,https://fee-free-apartments.preview.emergentagent.com,https://nofeesapts-2b5c9.web.app,https://nofeesapts-2b5c9.firebaseapp.com"
 ```
 
 This fix will be included when you redeploy.

@@ -19,69 +19,98 @@ The user wants to build a web application called NoFeesApts.com that functions s
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI/MongoDB platform. The agent has successfully added new listings to the staging database, implemented a major UI theme overhaul, updated SEO and analytics configurations, and fixed the social media sharing functionality to display dynamic, listing-specific content.
+The application is a full-stack React/FastAPI/MongoDB platform. The agent has performed a massive data-entry effort, crawling and adding over a dozen new buildings and their units with images directly into the production database. Key UI/UX improvements have been made, including fixing form input visibility, updating listing card layouts, changing bedroom counts to room counts, and implementing an on-page contact modal. Critical SEO and social sharing bugs have also been addressed. The live site is significantly out of sync with the current preview environment and requires redeployment to reflect these numerous changes.
 
 **Last working item**:
-- **Last item agent was working:** Fixing the Facebook sharing feature. When a user shared a specific apartment, it showed a generic site-wide image instead of the apartment's actual image. The agent implemented a server-side endpoint () that generates a temporary HTML page with dynamic Open Graph meta tags (, , etc.) specific to that listing.
-- **Status:** USER VERIFICATION PENDING
-- **Agent Testing Done:** Y
-- **Which testing method agent to use?** N/A. The feature is implemented. The user needs to be instructed to use Facebook's [Sharing Debugger](https://developers.facebook.com/tools/debug/) to verify the fix, as social media platforms cache these images.
+- **Last item agent was working:** The user wanted to prevent users from being taken off-site when clicking the Email Agent button. The agent implemented a Contact Modal form that opens directly on the listing card. This modal uses the existing backend  endpoint to send an email to  without navigating away from the page.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** screenshot tool. The agent should log in, navigate to the main listings page, click the Email Agent button on a listing card, and capture a screenshot to verify the modal opens correctly.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** (P0) Find and add images to Malt Drive building units.
-- **Issue 2:** (P1) Landing page displays incorrect stats on the live site ().
-- **Issue 3:** (P2) Login and Signup fail on the live custom domain ().
+- **Issue 1:** (P0) The new Contact Modal is untested.
+- **Issue 2:** (P1) The direct-to-Instagram posting feature is blocked.
+- **Issue 3:** (P1) The Facebook sharing fix (to show unit-specific images) is not live.
+- **Issue 4:** (P2) User has requested enhancements to the site for trust and engagement but has not prioritized which features to build.
 
 **Issues Detail:**
-- **Issue 1: Find and add images to Malt Drive units**
-    - **Attempted fixes:** None in this session. This was the top priority from the previous fork but was superseded by new user requests. The last attempt involved analyzing a website with a dynamic JS slider.
+- **Issue 1: The new Contact Modal is untested**
+    - **Attempted fixes:** The agent has created  and updated  to trigger it. No testing has been performed.
     - **Next debug checklist:**
-        1.  Resume investigation to find image URLs for Malt Drive apartments.
-        2.  Use  to find photos on other real estate portals (e.g., StreetEasy).
-        3.  Use the admin image upload feature (created in the previous session) to add the images to the staging units.
-    - **Why fix this issue and what will be achieved with the fix?** To fulfill a direct user request from a previous session and improve the quality of the listings.
-    - **Status:** NOT STARTED
+        1.  Log into the application.
+        2.  Navigate to a page with listing cards (e.g., the dashboard).
+        3.  Click the Email Agent button.
+        4.  Verify the modal appears and contains an input form.
+        5.  (Optional but recommended) Fill out and submit the form, then check backend logs to ensure the  endpoint was called successfully.
+    - **Why fix this issue and what will be achieved with the fix?** To complete the user's request for a more efficient contact method and ensure the new component works before moving on.
+    - **Status:** IN PROGRESS
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Both (Backend data verification and Frontend UI screenshot).
+    - **Should Test frontend/backend/both after fix?** Frontend (primarily, with optional backend log check).
     - **Blocked on other issue:** None.
 
-- **Issue 2 & 3: Incorrect stats and Login/Signup failure on live site**
-    - **Attempted fixes:** These issues are resolved in the current codebase.
-    - **Next debug checklist:** The user needs to deploy this forked project to the live domain () for the fixes to take effect. No further coding is needed.
-    - **Why fix this issue and what will be achieved with the fix?** Makes the production website functional for users.
+- **Issue 2: The direct-to-Instagram posting feature is blocked**
+    - **Attempted fixes:** The agent correctly identified the need for the Instagram Graph API and guided the user through creating a Meta App. The process is stuck because the user's personal Facebook account lacks admin privileges for the target Places NYC Facebook page, which is necessary to generate the required API token.
+    - **Next debug checklist:**
+        1.  Instruct the user to have the owner of the Places NYC Facebook page add Christopher Trunell as an Admin.
+        2.  Once access is granted, guide the user to re-generate the Access Token in the Graph API Explorer, ensuring the correct permissions and page are selected.
+    - **Why fix this issue and what will be achieved with the fix?** It will unblock the development of the automated Share to Instagram feature requested by the user.
+    - **Status:** BLOCKED (pending user action).
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Backend (for the API integration).
+    - **Blocked on other issue:** User needs to resolve Facebook permissions.
+
+- **Issue 3: The Facebook sharing fix is not live**
+    - **Attempted fixes:** The agent refactored the share logic in  to use the Facebook Feed Dialog, which explicitly passes the unit's image URL. This is designed to bypass Facebook's aggressive caching of the old generic site image.
+    - **Next debug checklist:** This is not a bug to fix but a deployment issue. The agent needs to advise the user to redeploy the application to their live domain ().
+    - **Why fix this issue and what will be achieved with the fix?** It will resolve a long-standing user complaint and make social sharing function as intended on the production site.
     - **Status:** USER VERIFICATION PENDING (Awaiting user deployment).
     - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Both.
+    - **Should Test frontend/backend/both after fix?** N/A (requires user action).
     - **Blocked on other issue:** User redeployment.
 
+- **Issue 4: Site enhancement planning**
+    - **Attempted fixes:** The agent provided a detailed list of recommendations for improving trust, engagement, and user acquisition.
+    - **Next debug checklist:** The agent should present the top recommendations again and ask the user to prioritize one or two to implement next. Top suggestions were Verified Listing badges, email alerts for saved searches, and a testimonials section.
+    - **Why fix this issue and what will be achieved with the fix?** To act on the user's strategic request and improve the site's business value.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Depends on the chosen feature.
+    - **Blocked on other issue:** User decision.
+
 **In progress Task List**:
-- None.
+- **Task 1: Complete and test the Contact Modal implementation**
+    - **Where to resume:** Test the functionality as described in Issue 1 of the pending issue list.
+    - **What will be achieved with this?** A seamless on-site contact experience for users.
+    - **Status:** IN PROGRESS
+    - **Should Test frontend/backend/both after fix?** Frontend
+    - **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P0:** Create and verify a  and add a  file to guide crawlers. (This was offered by the agent and is a quick SEO win).
-    - **P1:** Complete the  branding strategy (add badges to listings, update social sharing text).
-    - **P2:** Add an Admin link back to the main UI (e.g., in the footer) for easy access.
-    - **P2:** Create a Lifecycle Dashboard UI for admins to view stale units, price changes, etc.
+    - **P0:** Get user decision on which trust/engagement features to build next.
+    - **P1:** Unblock and implement the Instagram Graph API for direct posting.
+    - **P2:** Add a 3D Tour field to the database and an embed viewer to  (pending a sample URL from the user).
 - **Future Tasks:**
-    - **P2:** Add Advanced Filters (move-in date, pet-friendly, etc.).
-    - **P3:** Implement a user-facing apartment comparison feature.
-    - **P3:** Set up and manage Google/Facebook Ad campaigns.
+    - Implement a system for email alerts based on saved searches.
+    - Add a testimonials section to the landing page.
+    - Refactor  into smaller, scraper-specific modules.
+    - Centralize the duplicated  constant in the frontend.
 
 **Completed work in this session**
-- **New Listings Added:** Scraped and added new apartment listings for The Larstrand and The Greenpoint to the staging database.
-- **Light Theme UI Implemented:** Refactored the UI to be dark-themed on the public landing page and light-themed (white background) on all authenticated pages, including , , , and .
-- **Dynamic Social Sharing Fixed:**
-    - Created a backend endpoint () in  to serve dynamic HTML with listing-specific Open Graph tags (, ).
-    - Updated  to use this endpoint, ensuring Facebook shares show the correct apartment image and details.
-- **SEO & Analytics Updated:**
-    - Replaced the default social share image () with a new on-brand NYC skyline graphic.
-    - Updated the Google Analytics tag across the application to the user-provided ID ().
+- **Massive Database Expansion:** Crawled and added numerous buildings and units directly to production, including: 300 Ashland, 125 Court, One South First, 60 Water (updated), 30 Washington, 20 Broad, 50 Murray, The Melar, The Smile, and Malt Drive. Also updated images for Mercedes House.
+- **Listing Card & Details Page Cleanup:** Re-added Email Agent/Call buttons to  and removed a no broker info paragraph and Similar Apartments section from  per user request.
+- **UI Bug Fix:** Fixed an issue in the Schedule Viewing form where input text was invisible ( on ).
+- **Room Count Logic:** Replaced Bedrooms with Rooms (Studio → 2 Rooms, 1BR → 3 Rooms, etc.) on listing cards, detail pages, and in the SEO schema.
+- **Featured Listings on Landing Page:** Created a  endpoint and updated the landing page to show the 6 most recently added units, with addresses blurred for non-authenticated users.
+- **SEO Fix:** Resolved a Duplicate field FAQPage error by refactoring  to combine all JSON-LD schemas into a single  array.
+- **Social Sharing Fix (Attempt 2):** Reworked the Facebook sharing logic in  to use the Feed Dialog with an explicit image URL to bypass caching issues.
+- **Database Maintenance:** Consolidated duplicate building entries for Malt Drive and Avalon Princeton on Harrison.
+- **Contact Modal:** Created a new  and integrated it into  to provide an on-page email form.
 
 **Earlier issues found/mentioned but not fixed**
 - **Issue 1: Duplicated  constant**
-    - **Debug checklist:** Centralize the constant definition from  and  into a single configuration file like .
+    - **Debug checklist:** Centralize the constant definition from frontend files into a single configuration file like .
     - **Why to solve this issue and what will be achieved with this?** Improves code maintainability and reduces configuration errors.
     - **Should Test frontend/backend/both after fix:** Frontend
     - **Is recurring issue?** Y
@@ -97,19 +126,21 @@ The application is a full-stack React/FastAPI/MongoDB platform. The agent has su
 - **Status:** RESOLVED (in code). The fixes are present in this forked codebase and are pending user redeployment to the live site.
 
 **Code Architecture**
-/api/share/unit/{unit_id}theme
+
 
 **Key Technical Concepts**
-- **Dynamic Open Graph Tags:** Solved a common SPA limitation by creating a backend endpoint to serve temporary HTML with dynamic  meta tags based on a unit's ID. This allows social media scrapers to pull unique content (image, title, description) for each shared item.
-- **Conditional CSS Theming in React:** Refactored multiple components to accept a  prop and apply conditional Tailwind CSS classes, enabling a dual-theme (light/dark) system.
-- **Web Scraping & Data Ingestion:** Used  and  to scrape apartment data. Wrote one-off Python scripts to structure this data and insert it into the MongoDB  collection.
-- **Playwright for Verification:** Used Playwright to automate browser actions (login, navigation) to capture screenshots and verify UI changes and application state.
+- **Web Scraping & DB Management:** Extensive use of Pymongo scripts to crawl data and directly insert/update/delete documents in the MongoDB production database.
+- **React Modals and State:** Created and managed a new contact modal using  for visibility and form state.
+- **Backend API Development (FastAPI):** Added a new endpoint () with specific sorting and limits.
+- **SEO (JSON-LD):** Fixed a critical validation error by implementing the  schema structure for combining multiple data types.
+- **3rd Party API Integration:** Interacted with the Facebook Graph API to debug token issues and implemented the Facebook Feed Dialog for sharing.
 
 **key DB schema**
-- No database schema changes were made in this session. The agent interacted with the existing  collection.
+- No database schema changes were made. The agent interacted with the existing  and  collections in the  database.
 
 **All files of reference**
 - **Created:**
+    - 
     - 
 - **Updated:**
     - 
@@ -119,61 +150,54 @@ The application is a full-stack React/FastAPI/MongoDB platform. The agent has su
     - 
     - 
     - 
-    - 
-    - 
-    - 
-    - 
 
 **Areas that need refactoring**:
-- The  constant is likely still duplicated in frontend files.
+- The  constant is duplicated in frontend files.
 -  is a large monolithic file that could be broken down into smaller, scraper-specific modules.
 
 **key api endpoints**
-- **New:**
-    - : Serves an HTML page with dynamic Open Graph tags for a specific listing to enable correct social media sharing.
+- : **(New)** Fetches the 6 most recently added units for the landing page.
+- : **(Existing)** Used by the new  to send emails from the backend.
 
 **Critical Info for New Agent**
-- The user is actively providing new tasks which have been taking priority over the existing backlog. The highest priority task from the *previous* session, **Find and add images to Malt Drive building units,** was not worked on and should be re-proposed as the top priority.
-- Issues with the live domain (), including login failures and incorrect stats, are resolved in this codebase but are **awaiting user deployment**. Do not attempt to re-fix them. Advise the user to redeploy.
-- The most recently completed task was fixing the Facebook share preview. Inform the user they can verify this using Facebook's Sharing Debugger tool, as the changes may not appear immediately due to caching.
+- **Redeployment is Critical:** The user's live site () is extremely out of date. You must advise the user to redeploy to make the dozens of new listings, UI fixes, and social sharing improvements visible.
+- **Instagram Integration is Blocked by User:** The direct-to-Instagram posting feature cannot proceed until the user resolves their Facebook Page admin permissions. Do not attempt to work on it until the user confirms they have admin access and can generate a valid token.
+- **Last Task is Untested:** The very last thing the previous agent did was create a Contact Modal. Your first action should be to test this feature to ensure it works correctly.
+- **Focus on User Priorities:** The user has many strategic ideas (3D tours, trust features, etc.). After testing the contact modal, re-engage the user to select the next priority from the list of recommendations.
 
 **documents and test reports created in this job**
 -  (updated)
-- 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- **10. User:** Requested that sharing an apartment to Facebook should show the specific listing's first image. (Status: **Completed**)
-- **9. User:** Reported that the share preview image showed an old site design. (Status: **Completed**)
-- **8. User:** Provided a new Google Analytics tag ID to be implemented. (Status: **Completed**)
-- **7. User:** Confirmed Google ownership verification was done and asked what to do next. (Status: **Agent advised**)
-- **6. User:** Asked for the value to paste into GoDaddy for third-party verification. (Status: **Agent advised**)
-- **5. User:** Asked what value to provide GoDaddy to verify ownership for Google. (Status: **Agent advised**)
-- **4. User:** Asked if Google web stream details were needed. (Status: **Agent clarified**)
-- **3. User:** Requested a check to ensure Google meta tags are present and working. (Status: **Completed**)
-- **2. User:** Requested to change the theme to a white background for logged-in users while keeping the landing page dark. (Status: **Completed**)
-- **1. User:** Requested to scrape and add listings from . (Status: **Completed**)
+- **10. User:** Asked to add 3D tour functionality. (Status: **Pending user input** - agent explained options and is waiting for a sample URL).
+- **9. User:** Reported a Duplicate field FAQPage SEO issue. (Status: **Completed** - agent fixed the schema).
+- **8. User:** Asked for strategic advice to enhance the site and get more users. (Status: **Pending user decision** - agent provided a list of recommendations).
+- **7. User:** Requested that emailing from a listing card not open a new window. (Status: **In Progress** - agent implemented a contact modal, but it's untested).
+- **6. User:** Clarified that the Email Agent and Call buttons should remain on the listing card. (Status: **Completed**).
+- **5. User:** Asked to clean up listing cards by removing the no fee text box. (Status: **Misinterpreted, then corrected** - agent initially removed contact buttons, then restored them).
+- **4. User:** Reported the Facebook share image is still the old hero image. (Status: **Completed in code** - agent implemented a new Feed Dialog fix, pending redeployment).
+- **3. User:** Requested to clear the Facebook cache for good. (Status: **Attempted** - script timed out, agent moved to a more robust fix in the code).
+- **2. User:** Confirmed the rule that addresses should be blurred until sign-in. (Status: **Acknowledged**).
+- **1. User:** Requested to change Featured Units to be the most recent additions. (Status: **Completed**).
 
 **Project Health Check:**
-- **Broken:** The user's live production site () is out of sync and non-functional (login fails, stats are wrong). It is **awaiting a new deployment** from this forked project to apply all the recent fixes.
-- **Mocked:** The listings for the 7 West 21st Street building are still based on manually entered data and stock photos.
+- **Broken:** The user's live production site () is severely out of sync and does not reflect any of the work done in this lengthy session. It is **awaiting a new deployment**.
+- **Mocked:** N/A. The agent has been adding real listings.
 
 **3rd Party Integrations**
-- **Gemini 3 Flash:** Used for the AI Search Agent.
-- **Facebook Graph API:** Connection active.
+- **Facebook Graph API:** Connection initiated for Instagram posting. Blocked pending user-side credential/permission setup. App ID  has been created.
 - **Google Analytics:** Active and tracking events (ID: ).
-- **Playwright:** Used for web crawling and UI testing.
 
 **Testing status**
 - **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None
-- **Known regressions:** The login and stats issues on the production site are known regressions that are fixed in this preview environment and are pending deployment.
+- **Known regressions:** The live production site is effectively a large regression as it lacks all the new data and fixes. This is resolved in the preview environment.
 
 **Credentials to test flow:**
 - **Admin User:**  / 
 - **Regular User:**  / 
 
 **What agent forgot to execute**
-- The agent did not address the high-priority task from the previous fork: finding and adding images for the **Malt Drive** building. This was superseded by new user requests.
-- The agent offered to create a  and  but did not complete this task.
-- The non-critical refactoring of the large  file and the centralization of the  constant were not addressed.</analysis>
+- The agent did not test the final feature implemented (the ).
+- The low-priority refactoring tasks (,  constant) were not addressed, which is acceptable given the volume of user-facing features implemented.</analysis>

@@ -97,7 +97,7 @@ const ListingCard = ({
     const formData = new FormData(e.target);
     
     try {
-      await axios.post(`${API}/contact`, {
+      await axios.post(`${API}/api/contact`, {
         unit_id: unit.id,
         name: formData.get('name'),
         email: formData.get('email'),

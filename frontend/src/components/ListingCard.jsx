@@ -454,6 +454,101 @@ const ListingCard = ({
           </div>
         )}
       </div>
+
+      {/* Contact Modal */}
+      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+        <DialogContent 
+          className="sm:max-w-md bg-[#1a1a1a] border border-[#D4AF37]/30 text-white"
+          onClick={(e) => e.stopPropagation()}
+          data-testid="contact-modal"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-[#D4AF37] font-philosopher text-xl">
+              Contact Agent
+            </DialogTitle>
+            <p className="text-[#A0A0A0] text-sm font-philosopher">
+              {unit.building?.address} {unit.unit_number && `#${unit.unit_number}`}
+            </p>
+          </DialogHeader>
+          
+          <form onSubmit={handleContactSubmit} className="space-y-4 mt-4">
+            <div>
+              <Input
+                name="name"
+                placeholder="Your Name *"
+                required
+                defaultValue={user?.full_name || ''}
+                className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37]"
+                data-testid="contact-name-input"
+              />
+            </div>
+            <div>
+              <Input
+                name="email"
+                type="email"
+                placeholder="Your Email *"
+                required
+                defaultValue={user?.email || ''}
+                className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37]"
+                data-testid="contact-email-input"
+              />
+            </div>
+            <div>
+              <Input
+                name="phone"
+                type="tel"
+                placeholder="Phone (optional)"
+                className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37]"
+                data-testid="contact-phone-input"
+              />
+            </div>
+            <div>
+              <Textarea
+                name="message"
+                placeholder="Your message... *"
+                required
+                rows={3}
+                defaultValue={`Hi, I'm interested in the ${unit.bedrooms === 0 ? 'studio' : `${unit.bedrooms} bedroom`} apartment at ${unit.building?.address || 'this building'}${unit.unit_number ? ` #${unit.unit_number}` : ''} for $${unit.rent?.toLocaleString()}/month. Please contact me with more details.`}
+                className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37] resize-none"
+                data-testid="contact-message-input"
+              />
+            </div>
+            
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setContactOpen(false);
+                }}
+                className="flex-1 border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10"
+                data-testid="contact-cancel-button"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={contactLoading}
+                className="flex-1 bg-[#D4AF37] text-[#0a0a0a] hover:bg-[#E5C158] font-philosopher font-bold"
+                data-testid="contact-submit-button"
+              >
+                {contactLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-[#0a0a0a]/30 border-t-[#0a0a0a] rounded-full animate-spin" />
+                    Sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </span>
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

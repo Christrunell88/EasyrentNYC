@@ -31,7 +31,7 @@ async def crawl(url: str) -> List[Dict[str, Any]]:
             
             try:
                 await page.wait_for_selector('.rpfp-card, .rpfp-card-details', timeout=5000)
-            except:
+            except Exception:
                 logger.warning("Floor plan cards did not load in time, proceeding anyway")
             
             content = await page.content()

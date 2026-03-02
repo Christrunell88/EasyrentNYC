@@ -46,7 +46,7 @@ async def crawl(url: str) -> List[Dict[str, Any]]:
                         iframe_content = await frame.content()
                         logger.info(f"Using iframe content from: {frame.url}")
                         break
-                    except:
+                    except Exception:
                         continue
             
             content = iframe_content if iframe_content else await page.content()

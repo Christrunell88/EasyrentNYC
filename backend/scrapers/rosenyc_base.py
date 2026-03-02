@@ -146,7 +146,7 @@ async def crawl_rosenyc_iframe(url: str, building_name: str, description: str, d
                 if beds_attr and not unit_data['bedrooms']:
                     try:
                         unit_data['bedrooms'] = int(beds_attr)
-                    except:
+                    except (ValueError, TypeError):
                         pass
                 
                 # Extract images from mfp-image links

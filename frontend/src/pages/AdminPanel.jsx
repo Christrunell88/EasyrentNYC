@@ -2030,6 +2030,98 @@ const AdminPanel = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Confirm Unavailability Dialog */}
+        <Dialog open={unavailReviewDialogOpen} onOpenChange={setUnavailReviewDialogOpen}>
+          <DialogContent className="bg-slate-800 border-orange-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-orange-500" />
+                Confirm Unit Unavailable
+              </DialogTitle>
+              <DialogDescription className="text-slate-400">
+                {selectedUnavailUnit && (
+                  <>
+                    Mark unit <span className="text-amber-400">#{selectedUnavailUnit.unit_number}</span> at{' '}
+                    <span className="text-slate-200">{selectedUnavailUnit.building_name}</span> as unavailable?
+                    <br />
+                    <span className="text-orange-400">
+                      This unit was not found in {selectedUnavailUnit.consecutive_misses} consecutive crawl(s).
+                    </span>
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {selectedUnavailUnit && (
+                <div className="bg-slate-700/30 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Rent:</span>
+                    <span className="text-amber-400 font-medium">${selectedUnavailUnit.rent?.toLocaleString()}/mo</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Bedrooms:</span>
+                    <span className="text-slate-200">
+                      {selectedUnavailUnit.bedrooms === 0 ? 'Studio' : `${selectedUnavailUnit.bedrooms} BR`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">First Detected:</span>
+                    <span className="text-slate-200">
+                      {selectedUnavailUnit.created_at && new Date(selectedUnavailUnit.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="unavail-notes" className="text-slate-200">Notes (optional)</Label>
+                <Textarea
+                  id="unavail-notes"
+                  placeholder="Add any notes about why this unit is unavailable..."
+                  value={unavailReviewNotes}
+                  onChange={(e) => setUnavailReviewNotes(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[80px]"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setUnavailReviewDialogOpen(false);
+                  setSelectedUnavailUnit(null);
+                  setUnavailReviewNotes('');
+                }}
+                className="border-slate-600 text-slate-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (selectedUnavailUnit) {
+                    handleUnavailReview(selectedUnavailUnit.id, 'false_positive');
+                  }
+                }}
+                className="border-green-600 text-green-400 hover:bg-green-900/30"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Dismiss Flag
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedUnavailUnit) {
+                    handleUnavailReview(selectedUnavailUnit.id, 'confirmed_unavailable');
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                Confirm Unavailable
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

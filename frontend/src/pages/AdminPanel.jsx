@@ -1675,6 +1675,249 @@ const AdminPanel = () => {
                 </div>
               </TabsContent>
 
+              {/* Rented/Unavailable Units Tab (for Re-listing) */}
+              <TabsContent value="rented">
+                <div className="space-y-6">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <Home className="w-5 h-5 text-purple-400" />
+                        Rented / Unavailable Units
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Units currently marked as rented or unavailable. Re-list them when they become available again.
+                      </p>
+                      <p className="text-sm text-purple-400 mt-1">
+                        Total: {unavailableUnits.length} units
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={fetchUnavailableUnits} 
+                        variant="outline" 
+                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
+                        disabled={unavailableUnitsLoading}
+                      >
+                        <RefreshCw className={`w-4 h-4 mr-2 ${unavailableUnitsLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                      {selectedUnavailableUnits.length > 0 && (
+                        <Button 
+                          onClick={handleBulkRelist}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <RotateCcw className="w-4 h-4 mr-2" />
+                          Re-list Selected ({selectedUnavailableUnits.length})
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {unavailableUnitsLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className="w-8 h-8 animate-spin text-purple-400" />
+                      <span className="ml-3 text-slate-400">Loading unavailable units...</span>
+                    </div>
+                  ) : unavailableUnits.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      <Home className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                      <p className="text-lg">No unavailable units</p>
+                      <p className="text-sm mt-2">All units are currently listed as available</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-slate-700 hover:bg-transparent">
+                            <TableHead className="text-slate-300 w-10">
+                              <input
+                                type="checkbox"
+                                checked={selectedUnavailableUnits.length === unavailableUnits.length && unavailableUnits.length > 0}
+                                onChange={toggleSelectAllUnavailable}
+                                className="rounded border-slate-600"
+                              />
+                            </TableHead>
+                            <TableHead className="text-slate-300">Unit</TableHead>
+                            <TableHead className="text-slate-300">Building</TableHead>
+                            <TableHead className="text-slate-300">Rent</TableHead>
+                            <TableHead className="text-slate-300">Beds</TableHead>
+                            <TableHead className="text-slate-300">Status</TableHead>
+                            <TableHead className="text-slate-300">Marked Off</TableHead>
+                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {unavailableUnits.map((unit) => (
+                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
+                              <TableCell>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUnavailableUnits.includes(unit.id)}
+                                  onChange={() => toggleUnavailableSelection(unit.id)}
+                                  className="rounded border-slate-600"
+                                />
+                              </TableCell>
+                              <TableCell className="text-slate-200 font-medium">
+                                #{unit.unit_number}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-slate-200">{unit.building_name}</div>
+                                <div className="text-xs text-slate-400">{unit.building_address}</div>
+                              </TableCell>
+                              <TableCell className="text-amber-400 font-medium">
+                                ${unit.rent?.toLocaleString()}/mo
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={`${
+                                  unit.lifecycle_status === 'rented' 
+                                    ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                                    : 'bg-red-500/20 text-red-400 border-red-500/30'
+                                }`}>
+                                  {unit.lifecycle_status || 'unavailable'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-slate-400 text-sm">
+                                {unit.unavailable_confirmed_at 
+                                  ? new Date(unit.unavailable_confirmed_at).toLocaleDateString()
+                                  : unit.updated_at 
+                                    ? new Date(unit.updated_at).toLocaleDateString()
+                                    : 'Unknown'}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700"
+                                  onClick={() => {
+                                    setSelectedRelistUnit(unit);
+                                    setRelistRent(unit.rent?.toString() || '');
+                                    setRelistDialogOpen(true);
+                                  }}
+                                  title="Re-list this unit"
+                                >
+                                  <RotateCcw className="w-4 h-4 mr-1" />
+                                  Re-list
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Rejected Staging Units Tab */}
+              <TabsContent value="rejected">
+                <div className="space-y-6">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <XCircle className="w-5 h-5 text-red-400" />
+                        Rejected Staging Units
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Units rejected during staging review. You can reconsider or approve them later.
+                      </p>
+                      <p className="text-sm text-red-400 mt-1">
+                        Total: {rejectedStagingUnits.length} rejected units
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={fetchRejectedStagingUnits} 
+                      variant="outline" 
+                      className="border-slate-600 text-slate-200 hover:bg-slate-700"
+                      disabled={rejectedStagingLoading}
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-2 ${rejectedStagingLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </div>
+
+                  {rejectedStagingLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className="w-8 h-8 animate-spin text-red-400" />
+                      <span className="ml-3 text-slate-400">Loading rejected units...</span>
+                    </div>
+                  ) : rejectedStagingUnits.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                      <p className="text-lg">No rejected units</p>
+                      <p className="text-sm mt-2">All staging units have been processed</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-slate-700 hover:bg-transparent">
+                            <TableHead className="text-slate-300">Unit</TableHead>
+                            <TableHead className="text-slate-300">Building</TableHead>
+                            <TableHead className="text-slate-300">Rent</TableHead>
+                            <TableHead className="text-slate-300">Beds</TableHead>
+                            <TableHead className="text-slate-300">Rejection Reason</TableHead>
+                            <TableHead className="text-slate-300">Rejected On</TableHead>
+                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {rejectedStagingUnits.map((unit) => (
+                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
+                              <TableCell className="text-slate-200 font-medium">
+                                #{unit.unit_number}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-slate-200">{unit.building_name}</div>
+                                <div className="text-xs text-slate-400">{unit.building_address}</div>
+                              </TableCell>
+                              <TableCell className="text-amber-400 font-medium">
+                                ${unit.rent?.toLocaleString()}/mo
+                              </TableCell>
+                              <TableCell className="text-slate-300">
+                                {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}
+                              </TableCell>
+                              <TableCell className="text-red-400 text-sm max-w-[200px] truncate">
+                                {unit.rejection_reason || 'No reason provided'}
+                              </TableCell>
+                              <TableCell className="text-slate-400 text-sm">
+                                {unit.rejected_at 
+                                  ? new Date(unit.rejected_at).toLocaleDateString()
+                                  : 'Unknown'}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
+                                    onClick={() => handleReconsiderRejected(unit.id)}
+                                    title="Move back to pending review"
+                                  >
+                                    <RotateCcw className="w-4 h-4 mr-1" />
+                                    Reconsider
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700"
+                                    onClick={() => handleApproveRejectedDirectly(unit.id)}
+                                    title="Approve directly to production"
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                    Approve
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
               {/* Users Tab */}
               <TabsContent value="users">
                 <Table>

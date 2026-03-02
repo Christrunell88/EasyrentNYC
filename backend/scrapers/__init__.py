@@ -30,6 +30,11 @@ import logging
 # Import individual scrapers
 from . import fortysixfifty
 from . import mercedes_house
+from . import harrison_yards
+from . import seven_w21
+from . import rivercourt
+from . import melar
+from . import generic
 from .base import create_unit_template, normalize_unit_number
 
 logger = logging.getLogger(__name__)
@@ -38,11 +43,12 @@ logger = logging.getLogger(__name__)
 SCRAPER_REGISTRY = {
     'fortysixfifty': fortysixfifty,
     'mercedeshouseny': mercedes_house,
-    # TODO: Add more scrapers as they're modularized
-    # 'harrisonyards': harrison_yards,
-    # '7w21': seven_w21,
-    # 'rivercourt': rivercourt,
-    # 'themelar': melar,
+    'harrisonyards': harrison_yards,
+    '7w21': seven_w21,
+    'rivercourt': rivercourt,
+    'rentrivercourtnyc': rivercourt,
+    'melar': melar,
+    'themelar': melar,
 }
 
 
@@ -63,8 +69,8 @@ def get_scraper(url: str):
             logger.info(f"Using {pattern} scraper for {url}")
             return scraper
     
-    logger.info(f"No specific scraper for {url}, returning None")
-    return None
+    logger.info(f"No specific scraper for {url}, using generic scraper")
+    return generic
 
 
 async def crawl_url(url: str) -> List[Dict[str, Any]]:
@@ -78,13 +84,7 @@ async def crawl_url(url: str) -> List[Dict[str, Any]]:
         List of unit dictionaries
     """
     scraper = get_scraper(url)
-    
-    if scraper:
-        return await scraper.crawl(url)
-    
-    # Return empty list if no scraper found
-    # The main crawler.py will fall back to generic scraper
-    return []
+    return await scraper.crawl(url)
 
 
 __all__ = [

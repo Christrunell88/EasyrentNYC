@@ -204,11 +204,11 @@ const Landing = () => {
         }) }}
       />
       
-      {/* Navigation - Luxury Dark */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-[#D4AF37]/10">
+      {/* Navigation - Clean White Theme */}
+      <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-20">
-            <span className="text-2xl font-philosopher font-bold text-white tracking-wide">
+            <span className="text-2xl font-philosopher font-bold text-[#0a0a0a] tracking-wide">
               NoFeesApts
             </span>
             
@@ -226,14 +226,14 @@ const Landing = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/auth')}
-                    className="text-[#F5F5F5] hover:text-[#D4AF37] font-philosopher tracking-wide"
+                    className="text-[#0a0a0a] hover:text-[#D4AF37] font-philosopher tracking-wide"
                     data-testid="signin-btn"
                   >
                     Sign In
                   </Button>
                   <Button
                     onClick={() => navigate('/auth')}
-                    className="bg-transparent border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider transition-all duration-300"
+                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider transition-all duration-300"
                     data-testid="get-started-nav-btn"
                   >
                     FREE SIGN UP
@@ -245,57 +245,45 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Luxury Dark Theme with Hero Image */}
-      <section className="min-h-screen relative overflow-hidden pt-20">
-        {/* Hero Background Image */}
-        <div className="absolute inset-0">
-          <img 
-            src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/dchndobx_Chris-01.jpg"
-            alt="Luxury no-fee apartment living room with floor-to-ceiling windows and NYC skyline view - NoFeesApts.com"
-            className="w-full h-full object-cover"
-          />
-          {/* Gradient overlays for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/50" />
-        </div>
-        
+      {/* Hero Section - Clean White Theme with Three Interior Images */}
+      <section className="min-h-screen relative overflow-hidden pt-20 bg-white">
         {/* Content */}
         <div className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center">
-          <div className="max-w-7xl mx-auto px-6 w-full">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto px-6 w-full py-12">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Left Content */}
               <div className="max-w-xl">
                 {/* Decorative line */}
                 <div className="w-16 h-px bg-[#D4AF37] mb-8" />
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-white leading-tight tracking-wide mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-[#0a0a0a] leading-tight tracking-wide mb-6">
                   Find Your<br />No-Fee Apartment
                 </h1>
                 
-                <p className="text-lg text-[#B8B8B8] font-philosopher mb-8 leading-relaxed">
-                  Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37]">zero broker fees</span>, ready in minutes.
+                <p className="text-lg text-[#555555] font-philosopher mb-8 leading-relaxed">
+                  Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37] font-semibold">zero broker fees</span>, ready in minutes.
                 </p>
 
                 {/* Call to Action Box */}
-                <div className="bg-[#1a1a1a]/80 border border-[#D4AF37]/30 p-6 mb-8">
-                  <p className="text-[#D4AF37] font-philosopher tracking-[0.15em] uppercase text-xs mb-4">
+                <div className="bg-[#f8f8f8] border border-[#D4AF37]/40 p-6 mb-8">
+                  <p className="text-[#D4AF37] font-philosopher tracking-[0.15em] uppercase text-xs mb-4 font-semibold">
                     Free Sign Up for Full Access
                   </p>
-                  <p className="text-white font-philosopher text-lg mb-4">
+                  <p className="text-[#0a0a0a] font-philosopher text-lg mb-4">
                     Get <span className="text-[#D4AF37] font-bold">full access</span> and <span className="text-[#D4AF37] font-bold">new listings alerts</span>
                   </p>
                   
-                  <div className="space-y-3 text-[#B8B8B8]">
+                  <div className="space-y-3 text-[#555555]">
                     <div className="flex items-center gap-3">
                       <span className="text-[#D4AF37]">📞</span>
                       <a href="tel:646-408-8048" className="font-philosopher hover:text-[#D4AF37] transition-colors">
-                        Call Office: <span className="text-white font-semibold">646-408-8048</span>
+                        Call Office: <span className="text-[#0a0a0a] font-semibold">646-408-8048</span>
                       </a>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-[#D4AF37]">✉️</span>
                       <a href="mailto:Placesfirm@gmail.com" className="font-philosopher hover:text-[#D4AF37] transition-colors">
-                        Email: <span className="text-white font-semibold">Placesfirm@gmail.com</span>
+                        Email: <span className="text-[#0a0a0a] font-semibold">Placesfirm@gmail.com</span>
                       </a>
                     </div>
                   </div>
@@ -311,39 +299,73 @@ const Landing = () => {
                     data-testid="get-started-btn"
                     onClick={handleGetStarted}
                     size="lg"
-                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.4)]"
+                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]"
                   >
                     FREE SIGN UP
                     <ArrowRight className="w-5 h-5 ml-3" />
                   </Button>
-                  <span className="text-[#4ade80] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
-                    <span className="w-1.5 h-1.5 bg-[#4ade80] rounded-full animate-pulse"></span>
+                  <span className="text-[#16a34a] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
+                    <span className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse"></span>
                     100% FREE • No Credit Card Required
                   </span>
                 </div>
               </div>
               
-              {/* Right side - Stats overlay card */}
-              <div className="hidden lg:flex justify-end">
-                <div className="bg-[#0a0a0a]/70 backdrop-blur-md border border-[#D4AF37]/20 p-8 max-w-sm">
-                  <p className="text-[#D4AF37] font-philosopher tracking-[0.2em] uppercase text-xs mb-6">
-                    Currently Available
-                  </p>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-5xl font-philosopher font-bold text-white">{stats.units}+</p>
-                      <p className="text-[#888888] text-sm mt-1">No Fee Apartments</p>
+              {/* Right side - Three Interior Images Gallery */}
+              <div className="hidden lg:block">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Large main image - Studio */}
+                  <div className="col-span-2 relative overflow-hidden group">
+                    <img 
+                      src="https://customer-assets.emergentagent.com/job_2d2ca551-0173-4299-a0a8-c483c5631a96/artifacts/cufz4u39_Mercedes%201.avif"
+                      alt="Modern studio apartment with open floor plan and natural light"
+                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                      <span className="text-white font-philosopher text-sm tracking-wider">Studio</span>
                     </div>
-                    <div className="w-full h-px bg-[#D4AF37]/20" />
-                    <div>
-                      <p className="text-5xl font-philosopher font-bold text-white">{stats.buildings}</p>
-                      <p className="text-[#888888] text-sm mt-1">Premium Buildings</p>
+                  </div>
+                  
+                  {/* 1 Bedroom image */}
+                  <div className="relative overflow-hidden group">
+                    <img 
+                      src="https://manhattanskyline.com/storage/_styles/multi-hero/unit/DrhLWHRUuysjFGyY3xcMq5qP90nNeFGHQlloJn02.jpg"
+                      alt="Spacious one bedroom apartment living area"
+                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                      <span className="text-white font-philosopher text-sm tracking-wider">1 Bedroom</span>
                     </div>
-                    <div className="w-full h-px bg-[#D4AF37]/20" />
-                    <div>
-                      <p className="text-5xl font-philosopher font-bold text-[#D4AF37]">$0</p>
-                      <p className="text-[#888888] text-sm mt-1">Broker Fees</p>
+                  </div>
+                  
+                  {/* 2 Bedroom image */}
+                  <div className="relative overflow-hidden group">
+                    <img 
+                      src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/pv5un3kv_301%20Living%20Room.jpeg"
+                      alt="Elegant two bedroom apartment with city views"
+                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                      <span className="text-white font-philosopher text-sm tracking-wider">2 Bedroom</span>
                     </div>
+                  </div>
+                </div>
+                
+                {/* Stats below images */}
+                <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-philosopher font-bold text-[#0a0a0a]">{stats.units}+</p>
+                    <p className="text-[#888888] text-xs mt-1">No Fee Apartments</p>
+                  </div>
+                  <div className="w-px h-10 bg-gray-200" />
+                  <div className="text-center">
+                    <p className="text-3xl font-philosopher font-bold text-[#0a0a0a]">{stats.buildings}</p>
+                    <p className="text-[#888888] text-xs mt-1">Premium Buildings</p>
+                  </div>
+                  <div className="w-px h-10 bg-gray-200" />
+                  <div className="text-center">
+                    <p className="text-3xl font-philosopher font-bold text-[#D4AF37]">$0</p>
+                    <p className="text-[#888888] text-xs mt-1">Broker Fees</p>
                   </div>
                 </div>
               </div>

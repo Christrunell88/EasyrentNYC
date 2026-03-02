@@ -650,22 +650,22 @@ const Landing = () => {
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Linden-Linden')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Linden-Linden')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Linden, NJ
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/DUMBO-Brooklyn')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/DUMBO-Brooklyn')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     DUMBO, Brooklyn
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Carroll Gardens-Brooklyn')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Carroll Gardens-Brooklyn')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Carroll Gardens
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Langhorne-Langhorne')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Langhorne-Langhorne')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Langhorne, PA
                   </button>
                 </li>
@@ -674,8 +674,8 @@ const Landing = () => {
           </div>
 
           {/* SEO Content Section */}
-          <div className="border-t border-[#D4AF37]/10 pt-10 mb-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-[#777777] leading-relaxed">
+          <div className="border-t border-gray-300 pt-10 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-[#666666] leading-relaxed">
               <div>
                 <h4 className="text-[#D4AF37] font-semibold mb-2">About No-Fee Apartments</h4>
                 <p>

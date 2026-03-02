@@ -454,11 +454,11 @@ const Landing = () => {
             </div>
             
             <div className="text-center group">
-              <div className="w-16 h-16 border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] transition-colors duration-300">
+              <div className="w-16 h-16 border border-[#D4AF37]/50 flex items-center justify-center mx-auto mb-6 group-hover:border-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all duration-300">
                 <Sparkles className="w-7 h-7 text-[#D4AF37]" />
               </div>
-              <h3 className="text-lg font-philosopher font-bold text-white mb-3 tracking-wide">Curated Selection</h3>
-              <p className="text-[#888888] text-sm leading-relaxed">
+              <h3 className="text-lg font-philosopher font-bold text-[#0a0a0a] mb-3 tracking-wide">Curated Selection</h3>
+              <p className="text-[#666666] text-sm leading-relaxed">
                 Only the finest properties make our collection. Quality over quantity.
               </p>
             </div>
@@ -467,13 +467,13 @@ const Landing = () => {
       </section>
 
       {/* Locations */}
-      <section className="py-24 px-6 bg-[#111111]">
+      <section className="py-24 px-6 bg-[#f8f8f8]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
               Neighborhoods
             </p>
-            <h2 className="text-3xl font-philosopher font-bold text-white">Popular Locations</h2>
+            <h2 className="text-3xl font-philosopher font-bold text-[#0a0a0a]">Popular Locations</h2>
             <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
           </div>
           
@@ -491,7 +491,7 @@ const Landing = () => {
               <button
                 key={location.name}
                 onClick={() => navigate(location.url)}
-                className="px-6 py-3 border border-[#D4AF37]/20 text-[#F5F5F5] text-sm font-philosopher tracking-wide hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all duration-300"
+                className="px-6 py-3 border border-[#D4AF37]/40 text-[#0a0a0a] text-sm font-philosopher tracking-wide hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all duration-300"
               >
                 {location.name}
               </button>

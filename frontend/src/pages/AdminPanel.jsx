@@ -730,6 +730,14 @@ const AdminPanel = () => {
                     </span>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="unavailability" data-testid="unavailability-tab" onClick={fetchUnavailReviews} className="data-[state=active]:bg-slate-600 data-[state=active]:text-orange-400 relative">
+                  Unavailable
+                  {unavailStats.pending > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {unavailStats.pending > 99 ? '99+' : unavailStats.pending}
+                    </span>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>

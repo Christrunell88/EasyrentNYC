@@ -390,7 +390,7 @@ const Landing = () => {
               size="lg"
               className="border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0a0a0a] font-philosopher font-bold px-10 py-5 rounded-none tracking-[0.15em] transition-all duration-300"
             >
-              VIEW ALL {stats.units}+ PROPERTIES
+              SIGN UP TO VIEW ALL {stats.units}+ PROPERTIES
               <ArrowRight className="w-4 h-4 ml-3" />
             </Button>
           </div>

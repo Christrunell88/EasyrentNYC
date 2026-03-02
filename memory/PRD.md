@@ -25,15 +25,21 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 /app/
 ├── backend/
 │   ├── server.py              # Main FastAPI app with all routes
-│   ├── crawler.py             # Web scraping with Playwright
+│   ├── crawler.py             # Web scraping orchestration
 │   ├── lifecycle_service.py   # Unit staleness management
 │   ├── create_indexes.py      # MongoDB index optimization
 │   ├── start.sh               # Server startup script
 │   ├── scrapers/              # Modular site-specific scrapers
-│   │   ├── __init__.py        # Scraper registry
-│   │   ├── base.py            # Shared scraper utilities
-│   │   ├── fortysixfifty.py   # 4650 Center Blvd scraper
-│   │   └── mercedes_house.py  # Mercedes House scraper
+│   │   ├── __init__.py        # Scraper registry & unified interface
+│   │   ├── base.py            # Shared utilities (browser, parsing)
+│   │   ├── rosenyc_base.py    # Rose NYC iframe base scraper
+│   │   ├── fortysixfifty.py   # 4650 Center Blvd
+│   │   ├── mercedes_house.py  # Mercedes House
+│   │   ├── harrison_yards.py  # Harrison Yards (RealPage)
+│   │   ├── seven_w21.py       # 7 West 21st Street
+│   │   ├── rivercourt.py      # Rivercourt LIC
+│   │   ├── melar.py           # The Melar
+│   │   └── generic.py         # Fallback scraper
 │   └── tests/
 │       ├── test_db_access_control.py
 │       └── test_lifecycle_management.py

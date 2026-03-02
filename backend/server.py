@@ -2395,24 +2395,29 @@ async def review_unavailability_flag(
         }
 
 
+class BulkUnavailabilityReviewInput(BaseModel):
+    """Input for bulk reviewing unavailability flags"""
+    review_ids: List[str]
+    review_status: str  # confirmed_unavailable, false_positive
+    reviewer_notes: Optional[str] = None
+
+
 @api_router.post("/admin/unavailability-reviews/bulk-review")
 async def bulk_review_unavailability(
-    review_ids: List[str],
-    review_status: str,
-    reviewer_notes: Optional[str] = None,
+    input: BulkUnavailabilityReviewInput,
     user: User = Depends(require_admin)
 ):
     """
     Bulk review multiple unavailability flags at once.
     """
-    if review_status not in ["confirmed_unavailable", "false_positive"]:
+    if input.review_status not in ["confirmed_unavailable", "false_positive"]:
         raise HTTPException(status_code=400, detail="Invalid review_status")
     
     now = datetime.now(timezone.utc).isoformat()
     processed = 0
     units_marked_unavailable = []
     
-    for review_id in review_ids:
+    for review_id in input.review_ids:
         review = await db.unavailability_reviews.find_one({"id": review_id})
         if not review:
             continue
@@ -2422,16 +2427,16 @@ async def bulk_review_unavailability(
             {"id": review_id},
             {
                 "$set": {
-                    "review_status": review_status,
+                    "review_status": input.review_status,
                     "reviewed_by": user.id,
                     "reviewed_at": now,
-                    "reviewer_notes": reviewer_notes
+                    "reviewer_notes": input.reviewer_notes
                 }
             }
         )
         
         # If confirmed unavailable, update production unit
-        if review_status == "confirmed_unavailable":
+        if input.review_status == "confirmed_unavailable":
             unit_id = review.get('unit_id')
             await db.units.update_one(
                 {"id": unit_id},

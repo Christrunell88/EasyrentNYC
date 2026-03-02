@@ -571,17 +571,17 @@ const Landing = () => {
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/blog')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/blog')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Apartment Hunting Blog
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/blog/guide-to-no-fee-apartments')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/blog/guide-to-no-fee-apartments')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     No-Fee Apartment Guide
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/faq')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/faq')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     FAQ
                   </button>
                 </li>
@@ -593,42 +593,42 @@ const Landing = () => {
               <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">NYC No-Fee Apartments</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <button onClick={() => navigate('/location/Upper West Side-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Upper West Side-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Upper West Side
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Upper East Side-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Upper East Side-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Upper East Side
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Midtown West-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Midtown West-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Midtown West
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Chelsea-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Chelsea-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Chelsea
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Tribeca-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Tribeca-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Tribeca
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/SoHo-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/SoHo-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     SoHo
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/East Village-New York')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/East Village-New York')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     East Village
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Long Island City-Queens')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Long Island City-Queens')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Long Island City
                   </button>
                 </li>
@@ -640,12 +640,12 @@ const Landing = () => {
               <h3 className="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wide uppercase">NJ & Brooklyn</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <button onClick={() => navigate('/location/Harrison-Harrison')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Harrison-Harrison')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Harrison, NJ
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate('/location/Princeton-Princeton')} className="text-[#888888] hover:text-[#D4AF37] transition-colors">
+                  <button onClick={() => navigate('/location/Princeton-Princeton')} className="text-[#666666] hover:text-[#D4AF37] transition-colors">
                     Princeton, NJ
                   </button>
                 </li>

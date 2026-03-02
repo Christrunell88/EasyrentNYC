@@ -8,8 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import axios from 'axios';
-
-const API = process.env.REACT_APP_BACKEND_URL;
+import { API } from '../config/api';
 
 // Helper function to determine rental type based on unit characteristics
 const getRentalType = (unit) => {

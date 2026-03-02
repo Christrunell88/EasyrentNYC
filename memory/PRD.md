@@ -139,6 +139,21 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
       - `PUT /api/admin/staging/rejected/{id}/approve-direct` - Approve directly
   - Status: ✅ TESTED AND WORKING
 
+- **Code Cleanup - COMPLETED** (2026-03-02):
+  - **Centralized API Configuration**:
+    - Created `/app/frontend/src/config/api.js` with single source of truth for API URL
+    - Migrated `App.js` and `authStore.js` to use centralized config
+    - Removed duplicate `BACKEND_URL` / `API` definitions
+    - Consistent URL handling for custom domains and CORS
+  - **Modular Scrapers**:
+    - Created `/app/backend/scrapers/` directory for site-specific scrapers
+    - `base.py` - Shared utilities (browser, parsing helpers)
+    - `fortysixfifty.py` - 4650 Center Blvd scraper
+    - `mercedes_house.py` - Mercedes House scraper
+    - `__init__.py` - Scraper registry with `get_scraper()` and `crawl_url()` functions
+    - Updated `crawler.py` to try modular scrapers first, fall back to legacy
+  - Status: ✅ COMPLETED
+
 ### Recent Work (2026-02-27)
 - **Malt Drive Building - PROMOTED TO PRODUCTION**:
   - **Malt Drive** (2-21 Malt Drive, Jersey City, NJ 07305)

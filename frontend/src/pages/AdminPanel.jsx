@@ -53,6 +53,15 @@ const AdminPanel = () => {
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
 
+  // Unavailability Review State
+  const [unavailReviews, setUnavailReviews] = useState([]);
+  const [unavailStats, setUnavailStats] = useState({ pending: 0, confirmed: 0, false_positive: 0 });
+  const [unavailLoading, setUnavailLoading] = useState(false);
+  const [selectedUnavailReviews, setSelectedUnavailReviews] = useState([]);
+  const [unavailReviewDialogOpen, setUnavailReviewDialogOpen] = useState(false);
+  const [selectedUnavailUnit, setSelectedUnavailUnit] = useState(null);
+  const [unavailReviewNotes, setUnavailReviewNotes] = useState('');
+
   useEffect(() => {
     fetchData();
     fetchStagingStats();

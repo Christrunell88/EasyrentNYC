@@ -2505,6 +2505,89 @@ const AdminPanel = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Re-list Unit Dialog */}
+        <Dialog open={relistDialogOpen} onOpenChange={setRelistDialogOpen}>
+          <DialogContent className="bg-slate-800 border-green-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100 flex items-center gap-2">
+                <RotateCcw className="w-5 h-5 text-green-500" />
+                Re-list Unit
+              </DialogTitle>
+              <DialogDescription className="text-slate-400">
+                {selectedRelistUnit && (
+                  <>
+                    Re-list unit <span className="text-amber-400">#{selectedRelistUnit.unit_number}</span> at{' '}
+                    <span className="text-slate-200">{selectedRelistUnit.building_name}</span>
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {selectedRelistUnit && (
+                <div className="bg-slate-700/30 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Current Status:</span>
+                    <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                      {selectedRelistUnit.lifecycle_status || 'unavailable'}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Bedrooms:</span>
+                    <span className="text-slate-200">
+                      {selectedRelistUnit.bedrooms === 0 ? 'Studio' : `${selectedRelistUnit.bedrooms} BR`}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="relist-rent" className="text-slate-200">New Rent Price (optional)</Label>
+                <Input
+                  id="relist-rent"
+                  type="number"
+                  placeholder="Leave empty to keep current rent"
+                  value={relistRent}
+                  onChange={(e) => setRelistRent(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-slate-100"
+                />
+                <p className="text-xs text-slate-400">
+                  Current rent: ${selectedRelistUnit?.rent?.toLocaleString()}/mo
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="relist-notes" className="text-slate-200">Notes (optional)</Label>
+                <Textarea
+                  id="relist-notes"
+                  placeholder="Add any notes about re-listing this unit..."
+                  value={relistNotes}
+                  onChange={(e) => setRelistNotes(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[80px]"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRelistDialogOpen(false);
+                  setSelectedRelistUnit(null);
+                  setRelistRent('');
+                  setRelistNotes('');
+                }}
+                className="border-slate-600 text-slate-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleRelistUnit}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Re-list Unit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

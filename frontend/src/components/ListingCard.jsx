@@ -1,7 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ChevronLeft, ChevronRight, MapPin, BedDouble, Bath, Maximize, Mail, Phone } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, MapPin, BedDouble, Bath, Maximize, Mail, Phone, X, Send } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import axios from 'axios';
+
+const API = process.env.REACT_APP_BACKEND_URL;
 
 // Helper function to determine rental type based on unit characteristics
 const getRentalType = (unit) => {

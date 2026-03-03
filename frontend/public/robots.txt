@@ -8,6 +8,8 @@ Allow: /dashboard
 Allow: /dashboard?*
 Allow: /auth
 Allow: /unit/*
+Allow: /apartments
+Allow: /apartments/*
 Allow: /location/*
 Allow: /blog
 Allow: /blog/*

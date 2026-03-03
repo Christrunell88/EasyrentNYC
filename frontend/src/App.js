@@ -19,6 +19,8 @@ import BestNeighborhoods from './pages/blog/BestNeighborhoods';
 import ApartmentChecklist from './pages/blog/ApartmentChecklist';
 import FeeFreeFinds from './pages/FeeFreeFinds';
 import Neighborhoods from './pages/Neighborhoods';
+import NeighborhoodsIndex from './pages/NeighborhoodsIndex';
+import NeighborhoodPage from './pages/NeighborhoodPage';
 import AISearchAgent from './components/AISearchAgent';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
@@ -158,6 +160,8 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/fee-free-finds" element={<FeeFreeFinds />} />
             <Route path="/neighborhoods" element={<Neighborhoods />} />
+            <Route path="/apartments" element={<NeighborhoodsIndex />} />
+            <Route path="/apartments/:slug" element={<NeighborhoodPage />} />
             <Route
               path="/dashboard"
               element={

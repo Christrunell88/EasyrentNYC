@@ -3579,6 +3579,122 @@ async def get_stats(user: User = Depends(require_admin)):
         'total_subscribers': total_subscribers
     }
 
+# ============== NEIGHBORHOOD SEO ENDPOINTS ==============
+
+@api_router.get("/neighborhoods")
+async def get_all_neighborhoods():
+    """Get all neighborhoods with stats for SEO pages"""
+    pipeline = [
+        {"$lookup": {
+            "from": "buildings",
+            "localField": "building_id",
+            "foreignField": "id",
+            "as": "building"
+        }},
+        {"$unwind": "$building"},
+        {"$match": {"is_available": True}},
+        {"$group": {
+            "_id": "$building.neighborhood",
+            "count": {"$sum": 1},
+            "avg_rent": {"$avg": "$rent"},
+            "min_rent": {"$min": "$rent"},
+            "max_rent": {"$max": "$rent"},
+            "city": {"$first": "$building.city"},
+            "state": {"$first": "$building.state"},
+            "studios": {"$sum": {"$cond": [{"$eq": ["$bedrooms", 0]}, 1, 0]}},
+            "one_beds": {"$sum": {"$cond": [{"$eq": ["$bedrooms", 1]}, 1, 0]}},
+            "two_plus_beds": {"$sum": {"$cond": [{"$gte": ["$bedrooms", 2]}, 1, 0]}}
+        }},
+        {"$match": {"_id": {"$ne": None}}},
+        {"$sort": {"count": -1}}
+    ]
+    
+    neighborhoods = await db.units.aggregate(pipeline).to_list(100)
+    
+    # Add slug for each neighborhood
+    result = []
+    for n in neighborhoods:
+        slug = n['_id'].lower().replace(' ', '-').replace("'", "")
+        result.append({
+            "name": n['_id'],
+            "slug": slug,
+            "count": n['count'],
+            "avg_rent": round(n['avg_rent']),
+            "min_rent": round(n['min_rent']),
+            "max_rent": round(n['max_rent']),
+            "city": n['city'],
+            "state": n['state'],
+            "studios": n['studios'],
+            "one_beds": n['one_beds'],
+            "two_plus_beds": n['two_plus_beds']
+        })
+    
+    return result
+
+@api_router.get("/neighborhoods/{slug}")
+async def get_neighborhood_detail(slug: str):
+    """Get detailed neighborhood data including units"""
+    # Convert slug back to neighborhood name
+    # Try to find matching neighborhood
+    all_buildings = await db.buildings.find({}, {"_id": 0, "neighborhood": 1}).to_list(1000)
+    neighborhood_name = None
+    
+    for b in all_buildings:
+        if b.get('neighborhood'):
+            test_slug = b['neighborhood'].lower().replace(' ', '-').replace("'", "")
+            if test_slug == slug:
+                neighborhood_name = b['neighborhood']
+                break
+    
+    if not neighborhood_name:
+        raise HTTPException(status_code=404, detail="Neighborhood not found")
+    
+    # Get buildings in this neighborhood
+    buildings = await db.buildings.find(
+        {"neighborhood": neighborhood_name},
+        {"_id": 0}
+    ).to_list(100)
+    
+    building_ids = [b['id'] for b in buildings]
+    
+    # Get units
+    units = await db.units.find(
+        {"building_id": {"$in": building_ids}, "is_available": True},
+        {"_id": 0}
+    ).sort("rent", 1).to_list(500)
+    
+    # Add building info to units
+    building_map = {b['id']: b for b in buildings}
+    for unit in units:
+        unit['building'] = building_map.get(unit['building_id'], {})
+    
+    # Calculate stats
+    rents = [u['rent'] for u in units if u.get('rent')]
+    studios = len([u for u in units if u.get('bedrooms') == 0])
+    one_beds = len([u for u in units if u.get('bedrooms') == 1])
+    two_plus = len([u for u in units if u.get('bedrooms', 0) >= 2])
+    
+    return {
+        "name": neighborhood_name,
+        "slug": slug,
+        "city": buildings[0].get('city') if buildings else None,
+        "state": buildings[0].get('state') if buildings else None,
+        "stats": {
+            "total_units": len(units),
+            "total_buildings": len(buildings),
+            "avg_rent": round(sum(rents) / len(rents)) if rents else 0,
+            "min_rent": min(rents) if rents else 0,
+            "max_rent": max(rents) if rents else 0,
+            "studios": studios,
+            "one_beds": one_beds,
+            "two_plus_beds": two_plus
+        },
+        "units": units,
+        "buildings": buildings
+    }
+
+# ============== END NEIGHBORHOOD ENDPOINTS ==============
+
 @api_router.get("/admin/subscribers")
 async def get_subscribers(user: User = Depends(require_admin)):
     """Get all email subscribers (admin only)"""

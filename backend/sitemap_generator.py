@@ -21,6 +21,7 @@ def generate_sitemap(units: List[dict], buildings: List[dict], base_url: str = "
         {"loc": "/", "priority": "1.0", "changefreq": "daily"},
         {"loc": "/auth", "priority": "0.8", "changefreq": "monthly"},
         {"loc": "/dashboard", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/apartments", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/faq", "priority": "0.7", "changefreq": "monthly"},
         {"loc": "/blog", "priority": "0.7", "changefreq": "weekly"},
         {"loc": "/blog/guide-to-no-fee-apartments", "priority": "0.6", "changefreq": "monthly"},
@@ -36,7 +37,21 @@ def generate_sitemap(units: List[dict], buildings: List[dict], base_url: str = "
         ET.SubElement(url_elem, "changefreq").text = page["changefreq"]
         ET.SubElement(url_elem, "priority").text = page["priority"]
     
-    # Add location pages for unique neighborhoods
+    # Add neighborhood SEO pages (high priority for SEO)
+    neighborhoods_set = set()
+    for building in buildings:
+        if building.get('neighborhood'):
+            neighborhood_slug = building['neighborhood'].lower().replace(' ', '-').replace("'", "")
+            neighborhoods_set.add((building['neighborhood'], neighborhood_slug))
+    
+    for name, slug in neighborhoods_set:
+        url_elem = ET.SubElement(urlset, "url")
+        ET.SubElement(url_elem, "loc").text = f"{base_url}/apartments/{slug}"
+        ET.SubElement(url_elem, "lastmod").text = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        ET.SubElement(url_elem, "changefreq").text = "daily"
+        ET.SubElement(url_elem, "priority").text = "0.9"  # High priority for neighborhood pages
+    
+    # Add legacy location pages for unique neighborhoods
     neighborhoods = set()
     for building in buildings:
         if building.get('neighborhood') and building.get('city'):

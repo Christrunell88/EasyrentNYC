@@ -485,14 +485,15 @@ const Landing = () => {
           
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { name: 'Manhattan', url: '/location/manhattan' },
-              { name: 'Brooklyn', url: '/location/brooklyn' },
-              { name: 'Queens', url: '/location/queens' },
-              { name: 'Jersey City', url: '/location/jersey-city' },
-              { name: 'Hoboken', url: '/location/hoboken' },
-              { name: 'Long Island City', url: '/location/long-island-city' },
-              { name: 'Williamsburg', url: '/location/williamsburg' },
-              { name: 'Harrison', url: '/location/harrison' }
+              { name: 'Chelsea', url: '/apartments/chelsea' },
+              { name: 'Tribeca', url: '/apartments/tribeca' },
+              { name: 'Financial District', url: '/apartments/financial-district' },
+              { name: 'Midtown West', url: '/apartments/midtown-west' },
+              { name: 'Williamsburg', url: '/apartments/williamsburg' },
+              { name: 'DUMBO', url: '/apartments/dumbo' },
+              { name: 'Long Island City', url: '/apartments/long-island-city' },
+              { name: 'Jersey City', url: '/apartments/jersey-city' },
+              { name: 'Harrison', url: '/apartments/harrison' }
             ].map((location) => (
               <button
                 key={location.name}
@@ -502,6 +503,15 @@ const Landing = () => {
                 {location.name}
               </button>
             ))}
+          </div>
+          
+          <div className="text-center mt-8">
+            <button
+              onClick={() => navigate('/apartments')}
+              className="text-[#D4AF37] text-sm font-philosopher tracking-wide hover:underline"
+            >
+              View All 28 Neighborhoods →
+            </button>
           </div>
         </div>
       </section>

@@ -7,9 +7,9 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - **Web Crawler:** Automatically crawl websites every 48 hours with manual trigger option
 - **Database:** MongoDB for storing crawled apartment data
 - **Authentication:** JWT-based custom sign-up/login + Google social login
-- **Frontend:** Dark landing page (pre-login), light theme for logged-in users, search, filters, interactive map, favorites
+- **Frontend:** White landing page (pre-login), light theme for logged-in users, search, filters, interactive map, favorites
 - **Admin Panel:** View listings, analytics, trigger crawls, staging/approval pipeline
-- **SEO:** Dynamic sitemap, structured data (Schema.org)
+- **SEO:** Dynamic sitemap, structured data (Schema.org), neighborhood landing pages
 - **Notifications:** Email for contact forms and welcome emails
 - **AI Search Agent:** Gemini 3 Flash powered apartment search
 
@@ -27,6 +27,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 │   ├── server.py              # Main FastAPI app with all routes
 │   ├── crawler.py             # Web scraping orchestration
 │   ├── lifecycle_service.py   # Unit staleness management
+│   ├── sitemap_generator.py   # Dynamic sitemap with neighborhood pages
 │   ├── create_indexes.py      # MongoDB index optimization
 │   ├── start.sh               # Server startup script
 │   ├── scrapers/              # Modular site-specific scrapers
@@ -48,7 +49,10 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
         ├── config/
         │   └── api.js         # Centralized API configuration
         └── pages/
-            └── AdminPanel.jsx  # Admin dashboard with staging
+            ├── NeighborhoodsIndex.jsx  # SEO index of all neighborhoods
+            ├── NeighborhoodPage.jsx    # Individual neighborhood SEO page
+            ├── Landing.jsx             # Landing page with hero & listings
+            └── AdminPanel.jsx          # Admin dashboard with staging
 ```
 
 ## Database Schema
@@ -95,6 +99,35 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Larstrand Building** - Added to staging (3 units with images)
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
+
+### Recent Work (2026-03-03)
+- **Neighborhood SEO Pages - COMPLETED**:
+  - Created `/apartments` index page showing all 28 neighborhoods grouped by region (NYC, NJ, PA)
+  - Created `/apartments/:slug` dynamic pages for each neighborhood (e.g., `/apartments/chelsea`)
+  - Each neighborhood page includes:
+    - Hero with neighborhood name, description, and highlights
+    - Stats: unit count, avg rent, starting price, $0 broker fee
+    - Listing grid with prices, bed/bath, blurred addresses
+    - SEO content section with rich text about the neighborhood
+    - Schema.org structured data for search engines
+    - Full footer with links to other neighborhoods
+  - Added neighborhood descriptions for 13+ key areas (Chelsea, Tribeca, DUMBO, etc.)
+  - New API endpoints: `GET /api/neighborhoods`, `GET /api/neighborhoods/:slug`
+  - Updated sitemap to include all neighborhood pages with high priority
+  - Updated landing page "Popular Locations" to link to new pages
+  - Added "View All 28 Neighborhoods →" link
+  - Files created: `NeighborhoodsIndex.jsx`, `NeighborhoodPage.jsx`
+
+- **Landing Page Enhancements - COMPLETED**:
+  - Hero images now show prices with blurred addresses
+  - Studio image updated to use 507 West Chelsea interior
+  - 1 Bedroom image updated to use Chelsea Centro (TFC) interior
+  - Contact info removed from box, now subtle text below CTA
+
+- **Chelsea Centro Unit Added**:
+  - Added unit 16J to TFC Chelsea (200 W 26th St)
+  - $5,815/mo, 1 Bed, 1 Bath
+  - 11 high-quality images from TFC website
 
 ### Recent Work (2026-03-02)
 - **ListingCard UI Cleanup - COMPLETED**:

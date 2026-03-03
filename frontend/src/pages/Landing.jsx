@@ -317,7 +317,7 @@ const Landing = () => {
                   {/* Large main image - Studio */}
                   <div className="col-span-2 relative overflow-hidden group">
                     <img 
-                      src="https://customer-assets.emergentagent.com/job_2d2ca551-0173-4299-a0a8-c483c5631a96/artifacts/cufz4u39_Mercedes%201.avif"
+                      src="https://customer-assets.emergentagent.com/job_nofeeapts/artifacts/181u91e8_507%20Studio.jpg"
                       alt="Modern studio apartment with open floor plan and natural light"
                       className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                     />

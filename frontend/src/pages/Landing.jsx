@@ -329,7 +329,7 @@ const Landing = () => {
                   {/* 1 Bedroom image */}
                   <div className="relative overflow-hidden group">
                     <img 
-                      src="https://manhattanskyline.com/storage/_styles/multi-hero/unit/DrhLWHRUuysjFGyY3xcMq5qP90nNeFGHQlloJn02.jpg"
+                      src="https://cdn.tfc.com/marketing/files/building_images/2019-10-7_200-W-26th-St-PHC_corner-dining-terrace.jpg"
                       alt="Spacious one bedroom apartment living area"
                       className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
                     />

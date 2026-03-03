@@ -146,14 +146,42 @@ const NeighborhoodPage = () => {
     }))
   };
 
+  // Get a representative image for social sharing - use first unit image or default
+  const defaultSocialImage = 'https://static.prod-images.emergentagent.com/jobs/47dd6b46-e381-45f3-b7a5-c4e5965d2ca7/images/7cc4822cb8a1477005344990d5785c45f97816fa18a46f0e57cadfe289bec671.png';
+  const socialImage = data?.units?.[0]?.images?.[0] || defaultSocialImage;
+  const pageTitle = `No Fee Apartments in ${data?.name || 'Loading'} | ${data?.stats?.total_units || 0} Listings`;
+  const pageDescription = `${data?.stats?.total_units || 0} no fee apartments in ${data?.name || ''}, ${data?.city || ''}. Rent from $${(data?.stats?.min_rent || 0).toLocaleString()}/mo. Zero broker fees.`;
+
   return (
     <>
       <Helmet>
-        <title>{`No Fee Apartments in ${data?.name || 'Loading'} | ${data?.stats?.total_units || 0} Listings | NoFeesApts`}</title>
-        <meta name="description" content={`${data?.stats?.total_units || 0} no fee apartments in ${data?.name || ''}, ${data?.city || ''}. Rent from $${(data?.stats?.min_rent || 0).toLocaleString()}/mo. Zero broker fees. ${info.description}`} />
-        <meta property="og:title" content={`No Fee Apartments in ${data?.name || ''} | NoFeesApts`} />
-        <meta property="og:description" content={`${data?.stats?.total_units || 0} broker-free apartments from $${(data?.stats?.min_rent || 0).toLocaleString()}/mo`} />
+        <title>{pageTitle} | NoFeesApts</title>
+        <meta name="description" content={`${pageDescription} ${info.description}`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://nofeesapts.com/apartments/${slug}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={socialImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="NoFeesApts" />
+        <meta property="og:locale" content="en_US" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={`https://nofeesapts.com/apartments/${slug}`} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={socialImage} />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="NoFeesApts" />
         <link rel="canonical" href={`https://nofeesapts.com/apartments/${slug}`} />
+        
+        {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(schemaData)}</script>
       </Helmet>
 

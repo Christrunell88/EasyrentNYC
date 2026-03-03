@@ -82,14 +82,37 @@ const NeighborhoodsIndex = () => {
   );
 
   const totalUnits = neighborhoods.reduce((sum, n) => sum + n.count, 0);
+  const pageTitle = `No Fee Apartments by Neighborhood | NYC, NJ & PA`;
+  const pageDescription = `Browse ${totalUnits}+ no fee apartments across ${neighborhoods.length} neighborhoods in NYC, New Jersey, and Pennsylvania. Find broker-free rentals in Manhattan, Brooklyn, Queens, and more.`;
+  const socialImage = 'https://static.prod-images.emergentagent.com/jobs/47dd6b46-e381-45f3-b7a5-c4e5965d2ca7/images/7cc4822cb8a1477005344990d5785c45f97816fa18a46f0e57cadfe289bec671.png';
 
   return (
     <>
       <Helmet>
-        <title>No Fee Apartments by Neighborhood | NYC, NJ & PA | NoFeesApts</title>
-        <meta name="description" content={`Browse ${totalUnits}+ no fee apartments across ${neighborhoods.length} neighborhoods in NYC, New Jersey, and Pennsylvania. Find broker-free rentals in Manhattan, Brooklyn, Queens, and more.`} />
-        <meta property="og:title" content="No Fee Apartments by Neighborhood | NoFeesApts" />
+        <title>{pageTitle} | NoFeesApts</title>
+        <meta name="description" content={pageDescription} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://nofeesapts.com/apartments" />
+        <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={`${totalUnits}+ no fee apartments across ${neighborhoods.length} neighborhoods. Zero broker fees.`} />
+        <meta property="og:image" content={socialImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="NoFeesApts" />
+        <meta property="og:locale" content="en_US" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://nofeesapts.com/apartments" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={`${totalUnits}+ no fee apartments across ${neighborhoods.length} neighborhoods. Zero broker fees.`} />
+        <meta name="twitter:image" content={socialImage} />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="NoFeesApts" />
         <link rel="canonical" href="https://nofeesapts.com/apartments" />
       </Helmet>
 

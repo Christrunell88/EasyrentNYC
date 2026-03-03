@@ -315,38 +315,58 @@ const Landing = () => {
               <div className="hidden lg:block">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Large main image - Studio */}
-                  <div className="col-span-2 relative overflow-hidden group">
+                  <div className="col-span-2 relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
                     <img 
                       src="https://customer-assets.emergentagent.com/job_nofeeapts/artifacts/181u91e8_507%20Studio.jpg"
                       alt="Modern studio apartment with open floor plan and natural light"
                       className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <span className="text-white font-philosopher text-sm tracking-wider">Studio</span>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <span className="text-white font-bold text-xl">$3,950<span className="text-white/70 text-sm font-normal">/mo</span></span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-white font-philosopher text-sm">Studio</span>
+                            <span className="text-white/50">•</span>
+                            <span className="text-white/70 text-xs blur-[3px] select-none">507 West 28th St</span>
+                          </div>
+                        </div>
+                        <span className="text-amber-400 text-xs font-medium">Sign up to view</span>
+                      </div>
                     </div>
                   </div>
                   
                   {/* 1 Bedroom image */}
-                  <div className="relative overflow-hidden group">
+                  <div className="relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
                     <img 
                       src="https://cdn.tfc.com/marketing/files/building_images/2019-10-7_200-W-26th-St-PHC_corner-dining-terrace.jpg"
                       alt="Spacious one bedroom apartment living area"
                       className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                      <span className="text-white font-philosopher text-sm tracking-wider">1 Bedroom</span>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                      <span className="text-white font-bold text-lg">$5,815<span className="text-white/70 text-xs font-normal">/mo</span></span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-white font-philosopher text-sm">1 Bed</span>
+                        <span className="text-white/50">•</span>
+                        <span className="text-white/70 text-xs blur-[3px] select-none">200 W 26th St</span>
+                      </div>
                     </div>
                   </div>
                   
                   {/* 2 Bedroom image */}
-                  <div className="relative overflow-hidden group">
+                  <div className="relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
                     <img 
                       src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/pv5un3kv_301%20Living%20Room.jpeg"
                       alt="Elegant two bedroom apartment with city views"
                       className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                      <span className="text-white font-philosopher text-sm tracking-wider">2 Bedroom</span>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                      <span className="text-white font-bold text-lg">$7,350<span className="text-white/70 text-xs font-normal">/mo</span></span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-white font-philosopher text-sm">2 Bed</span>
+                        <span className="text-white/50">•</span>
+                        <span className="text-white/70 text-xs blur-[3px] select-none">301 Elizabeth St</span>
+                      </div>
                     </div>
                   </div>
                 </div>

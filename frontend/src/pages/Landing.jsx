@@ -260,41 +260,11 @@ const Landing = () => {
                   Find Your<br />No-Fee Apartment
                 </h1>
                 
-                <p className="text-lg text-[#555555] font-philosopher mb-8 leading-relaxed">
+                <p className="text-lg text-[#555555] font-philosopher mb-6 leading-relaxed">
                   Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37] font-semibold">zero broker fees</span>, ready in minutes.
                 </p>
-
-                {/* Call to Action Box */}
-                <div className="bg-[#f8f8f8] border border-[#D4AF37]/40 p-6 mb-8">
-                  <p className="text-[#D4AF37] font-philosopher tracking-[0.15em] uppercase text-xs mb-4 font-semibold">
-                    Free Sign Up for Full Access
-                  </p>
-                  <p className="text-[#0a0a0a] font-philosopher text-lg mb-4">
-                    Get <span className="text-[#D4AF37] font-bold">full access</span> and <span className="text-[#D4AF37] font-bold">new listings alerts</span>
-                  </p>
-                  
-                  <div className="space-y-3 text-[#555555]">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#D4AF37]">📞</span>
-                      <a href="tel:646-408-8048" className="font-philosopher hover:text-[#D4AF37] transition-colors">
-                        Call Office: <span className="text-[#0a0a0a] font-semibold">646-408-8048</span>
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#D4AF37]">✉️</span>
-                      <a href="mailto:Placesfirm@gmail.com" className="font-philosopher hover:text-[#D4AF37] transition-colors">
-                        Email: <span className="text-[#0a0a0a] font-semibold">Placesfirm@gmail.com</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
                 
-                {/* SEO-only text - hidden visually but accessible to search engines */}
-                <p className="sr-only">
-                  An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.
-                </p>
-                
-                <div className="flex flex-col items-start gap-3">
+                <div className="flex flex-col items-start gap-3 mb-6">
                   <Button
                     data-testid="get-started-btn"
                     onClick={handleGetStarted}
@@ -309,6 +279,22 @@ const Landing = () => {
                     100% FREE • No Credit Card Required
                   </span>
                 </div>
+
+                {/* Contact info - subtle */}
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <a href="tel:646-408-8048" className="hover:text-[#D4AF37] transition-colors">
+                    646-408-8048
+                  </a>
+                  <span className="text-gray-300">|</span>
+                  <a href="mailto:Placesfirm@gmail.com" className="hover:text-[#D4AF37] transition-colors">
+                    Placesfirm@gmail.com
+                  </a>
+                </div>
+                
+                {/* SEO-only text - hidden visually but accessible to search engines */}
+                <p className="sr-only">
+                  An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.
+                </p>
               </div>
               
               {/* Right side - Three Interior Images Gallery */}

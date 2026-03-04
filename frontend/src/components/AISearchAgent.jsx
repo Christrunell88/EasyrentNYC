@@ -12,7 +12,7 @@ const AISearchAgent = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! 👋 I'm Chris. What kind of apartment are you looking for today?"
+      content: "Hi! 👋 I'm Chris. Ask me anything — apartment searches, market prices, neighborhood insights, or rental tips!"
     }
   ]);
   const [input, setInput] = useState('');
@@ -72,8 +72,8 @@ const AISearchAgent = () => {
       return ["Best deals today", "Newest listings"];
     }
     
-    // Default: show top 2 most useful
-    return ["Studios under $4,500", "What's available?"];
+    // Default: show market-aware questions
+    return ["Average rent in Chelsea?", "Studios under $4,000"];
   }, [location]);
 
   const scrollToBottom = () => {
@@ -179,13 +179,21 @@ const AISearchAgent = () => {
                 <span className="text-white font-medium text-sm">Chris</span>
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-white transition-colors p-1"
-                title="Minimize"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Live data
+                </span>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-slate-400 hover:text-white transition-colors p-1"
+                  title="Minimize"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 

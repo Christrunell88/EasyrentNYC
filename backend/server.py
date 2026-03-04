@@ -3743,10 +3743,56 @@ async def set_featured_units(unit_ids: List[str], user: User = Depends(require_a
 
 @api_router.post("/ai-search")
 async def ai_search(request: Request, search_request: AISearchRequest):
-    """AI-powered apartment search agent"""
+    """AI-powered apartment search agent with Google Search grounding"""
     from emergentintegrations.llm.chat import LlmChat, UserMessage
+    from serpapi import GoogleSearch
     import re
     import json
+    import asyncio
+    
+    async def get_google_search_context(query: str) -> dict:
+        """Fetch real-time market data from Google Search via SerpApi"""
+        serpapi_key = os.environ.get('SERPAPI_KEY')
+        if not serpapi_key:
+            return {"error": "SerpApi not configured"}
+        
+        try:
+            # Run SerpApi search in thread pool (it's synchronous)
+            loop = asyncio.get_event_loop()
+            
+            def execute_search():
+                search = GoogleSearch({
+                    "q": f"{query} NYC apartments rent prices 2025",
+                    "api_key": serpapi_key,
+                    "num": 5,
+                    "gl": "us",
+                    "hl": "en"
+                })
+                return search.get_dict()
+            
+            results = await loop.run_in_executor(None, execute_search)
+            
+            # Parse relevant info
+            organic_results = results.get("organic_results", [])[:3]
+            answer_box = results.get("answer_box", {})
+            
+            context = {
+                "search_performed": True,
+                "query": query,
+                "snippets": [
+                    {
+                        "title": r.get("title", ""),
+                        "snippet": r.get("snippet", ""),
+                        "source": r.get("displayed_link", "")
+                    }
+                    for r in organic_results
+                ],
+                "answer_box": answer_box.get("snippet") or answer_box.get("answer") if answer_box else None
+            }
+            return context
+            
+        except Exception as e:
+            return {"error": str(e), "search_performed": False}
     
     try:
         # Get current user if logged in
@@ -3789,19 +3835,45 @@ async def ai_search(request: Request, search_request: AISearchRequest):
         min_rent = min((u.get('rent', 0) for u in units if u.get('rent')), default=0)
         max_rent = max((u.get('rent', 0) for u in units if u.get('rent')), default=0)
         
-        # Create system prompt
+        # Determine if we should search Google for market context
+        query_lower = search_request.message.lower()
+        market_keywords = ['average', 'market', 'trend', 'price', 'compare', 'typical', 'worth', 'fair', 'expensive', 'cheap', 'afford', 'neighborhood', 'area', 'best', 'popular', 'safe']
+        should_search_google = any(kw in query_lower for kw in market_keywords)
+        
+        # Get Google search context for market questions
+        google_context = {}
+        if should_search_google:
+            # Extract neighborhood or location from query
+            search_term = search_request.message
+            for n in neighborhoods:
+                if n.lower() in query_lower:
+                    search_term = n
+                    break
+            google_context = await get_google_search_context(search_term)
+        
+        # Build Google context string for system prompt
+        google_context_str = ""
+        if google_context.get("search_performed") and google_context.get("snippets"):
+            google_context_str = "\n\nREAL-TIME MARKET DATA (from Google Search):\n"
+            if google_context.get("answer_box"):
+                google_context_str += f"Quick Answer: {google_context['answer_box']}\n\n"
+            for snippet in google_context.get("snippets", []):
+                google_context_str += f"- {snippet['title']}: {snippet['snippet']} (Source: {snippet['source']})\n"
+        
+        # Create system prompt with Google context
         system_prompt = f"""You are the NoFeesApts.com AI Search Assistant - a friendly, knowledgeable apartment search expert for NYC, Northern NJ, and PA no-fee apartments.
 
 CURRENT INVENTORY:
 - {total_units} no-fee apartments available across {total_buildings} buildings
 - Price range: ${min_rent:,.0f} - ${max_rent:,.0f}/month
 - Neighborhoods: {', '.join(neighborhoods[:15])}
-
+{google_context_str}
 YOUR CAPABILITIES:
 1. Search our database of {total_units} verified no-fee listings
 2. Answer questions about NYC neighborhoods, apartment hunting tips, and the rental market
 3. Help users find apartments that match their criteria (budget, bedrooms, location, amenities)
-4. For requests outside our current inventory, mention that Chris can help find additional options
+4. Provide real-time market insights using current data
+5. For requests outside our current inventory, mention that Chris can help find additional options
 
 CONTACT INFORMATION (Always provide when relevant):
 - Phone: (646) 408-8048
@@ -3811,6 +3883,7 @@ CONTACT INFORMATION (Always provide when relevant):
 RESPONSE STYLE:
 - Be conversational, helpful, and enthusiastic
 - When showing results, be specific about unit details
+- When answering market questions, cite the real-time data when available
 - If no exact matches, suggest alternatives or mention contacting Chris
 - For off-site searches or special requests, always direct to Chris
 - Keep responses concise but informative
@@ -3887,6 +3960,7 @@ When searching, analyze the user's request and find matching units. Report the c
             'neighborhoods_mentioned': neighborhoods_mentioned,
             'price_range': price_range,
             'bedrooms_requested': bedrooms_requested,
+            'google_search_used': google_context.get('search_performed', False),
             'created_at': datetime.now(timezone.utc).isoformat()
         }
         await db.ai_searches.insert_one(search_record)
@@ -3894,7 +3968,8 @@ When searching, analyze the user's request and find matching units. Report the c
         return {
             'response': response,
             'session_id': session_id,
-            'units_found': units_found
+            'units_found': units_found,
+            'google_grounded': google_context.get('search_performed', False)
         }
         
     except Exception as e:

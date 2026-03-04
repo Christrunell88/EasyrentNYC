@@ -101,6 +101,14 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
 ### Recent Work (2026-03-03)
+- **SerpApi Google Search Integration - COMPLETED**:
+  - Enhanced AI Search Agent with real-time Google search grounding
+  - Agent now fetches live market data for price/trend questions
+  - Keywords trigger search: "average", "market", "trend", "price", "compare", "affordable", etc.
+  - Tracks `google_search_used` in ai_searches collection for analytics
+  - Free tier: 250 searches/month (no credit card required)
+  - API Key stored securely in backend/.env
+
 - **Neighborhood SEO Pages - COMPLETED**:
   - Created `/apartments` index page showing all 28 neighborhoods grouped by region (NYC, NJ, PA)
   - Created `/apartments/:slug` dynamic pages for each neighborhood (e.g., `/apartments/chelsea`)

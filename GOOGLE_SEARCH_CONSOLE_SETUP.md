@@ -4,7 +4,7 @@
 
 Your dynamic sitemap is now live at:
 - **Production:** `https://nofeesapts.com/sitemap.xml`
-- **Preview:** `https://apt-crawler-staging.preview.emergentagent.com/sitemap.xml`
+- **Preview:** `https://no-fee-listings-dev.preview.emergentagent.com/sitemap.xml`
 - **Robots.txt:** `https://nofeesapts.com/robots.txt`
 
 **Total URLs in Sitemap:** 133+ (automatically updated)

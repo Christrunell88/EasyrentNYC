@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Shield, Clock, Sparkles } from 'lucide-react';
+import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
@@ -20,6 +20,7 @@ const Landing = () => {
   const [featuredUnits, setFeaturedUnits] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -265,15 +266,24 @@ const Landing = () => {
                 </p>
                 
                 <div className="flex flex-col items-start gap-3 mb-6">
-                  <Button
-                    data-testid="get-started-btn"
-                    onClick={handleGetStarted}
-                    size="lg"
-                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]"
-                  >
-                    FREE SIGN UP
-                    <ArrowRight className="w-5 h-5 ml-3" />
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      data-testid="get-started-btn"
+                      onClick={handleGetStarted}
+                      size="lg"
+                      className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]"
+                    >
+                      FREE SIGN UP
+                      <ArrowRight className="w-5 h-5 ml-3" />
+                    </Button>
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="flex items-center gap-2 px-5 py-4 border border-gray-300 hover:border-[#D4AF37] text-gray-700 hover:text-[#D4AF37] font-philosopher font-medium text-sm transition-all"
+                    >
+                      <Play className="w-4 h-4" />
+                      How It Works
+                    </button>
+                  </div>
                   <span className="text-[#16a34a] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
                     <span className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse"></span>
                     100% FREE • No Credit Card Required
@@ -730,6 +740,43 @@ const Landing = () => {
       
       {/* Email Capture Modal */}
       <EmailCaptureModal />
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+            <video
+              src="https://customer-assets.emergentagent.com/job_47dd6b46-e381-45f3-b7a5-c4e5965d2ca7/artifacts/er34lg4y_The_No-Fee_Revolution.mp4"
+              controls
+              autoPlay
+              className="w-full aspect-video"
+            />
+            <div className="p-4 bg-gray-900">
+              <h3 className="text-white font-bold mb-1">The No-Fee Revolution</h3>
+              <p className="text-gray-400 text-sm">Learn how NoFeesApts saves you thousands on broker fees</p>
+              <Link 
+                to="/how-it-works" 
+                className="text-amber-400 text-sm mt-2 inline-block hover:underline"
+                onClick={() => setShowVideoModal(false)}
+              >
+                Learn more →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

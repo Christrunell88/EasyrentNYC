@@ -191,6 +191,64 @@ const NeighborhoodsIndex = () => {
           </div>
         </div>
 
+        {/* Quick Links by Price Range - Internal Linking */}
+        <div className="bg-white py-12 border-t border-gray-200">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Browse by Budget</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-bold text-gray-900 mb-3">Under $3,500/mo</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/apartments/harrison" className="text-amber-600 hover:underline">Harrison, NJ</Link> — Best value near NYC</li>
+                  <li><Link to="/apartments/long-island-city" className="text-amber-600 hover:underline">Long Island City</Link> — Queens waterfront</li>
+                  <li><Link to="/apartments/jersey-city" className="text-amber-600 hover:underline">Jersey City</Link> — Skyline views</li>
+                </ul>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-bold text-gray-900 mb-3">$3,500 - $5,000/mo</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/apartments/financial-district" className="text-amber-600 hover:underline">Financial District</Link> — Luxury downtown</li>
+                  <li><Link to="/apartments/midtown-west" className="text-amber-600 hover:underline">Midtown West</Link> — Near everything</li>
+                  <li><Link to="/apartments/williamsburg" className="text-amber-600 hover:underline">Williamsburg</Link> — Brooklyn trendy</li>
+                </ul>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-bold text-gray-900 mb-3">$5,000+/mo</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/apartments/tribeca" className="text-amber-600 hover:underline">Tribeca</Link> — Celebrity neighborhood</li>
+                  <li><Link to="/apartments/chelsea" className="text-amber-600 hover:underline">Chelsea</Link> — Art gallery capital</li>
+                  <li><Link to="/apartments/west-village" className="text-amber-600 hover:underline">West Village</Link> — Charming streets</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Resources Links - More Internal Linking */}
+        <div className="bg-gray-50 py-12 border-t border-gray-200">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Helpful Resources</h2>
+            <div className="grid md:grid-cols-4 gap-4">
+              <Link to="/blog/guide-to-no-fee-apartments" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-400 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-1">No-Fee Apartment Guide</h3>
+                <p className="text-sm text-gray-500">Everything you need to know</p>
+              </Link>
+              <Link to="/blog/best-neighborhoods" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-400 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-1">Best Neighborhoods</h3>
+                <p className="text-sm text-gray-500">Top picks for renters</p>
+              </Link>
+              <Link to="/blog/apartment-checklist" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-400 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-1">Apartment Checklist</h3>
+                <p className="text-sm text-gray-500">What to look for</p>
+              </Link>
+              <Link to="/faq" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-400 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-1">FAQ</h3>
+                <p className="text-sm text-gray-500">Common questions answered</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200 py-8">
           <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">

@@ -1,8 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, Building2, BedDouble, Bath, Heart, ArrowLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Building2, BedDouble, Bath, Heart, ArrowLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { API } from '../config/api';
+
+// Related neighborhoods mapping for internal linking
+const relatedNeighborhoods = {
+  'long-island-city': ['williamsburg', 'dumbo', 'midtown-west', 'jersey-city'],
+  'financial-district': ['tribeca', 'battery-park-city', 'dumbo', 'jersey-city'],
+  'chelsea': ['west-village', 'midtown-west', 'tribeca', 'hudson-yards'],
+  'tribeca': ['financial-district', 'chelsea', 'west-village', 'soho'],
+  'midtown-west': ['chelsea', 'upper-west-side', 'hells-kitchen', 'hudson-yards'],
+  'williamsburg': ['dumbo', 'long-island-city', 'greenpoint', 'bushwick'],
+  'dumbo': ['williamsburg', 'brooklyn-heights', 'financial-district', 'long-island-city'],
+  'upper-west-side': ['upper-east-side', 'midtown-west', 'harlem', 'morningside-heights'],
+  'west-village': ['chelsea', 'tribeca', 'soho', 'greenwich-village'],
+  'prospect-heights': ['fort-greene', 'crown-heights', 'park-slope', 'clinton-hill'],
+  'harrison': ['jersey-city', 'hoboken', 'newark', 'long-island-city'],
+  'jersey-city': ['hoboken', 'harrison', 'financial-district', 'dumbo'],
+  'hoboken': ['jersey-city', 'harrison', 'west-village', 'tribeca']
+};
+
+// Neighborhood display names for links
+const neighborhoodNames = {
+  'long-island-city': 'Long Island City',
+  'financial-district': 'Financial District',
+  'chelsea': 'Chelsea',
+  'tribeca': 'Tribeca',
+  'midtown-west': 'Midtown West',
+  'williamsburg': 'Williamsburg',
+  'dumbo': 'DUMBO',
+  'upper-west-side': 'Upper West Side',
+  'west-village': 'West Village',
+  'prospect-heights': 'Prospect Heights',
+  'harrison': 'Harrison',
+  'jersey-city': 'Jersey City',
+  'hoboken': 'Hoboken',
+  'fort-greene': 'Fort Greene',
+  'brooklyn-heights': 'Brooklyn Heights',
+  'greenpoint': 'Greenpoint',
+  'soho': 'SoHo',
+  'hudson-yards': 'Hudson Yards',
+  'upper-east-side': 'Upper East Side',
+  'battery-park-city': 'Battery Park City',
+  'hells-kitchen': "Hell's Kitchen",
+  'greenwich-village': 'Greenwich Village',
+  'crown-heights': 'Crown Heights',
+  'park-slope': 'Park Slope',
+  'clinton-hill': 'Clinton Hill',
+  'harlem': 'Harlem',
+  'morningside-heights': 'Morningside Heights',
+  'bushwick': 'Bushwick',
+  'newark': 'Newark'
+};
 
 // Neighborhood descriptions for SEO - includes Q&A, facts, and listicles
 const neighborhoodDescriptions = {
@@ -35,9 +85,9 @@ const neighborhoodDescriptions = {
     description: 'Chelsea is NYC\'s art gallery capital with the High Line, excellent restaurants, and beautiful brownstones. A vibrant, walkable neighborhood.',
     highlights: ['The High Line', '200+ art galleries', 'Chelsea Market', 'Tree-lined streets'],
     faqs: [
-      { q: 'What is the average rent in Chelsea?', a: 'Chelsea rents average $3,500 for studios and $5,800 for 1-bedrooms. It\'s one of Manhattan\'s most desirable neighborhoods.' },
-      { q: 'What is Chelsea known for?', a: 'Chelsea is famous for its 200+ art galleries, the High Line elevated park, Chelsea Market, and vibrant LGBTQ+ community.' },
-      { q: 'Is Chelsea walkable?', a: 'Chelsea has a Walk Score of 99/100, making it one of NYC\'s most walkable neighborhoods with easy access to shops, dining, and transit.' }
+      { q: 'What is the average rent in Chelsea?', a: 'Chelsea rents average $3,500 for studios and $5,800 for 1-bedrooms. It\'s one of Manhattan\'s most desirable neighborhoods. For lower rents with similar vibes, consider the West Village or Midtown West.' },
+      { q: 'What is Chelsea known for?', a: 'Chelsea is famous for its 200+ art galleries, the High Line elevated park, Chelsea Market, and vibrant LGBTQ+ community. It borders the West Village and Midtown West.' },
+      { q: 'Is Chelsea walkable?', a: 'Chelsea has a Walk Score of 99/100, making it one of NYC\'s most walkable neighborhoods with easy access to shops, dining, and transit. Similar walkability can be found in Tribeca and the West Village.' }
     ],
     facts: ['The High Line attracts 8 million visitors annually', 'Chelsea has over 200 art galleries', 'Chelsea Market was once a Nabisco factory'],
     topReasons: ['World-class art galleries', 'The High Line at your doorstep', 'Chelsea Market dining', 'Tree-lined brownstone streets', 'No-fee luxury apartments']
@@ -658,6 +708,43 @@ const NeighborhoodPage = () => {
           </div>
         </div>
 
+        {/* Related Neighborhoods - Internal Linking */}
+        <div className="bg-white py-12 border-t border-gray-200">
+          <div className="max-w-4xl mx-auto px-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              Explore Nearby Neighborhoods
+            </h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Looking for more options? Check out these similar neighborhoods with no-fee apartments.
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {(relatedNeighborhoods[slug] || ['chelsea', 'tribeca', 'williamsburg', 'jersey-city']).map((relatedSlug) => (
+                <Link
+                  key={relatedSlug}
+                  to={`/apartments/${relatedSlug}`}
+                  className="group bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 rounded-lg p-4 transition-all"
+                >
+                  <h3 className="font-semibold text-gray-900 group-hover:text-amber-600 mb-1">
+                    {neighborhoodNames[relatedSlug] || relatedSlug}
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2">No-fee apartments available</p>
+                  <span className="text-amber-600 text-sm font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    View listings <ArrowRight className="w-3 h-3" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-6">
+              <Link 
+                to="/apartments" 
+                className="text-amber-600 hover:text-amber-700 text-sm font-medium inline-flex items-center gap-1"
+              >
+                Browse all 28 neighborhoods <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
         <footer className="bg-gray-900 text-white py-12">
           <div className="max-w-7xl mx-auto px-4">
@@ -675,25 +762,52 @@ const NeighborhoodPage = () => {
                 <h4 className="font-bold mb-4">Brooklyn</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
                   <li><Link to="/apartments/dumbo" className="hover:text-white">DUMBO</Link></li>
+                  <li><Link to="/apartments/williamsburg" className="hover:text-white">Williamsburg</Link></li>
                   <li><Link to="/apartments/prospect-heights" className="hover:text-white">Prospect Heights</Link></li>
                   <li><Link to="/apartments/fort-greene" className="hover:text-white">Fort Greene</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold mb-4">New Jersey</h4>
+                <h4 className="font-bold mb-4">Queens & NJ</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
-                  <li><Link to="/apartments/harrison" className="hover:text-white">Harrison</Link></li>
+                  <li><Link to="/apartments/long-island-city" className="hover:text-white">Long Island City</Link></li>
+                  <li><Link to="/apartments/harrison" className="hover:text-white">Harrison, NJ</Link></li>
                   <li><Link to="/apartments/jersey-city" className="hover:text-white">Jersey City</Link></li>
+                  <li><Link to="/apartments/hoboken" className="hover:text-white">Hoboken</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold mb-4">Company</h4>
+                <h4 className="font-bold mb-4">Resources</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
                   <li><Link to="/apartments" className="hover:text-white">All Neighborhoods</Link></li>
-                  <li><Link to="/auth" className="hover:text-white">Sign Up</Link></li>
+                  <li><Link to="/blog" className="hover:text-white">Blog & Guides</Link></li>
+                  <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
+                  <li><Link to="/auth" className="hover:text-white">Sign Up Free</Link></li>
                 </ul>
               </div>
             </div>
+            
+            {/* Additional Internal Links for SEO */}
+            <div className="border-t border-gray-800 pt-6 pb-4">
+              <p className="text-xs text-gray-500 mb-3">More neighborhoods:</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <Link to="/apartments/chelsea" className="hover:text-amber-400">Chelsea</Link>
+                <Link to="/apartments/tribeca" className="hover:text-amber-400">Tribeca</Link>
+                <Link to="/apartments/financial-district" className="hover:text-amber-400">Financial District</Link>
+                <Link to="/apartments/midtown-west" className="hover:text-amber-400">Midtown West</Link>
+                <Link to="/apartments/upper-west-side" className="hover:text-amber-400">Upper West Side</Link>
+                <Link to="/apartments/west-village" className="hover:text-amber-400">West Village</Link>
+                <Link to="/apartments/dumbo" className="hover:text-amber-400">DUMBO</Link>
+                <Link to="/apartments/williamsburg" className="hover:text-amber-400">Williamsburg</Link>
+                <Link to="/apartments/long-island-city" className="hover:text-amber-400">Long Island City</Link>
+                <Link to="/apartments/prospect-heights" className="hover:text-amber-400">Prospect Heights</Link>
+                <Link to="/apartments/fort-greene" className="hover:text-amber-400">Fort Greene</Link>
+                <Link to="/apartments/jersey-city" className="hover:text-amber-400">Jersey City</Link>
+                <Link to="/apartments/harrison" className="hover:text-amber-400">Harrison</Link>
+                <Link to="/apartments/hoboken" className="hover:text-amber-400">Hoboken</Link>
+              </div>
+            </div>
+            
             <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
               © 2025 NoFeesApts.com — No Fee Apartments in NYC, NJ & PA
             </div>

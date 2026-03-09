@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
@@ -60,14 +60,6 @@ const Landing = () => {
   
   const goToSlide = (index) => {
     setCurrentSlide(index);
-  };
-  
-  const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % heroUnits.length);
-  };
-  
-  const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + heroUnits.length) % heroUnits.length);
   };
 
   const fetchStats = async () => {
@@ -344,26 +336,6 @@ const Landing = () => {
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
-              </div>
-            )}
-            
-            {/* Navigation Arrows */}
-            {heroUnits.length > 1 && (
-              <div className="absolute bottom-32 right-6 flex gap-2">
-                <button
-                  onClick={prevSlide}
-                  className="w-12 h-12 border border-white/30 hover:border-white/60 flex items-center justify-center text-white/70 hover:text-white transition-all"
-                  aria-label="Previous slide"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="w-12 h-12 border border-white/30 hover:border-white/60 flex items-center justify-center text-white/70 hover:text-white transition-all"
-                  aria-label="Next slide"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
               </div>
             )}
           </div>

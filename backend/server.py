@@ -1140,6 +1140,47 @@ async def get_recommendations():
 
 
 
+@api_router.get("/units/hero-carousel")
+async def get_hero_carousel_units(limit: int = Query(5, le=10)):
+    """Get 5 best interior units for hero carousel - prioritizes units with quality images"""
+    try:
+        # Get units with images, sorted by is_featured first then by number of images
+        pipeline = [
+            {'$match': {'is_available': True, 'images': {'$exists': True, '$ne': []}}},
+            {'$addFields': {'image_count': {'$size': '$images'}}},
+            {'$sort': {'is_featured': -1, 'image_count': -1, 'created_at': -1}},
+            {'$limit': limit * 3},  # Get more to ensure variety
+            {'$project': {'_id': 0}}
+        ]
+        
+        all_units = await db.units.aggregate(pipeline).to_list(limit * 3)
+        
+        # Select units ensuring variety - one per building
+        seen_buildings = set()
+        selected_units = []
+        
+        for unit in all_units:
+            building_id = unit.get('building_id')
+            if building_id in seen_buildings:
+                continue
+            seen_buildings.add(building_id)
+            selected_units.append(unit)
+            if len(selected_units) >= limit:
+                break
+        
+        # Enrich with building data
+        enriched_units = []
+        for unit in selected_units:
+            building = await db.buildings.find_one({'id': unit.get('building_id')}, {"_id": 0})
+            unit['building'] = building
+            enriched_units.append(unit)
+        
+        return enriched_units
+    except Exception as e:
+        logger.error(f"Error getting hero carousel units: {e}")
+        return []
+
+
 @api_router.get("/units/recent")
 async def get_recent_units(limit: int = Query(6, le=20)):
     """Get most recently added units with variety - max one unit per building"""

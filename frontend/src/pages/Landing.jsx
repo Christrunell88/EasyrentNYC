@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X } from 'lucide-react';
+import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
@@ -21,12 +21,54 @@ const Landing = () => {
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  
+  // Hero carousel state
+  const [heroUnits, setHeroUnits] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const carouselIntervalRef = useRef(null);
 
   useEffect(() => {
     checkAuth();
     fetchFeaturedUnits();
     fetchStats();
+    fetchHeroUnits();
   }, []);
+  
+  // Hero carousel auto-advance
+  useEffect(() => {
+    if (heroUnits.length > 1 && !isPaused) {
+      carouselIntervalRef.current = setInterval(() => {
+        setCurrentSlide(prev => (prev + 1) % heroUnits.length);
+      }, 5500); // 5.5 seconds per slide - slower pace
+    }
+    return () => {
+      if (carouselIntervalRef.current) {
+        clearInterval(carouselIntervalRef.current);
+      }
+    };
+  }, [heroUnits.length, isPaused]);
+
+  const fetchHeroUnits = async () => {
+    try {
+      const response = await axios.get(`${API}/units/hero-carousel?limit=5`);
+      setHeroUnits(response.data);
+    } catch (error) {
+      console.error('Error fetching hero units:', error);
+    }
+  };
+  
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+  
+  const nextSlide = () => {
+    setCurrentSlide(prev => (prev + 1) % heroUnits.length);
+  };
+  
+  const prevSlide = () => {
+    setCurrentSlide(prev => (prev - 1 + heroUnits.length) % heroUnits.length);
+  };
 
   const fetchStats = async () => {
     // Only fetch once to prevent overwriting
@@ -206,10 +248,10 @@ const Landing = () => {
       />
       
       {/* Navigation - Clean White Theme */}
-      <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6">
+      <nav className="fixed top-0 w-full z-50 bg-transparent">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center h-20">
-            <span className="text-2xl font-philosopher font-bold text-[#0a0a0a] tracking-wide">
+            <span className="text-2xl font-philosopher font-bold text-white tracking-wide drop-shadow-lg">
               NoFeesApts
             </span>
             
@@ -217,7 +259,7 @@ const Landing = () => {
               {isAuthenticated ? (
                 <Button
                   onClick={() => navigate('/dashboard')}
-                  className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider"
+                  className="bg-white/90 hover:bg-white text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider shadow-lg"
                   data-testid="dashboard-btn"
                 >
                   VIEW COLLECTION
@@ -227,14 +269,14 @@ const Landing = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/auth')}
-                    className="text-[#0a0a0a] hover:text-[#D4AF37] font-philosopher tracking-wide"
+                    className="text-white hover:text-[#D4AF37] font-philosopher tracking-wide drop-shadow-lg"
                     data-testid="signin-btn"
                   >
                     Sign In
                   </Button>
                   <Button
                     onClick={() => navigate('/auth')}
-                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider transition-all duration-300"
+                    className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-6 py-2.5 rounded-none tracking-wider transition-all duration-300 shadow-lg"
                     data-testid="get-started-nav-btn"
                   >
                     FREE SIGN UP
@@ -246,159 +288,97 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Clean White Theme with Three Interior Images */}
-      <section className="min-h-screen relative overflow-hidden pt-20 bg-white">
-        {/* Content */}
-        <div className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center">
-          <div className="max-w-7xl mx-auto px-6 w-full py-12">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              {/* Left Content */}
-              <div className="max-w-xl">
-                {/* Decorative line */}
-                <div className="w-16 h-px bg-[#D4AF37] mb-8" />
-                
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-philosopher font-bold text-[#0a0a0a] leading-tight tracking-wide mb-6">
-                  Find Your<br />No-Fee Apartment
-                </h1>
-                
-                <p className="text-lg text-[#555555] font-philosopher mb-6 leading-relaxed">
-                  Verified luxury apartments in NYC, NJ & PA — <span className="text-[#D4AF37] font-semibold">zero broker fees</span>, ready in minutes.
-                </p>
-                
-                <div className="flex flex-col items-start gap-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      data-testid="get-started-btn"
-                      onClick={handleGetStarted}
-                      size="lg"
-                      className="bg-[#D4AF37] hover:bg-[#E5C158] text-[#0a0a0a] font-philosopher font-bold px-12 py-7 text-lg rounded-none tracking-[0.15em] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]"
-                    >
-                      FREE SIGN UP
-                      <ArrowRight className="w-5 h-5 ml-3" />
-                    </Button>
-                    <button
-                      onClick={() => setShowVideoModal(true)}
-                      className="flex items-center gap-2 px-5 py-4 border border-gray-300 hover:border-[#D4AF37] text-gray-700 hover:text-[#D4AF37] font-philosopher font-medium text-sm transition-all"
-                    >
-                      <Play className="w-4 h-4" />
-                      How It Works
-                    </button>
-                  </div>
-                  <span className="text-[#16a34a] text-xs font-semibold tracking-wider flex items-center gap-1.5 ml-1">
-                    <span className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse"></span>
-                    100% FREE • No Credit Card Required
-                  </span>
-                </div>
-
-                {/* Contact info - subtle */}
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <a href="tel:646-408-8048" className="hover:text-[#D4AF37] transition-colors">
-                    646-408-8048
-                  </a>
-                  <span className="text-gray-300">|</span>
-                  <a href="mailto:Placesfirm@gmail.com" className="hover:text-[#D4AF37] transition-colors">
-                    Placesfirm@gmail.com
-                  </a>
-                  <span className="text-gray-300">|</span>
-                  <span className="flex items-center gap-1 text-gray-400">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    AI with live market data
-                  </span>
-                </div>
-                
-                {/* SEO-only text - hidden visually but accessible to search engines */}
-                <p className="sr-only">
-                  An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.
-                </p>
-              </div>
-              
-              {/* Right side - Three Interior Images Gallery */}
-              <div className="hidden lg:block">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Large main image - Studio */}
-                  <div className="col-span-2 relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
-                    <img 
-                      src="https://customer-assets.emergentagent.com/job_nofeeapts/artifacts/181u91e8_507%20Studio.jpg"
-                      alt="Modern studio apartment with open floor plan and natural light"
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <span className="text-white font-bold text-xl">$3,950<span className="text-white/70 text-sm font-normal">/mo</span></span>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-white font-philosopher text-sm">Studio</span>
-                            <span className="text-white/50">•</span>
-                            <span className="text-white/70 text-xs blur-[3px] select-none">507 West 28th St</span>
-                          </div>
-                        </div>
-                        <span className="text-amber-400 text-xs font-medium">Sign up to view</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 1 Bedroom image */}
-                  <div className="relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
-                    <img 
-                      src="https://cdn.tfc.com/marketing/files/building_images/2019-10-7_200-W-26th-St-PHC_corner-dining-terrace.jpg"
-                      alt="Spacious one bedroom apartment living area"
-                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                      <span className="text-white font-bold text-lg">$5,815<span className="text-white/70 text-xs font-normal">/mo</span></span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-white font-philosopher text-sm">1 Bed</span>
-                        <span className="text-white/50">•</span>
-                        <span className="text-white/70 text-xs blur-[3px] select-none">200 W 26th St</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 2 Bedroom image */}
-                  <div className="relative overflow-hidden group cursor-pointer" onClick={() => navigate('/auth')}>
-                    <img 
-                      src="https://customer-assets.emergentagent.com/job_8fbd80f2-6d7f-4862-a8ee-2ee677906dbe/artifacts/pv5un3kv_301%20Living%20Room.jpeg"
-                      alt="Elegant two bedroom apartment with city views"
-                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                      <span className="text-white font-bold text-lg">$7,350<span className="text-white/70 text-xs font-normal">/mo</span></span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-white font-philosopher text-sm">2 Bed</span>
-                        <span className="text-white/50">•</span>
-                        <span className="text-white/70 text-xs blur-[3px] select-none">301 Elizabeth St</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Stats below images */}
-                <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-philosopher font-bold text-[#0a0a0a]">{stats.units}+</p>
-                    <p className="text-[#888888] text-xs mt-1">No Fee Apartments</p>
-                  </div>
-                  <div className="w-px h-10 bg-gray-200" />
-                  <div className="text-center">
-                    <p className="text-3xl font-philosopher font-bold text-[#0a0a0a]">{stats.buildings}</p>
-                    <p className="text-[#888888] text-xs mt-1">Premium Buildings</p>
-                  </div>
-                  <div className="w-px h-10 bg-gray-200" />
-                  <div className="text-center">
-                    <p className="text-3xl font-philosopher font-bold text-[#D4AF37]">$0</p>
-                    <p className="text-[#888888] text-xs mt-1">Broker Fees</p>
-                  </div>
-                </div>
-              </div>
+      {/* Hero Section - Full-Width Immersive Carousel */}
+      <section 
+        className="h-screen relative overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Carousel Images */}
+        <div className="absolute inset-0">
+          {heroUnits.map((unit, index) => (
+            <div
+              key={unit.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={unit.images?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920'}
+                alt={`Luxury no-fee apartment interior ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              {/* Subtle gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
             </div>
+          ))}
+          
+          {/* Fallback if no images */}
+          {heroUnits.length === 0 && (
+            <div className="absolute inset-0">
+              <img
+                src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920"
+                alt="Luxury apartment interior"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+            </div>
+          )}
+        </div>
+
+        {/* Centered Content - Minimal */}
+        <div className="relative z-10 h-full flex flex-col justify-end pb-32 px-6">
+          <div className="max-w-7xl mx-auto w-full">
+            {/* Carousel Indicators */}
+            {heroUnits.length > 1 && (
+              <div className="flex items-center gap-3 mb-8">
+                {heroUnits.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`h-0.5 transition-all duration-500 ${
+                      index === currentSlide 
+                        ? 'w-12 bg-white' 
+                        : 'w-6 bg-white/40 hover:bg-white/60'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {/* Navigation Arrows */}
+            {heroUnits.length > 1 && (
+              <div className="absolute bottom-32 right-6 flex gap-2">
+                <button
+                  onClick={prevSlide}
+                  className="w-12 h-12 border border-white/30 hover:border-white/60 flex items-center justify-center text-white/70 hover:text-white transition-all"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="w-12 h-12 border border-white/30 hover:border-white/60 flex items-center justify-center text-white/70 hover:text-white transition-all"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
+        </div>
+        
+        {/* SEO-only text - hidden visually but accessible to search engines */}
+        <div className="sr-only">
+          <h1>No Broker Fee Apartments NYC & NJ</h1>
+          <p>Find your perfect apartment with zero broker fees. Browse {stats.units}+ verified no-fee listings in NYC and Northern New Jersey.</p>
+          <p>An exclusive selection of premium no fee apartments and luxury residences in NYC, Northern NJ & PA — handpicked for discerning renters seeking broker-free rentals.</p>
         </div>
         
         {/* Bottom scroll indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent animate-pulse" />
+          <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/60 to-transparent animate-pulse" />
         </div>
       </section>
 

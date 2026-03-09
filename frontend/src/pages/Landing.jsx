@@ -345,12 +345,44 @@ const Landing = () => {
           )}
         </div>
 
-        {/* Centered Content - Minimal */}
-        <div className="relative z-10 h-full flex flex-col justify-end pb-32 px-6">
-          <div className="max-w-7xl mx-auto w-full">
-            {/* Carousel Indicators */}
+        {/* Centered Content - Alluring CTA */}
+        <div className="relative z-10 h-full flex flex-col items-center justify-center px-6">
+          <div className="text-center animate-fade-in">
+            {/* Decorative line */}
+            <div className="w-12 h-px bg-[#D4AF37] mx-auto mb-6 opacity-80" />
+            
+            {/* Main headline */}
+            <p className="text-white/90 font-philosopher text-lg tracking-[0.25em] uppercase mb-3">
+              Explore
+            </p>
+            <h2 className="text-white font-philosopher text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide mb-4">
+              <span className="text-[#D4AF37]">{stats.units}+</span> No-Fee Apartments
+            </h2>
+            <p className="text-white/70 font-philosopher text-base tracking-wider mb-8">
+              NYC · NJ · PA
+            </p>
+            
+            {/* CTA Button */}
+            <button
+              onClick={() => navigate('/auth')}
+              className="group relative px-10 py-4 bg-transparent border border-white/30 hover:border-[#D4AF37] text-white font-philosopher tracking-[0.2em] text-sm transition-all duration-500 hover:bg-[#D4AF37]/10"
+              data-testid="hero-cta-btn"
+            >
+              <span className="relative z-10 group-hover:text-[#D4AF37] transition-colors duration-300">
+                BROWSE FREE
+              </span>
+            </button>
+            
+            {/* Subtle trust signal */}
+            <p className="text-white/40 text-xs mt-6 tracking-wider">
+              No credit card required
+            </p>
+          </div>
+          
+          {/* Carousel Indicators - moved to bottom left */}
+          <div className="absolute bottom-32 left-6 max-w-7xl">
             {heroUnits.length > 1 && (
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3">
                 {heroUnits.map((_, index) => (
                   <button
                     key={index}

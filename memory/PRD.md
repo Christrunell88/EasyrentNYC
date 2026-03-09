@@ -100,6 +100,24 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
+### Recent Work (2026-03-09)
+- **Hero Carousel Redesign - COMPLETED**:
+  - Replaced busy multi-image hero with clean, full-width immersive carousel
+  - Curated 5 best interior living room images from: 507 West Chelsea, 20 Broad, 60 Water DUMBO, Aro (NEW), 7W21 (NEW)
+  - Slow 5.5-second transitions with pause-on-hover
+  - Removed navigation arrows for cleaner aesthetic
+  - Added alluring centered CTA: "EXPLORE 222+ No-Fee Apartments" with gold accent
+  - "BROWSE FREE" button with elegant hover effect
+  - "No credit card required" trust signal
+  - Transparent navbar over carousel for immersive feel
+  - Slide indicators moved to bottom-left
+  - All SEO preserved (hidden h1, schema markup, meta tags)
+  - Mobile responsive
+
+- **New Buildings Added**:
+  - **Aro** (242 West 53rd Street, Midtown West) - Added building + Unit 37B with 5 luxury interior images
+  - **7W21** (7 W 21st St, Flatiron District) - Added building + Unit 1905 with 5 interior images
+
 ### Recent Work (2026-03-03)
 - **SerpApi Google Search Integration - COMPLETED**:
   - Enhanced AI Search Agent with real-time Google search grounding

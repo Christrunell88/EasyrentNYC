@@ -51,10 +51,37 @@ const Landing = () => {
 
   const fetchHeroUnits = async () => {
     try {
-      const response = await axios.get(`${API}/units/hero-carousel?limit=5`);
-      setHeroUnits(response.data);
+      // Curated hero images - best living room interiors from specific buildings
+      const curatedHeroImages = [
+        {
+          id: 'hero-507-west',
+          images: ['https://customer-assets.emergentagent.com/job_nofeeapts/artifacts/oikxad8h_507%20Living%20Best.jpg'],
+          building: { name: '507 West Chelsea', neighborhood: 'Chelsea' }
+        },
+        {
+          id: 'hero-20-broad',
+          images: ['https://customer-assets.emergentagent.com/job_2d2ca551-0173-4299-a0a8-c483c5631a96/artifacts/m60slrg7_20%20Broad%20LIving%20Room.jpg'],
+          building: { name: '20 Broad', neighborhood: 'Financial District' }
+        },
+        {
+          id: 'hero-60-water',
+          images: ['https://assets.nestiostatic.com/unit_photos/originals/03efa49e3fa354f9842232d28b098f49.jpg?s=58d64a8acbab763307892fd2b5023b0b'],
+          building: { name: '60 Water', neighborhood: 'DUMBO' }
+        },
+        {
+          id: 'hero-aro',
+          images: ['https://aro.nyc/wp-content/uploads/2017/11/Midtown-West-Luxury-Rentals-Living-1.jpg'],
+          building: { name: 'Aro', neighborhood: 'Midtown West' }
+        },
+        {
+          id: 'hero-7w21',
+          images: ['https://www.7w21.com/img/DDP_0560-web.jpg'],
+          building: { name: '7W21', neighborhood: 'Flatiron District' }
+        }
+      ];
+      setHeroUnits(curatedHeroImages);
     } catch (error) {
-      console.error('Error fetching hero units:', error);
+      console.error('Error setting hero images:', error);
     }
   };
   

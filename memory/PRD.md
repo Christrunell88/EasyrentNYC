@@ -130,6 +130,24 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - Full Schema.org structured data (CollectionPage, BreadcrumbList, ItemList)
   - Added to sitemap with 0.95 priority
 
+- **Manhattan SEO Landing Page - COMPLETED** (`/manhattan`):
+  - Created dedicated high-value SEO page targeting "Best No Fee Apartments in Manhattan"
+  - Hero with dynamic stats (68+ listings, $5,828 avg rent, $0 broker fees)
+  - Manhattan Neighborhoods grid (Chelsea, Tribeca, Financial District, Midtown West, Upper West Side, Upper East Side, West Village, SoHo)
+  - Featured Manhattan Apartments section with 6 listing cards
+  - FAQ section with 5 SEO-optimized Q&As and Schema.org FAQPage markup
+  - Full Schema.org structured data
+  - Added to sitemap with 0.95 priority
+
+- **Queens SEO Landing Page - COMPLETED** (`/queens`):
+  - Created dedicated high-value SEO page targeting "Best No Fee Apartments in Queens"
+  - Hero with dynamic stats (21+ listings, $4,460 avg rent, $0 broker fees)
+  - Queens Neighborhoods grid (Long Island City, Astoria, Flushing, Jamaica, Forest Hills, Sunnyside, Jackson Heights, Rego Park)
+  - Featured Queens Apartments section with 6 listing cards
+  - FAQ section with 5 SEO-optimized Q&As and Schema.org FAQPage markup
+  - Full Schema.org structured data
+  - Added to sitemap with 0.95 priority
+
 ### Recent Work (2026-03-03)
 - **SerpApi Google Search Integration - COMPLETED**:
   - Enhanced AI Search Agent with real-time Google search grounding

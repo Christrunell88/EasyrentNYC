@@ -418,6 +418,19 @@ const AdminPanel = () => {
     }
   };
 
+  // Quick reject a staging unit without explanation
+  const handleQuickReject = async (stagingUnit) => {
+    try {
+      await axios.post(`${API}/staging/reject/${stagingUnit.id}?reason=Rejected`, {}, { withCredentials: true });
+      toast.success('Unit rejected');
+      fetchStagingUnits();
+      fetchStagingStats();
+    } catch (error) {
+      console.error('Error rejecting unit:', error);
+      toast.error(error.response?.data?.detail || 'Failed to reject unit');
+    }
+  };
+
   // Edit staging unit before approval
   const handleEditStagingUnit = async (e) => {
     e.preventDefault();
@@ -1415,10 +1428,7 @@ const AdminPanel = () => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                      setSelectedStagingUnit(unit);
-                                      setRejectDialogOpen(true);
-                                    }}
+                                    onClick={() => handleQuickReject(unit)}
                                     className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                     data-testid={`reject-staging-${unit.id}`}
                                   >
@@ -2578,8 +2588,8 @@ const AdminPanel = () => {
                     type="button"
                     variant="destructive"
                     onClick={() => {
+                      handleQuickReject(selectedStagingUnit);
                       setEditStagingDialogOpen(false);
-                      setRejectDialogOpen(true);
                     }}
                     className="bg-red-600 hover:bg-red-700"
                   >

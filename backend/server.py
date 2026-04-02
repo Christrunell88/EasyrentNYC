@@ -4107,6 +4107,7 @@ class PropertyImportRequest(BaseModel):
 
 # Known management companies with their property/availability URLs
 MANAGEMENT_COMPANIES = [
+    # === ORIGINAL 12 ===
     {
         "name": "Two Trees Management",
         "website": "https://www.twotreesny.com",
@@ -4190,7 +4191,144 @@ MANAGEMENT_COMPANIES = [
         "availability_url": "https://www.durst.org/residential",
         "neighborhoods": ["Midtown", "Financial District"],
         "description": "Historic NYC developer and property manager"
+    },
+    # === NEW ADDITIONS ===
+    {
+        "name": "Silverstein Properties",
+        "website": "https://www.silversteinproperties.com",
+        "availability_url": "https://www.silversteinproperties.com/residential",
+        "neighborhoods": ["Financial District", "WTC", "Manhattan"],
+        "description": "World Trade Center developer with luxury residential"
+    },
+    {
+        "name": "SL Green",
+        "website": "https://www.slgreen.com",
+        "availability_url": "https://www.slgreen.com/properties/residential",
+        "neighborhoods": ["Midtown", "Manhattan"],
+        "description": "NYC's largest office landlord with residential portfolio"
+    },
+    {
+        "name": "Rockrose Development",
+        "website": "https://www.rockrose.com",
+        "availability_url": "https://www.rockrose.com/residences",
+        "neighborhoods": ["Long Island City", "Manhattan"],
+        "description": "Major LIC developer with waterfront properties"
+    },
+    {
+        "name": "Moinian Group",
+        "website": "https://www.moinian.com",
+        "availability_url": "https://www.moinian.com/residential",
+        "neighborhoods": ["Hudson Yards", "Midtown", "Manhattan"],
+        "description": "Sky and other luxury Manhattan developments"
+    },
+    {
+        "name": "L+M Development",
+        "website": "https://www.lmdevpartners.com",
+        "availability_url": "https://www.lmdevpartners.com/portfolio",
+        "neighborhoods": ["Harlem", "Brooklyn", "Bronx"],
+        "description": "Affordable and market-rate housing developer"
+    },
+    {
+        "name": "Toll Brothers City Living",
+        "website": "https://www.tollbrothers.com/city-living",
+        "availability_url": "https://www.tollbrothers.com/city-living/new-york",
+        "neighborhoods": ["Manhattan", "Brooklyn", "Jersey City"],
+        "description": "Luxury condo and rental developer"
+    },
+    {
+        "name": "Property Markets Group (PMG)",
+        "website": "https://www.propertymg.com",
+        "availability_url": "https://www.propertymg.com/properties",
+        "neighborhoods": ["Manhattan", "Brooklyn"],
+        "description": "Boutique luxury developer in NYC"
+    },
+    {
+        "name": "Hines",
+        "website": "https://www.hines.com",
+        "availability_url": "https://www.hines.com/properties?region=new-york",
+        "neighborhoods": ["Manhattan", "Multiple"],
+        "description": "Global real estate firm with NYC residential"
+    },
+    {
+        "name": "Tishman Speyer",
+        "website": "https://www.tishmanspeyer.com",
+        "availability_url": "https://www.tishmanspeyer.com/rentals",
+        "neighborhoods": ["Manhattan", "Brooklyn"],
+        "description": "Major developer - Rockefeller Center owners"
+    },
+    {
+        "name": "Stonehenge NYC",
+        "website": "https://www.stonehengenyc.com",
+        "availability_url": "https://www.stonehengenyc.com/apartments",
+        "neighborhoods": ["Midtown", "Upper East Side", "Manhattan"],
+        "description": "Boutique Manhattan apartment operator"
+    },
+    {
+        "name": "Glenwood Management",
+        "website": "https://www.glenwoodnyc.com",
+        "availability_url": "https://www.glenwoodnyc.com/available-apartments",
+        "neighborhoods": ["Upper East Side", "Midtown", "FiDi"],
+        "description": "Luxury Manhattan high-rise apartments"
+    },
+    {
+        "name": "Brodsky Organization",
+        "website": "https://www.brodsky.com",
+        "availability_url": "https://www.brodsky.com/rentals",
+        "neighborhoods": ["Upper West Side", "Manhattan"],
+        "description": "Family-owned Manhattan apartment operator"
+    },
+    {
+        "name": "UDR",
+        "website": "https://www.udr.com",
+        "availability_url": "https://www.udr.com/new-york-city-apartments",
+        "neighborhoods": ["Manhattan", "Brooklyn"],
+        "description": "National REIT with luxury NYC apartments"
+    },
+    {
+        "name": "Bozzuto",
+        "website": "https://www.bozzuto.com",
+        "availability_url": "https://www.bozzuto.com/apartments/region/new-york",
+        "neighborhoods": ["Jersey City", "Hoboken", "NYC Area"],
+        "description": "Property manager with NJ and NYC presence"
+    },
+    {
+        "name": "Ironstate Development",
+        "website": "https://www.ironstate.com",
+        "availability_url": "https://www.ironstate.com/portfolio",
+        "neighborhoods": ["Jersey City", "Hoboken"],
+        "description": "Major Jersey City waterfront developer"
+    },
+    {
+        "name": "Mack-Cali (Veris Residential)",
+        "website": "https://www.verisresidential.com",
+        "availability_url": "https://www.verisresidential.com/apartments",
+        "neighborhoods": ["Jersey City", "Weehawken", "NJ Waterfront"],
+        "description": "NJ waterfront luxury apartment developer"
+    },
+    {
+        "name": "Applied Companies",
+        "website": "https://www.appliedcompanies.com",
+        "availability_url": "https://www.appliedcompanies.com/communities",
+        "neighborhoods": ["Hoboken", "Jersey City"],
+        "description": "NJ luxury apartment communities"
     }
+]
+
+# Pattern recognition keywords for no-fee buildings
+NO_FEE_PATTERNS = [
+    "no fee", "no broker fee", "no broker", "owner pays fee", 
+    "net effective", "free rent", "lease-up", "new construction",
+    "luxury rental", "luxury apartments", "direct from owner",
+    "in-house leasing", "on-site leasing", "management company"
+]
+
+# Areas to focus discovery searches
+DISCOVERY_AREAS = [
+    {"area": "Manhattan", "neighborhoods": ["Chelsea", "Tribeca", "FiDi", "Midtown", "UWS", "UES", "Hudson Yards", "Harlem"]},
+    {"area": "Brooklyn", "neighborhoods": ["DUMBO", "Williamsburg", "Brooklyn Heights", "Fort Greene", "Greenpoint", "Downtown Brooklyn"]},
+    {"area": "Queens", "neighborhoods": ["Long Island City", "Astoria", "Flushing"]},
+    {"area": "New Jersey", "neighborhoods": ["Jersey City", "Hoboken", "Weehawken", "Harrison", "Newark"]},
+    {"area": "Pennsylvania", "neighborhoods": ["Philadelphia"]}
 ]
 
 @api_router.get("/admin/management-companies")
@@ -4320,6 +4458,160 @@ async def property_search(request: PropertySearchRequest, user: User = Depends(r
     except Exception as e:
         logger.error(f"Property search error: {e}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+class DiscoverySearchRequest(BaseModel):
+    area: str = "all"  # "Manhattan", "Brooklyn", "Queens", "New Jersey", "all"
+    search_new_construction: bool = True
+    search_net_effective: bool = True
+    
+@api_router.post("/admin/property-discovery")
+async def property_discovery(request: DiscoverySearchRequest, user: User = Depends(require_admin)):
+    """
+    AI-powered discovery search to find NEW no-fee buildings and management companies.
+    Uses pattern recognition to identify potential no-fee sources.
+    """
+    from serpapi import GoogleSearch
+    import asyncio
+    
+    serpapi_key = os.environ.get('SERPAPI_KEY')
+    if not serpapi_key:
+        raise HTTPException(status_code=500, detail="SerpApi not configured.")
+    
+    try:
+        all_results = []
+        loop = asyncio.get_event_loop()
+        
+        # Build discovery queries based on area
+        discovery_queries = []
+        
+        if request.area == "all":
+            areas = ["Manhattan NYC", "Brooklyn NYC", "Queens NYC", "Jersey City NJ", "Hoboken NJ"]
+        else:
+            areas = [request.area]
+        
+        for area in areas:
+            # Query 1: New construction
+            if request.search_new_construction:
+                discovery_queries.append(f"new luxury rental building {area} 2024 2025 no fee apartments")
+            
+            # Query 2: Net effective / lease-up specials
+            if request.search_net_effective:
+                discovery_queries.append(f"no broker fee luxury apartments {area} net effective rent")
+            
+            # Query 3: Management company search
+            discovery_queries.append(f"luxury apartment management company {area} availability rentals")
+        
+        # Skip aggregators
+        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
+                      'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
+                      'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia', 'craigslist',
+                      'reddit', 'pinterest', 'nytimes', 'curbed', 'timeout', 'thrillist']
+        
+        # Known management domains for priority
+        known_domains = [c['website'].replace('https://', '').replace('http://', '').replace('www.', '') 
+                        for c in MANAGEMENT_COMPANIES]
+        
+        seen_domains = set()
+        priority_results = []
+        new_discoveries = []
+        
+        # Execute searches (limit to avoid rate limits)
+        for query in discovery_queries[:6]:
+            def execute_search(q=query):
+                search = GoogleSearch({
+                    "q": q,
+                    "api_key": serpapi_key,
+                    "num": 10,
+                    "gl": "us",
+                    "hl": "en"
+                })
+                return search.get_dict()
+            
+            try:
+                results = await loop.run_in_executor(None, execute_search)
+                organic_results = results.get("organic_results", [])
+                
+                for result in organic_results:
+                    link = result.get("link", "")
+                    domain = result.get("displayed_link", "").split("/")[0] if result.get("displayed_link") else ""
+                    domain_clean = domain.replace("www.", "").lower()
+                    
+                    # Skip aggregators
+                    if any(skip in domain_clean for skip in skip_domains):
+                        continue
+                    
+                    if domain_clean in seen_domains:
+                        continue
+                    seen_domains.add(domain_clean)
+                    
+                    title = result.get("title", "")
+                    snippet = result.get("snippet", "")
+                    combined_text = (title + " " + snippet).lower()
+                    
+                    # Pattern recognition score
+                    pattern_score = 0
+                    matched_patterns = []
+                    
+                    for pattern in NO_FEE_PATTERNS:
+                        if pattern in combined_text:
+                            pattern_score += 1
+                            matched_patterns.append(pattern)
+                    
+                    # Check for property-related terms
+                    property_terms = ['apartment', 'rental', 'residence', 'living', 'bedroom', 'studio', 'availability']
+                    if any(term in combined_text for term in property_terms):
+                        pattern_score += 1
+                    
+                    # Must have some relevance
+                    if pattern_score == 0:
+                        continue
+                    
+                    building_data = {
+                        "name": title,
+                        "url": link,
+                        "domain": domain,
+                        "snippet": snippet,
+                        "pattern_score": pattern_score,
+                        "matched_patterns": matched_patterns,
+                        "is_known_company": domain_clean in known_domains,
+                        "source": "discovery"
+                    }
+                    
+                    if building_data["is_known_company"]:
+                        priority_results.append(building_data)
+                    else:
+                        new_discoveries.append(building_data)
+                        
+            except Exception as search_error:
+                logger.warning(f"Discovery search error for query '{query}': {search_error}")
+                continue
+        
+        # Sort new discoveries by pattern score
+        new_discoveries.sort(key=lambda x: x["pattern_score"], reverse=True)
+        
+        # Combine: known companies first, then new discoveries
+        all_results = priority_results + new_discoveries
+        
+        return {
+            "area": request.area,
+            "results": all_results[:20],
+            "total_found": len(all_results),
+            "known_company_count": len(priority_results),
+            "new_discovery_count": len(new_discoveries),
+            "queries_executed": len(discovery_queries[:6])
+        }
+        
+    except Exception as e:
+        logger.error(f"Discovery search error: {e}")
+        raise HTTPException(status_code=500, detail=f"Discovery failed: {str(e)}")
+
+@api_router.get("/admin/discovery-areas")
+async def get_discovery_areas(user: User = Depends(require_admin)):
+    """Get available discovery areas and their neighborhoods."""
+    return {
+        "areas": DISCOVERY_AREAS,
+        "patterns": NO_FEE_PATTERNS
+    }
 
 @api_router.post("/admin/property-crawl")
 async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(require_admin)):

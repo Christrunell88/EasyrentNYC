@@ -75,6 +75,16 @@ const AdminPanel = () => {
   const [rejectedStagingUnits, setRejectedStagingUnits] = useState([]);
   const [rejectedStagingLoading, setRejectedStagingLoading] = useState(false);
 
+  // Property Import State
+  const [propertySearchQuery, setPropertySearchQuery] = useState('');
+  const [propertySearchResults, setPropertySearchResults] = useState([]);
+  const [propertySearching, setPropertySearching] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [crawledData, setCrawledData] = useState(null);
+  const [crawlingProperty, setCrawlingProperty] = useState(false);
+  const [importPreviewOpen, setImportPreviewOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+
   useEffect(() => {
     fetchData();
     fetchStagingStats();
@@ -711,6 +721,126 @@ const AdminPanel = () => {
     }
   };
 
+  // Property Import Functions
+  const handlePropertySearch = async () => {
+    if (!propertySearchQuery.trim()) {
+      toast.error('Please enter a search query');
+      return;
+    }
+    
+    setPropertySearching(true);
+    setPropertySearchResults([]);
+    
+    try {
+      const response = await axios.post(`${API}/admin/property-search`, 
+        { query: propertySearchQuery },
+        { withCredentials: true }
+      );
+      setPropertySearchResults(response.data.results || []);
+      
+      if (response.data.results?.length === 0) {
+        toast.info('No building websites found. Try a different search query.');
+      } else {
+        toast.success(`Found ${response.data.results.length} potential buildings`);
+      }
+    } catch (error) {
+      console.error('Property search error:', error);
+      toast.error('Search failed. Please try again.');
+    } finally {
+      setPropertySearching(false);
+    }
+  };
+
+  const handlePropertyCrawl = async (property) => {
+    setSelectedProperty(property);
+    setCrawlingProperty(true);
+    setCrawledData(null);
+    
+    try {
+      const response = await axios.post(`${API}/admin/property-crawl`,
+        { url: property.url, building_name: property.name },
+        { withCredentials: true }
+      );
+      
+      setCrawledData(response.data);
+      setImportPreviewOpen(true);
+      
+      if (response.data.units_found > 0) {
+        toast.success(`Found ${response.data.units_found} units to import`);
+      } else {
+        toast.info('Could not auto-extract units. You can add them manually.');
+      }
+    } catch (error) {
+      console.error('Property crawl error:', error);
+      toast.error('Failed to crawl website. Please try manually.');
+    } finally {
+      setCrawlingProperty(false);
+    }
+  };
+
+  const handlePropertyImport = async () => {
+    if (!crawledData) return;
+    
+    setImporting(true);
+    
+    try {
+      const response = await axios.post(`${API}/admin/property-import`,
+        { 
+          building: crawledData.building,
+          units: crawledData.units 
+        },
+        { withCredentials: true }
+      );
+      
+      toast.success(response.data.message);
+      setImportPreviewOpen(false);
+      setCrawledData(null);
+      setSelectedProperty(null);
+      
+      // Refresh staging stats
+      fetchStagingStats();
+    } catch (error) {
+      console.error('Property import error:', error);
+      toast.error('Import failed. Please try again.');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const updateCrawledBuilding = (field, value) => {
+    setCrawledData(prev => ({
+      ...prev,
+      building: { ...prev.building, [field]: value }
+    }));
+  };
+
+  const updateCrawledUnit = (index, field, value) => {
+    setCrawledData(prev => ({
+      ...prev,
+      units: prev.units.map((u, i) => i === index ? { ...u, [field]: value } : u)
+    }));
+  };
+
+  const addCrawledUnit = () => {
+    setCrawledData(prev => ({
+      ...prev,
+      units: [...prev.units, {
+        unit_number: `Unit-${prev.units.length + 1}`,
+        rent: 0,
+        bedrooms: 1,
+        bathrooms: 1,
+        images: []
+      }]
+    }));
+  };
+
+  const removeCrawledUnit = (index) => {
+    setCrawledData(prev => ({
+      ...prev,
+      units: prev.units.filter((_, i) => i !== index)
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Header */}
@@ -854,10 +984,14 @@ const AdminPanel = () => {
         <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
           <Tabs defaultValue="dashboard" className="w-full">
             <CardHeader>
-              <TabsList className="grid w-full grid-cols-8 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-12 bg-slate-700/50">
+                <TabsTrigger value="import" data-testid="import-tab" className="data-[state=active]:bg-green-600 data-[state=active]:text-white col-span-1">
+                  <Plus className="w-4 h-4 mr-1" />
+                  Import
+                </TabsTrigger>
                 <TabsTrigger value="dashboard" data-testid="dashboard-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">All Units</TabsTrigger>
                 <TabsTrigger value="staging" data-testid="staging-tab" onClick={fetchStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500 relative">
-                  Staging Review
+                  Staging
                   {stagingStats.pending > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                       {stagingStats.pending > 99 ? '99+' : stagingStats.pending}
@@ -865,7 +999,7 @@ const AdminPanel = () => {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="unavailability" data-testid="unavailability-tab" onClick={fetchUnavailReviews} className="data-[state=active]:bg-slate-600 data-[state=active]:text-orange-400 relative">
-                  Unavailable
+                  Unavail
                   {unavailStats.pending > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
                       {unavailStats.pending > 99 ? '99+' : unavailStats.pending}
@@ -876,7 +1010,7 @@ const AdminPanel = () => {
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
                 <TabsTrigger value="rented" data-testid="rented-tab" onClick={fetchUnavailableUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-purple-400">
-                  Rented/Off
+                  Rented
                 </TabsTrigger>
                 <TabsTrigger value="rejected" data-testid="rejected-tab" onClick={fetchRejectedStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-red-400">
                   Rejected
@@ -888,6 +1022,92 @@ const AdminPanel = () => {
             </CardHeader>
             
             <CardContent>
+              {/* Property Import Tab */}
+              <TabsContent value="import">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-100">Import New Properties</h3>
+                      <p className="text-sm text-slate-400">Search for building websites and import listings to staging</p>
+                    </div>
+                  </div>
+
+                  {/* Search Box */}
+                  <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-lg p-6">
+                    <div className="flex flex-col gap-4">
+                      <Label className="text-green-300 font-semibold">Search for New Buildings</Label>
+                      <div className="flex gap-3">
+                        <Input
+                          placeholder="e.g., New no fee luxury buildings in Manhattan, Brooklyn and Queens"
+                          value={propertySearchQuery}
+                          onChange={(e) => setPropertySearchQuery(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handlePropertySearch()}
+                          className="flex-1 bg-slate-800 border-slate-600 text-slate-100"
+                        />
+                        <Button 
+                          onClick={handlePropertySearch}
+                          disabled={propertySearching}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          {propertySearching ? (
+                            <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Searching...</>
+                          ) : (
+                            <><RefreshCw className="w-4 h-4 mr-2" /> Search Buildings</>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        AI will search for building management websites and filter out aggregators like StreetEasy, Zillow, etc.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Search Results */}
+                  {propertySearchResults.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-slate-200 font-semibold">Found {propertySearchResults.length} Building Websites</h4>
+                      <div className="grid gap-4">
+                        {propertySearchResults.map((property, index) => (
+                          <div key={index} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex justify-between items-start">
+                            <div className="flex-1">
+                              <h5 className="text-slate-100 font-semibold mb-1">{property.name}</h5>
+                              <p className="text-slate-400 text-sm mb-2">{property.snippet}</p>
+                              <a href={property.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-sm hover:underline flex items-center gap-1">
+                                <ExternalLink className="w-3 h-3" /> {property.domain}
+                              </a>
+                            </div>
+                            <Button
+                              onClick={() => handlePropertyCrawl(property)}
+                              disabled={crawlingProperty}
+                              size="sm"
+                              className="bg-amber-600 hover:bg-amber-700 text-white ml-4"
+                            >
+                              {crawlingProperty && selectedProperty?.url === property.url ? (
+                                <><RefreshCw className="w-4 h-4 mr-1 animate-spin" /> Crawling...</>
+                              ) : (
+                                <><Download className="w-4 h-4 mr-1" /> Crawl & Import</>
+                              )}
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick Tips */}
+                  <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
+                    <h4 className="text-slate-300 font-semibold mb-3">Quick Tips</h4>
+                    <ul className="text-slate-400 text-sm space-y-2">
+                      <li>• Search for "new no fee apartments [neighborhood]" to find building websites</li>
+                      <li>• Results filter out aggregators (StreetEasy, Zillow, etc.) automatically</li>
+                      <li>• Click "Crawl & Import" to extract building and unit data</li>
+                      <li>• Review and edit data before importing to staging</li>
+                      <li>• Imported properties go to Staging for final approval</li>
+                    </ul>
+                  </div>
+                </div>
+              </TabsContent>
+
               {/* All Units Dashboard Tab */}
               <TabsContent value="dashboard">
                 <div className="space-y-6">
@@ -2584,6 +2804,191 @@ const AdminPanel = () => {
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Re-list Unit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Property Import Preview Dialog */}
+        <Dialog open={importPreviewOpen} onOpenChange={setImportPreviewOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-slate-100">Import Preview</DialogTitle>
+              <DialogDescription className="text-slate-400">
+                Review and edit the extracted data before importing to staging
+              </DialogDescription>
+            </DialogHeader>
+
+            {crawledData && (
+              <div className="space-y-6 mt-4">
+                {/* Building Info */}
+                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                  <h4 className="text-amber-400 font-semibold mb-4 flex items-center gap-2">
+                    <Building2 className="w-5 h-5" /> Building Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-400 text-sm">Building Name</Label>
+                      <Input
+                        value={crawledData.building.name || ''}
+                        onChange={(e) => updateCrawledBuilding('name', e.target.value)}
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">Address</Label>
+                      <Input
+                        value={crawledData.building.address || ''}
+                        onChange={(e) => updateCrawledBuilding('address', e.target.value)}
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">Neighborhood</Label>
+                      <Input
+                        value={crawledData.building.neighborhood || ''}
+                        onChange={(e) => updateCrawledBuilding('neighborhood', e.target.value)}
+                        placeholder="e.g., Chelsea, DUMBO, etc."
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">City</Label>
+                      <Input
+                        value={crawledData.building.city || ''}
+                        onChange={(e) => updateCrawledBuilding('city', e.target.value)}
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">State</Label>
+                      <Input
+                        value={crawledData.building.state || ''}
+                        onChange={(e) => updateCrawledBuilding('state', e.target.value)}
+                        placeholder="NY, NJ, PA"
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">Source URL</Label>
+                      <Input
+                        value={crawledData.building.source_url || ''}
+                        onChange={(e) => updateCrawledBuilding('source_url', e.target.value)}
+                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Units */}
+                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-amber-400 font-semibold flex items-center gap-2">
+                      <Home className="w-5 h-5" /> Units ({crawledData.units.length})
+                    </h4>
+                    <Button onClick={addCrawledUnit} size="sm" variant="outline" className="border-green-500 text-green-400 hover:bg-green-500/20">
+                      <Plus className="w-4 h-4 mr-1" /> Add Unit
+                    </Button>
+                  </div>
+                  
+                  {crawledData.units.length === 0 ? (
+                    <p className="text-slate-500 text-sm">No units extracted. Click "Add Unit" to manually add units.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {crawledData.units.map((unit, index) => (
+                        <div key={index} className="bg-slate-800 border border-slate-600 rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <span className="text-slate-300 font-medium">Unit {index + 1}</span>
+                            <Button 
+                              onClick={() => removeCrawledUnit(index)} 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-8 w-8 p-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-4 gap-3">
+                            <div>
+                              <Label className="text-slate-500 text-xs">Unit #</Label>
+                              <Input
+                                value={unit.unit_number || ''}
+                                onChange={(e) => updateCrawledUnit(index, 'unit_number', e.target.value)}
+                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-500 text-xs">Rent ($)</Label>
+                              <Input
+                                type="number"
+                                value={unit.rent || ''}
+                                onChange={(e) => updateCrawledUnit(index, 'rent', parseInt(e.target.value) || 0)}
+                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-500 text-xs">Beds</Label>
+                              <Input
+                                type="number"
+                                value={unit.bedrooms ?? ''}
+                                onChange={(e) => updateCrawledUnit(index, 'bedrooms', parseInt(e.target.value) || 0)}
+                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-500 text-xs">Baths</Label>
+                              <Input
+                                type="number"
+                                value={unit.bathrooms || ''}
+                                onChange={(e) => updateCrawledUnit(index, 'bathrooms', parseInt(e.target.value) || 0)}
+                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Images Preview */}
+                {crawledData.raw_images && crawledData.raw_images.length > 0 && (
+                  <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                    <h4 className="text-amber-400 font-semibold mb-3">Found Images ({crawledData.raw_images.length})</h4>
+                    <div className="grid grid-cols-5 gap-2">
+                      {crawledData.raw_images.slice(0, 10).map((img, index) => (
+                        <div key={index} className="aspect-square bg-slate-700 rounded overflow-hidden">
+                          <img src={img} alt={`Property ${index + 1}`} className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-slate-500 text-xs mt-2">First 10 images shown. All will be imported.</p>
+                  </div>
+                )}
+
+                {crawledData.error && (
+                  <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4">
+                    <p className="text-yellow-400 text-sm"><AlertTriangle className="w-4 h-4 inline mr-2" />{crawledData.message || crawledData.error}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <DialogFooter className="mt-6">
+              <Button variant="outline" onClick={() => setImportPreviewOpen(false)} className="border-slate-600 text-slate-300">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handlePropertyImport} 
+                disabled={importing || !crawledData?.building?.name}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {importing ? (
+                  <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Importing...</>
+                ) : (
+                  <><Upload className="w-4 h-4 mr-2" /> Import to Staging</>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

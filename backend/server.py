@@ -4090,10 +4090,301 @@ async def get_search_analytics(user: User = Depends(require_admin)):
         'avg_target_price': round(avg_target_price, 0),
         'no_match_rate': round(no_match_searches / total_searches * 100, 1) if total_searches > 0 else 0
     }
-    return {
-        'message': f"Successfully set {featured_count} units as featured",
-        'featured_unit_ids': unit_ids
-    }
+
+# ============ PROPERTY SEARCH & IMPORT ============
+
+class PropertySearchRequest(BaseModel):
+    query: str
+    
+class PropertyCrawlRequest(BaseModel):
+    url: str
+    building_name: Optional[str] = None
+
+class PropertyImportRequest(BaseModel):
+    building: dict
+    units: List[dict]
+
+@api_router.post("/admin/property-search")
+async def property_search(request: PropertySearchRequest, user: User = Depends(require_admin)):
+    """
+    AI-powered property search that finds building websites using SerpApi.
+    Returns a list of potential buildings to import.
+    """
+    from serpapi import GoogleSearch
+    import asyncio
+    
+    serpapi_key = os.environ.get('SERPAPI_KEY')
+    if not serpapi_key:
+        raise HTTPException(status_code=500, detail="SerpApi not configured. Add SERPAPI_KEY to environment.")
+    
+    try:
+        loop = asyncio.get_event_loop()
+        
+        def execute_search():
+            search = GoogleSearch({
+                "q": f"{request.query} site:*.com apartments availability official website",
+                "api_key": serpapi_key,
+                "num": 15,
+                "gl": "us",
+                "hl": "en"
+            })
+            return search.get_dict()
+        
+        results = await loop.run_in_executor(None, execute_search)
+        
+        organic_results = results.get("organic_results", [])
+        
+        # Filter and structure results
+        buildings = []
+        seen_domains = set()
+        
+        for result in organic_results:
+            link = result.get("link", "")
+            domain = result.get("displayed_link", "").split("/")[0] if result.get("displayed_link") else ""
+            
+            # Skip aggregators and non-building sites
+            skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
+                          'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
+                          'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia']
+            
+            if any(skip in domain.lower() for skip in skip_domains):
+                continue
+            
+            if domain in seen_domains:
+                continue
+            seen_domains.add(domain)
+            
+            # Check if it looks like a building/property website
+            title = result.get("title", "").lower()
+            snippet = result.get("snippet", "").lower()
+            
+            if any(term in title or term in snippet for term in ['apartment', 'rental', 'residence', 'living', 'lease', 'rent', 'bedroom', 'studio']):
+                buildings.append({
+                    "name": result.get("title", "Unknown Building"),
+                    "url": link,
+                    "domain": domain,
+                    "snippet": result.get("snippet", ""),
+                    "source": "google_search"
+                })
+        
+        return {
+            "query": request.query,
+            "results": buildings[:10],
+            "total_found": len(buildings)
+        }
+        
+    except Exception as e:
+        logger.error(f"Property search error: {e}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.post("/admin/property-crawl")
+async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(require_admin)):
+    """
+    Crawl a building website to extract property data.
+    Returns structured building and unit information for preview.
+    """
+    import httpx
+    from bs4 import BeautifulSoup
+    import re
+    
+    try:
+        # Fetch the page
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            response = await client.get(request.url, headers=headers)
+            response.raise_for_status()
+            html = response.text
+        
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        # Extract building info
+        title = soup.find('title')
+        title_text = title.get_text().strip() if title else ""
+        
+        # Look for address patterns
+        address_pattern = r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Place|Pl|Drive|Dr|Lane|Ln|Way)[\w\s,]*(?:NY|NJ|PA|New York|New Jersey|Pennsylvania)?[\s,]*\d{5}?'
+        address_matches = re.findall(address_pattern, soup.get_text(), re.IGNORECASE)
+        address = address_matches[0] if address_matches else ""
+        
+        # Extract neighborhood from common patterns
+        neighborhood = ""
+        neighborhood_patterns = ['Chelsea', 'Tribeca', 'DUMBO', 'Williamsburg', 'Long Island City', 
+                                'Financial District', 'Midtown', 'Upper West Side', 'Upper East Side',
+                                'Brooklyn Heights', 'Fort Greene', 'Astoria', 'Jersey City', 'Hoboken',
+                                'Harrison', 'SoHo', 'West Village', 'East Village', 'Harlem', 'Murray Hill']
+        page_text = soup.get_text().lower()
+        for n in neighborhood_patterns:
+            if n.lower() in page_text:
+                neighborhood = n
+                break
+        
+        # Extract images
+        images = []
+        for img in soup.find_all('img'):
+            src = img.get('src', '') or img.get('data-src', '')
+            if src and not any(skip in src.lower() for skip in ['logo', 'icon', 'button', 'arrow', 'sprite']):
+                # Make absolute URL
+                if src.startswith('//'):
+                    src = 'https:' + src
+                elif src.startswith('/'):
+                    from urllib.parse import urlparse
+                    parsed = urlparse(request.url)
+                    src = f"{parsed.scheme}://{parsed.netloc}{src}"
+                elif not src.startswith('http'):
+                    from urllib.parse import urljoin
+                    src = urljoin(request.url, src)
+                
+                if src not in images:
+                    images.append(src)
+        
+        # Extract units/apartments info
+        units = []
+        
+        # Look for pricing patterns
+        price_pattern = r'\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:/mo|/month)?'
+        prices = re.findall(price_pattern, soup.get_text())
+        
+        # Look for bedroom patterns
+        bed_pattern = r'(\d+)\s*(?:bed|bedroom|br)|studio'
+        beds = re.findall(bed_pattern, soup.get_text(), re.IGNORECASE)
+        
+        # Look for unit numbers
+        unit_pattern = r'(?:unit|apt|apartment|#)\s*([A-Za-z0-9-]+)'
+        unit_nums = re.findall(unit_pattern, soup.get_text(), re.IGNORECASE)
+        
+        # Try to find availability tables or listings
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all(['td', 'th'])
+                row_text = ' '.join(cell.get_text() for cell in cells)
+                
+                # Check if row contains apartment info
+                if any(term in row_text.lower() for term in ['bed', 'studio', 'rent', '$']):
+                    price_match = re.search(r'\$[\d,]+', row_text)
+                    bed_match = re.search(r'(\d+)\s*(?:bed|br)|studio', row_text, re.IGNORECASE)
+                    unit_match = re.search(r'(?:unit|apt|#)?\s*([A-Za-z0-9-]+)', row_text, re.IGNORECASE)
+                    
+                    if price_match:
+                        unit_data = {
+                            'unit_number': unit_match.group(1) if unit_match else f"Unit-{len(units)+1}",
+                            'rent': int(price_match.group().replace('$', '').replace(',', '')),
+                            'bedrooms': int(bed_match.group(1)) if bed_match and bed_match.group(1) else 0,
+                            'bathrooms': 1,
+                            'images': images[:5] if images else []
+                        }
+                        units.append(unit_data)
+        
+        # If no units found from tables, create sample units from extracted prices
+        if not units and prices:
+            for i, price in enumerate(prices[:5]):
+                price_clean = int(re.sub(r'[^\d]', '', price.split('-')[0].split('/')[0]))
+                if 1000 < price_clean < 50000:  # Reasonable rent range
+                    units.append({
+                        'unit_number': f"Unit-{i+1}",
+                        'rent': price_clean,
+                        'bedrooms': int(beds[i]) if i < len(beds) and beds[i].isdigit() else 1,
+                        'bathrooms': 1,
+                        'images': images[i*2:(i+1)*2] if images else []
+                    })
+        
+        building_data = {
+            'name': request.building_name or title_text.split('|')[0].split('-')[0].strip(),
+            'address': address,
+            'neighborhood': neighborhood,
+            'city': 'New York' if 'NY' in address.upper() else 'Unknown',
+            'state': 'NY' if 'NY' in address.upper() else ('NJ' if 'NJ' in address.upper() else 'Unknown'),
+            'source_url': request.url,
+            'images': images[:10]
+        }
+        
+        return {
+            'building': building_data,
+            'units': units,
+            'raw_images': images[:20],
+            'crawl_status': 'success',
+            'units_found': len(units)
+        }
+        
+    except Exception as e:
+        logger.error(f"Property crawl error: {e}")
+        return {
+            'building': {
+                'name': request.building_name or 'Unknown Building',
+                'source_url': request.url
+            },
+            'units': [],
+            'crawl_status': 'partial',
+            'error': str(e),
+            'message': 'Could not automatically extract data. Please enter manually.'
+        }
+
+@api_router.post("/admin/property-import")
+async def property_import(request: PropertyImportRequest, user: User = Depends(require_admin)):
+    """
+    Import crawled property data to staging for review.
+    """
+    try:
+        batch_id = f"import-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+        
+        # Create staging building
+        building_data = {
+            'id': str(uuid.uuid4()),
+            'name': request.building['name'],
+            'address': request.building.get('address', ''),
+            'neighborhood': request.building.get('neighborhood', ''),
+            'city': request.building.get('city', 'New York'),
+            'state': request.building.get('state', 'NY'),
+            'zip_code': request.building.get('zip_code', ''),
+            'source_url': request.building.get('source_url', ''),
+            'images': request.building.get('images', []),
+            'crawler_source': request.building.get('source_url', ''),
+            'crawler_batch_id': batch_id,
+            'status': 'pending',
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'updated_at': datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.buildings_staging.insert_one(building_data)
+        
+        # Create staging units
+        units_created = 0
+        for unit in request.units:
+            unit_data = {
+                'id': str(uuid.uuid4()),
+                'building_id': building_data['id'],
+                'unit_number': unit.get('unit_number', f"Unit-{units_created+1}"),
+                'rent': unit.get('rent', 0),
+                'bedrooms': unit.get('bedrooms', 0),
+                'bathrooms': unit.get('bathrooms', 1),
+                'square_feet': unit.get('square_feet'),
+                'amenities': unit.get('amenities', []),
+                'images': unit.get('images', []),
+                'description': unit.get('description', ''),
+                'is_available': True,
+                'crawler_source': request.building.get('source_url', ''),
+                'crawler_batch_id': batch_id,
+                'status': 'pending',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.units_staging.insert_one(unit_data)
+            units_created += 1
+        
+        return {
+            'success': True,
+            'building_id': building_data['id'],
+            'units_created': units_created,
+            'batch_id': batch_id,
+            'message': f"Successfully imported {building_data['name']} with {units_created} units to staging."
+        }
+        
+    except Exception as e:
+        logger.error(f"Property import error: {e}")
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
 
 # Note: Router is included after all routes are defined (see below)
 

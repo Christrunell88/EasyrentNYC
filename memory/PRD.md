@@ -100,6 +100,17 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
+### Recent Work (2026-04-02)
+- **Property Import Feature - COMPLETED** (Admin Panel):
+  - Added "Import" tab to Admin Panel (first position, green highlight)
+  - AI-powered property search using SerpApi that finds building management websites
+  - Automatically filters out aggregators (StreetEasy, Zillow, Apartments.com, etc.)
+  - "Crawl & Import" button extracts building data (name, address, neighborhood, images)
+  - Attempts to extract unit information (unit numbers, rent, bedrooms, bathrooms)
+  - Editable preview modal to review/modify data before import
+  - Imports directly to staging for admin approval
+  - Backend endpoints: `/api/admin/property-search`, `/api/admin/property-crawl`, `/api/admin/property-import`
+
 ### Recent Work (2026-03-09)
 - **Hero Carousel Redesign - COMPLETED**:
   - Replaced busy multi-image hero with clean, full-width immersive carousel

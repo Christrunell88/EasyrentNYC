@@ -84,12 +84,24 @@ const AdminPanel = () => {
   const [crawlingProperty, setCrawlingProperty] = useState(false);
   const [importPreviewOpen, setImportPreviewOpen] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [managementCompanies, setManagementCompanies] = useState([]);
 
   useEffect(() => {
     fetchData();
     fetchStagingStats();
     fetchUnavailStats();
+    fetchManagementCompanies();
   }, []);
+
+  // Fetch management companies list
+  const fetchManagementCompanies = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/management-companies`, { withCredentials: true });
+      setManagementCompanies(response.data.companies || []);
+    } catch (error) {
+      console.error('Error fetching management companies:', error);
+    }
+  };
 
   // Fetch just the staging stats (for badge count)
   const fetchStagingStats = async () => {
@@ -735,8 +747,8 @@ const AdminPanel = () => {
   };
 
   // Property Import Functions
-  const handlePropertySearch = async () => {
-    if (!propertySearchQuery.trim()) {
+  const handlePropertySearch = async (searchType = "all") => {
+    if (searchType === "all" && !propertySearchQuery.trim()) {
       toast.error('Please enter a search query');
       return;
     }
@@ -746,7 +758,7 @@ const AdminPanel = () => {
     
     try {
       const response = await axios.post(`${API}/admin/property-search`, 
-        { query: propertySearchQuery },
+        { query: propertySearchQuery || "no fee apartments NYC", search_type: searchType },
         { withCredentials: true }
       );
       setPropertySearchResults(response.data.results || []);
@@ -754,7 +766,12 @@ const AdminPanel = () => {
       if (response.data.results?.length === 0) {
         toast.info('No building websites found. Try a different search query.');
       } else {
-        toast.success(`Found ${response.data.results.length} potential buildings`);
+        const priorityCount = response.data.priority_count || 0;
+        if (priorityCount > 0) {
+          toast.success(`Found ${response.data.results.length} buildings (${priorityCount} from major management companies)`);
+        } else {
+          toast.success(`Found ${response.data.results.length} potential buildings`);
+        }
       }
     } catch (error) {
       console.error('Property search error:', error);
@@ -762,6 +779,19 @@ const AdminPanel = () => {
     } finally {
       setPropertySearching(false);
     }
+  };
+
+  const handleBrowseManagementCompanies = () => {
+    // Show all management companies directly
+    setPropertySearchResults(managementCompanies.map(company => ({
+      name: company.name,
+      url: company.availability_url,
+      domain: company.website.replace("https://", "").replace("http://", ""),
+      snippet: `${company.description}. Areas: ${company.neighborhoods.join(", ")}`,
+      source: "curated_management_company",
+      is_management_company: true
+    })));
+    toast.success(`Showing ${managementCompanies.length} major management companies`);
   };
 
   const handlePropertyCrawl = async (property) => {
@@ -1045,6 +1075,40 @@ const AdminPanel = () => {
                     </div>
                   </div>
 
+                  {/* Management Companies Quick Access */}
+                  <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/30 rounded-lg p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <Label className="text-amber-300 font-semibold text-lg">Major Management Companies</Label>
+                        <p className="text-slate-400 text-sm mt-1">Quick access to known no-fee building operators</p>
+                      </div>
+                      <Button 
+                        onClick={handleBrowseManagementCompanies}
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                      >
+                        <Building2 className="w-4 h-4 mr-2" /> Browse All ({managementCompanies.length})
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {managementCompanies.slice(0, 8).map((company, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handlePropertyCrawl({
+                            name: company.name,
+                            url: company.availability_url,
+                            domain: company.website.replace("https://", ""),
+                            snippet: company.description,
+                            is_management_company: true
+                          })}
+                          className="text-left p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-amber-500/50 hover:bg-slate-800 transition-all group"
+                        >
+                          <p className="text-slate-200 font-medium text-sm group-hover:text-amber-400 truncate">{company.name}</p>
+                          <p className="text-slate-500 text-xs truncate">{company.neighborhoods.join(", ")}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Search Box */}
                   <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-lg p-6">
                     <div className="flex flex-col gap-4">
@@ -1054,11 +1118,11 @@ const AdminPanel = () => {
                           placeholder="e.g., New no fee luxury buildings in Manhattan, Brooklyn and Queens"
                           value={propertySearchQuery}
                           onChange={(e) => setPropertySearchQuery(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && handlePropertySearch()}
+                          onKeyPress={(e) => e.key === 'Enter' && handlePropertySearch("all")}
                           className="flex-1 bg-slate-800 border-slate-600 text-slate-100"
                         />
                         <Button 
-                          onClick={handlePropertySearch}
+                          onClick={() => handlePropertySearch("all")}
                           disabled={propertySearching}
                           className="bg-green-600 hover:bg-green-700 text-white"
                         >
@@ -1070,7 +1134,7 @@ const AdminPanel = () => {
                         </Button>
                       </div>
                       <p className="text-xs text-slate-500">
-                        AI will search for building management websites and filter out aggregators like StreetEasy, Zillow, etc.
+                        AI prioritizes results from major management companies (Two Trees, Rose Associates, TF Cornerstone, etc.) and filters out aggregators.
                       </p>
                     </div>
                   </div>
@@ -1081,9 +1145,14 @@ const AdminPanel = () => {
                       <h4 className="text-slate-200 font-semibold">Found {propertySearchResults.length} Building Websites</h4>
                       <div className="grid gap-4">
                         {propertySearchResults.map((property, index) => (
-                          <div key={index} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex justify-between items-start">
+                          <div key={index} className={`bg-slate-800/50 border rounded-lg p-4 flex justify-between items-start ${property.is_management_company ? 'border-amber-500/50' : 'border-slate-700'}`}>
                             <div className="flex-1">
-                              <h5 className="text-slate-100 font-semibold mb-1">{property.name}</h5>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h5 className="text-slate-100 font-semibold">{property.name}</h5>
+                                {property.is_management_company && (
+                                  <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">Major Company</span>
+                                )}
+                              </div>
                               <p className="text-slate-400 text-sm mb-2">{property.snippet}</p>
                               <a href={property.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-sm hover:underline flex items-center gap-1">
                                 <ExternalLink className="w-3 h-3" /> {property.domain}
@@ -1111,10 +1180,10 @@ const AdminPanel = () => {
                   <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
                     <h4 className="text-slate-300 font-semibold mb-3">Quick Tips</h4>
                     <ul className="text-slate-400 text-sm space-y-2">
-                      <li>• Search for "new no fee apartments [neighborhood]" to find building websites</li>
-                      <li>• Results filter out aggregators (StreetEasy, Zillow, etc.) automatically</li>
-                      <li>• Click "Crawl & Import" to extract building and unit data</li>
-                      <li>• Review and edit data before importing to staging</li>
+                      <li>• <span className="text-amber-400">Start with Management Companies</span> - They have the most no-fee inventory</li>
+                      <li>• Search includes: Two Trees, Rose Associates, TF Cornerstone, Manhattan Skyline, Gotham, Related, Extell, LeFrak</li>
+                      <li>• Results automatically filter out aggregators (StreetEasy, Zillow, etc.)</li>
+                      <li>• Click any company card above for quick access to their availability</li>
                       <li>• Imported properties go to Staging for final approval</li>
                     </ul>
                   </div>

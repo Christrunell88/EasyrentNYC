@@ -4095,6 +4095,7 @@ async def get_search_analytics(user: User = Depends(require_admin)):
 
 class PropertySearchRequest(BaseModel):
     query: str
+    search_type: str = "all"  # "all", "management_companies", "custom"
     
 class PropertyCrawlRequest(BaseModel):
     url: str
@@ -4104,11 +4105,107 @@ class PropertyImportRequest(BaseModel):
     building: dict
     units: List[dict]
 
+# Known management companies with their property/availability URLs
+MANAGEMENT_COMPANIES = [
+    {
+        "name": "Two Trees Management",
+        "website": "https://www.twotreesny.com",
+        "availability_url": "https://www.twotreesny.com/availabilities",
+        "neighborhoods": ["DUMBO", "Williamsburg", "Brooklyn"],
+        "description": "Major Brooklyn developer with luxury no-fee buildings"
+    },
+    {
+        "name": "Rose Associates",
+        "website": "https://www.roseassociates.com",
+        "availability_url": "https://www.roseassociates.com/availabilities",
+        "neighborhoods": ["Manhattan", "Multiple"],
+        "description": "Large NYC property manager with diverse portfolio"
+    },
+    {
+        "name": "TF Cornerstone",
+        "website": "https://www.tfcornerstone.com",
+        "availability_url": "https://www.tfcornerstone.com/apartments",
+        "neighborhoods": ["Long Island City", "Manhattan", "Brooklyn"],
+        "description": "Major developer in LIC and Manhattan waterfront"
+    },
+    {
+        "name": "Manhattan Skyline",
+        "website": "https://www.manhattanskyline.com",
+        "availability_url": "https://www.manhattanskyline.com/availability",
+        "neighborhoods": ["Chelsea", "Midtown", "Financial District"],
+        "description": "Luxury Manhattan no-fee apartments"
+    },
+    {
+        "name": "Gotham Organization",
+        "website": "https://www.gothamorg.com",
+        "availability_url": "https://www.gothamorg.com/availabilities",
+        "neighborhoods": ["Manhattan", "Brooklyn"],
+        "description": "NYC developer with multiple luxury buildings"
+    },
+    {
+        "name": "Brookfield Properties",
+        "website": "https://www.brookfieldproperties.com",
+        "availability_url": "https://www.brookfieldproperties.com/en/properties.html",
+        "neighborhoods": ["Manhattan", "Multiple"],
+        "description": "Major commercial and residential developer"
+    },
+    {
+        "name": "Related Companies",
+        "website": "https://www.related.com",
+        "availability_url": "https://www.related.com/rentals",
+        "neighborhoods": ["Hudson Yards", "Manhattan"],
+        "description": "Hudson Yards developer with luxury rentals"
+    },
+    {
+        "name": "Extell Development",
+        "website": "https://www.extelldev.com",
+        "availability_url": "https://www.extelldev.com/rentals",
+        "neighborhoods": ["Manhattan", "Upper West Side"],
+        "description": "Luxury Manhattan high-rise developer"
+    },
+    {
+        "name": "LeFrak",
+        "website": "https://www.lefrak.com",
+        "availability_url": "https://www.lefrak.com/residential",
+        "neighborhoods": ["Jersey City", "Queens"],
+        "description": "Major developer in Jersey City and Queens"
+    },
+    {
+        "name": "Avalon Bay",
+        "website": "https://www.avaloncommunities.com",
+        "availability_url": "https://www.avaloncommunities.com/new-york",
+        "neighborhoods": ["Multiple NYC Areas"],
+        "description": "National apartment developer with NYC presence"
+    },
+    {
+        "name": "Equity Residential",
+        "website": "https://www.equityapartments.com",
+        "availability_url": "https://www.equityapartments.com/new-york-city",
+        "neighborhoods": ["Manhattan", "Brooklyn"],
+        "description": "Large national REIT with NYC properties"
+    },
+    {
+        "name": "The Durst Organization",
+        "website": "https://www.durst.org",
+        "availability_url": "https://www.durst.org/residential",
+        "neighborhoods": ["Midtown", "Financial District"],
+        "description": "Historic NYC developer and property manager"
+    }
+]
+
+@api_router.get("/admin/management-companies")
+async def get_management_companies(user: User = Depends(require_admin)):
+    """Get list of known management companies for quick search."""
+    return {
+        "companies": MANAGEMENT_COMPANIES,
+        "total": len(MANAGEMENT_COMPANIES)
+    }
+
 @api_router.post("/admin/property-search")
 async def property_search(request: PropertySearchRequest, user: User = Depends(require_admin)):
     """
     AI-powered property search that finds building websites using SerpApi.
-    Returns a list of potential buildings to import.
+    Prioritizes known management companies and filters aggregators.
     """
     from serpapi import GoogleSearch
     import asyncio
@@ -4118,13 +4215,37 @@ async def property_search(request: PropertySearchRequest, user: User = Depends(r
         raise HTTPException(status_code=500, detail="SerpApi not configured. Add SERPAPI_KEY to environment.")
     
     try:
+        buildings = []
+        
+        # If searching management companies, return the curated list
+        if request.search_type == "management_companies":
+            for company in MANAGEMENT_COMPANIES:
+                buildings.append({
+                    "name": company["name"],
+                    "url": company["availability_url"],
+                    "domain": company["website"].replace("https://", "").replace("http://", ""),
+                    "snippet": f"{company['description']}. Areas: {', '.join(company['neighborhoods'])}",
+                    "source": "curated_management_company",
+                    "is_management_company": True
+                })
+            return {
+                "query": request.query,
+                "results": buildings,
+                "total_found": len(buildings),
+                "search_type": "management_companies"
+            }
+        
         loop = asyncio.get_event_loop()
+        
+        # Enhanced search query with management company patterns
+        management_terms = "Two Trees OR Rose Associates OR TF Cornerstone OR Manhattan Skyline OR Gotham OR Related OR Extell OR LeFrak"
+        search_query = f"{request.query} ({management_terms}) apartments availability -streeteasy -zillow"
         
         def execute_search():
             search = GoogleSearch({
-                "q": f"{request.query} site:*.com apartments availability official website",
+                "q": search_query,
                 "api_key": serpapi_key,
-                "num": 15,
+                "num": 20,
                 "gl": "us",
                 "hl": "en"
             })
@@ -4135,17 +4256,25 @@ async def property_search(request: PropertySearchRequest, user: User = Depends(r
         organic_results = results.get("organic_results", [])
         
         # Filter and structure results
-        buildings = []
         seen_domains = set()
+        
+        # Skip aggregators and non-building sites
+        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
+                      'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
+                      'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia', 'craigslist',
+                      'reddit', 'pinterest', 'glassdoor', 'indeed', 'nytimes', 'curbed']
+        
+        # Priority domains from management companies
+        priority_domains = ['twotreesny.com', 'roseassociates.com', 'tfcornerstone.com', 
+                          'manhattanskyline.com', 'gothamorg.com', 'related.com',
+                          'extelldev.com', 'lefrak.com', 'durst.org', 'brookfieldproperties.com']
+        
+        priority_results = []
+        other_results = []
         
         for result in organic_results:
             link = result.get("link", "")
             domain = result.get("displayed_link", "").split("/")[0] if result.get("displayed_link") else ""
-            
-            # Skip aggregators and non-building sites
-            skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
-                          'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
-                          'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia']
             
             if any(skip in domain.lower() for skip in skip_domains):
                 continue
@@ -4158,19 +4287,34 @@ async def property_search(request: PropertySearchRequest, user: User = Depends(r
             title = result.get("title", "").lower()
             snippet = result.get("snippet", "").lower()
             
-            if any(term in title or term in snippet for term in ['apartment', 'rental', 'residence', 'living', 'lease', 'rent', 'bedroom', 'studio']):
-                buildings.append({
+            property_terms = ['apartment', 'rental', 'residence', 'living', 'lease', 'rent', 
+                            'bedroom', 'studio', 'availability', 'no fee', 'no broker']
+            
+            if any(term in title or term in snippet for term in property_terms):
+                building_data = {
                     "name": result.get("title", "Unknown Building"),
                     "url": link,
                     "domain": domain,
                     "snippet": result.get("snippet", ""),
-                    "source": "google_search"
-                })
+                    "source": "google_search",
+                    "is_management_company": any(pd in domain.lower() for pd in priority_domains)
+                }
+                
+                # Prioritize management company results
+                if building_data["is_management_company"]:
+                    priority_results.append(building_data)
+                else:
+                    other_results.append(building_data)
+        
+        # Combine with priority results first
+        buildings = priority_results + other_results
         
         return {
             "query": request.query,
-            "results": buildings[:10],
-            "total_found": len(buildings)
+            "results": buildings[:15],
+            "total_found": len(buildings),
+            "search_type": "web_search",
+            "priority_count": len(priority_results)
         }
         
     except Exception as e:

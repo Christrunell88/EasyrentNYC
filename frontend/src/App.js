@@ -25,6 +25,7 @@ import HowItWorks from './pages/HowItWorks';
 import BrooklynPage from './pages/BrooklynPage';
 import ManhattanPage from './pages/ManhattanPage';
 import QueensPage from './pages/QueensPage';
+import NewJerseyPage from './pages/NewJerseyPage';
 import AISearchAgent from './components/AISearchAgent';
 import { initGA, trackPageView } from './utils/analytics';
 import useAuthStore from './store/authStore';
@@ -169,6 +170,7 @@ function App() {
             <Route path="/brooklyn" element={<BrooklynPage />} />
             <Route path="/manhattan" element={<ManhattanPage />} />
             <Route path="/queens" element={<QueensPage />} />
+            <Route path="/new-jersey" element={<NewJerseyPage />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route
               path="/dashboard"

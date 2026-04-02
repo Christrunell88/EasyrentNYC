@@ -25,6 +25,7 @@ def generate_sitemap(units: List[dict], buildings: List[dict], base_url: str = "
         {"loc": "/brooklyn", "priority": "0.95", "changefreq": "daily"},  # High-value SEO page
         {"loc": "/manhattan", "priority": "0.95", "changefreq": "daily"},  # High-value SEO page
         {"loc": "/queens", "priority": "0.95", "changefreq": "daily"},  # High-value SEO page
+        {"loc": "/new-jersey", "priority": "0.95", "changefreq": "daily"},  # High-value SEO page
         {"loc": "/faq", "priority": "0.7", "changefreq": "monthly"},
         {"loc": "/blog", "priority": "0.7", "changefreq": "weekly"},
         {"loc": "/blog/guide-to-no-fee-apartments", "priority": "0.6", "changefreq": "monthly"},

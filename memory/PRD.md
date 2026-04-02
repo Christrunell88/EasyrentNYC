@@ -150,6 +150,17 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
   - Full Schema.org structured data
   - Added to sitemap with 0.95 priority
 
+- **New Jersey SEO Landing Page - COMPLETED** (`/new-jersey`):
+  - Created dedicated high-value SEO page targeting "Best No Fee Apartments in New Jersey"
+  - Hero with dynamic stats (37+ listings, $2,893 avg rent, $0 broker fees)
+  - Transit highlight: "10-20 min PATH train to Manhattan"
+  - "Why Choose NJ Over NYC?" benefits card
+  - NJ Towns grid (Jersey City, Hoboken, Weehawken, Harrison, Newark, Edgewater, Fort Lee, Union City)
+  - Commute time section (Exchange Place→WTC: 10min, Hoboken→33rd: 15min, Harrison→WTC: 20min)
+  - FAQ section with 5 SEO-optimized Q&As and Schema.org FAQPage markup
+  - Full Schema.org structured data
+  - Added to sitemap with 0.95 priority
+
 - **Queens SEO Landing Page - COMPLETED** (`/queens`):
   - Created dedicated high-value SEO page targeting "Best No Fee Apartments in Queens"
   - Hero with dynamic stats (21+ listings, $4,460 avg rent, $0 broker fees)

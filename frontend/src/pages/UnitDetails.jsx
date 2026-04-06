@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, CalendarPlus, CheckCircle2, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Building2, BedDouble, Bath, Heart, MapPin, Calendar, Send, Share2, Clock, ChevronLeft, ChevronRight, CalendarPlus, CheckCircle2, Mail, Phone, ExternalLink } from 'lucide-react';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import GoogleMapEmbed from '@/components/GoogleMapEmbed';
@@ -117,6 +117,74 @@ const UnitDetails = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [successOpen, setSuccessOpen] = useState(false);
   const [scheduledViewing, setScheduledViewing] = useState({ date: null, time: null });
+  const [calendarStatus, setCalendarStatus] = useState({ connected: false, calendar_enabled: false });
+  const [addingToCalendar, setAddingToCalendar] = useState(false);
+  const [calendarEventLink, setCalendarEventLink] = useState(null);
+
+  useEffect(() => {
+    fetchUnit();
+    checkFavorite();
+    checkCalendarStatus();
+  }, [id]);
+
+  const checkCalendarStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/calendar/status`, { withCredentials: true });
+      setCalendarStatus(response.data);
+    } catch (error) {
+      // User might not be logged in, that's okay
+      console.log('Calendar status check skipped');
+    }
+  };
+
+  const connectCalendar = async () => {
+    try {
+      const response = await axios.get(`${API}/calendar/connect`, { withCredentials: true });
+      if (response.data.authorization_url) {
+        window.location.href = response.data.authorization_url;
+      }
+    } catch (error) {
+      toast.error('Failed to connect to Google Calendar');
+    }
+  };
+
+  const scheduleViewingWithCalendar = async () => {
+    if (!scheduledViewing.date || !scheduledViewing.time) {
+      toast.error('Please select a date and time first');
+      return;
+    }
+
+    setAddingToCalendar(true);
+    try {
+      // Map time slot to actual time
+      const timeMap = {
+        'morning': '10:00',
+        'afternoon': '14:00',
+        'evening': '18:00'
+      };
+      
+      const response = await axios.post(`${API}/viewings/schedule`, {
+        unit_id: id,
+        viewing_date: scheduledViewing.date,
+        viewing_time: timeMap[scheduledViewing.time] || '14:00',
+        notes: `Scheduled via NoFeesApts.com`
+      }, { withCredentials: true });
+
+      if (response.data.viewing?.calendar_link) {
+        setCalendarEventLink(response.data.viewing.calendar_link);
+        toast.success('Added to your Google Calendar!');
+      } else if (response.data.viewing?.calendar_added) {
+        toast.success('Added to your Google Calendar!');
+      } else {
+        toast.success('Viewing scheduled! Connect Google Calendar to add automatically.');
+      }
+    } catch (error) {
+      console.error('Error scheduling viewing:', error);
+      toast.error('Failed to add to calendar');
+    } finally {
+      setAddingToCalendar(false);
+    }
+  };
 
   useEffect(() => {
     fetchUnit();
@@ -877,21 +945,73 @@ const UnitDetails = () => {
               We'll confirm your appointment shortly. Add it to your calendar so you don't forget!
             </DialogDescription>
             
-            {/* Google Calendar Button */}
-            <Button 
-              onClick={openGoogleCalendar}
-              className="w-full bg-white hover:bg-amber-500/10 text-gray-900 border border-amber-300 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 mb-3 rounded-none"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#D4AF37"/>
-              </svg>
-              Add to Google Calendar
-            </Button>
+            {/* Calendar Options */}
+            {calendarStatus.calendar_enabled && (
+              <div className="w-full space-y-3 mb-3">
+                {calendarStatus.connected ? (
+                  <>
+                    {calendarEventLink ? (
+                      <a 
+                        href={calendarEventLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-green-500/10 hover:bg-green-500/20 text-green-700 border border-green-400 py-4 font-philosopher flex items-center justify-center gap-3 rounded-none"
+                      >
+                        <CheckCircle2 className="w-5 h-5" />
+                        Added to Calendar - View Event
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    ) : (
+                      <Button 
+                        onClick={scheduleViewingWithCalendar}
+                        disabled={addingToCalendar}
+                        className="w-full bg-white hover:bg-amber-500/10 text-gray-900 border border-amber-300 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 rounded-none"
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
+                          <path d="M16 2v4M8 2v4M3 10h18" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#D4AF37"/>
+                        </svg>
+                        {addingToCalendar ? 'Adding...' : 'Add to Google Calendar'}
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <Button 
+                    onClick={connectCalendar}
+                    className="w-full bg-white hover:bg-amber-500/10 text-gray-900 border border-amber-300 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 rounded-none"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
+                      <path d="M16 2v4M8 2v4M3 10h18" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#D4AF37"/>
+                    </svg>
+                    Connect Google Calendar
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* Fallback: Manual Google Calendar link */}
+            {(!calendarStatus.calendar_enabled || !calendarStatus.connected) && (
+              <Button 
+                onClick={openGoogleCalendar}
+                className="w-full bg-white hover:bg-amber-500/10 text-gray-900 border border-amber-300 hover:border-[#D4AF37] py-5 font-philosopher flex items-center justify-center gap-3 mb-3 rounded-none"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.316 5.684H5.684A2.684 2.684 0 003 8.368v10.948a2.684 2.684 0 002.684 2.684h12.632a2.684 2.684 0 002.684-2.684V8.368a2.684 2.684 0 00-2.684-2.684z" fill="#1a1a1a" stroke="#D4AF37" strokeWidth="1.5"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M7 14h2v2H7v-2zM11 14h2v2h-2v-2zM15 14h2v2h-2v-2z" fill="#D4AF37"/>
+                </svg>
+                Add to Google Calendar
+              </Button>
+            )}
 
             <Button 
-              onClick={() => setSuccessOpen(false)}
+              onClick={() => {
+                setSuccessOpen(false);
+                setCalendarEventLink(null);
+              }}
               className="w-full bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-5 font-philosopher font-bold rounded-none tracking-wide"
             >
               Done

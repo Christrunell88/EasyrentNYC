@@ -100,6 +100,25 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
+### Recent Work (2026-04-06) - Continued
+- **Google Search Console + Twilio SMS + Google Calendar Integration - IN PROGRESS**:
+  - **Google Search Console** - Verification meta tag added to index.html (user needs to add their verification code)
+  - **Twilio SMS Service** - Full backend implementation ready:
+    - `twilio_sms_service.py` - SMS sending functions
+    - SavedSearch model updated with `user_phone`, `notify_sms` fields
+    - Alert job updated to send both email AND SMS based on user preferences
+    - SavedSearchModal updated with SMS opt-in checkbox and phone input
+  - **Google Calendar Integration** - Full OAuth flow implemented:
+    - `google_calendar_service.py` - Calendar event creation
+    - OAuth endpoints: `/api/calendar/connect`, `/api/oauth/calendar/callback`
+    - Viewing scheduling: `/api/viewings/schedule`, `/api/viewings`, `/api/viewings/{id}`
+    - `viewings` collection for tracking scheduled viewings
+  - **Services Status Endpoint** - `/api/services/status` shows which services are available
+  - **PENDING CREDENTIALS**:
+    - Twilio: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
+    - Google Calendar: `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`
+    - Google Search Console: Verification code in index.html
+
 ### Recent Work (2026-04-06)
 - **Social Proof & Email Alerts - COMPLETED**:
   - **Social Proof Strip** - Dynamic strip below hero showing: signups today, total users, active search alerts, viewing requests today

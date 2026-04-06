@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Bell, BellRing, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Bell, BellRing, Trash2, ToggleLeft, ToggleRight, Mail, Smartphone } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import { toast } from 'sonner';
@@ -17,18 +18,32 @@ const SavedSearchModal = ({
 }) => {
   const [name, setName] = useState('');
   const [alertFrequency, setAlertFrequency] = useState('daily');
+  const [notifyEmail, setNotifyEmail] = useState(true);
+  const [notifySms, setNotifySms] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loadingSearches, setLoadingSearches] = useState(false);
   const [view, setView] = useState('save'); // 'save' or 'manage'
+  const [servicesStatus, setServicesStatus] = useState({ sms_service: false });
 
   useEffect(() => {
     if (open) {
       fetchSavedSearches();
+      fetchServicesStatus();
       // Generate default name based on filters
       generateDefaultName();
     }
   }, [open, currentFilters]);
+
+  const fetchServicesStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/services/status`);
+      setServicesStatus(response.data);
+    } catch (error) {
+      console.error('Error fetching services status:', error);
+    }
+  };
 
   const generateDefaultName = () => {
     const parts = [];
@@ -69,6 +84,16 @@ const SavedSearchModal = ({
       return;
     }
 
+    if (notifySms && !phoneNumber.trim()) {
+      toast.error('Please enter a phone number for SMS alerts');
+      return;
+    }
+
+    if (!notifyEmail && !notifySms) {
+      toast.error('Please select at least one notification method');
+      return;
+    }
+
     setSaving(true);
     try {
       const searchData = {
@@ -79,11 +104,14 @@ const SavedSearchModal = ({
         bathrooms: currentFilters.bathrooms ? parseFloat(currentFilters.bathrooms) : null,
         state: currentFilters.state || null,
         neighborhood: currentFilters.neighborhood || null,
-        alert_frequency: alertFrequency
+        alert_frequency: alertFrequency,
+        notify_email: notifyEmail,
+        notify_sms: notifySms,
+        phone_number: notifySms ? phoneNumber.trim() : null
       };
 
-      await axios.post(`${API}/saved-searches`, searchData, { withCredentials: true });
-      toast.success('Search saved! You\'ll receive email alerts for new matches.');
+      const response = await axios.post(`${API}/saved-searches`, searchData, { withCredentials: true });
+      toast.success(response.data.message);
       fetchSavedSearches();
       setView('manage');
       if (onSearchSaved) onSearchSaved();
@@ -200,9 +228,51 @@ const SavedSearchModal = ({
                   <SelectItem value="weekly">Weekly digest</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
-                We'll email you when new apartments match your search
-              </p>
+            </div>
+
+            {/* Notification methods */}
+            <div className="space-y-3">
+              <Label className="text-gray-700">How should we notify you?</Label>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="notify-email" 
+                  checked={notifyEmail}
+                  onCheckedChange={setNotifyEmail}
+                />
+                <label htmlFor="notify-email" className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  Email alerts
+                </label>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="notify-sms" 
+                    checked={notifySms}
+                    onCheckedChange={setNotifySms}
+                    disabled={!servicesStatus.sms_service}
+                  />
+                  <label htmlFor="notify-sms" className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <Smartphone className="w-4 h-4 text-gray-500" />
+                    SMS alerts
+                    {!servicesStatus.sms_service && (
+                      <span className="text-xs text-gray-400">(coming soon)</span>
+                    )}
+                  </label>
+                </div>
+                
+                {notifySms && servicesStatus.sms_service && (
+                  <Input
+                    type="tel"
+                    placeholder="Phone number (e.g., +1 555 123 4567)"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="bg-white border-gray-300 mt-2"
+                  />
+                )}
+              </div>
             </div>
 
             {savedSearches.length > 0 && (

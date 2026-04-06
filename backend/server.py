@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query, BackgroundTasks, UploadFile, File
-from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -87,6 +87,39 @@ try:
 except Exception as e:
     EMAIL_SERVICE_AVAILABLE = False
     logger.warning(f"Email service not available: {str(e)}")
+
+# Import Twilio SMS service
+SMS_SERVICE_AVAILABLE = False
+try:
+    from twilio_sms_service import (
+        send_sms, send_saved_search_alert_sms, 
+        send_viewing_confirmation_sms, is_sms_enabled
+    )
+    SMS_SERVICE_AVAILABLE = is_sms_enabled()
+    if SMS_SERVICE_AVAILABLE:
+        logger.info("Twilio SMS service loaded successfully")
+    else:
+        logger.warning("Twilio SMS service loaded but not configured")
+except Exception as e:
+    SMS_SERVICE_AVAILABLE = False
+    logger.warning(f"SMS service not available: {str(e)}")
+
+# Import Google Calendar service
+CALENDAR_SERVICE_AVAILABLE = False
+try:
+    from google_calendar_service import (
+        get_oauth_authorization_url, exchange_code_for_tokens,
+        get_user_email_from_token, create_viewing_event,
+        delete_viewing_event, is_calendar_enabled
+    )
+    CALENDAR_SERVICE_AVAILABLE = is_calendar_enabled()
+    if CALENDAR_SERVICE_AVAILABLE:
+        logger.info("Google Calendar service loaded successfully")
+    else:
+        logger.warning("Google Calendar service loaded but not configured")
+except Exception as e:
+    CALENDAR_SERVICE_AVAILABLE = False
+    logger.warning(f"Calendar service not available: {str(e)}")
 
 # Import database seeding module
 SEED_MODULE_AVAILABLE = False
@@ -276,6 +309,7 @@ class SavedSearch(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     user_email: str
+    user_phone: Optional[str] = None  # For SMS alerts
     name: str  # User-friendly name for the search
     # Search criteria
     bedrooms: Optional[int] = None  # 0 for studio, None for any
@@ -286,6 +320,8 @@ class SavedSearch(BaseModel):
     neighborhood: Optional[str] = None
     # Alert settings
     alert_frequency: str = "daily"  # daily, weekly, instant
+    notify_email: bool = True
+    notify_sms: bool = False
     is_active: bool = True
     last_alert_sent: Optional[datetime] = None
     # Track what was already sent
@@ -461,6 +497,16 @@ class SavedSearchInput(BaseModel):
     state: Optional[str] = None
     neighborhood: Optional[str] = None
     alert_frequency: str = "daily"  # daily, weekly, instant
+    phone_number: Optional[str] = None  # For SMS alerts
+    notify_email: bool = True
+    notify_sms: bool = False
+
+class ScheduleViewingInput(BaseModel):
+    """Input model for scheduling apartment viewings"""
+    unit_id: str
+    viewing_date: str  # ISO format date
+    viewing_time: str  # HH:MM format
+    notes: Optional[str] = None
 
 # ============ AUTH HELPERS ============
 
@@ -1516,15 +1562,23 @@ async def get_saved_searches(user: User = Depends(require_auth)):
 
 @api_router.post("/saved-searches")
 async def create_saved_search(input: SavedSearchInput, user: User = Depends(require_auth)):
-    """Create a new saved search for email alerts"""
+    """Create a new saved search for email/SMS alerts"""
     # Check if user already has a similar search
     existing_count = await db.saved_searches.count_documents({'user_id': user.id})
     if existing_count >= 10:
         raise HTTPException(status_code=400, detail="Maximum 10 saved searches allowed")
     
+    # Validate SMS request
+    if input.notify_sms and not input.phone_number:
+        raise HTTPException(status_code=400, detail="Phone number required for SMS alerts")
+    
+    if input.notify_sms and not SMS_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="SMS service not available")
+    
     saved_search = SavedSearch(
         user_id=user.id,
         user_email=user.email,
+        user_phone=input.phone_number,
         name=input.name,
         bedrooms=input.bedrooms,
         min_rent=input.min_rent,
@@ -1532,7 +1586,9 @@ async def create_saved_search(input: SavedSearchInput, user: User = Depends(requ
         bathrooms=input.bathrooms,
         state=input.state,
         neighborhood=input.neighborhood,
-        alert_frequency=input.alert_frequency
+        alert_frequency=input.alert_frequency,
+        notify_email=input.notify_email,
+        notify_sms=input.notify_sms
     )
     
     search_dict = saved_search.model_dump()
@@ -1540,14 +1596,30 @@ async def create_saved_search(input: SavedSearchInput, user: User = Depends(requ
     search_dict['updated_at'] = search_dict['updated_at'].isoformat()
     await db.saved_searches.insert_one(search_dict)
     
-    logger.info(f"Saved search created for user {user.email}: {input.name}")
+    # Update user's phone if provided and not already set
+    if input.phone_number:
+        await db.users.update_one(
+            {'id': user.id, 'phone_number': {'$exists': False}},
+            {'$set': {'phone_number': input.phone_number}}
+        )
+    
+    logger.info(f"Saved search created for user {user.email}: {input.name} (email={input.notify_email}, sms={input.notify_sms})")
+    
+    alert_types = []
+    if input.notify_email:
+        alert_types.append("email")
+    if input.notify_sms:
+        alert_types.append("SMS")
+    alert_text = " and ".join(alert_types) if alert_types else "email"
     
     return {
-        'message': 'Search saved! You will receive email alerts for matching listings.',
+        'message': f'Search saved! You will receive {alert_text} alerts for matching listings.',
         'search': {
             'id': saved_search.id,
             'name': saved_search.name,
-            'alert_frequency': saved_search.alert_frequency
+            'alert_frequency': saved_search.alert_frequency,
+            'notify_email': saved_search.notify_email,
+            'notify_sms': saved_search.notify_sms
         }
     }
 
@@ -1662,6 +1734,225 @@ async def get_social_proof():
             'total_units': 180,
             'total_subscribers': 0
         }
+
+# ============ CALENDAR & VIEWING ROUTES ============
+
+@api_router.get("/calendar/status")
+async def get_calendar_status(user: User = Depends(require_auth)):
+    """Check if user has connected Google Calendar"""
+    user_doc = await db.users.find_one({'id': user.id})
+    has_calendar = bool(user_doc and user_doc.get('google_calendar_tokens'))
+    
+    return {
+        'connected': has_calendar,
+        'calendar_enabled': CALENDAR_SERVICE_AVAILABLE
+    }
+
+@api_router.get("/calendar/connect")
+async def connect_calendar(request: Request, user: User = Depends(require_auth)):
+    """Initiate Google Calendar OAuth flow"""
+    if not CALENDAR_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Calendar service not configured")
+    
+    # Get the base URL from request
+    base_url = str(request.base_url).rstrip('/')
+    redirect_uri = f"{base_url}/api/oauth/calendar/callback"
+    
+    auth_url = get_oauth_authorization_url(
+        redirect_uri=redirect_uri,
+        state=user.id  # Pass user ID as state for callback
+    )
+    
+    if not auth_url:
+        raise HTTPException(status_code=500, detail="Failed to generate auth URL")
+    
+    return {'authorization_url': auth_url}
+
+@api_router.get("/oauth/calendar/callback")
+async def calendar_oauth_callback(code: str, state: str, request: Request):
+    """Handle Google Calendar OAuth callback"""
+    if not CALENDAR_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Calendar service not configured")
+    
+    base_url = str(request.base_url).rstrip('/')
+    redirect_uri = f"{base_url}/api/oauth/calendar/callback"
+    
+    # Exchange code for tokens
+    tokens = exchange_code_for_tokens(code, redirect_uri)
+    if not tokens:
+        # Redirect to frontend with error
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+        return RedirectResponse(f"{frontend_url}/dashboard?calendar_error=auth_failed")
+    
+    # Get user email from token to verify
+    token_email = get_user_email_from_token(tokens.get('access_token'))
+    
+    # State contains user ID
+    user_id = state
+    
+    # Store tokens in user document
+    await db.users.update_one(
+        {'id': user_id},
+        {
+            '$set': {
+                'google_calendar_tokens': tokens,
+                'google_calendar_email': token_email,
+                'google_calendar_connected_at': datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    logger.info(f"Google Calendar connected for user {user_id}")
+    
+    # Redirect to frontend with success
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+    return RedirectResponse(f"{frontend_url}/dashboard?calendar_connected=true")
+
+@api_router.delete("/calendar/disconnect")
+async def disconnect_calendar(user: User = Depends(require_auth)):
+    """Disconnect Google Calendar"""
+    await db.users.update_one(
+        {'id': user.id},
+        {
+            '$unset': {
+                'google_calendar_tokens': '',
+                'google_calendar_email': '',
+                'google_calendar_connected_at': ''
+            }
+        }
+    )
+    
+    return {'message': 'Calendar disconnected'}
+
+@api_router.post("/viewings/schedule")
+async def schedule_viewing(
+    input: ScheduleViewingInput,
+    user: User = Depends(require_auth)
+):
+    """Schedule an apartment viewing and add to calendar"""
+    # Get unit and building info
+    unit = await db.units.find_one({'id': input.unit_id}, {"_id": 0})
+    if not unit:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    
+    building = await db.buildings.find_one({'id': unit.get('building_id')}, {"_id": 0})
+    if not building:
+        raise HTTPException(status_code=404, detail="Building not found")
+    
+    # Parse viewing datetime
+    try:
+        viewing_datetime = datetime.fromisoformat(f"{input.viewing_date}T{input.viewing_time}:00")
+        viewing_datetime = viewing_datetime.replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date/time format")
+    
+    # Create viewing record
+    viewing = {
+        'id': str(uuid.uuid4()),
+        'user_id': user.id,
+        'user_email': user.email,
+        'unit_id': input.unit_id,
+        'building_id': building.get('id'),
+        'building_name': building.get('name'),
+        'unit_number': unit.get('unit_number'),
+        'address': building.get('address'),
+        'viewing_datetime': viewing_datetime.isoformat(),
+        'notes': input.notes,
+        'status': 'scheduled',
+        'calendar_event_id': None,
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Try to add to Google Calendar if connected
+    user_doc = await db.users.find_one({'id': user.id})
+    calendar_tokens = user_doc.get('google_calendar_tokens') if user_doc else None
+    
+    if calendar_tokens and CALENDAR_SERVICE_AVAILABLE:
+        event_result = create_viewing_event(
+            tokens=calendar_tokens,
+            building_name=building.get('name'),
+            unit_number=unit.get('unit_number', 'N/A'),
+            address=building.get('address', ''),
+            viewing_datetime=viewing_datetime,
+            notes=input.notes
+        )
+        
+        if event_result:
+            viewing['calendar_event_id'] = event_result.get('id')
+            viewing['calendar_event_link'] = event_result.get('htmlLink')
+            
+            # Update tokens if refreshed
+            if event_result.get('updated_tokens'):
+                await db.users.update_one(
+                    {'id': user.id},
+                    {'$set': {'google_calendar_tokens': event_result['updated_tokens']}}
+                )
+    
+    # Save viewing to database
+    await db.viewings.insert_one(viewing)
+    
+    # Send SMS confirmation if user has phone
+    if SMS_SERVICE_AVAILABLE and user_doc.get('phone_number'):
+        send_viewing_confirmation_sms(
+            phone_number=user_doc['phone_number'],
+            building_name=building.get('name'),
+            unit_number=unit.get('unit_number', 'N/A'),
+            viewing_date=input.viewing_date,
+            viewing_time=input.viewing_time
+        )
+    
+    logger.info(f"Viewing scheduled for user {user.email}: {building.get('name')} on {input.viewing_date}")
+    
+    return {
+        'message': 'Viewing scheduled successfully',
+        'viewing': {
+            'id': viewing['id'],
+            'building_name': viewing['building_name'],
+            'unit_number': viewing['unit_number'],
+            'viewing_datetime': viewing['viewing_datetime'],
+            'calendar_added': bool(viewing.get('calendar_event_id')),
+            'calendar_link': viewing.get('calendar_event_link')
+        }
+    }
+
+@api_router.get("/viewings")
+async def get_user_viewings(user: User = Depends(require_auth)):
+    """Get user's scheduled viewings"""
+    viewings = await db.viewings.find(
+        {'user_id': user.id},
+        {"_id": 0}
+    ).sort('viewing_datetime', 1).to_list(100)
+    
+    return viewings
+
+@api_router.delete("/viewings/{viewing_id}")
+async def cancel_viewing(viewing_id: str, user: User = Depends(require_auth)):
+    """Cancel a scheduled viewing"""
+    viewing = await db.viewings.find_one({'id': viewing_id, 'user_id': user.id})
+    if not viewing:
+        raise HTTPException(status_code=404, detail="Viewing not found")
+    
+    # Delete from Google Calendar if connected
+    if viewing.get('calendar_event_id'):
+        user_doc = await db.users.find_one({'id': user.id})
+        calendar_tokens = user_doc.get('google_calendar_tokens') if user_doc else None
+        
+        if calendar_tokens and CALENDAR_SERVICE_AVAILABLE:
+            delete_viewing_event(calendar_tokens, viewing['calendar_event_id'])
+    
+    # Delete viewing record
+    await db.viewings.delete_one({'id': viewing_id})
+    
+    return {'message': 'Viewing cancelled'}
+
+@api_router.get("/services/status")
+async def get_services_status():
+    """Get status of external services"""
+    return {
+        'email_service': EMAIL_SERVICE_AVAILABLE,
+        'sms_service': SMS_SERVICE_AVAILABLE,
+        'calendar_service': CALENDAR_SERVICE_AVAILABLE
+    }
 
 # ============ CONTACT ROUTES ============
 
@@ -5753,15 +6044,34 @@ async def process_saved_search_alerts():
                         'neighborhood': search.get('neighborhood')
                     }
                     
-                    email_sent = send_saved_search_alert_email(
-                        user_email=search['user_email'],
-                        user_name=user_name,
-                        search_name=search['name'],
-                        matching_units=units,
-                        search_criteria=search_criteria
-                    )
+                    # Send notifications based on user preferences
+                    notification_sent = False
                     
-                    if email_sent:
+                    # Send email if enabled
+                    if search.get('notify_email', True):
+                        email_sent = send_saved_search_alert_email(
+                            user_email=search['user_email'],
+                            user_name=user_name,
+                            search_name=search['name'],
+                            matching_units=units,
+                            search_criteria=search_criteria
+                        )
+                        if email_sent:
+                            notification_sent = True
+                            logger.info(f"Email alert sent to {search['user_email']} for search '{search['name']}'")
+                    
+                    # Send SMS if enabled and phone number available
+                    if search.get('notify_sms') and search.get('user_phone') and SMS_SERVICE_AVAILABLE:
+                        sms_sent = send_saved_search_alert_sms(
+                            phone_number=search['user_phone'],
+                            search_name=search['name'],
+                            matching_units=units
+                        )
+                        if sms_sent:
+                            notification_sent = True
+                            logger.info(f"SMS alert sent to {search['user_phone']} for search '{search['name']}'")
+                    
+                    if notification_sent:
                         alerts_sent += 1
                         # Update search with notified units
                         new_notified_ids = notified_ids + [u['id'] for u in units]
@@ -5775,7 +6085,7 @@ async def process_saved_search_alerts():
                                 }
                             }
                         )
-                        logger.info(f"Alert sent to {search['user_email']} for search '{search['name']}' with {len(units)} units")
+                        logger.info(f"Alerts sent for search '{search['name']}' with {len(units)} units")
                 else:
                     # No new matches, just update last_checked
                     await db.saved_searches.update_one(

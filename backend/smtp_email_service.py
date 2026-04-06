@@ -361,6 +361,112 @@ class SMTPEmailService:
 smtp_service = SMTPEmailService()
 
 
+def send_saved_search_alert_email(
+    user_email: str,
+    user_name: str,
+    search_name: str,
+    matching_units: list,
+    search_criteria: dict
+) -> bool:
+    """Send email alert for new matching listings"""
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://nofeesapts.com')
+    
+    # Build criteria description
+    criteria_parts = []
+    if search_criteria.get('bedrooms') is not None:
+        bed_text = "Studio" if search_criteria['bedrooms'] == 0 else f"{search_criteria['bedrooms']} Bed"
+        criteria_parts.append(bed_text)
+    if search_criteria.get('min_rent') and search_criteria.get('max_rent'):
+        criteria_parts.append(f"${search_criteria['min_rent']:,.0f} - ${search_criteria['max_rent']:,.0f}")
+    elif search_criteria.get('max_rent'):
+        criteria_parts.append(f"Under ${search_criteria['max_rent']:,.0f}")
+    elif search_criteria.get('min_rent'):
+        criteria_parts.append(f"${search_criteria['min_rent']:,.0f}+")
+    if search_criteria.get('state'):
+        criteria_parts.append(search_criteria['state'])
+    if search_criteria.get('neighborhood'):
+        criteria_parts.append(search_criteria['neighborhood'])
+    
+    criteria_text = " • ".join(criteria_parts) if criteria_parts else "All no-fee apartments"
+    
+    # Build units HTML
+    units_html = ""
+    for unit in matching_units[:5]:  # Max 5 units per email
+        beds = "Studio" if unit.get('bedrooms', 0) == 0 else f"{unit.get('bedrooms')} Bed"
+        building_name = unit.get('building', {}).get('name', 'Unknown Building')
+        neighborhood = unit.get('building', {}).get('neighborhood', '')
+        image_url = unit.get('images', [])[0] if unit.get('images') else None
+        
+        image_html = f'<img src="{image_url}" alt="Apartment" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;" />' if image_url else ''
+        
+        units_html += f'''
+        <div style="background: white; border-radius: 8px; overflow: hidden; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            {image_html}
+            <div style="padding: 15px;">
+                <div style="display: inline-block; background: #ef4444; color: white; padding: 3px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;">NO FEE</div>
+                <h3 style="margin: 10px 0 5px 0; color: #1e293b;">{building_name}</h3>
+                <p style="margin: 5px 0; color: #64748b; font-size: 14px;">{neighborhood}</p>
+                <p style="margin: 10px 0; font-size: 20px; font-weight: bold; color: #f59e0b;">${unit.get('rent', 0):,.0f}/mo</p>
+                <p style="margin: 5px 0; color: #475569; font-size: 14px;">{beds} • {unit.get('bathrooms', 1)} Bath</p>
+                <a href="{frontend_url}/unit/{unit.get('id')}" style="display: inline-block; margin-top: 10px; background: #f59e0b; color: white; padding: 8px 20px; text-decoration: none; border-radius: 5px; font-size: 14px;">View Details</a>
+            </div>
+        </div>
+        '''
+    
+    more_html = ""
+    if len(matching_units) > 5:
+        more_html = f'''
+        <div style="text-align: center; margin: 20px 0;">
+            <p style="color: #64748b;">+ {len(matching_units) - 5} more matching listings</p>
+            <a href="{frontend_url}/dashboard" style="display: inline-block; background: #f59e0b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">View All Matches</a>
+        </div>
+        '''
+    
+    subject = f"🏠 {len(matching_units)} New Apartment{'s' if len(matching_units) > 1 else ''} Match Your Search - {search_name}"
+    
+    body = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f8f9fa; margin: 0; padding: 0;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">🔔 New Matches Found!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+                <p style="font-size: 16px;">Hi {user_name or 'there'},</p>
+                
+                <p>Great news! We found <strong>{len(matching_units)} new no-fee apartment{'s' if len(matching_units) > 1 else ''}</strong> matching your saved search:</p>
+                
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                    <p style="margin: 0; font-weight: bold; color: #92400e;">📍 {search_name}</p>
+                    <p style="margin: 5px 0 0 0; color: #78350f; font-size: 14px;">{criteria_text}</p>
+                </div>
+                
+                <h2 style="color: #1e293b; margin-top: 30px; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">New Listings:</h2>
+                
+                {units_html}
+                
+                {more_html}
+                
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                
+                <p style="color: #64748b; font-size: 14px; text-align: center;">
+                    <a href="{frontend_url}/dashboard" style="color: #f59e0b;">Manage your saved searches</a> | 
+                    <a href="{frontend_url}" style="color: #f59e0b;">NoFeesApts.com</a>
+                </p>
+                
+                <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 20px;">
+                    You're receiving this because you have active search alerts on NoFeesApts.com
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return smtp_service.send_email(user_email, subject, body)
+
+
 # Async wrapper functions for use in FastAPI
 async def send_welcome_subscriber_email(email: str) -> bool:
     """Async wrapper for sending welcome subscriber email"""

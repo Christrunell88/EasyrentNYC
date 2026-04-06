@@ -270,6 +270,30 @@ class Favorite(BaseModel):
     unit_id: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class SavedSearch(BaseModel):
+    """Saved search for email alerts"""
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_email: str
+    name: str  # User-friendly name for the search
+    # Search criteria
+    bedrooms: Optional[int] = None  # 0 for studio, None for any
+    min_rent: Optional[float] = None
+    max_rent: Optional[float] = None
+    bathrooms: Optional[float] = None
+    state: Optional[str] = None  # NY, NJ, PA
+    neighborhood: Optional[str] = None
+    # Alert settings
+    alert_frequency: str = "daily"  # daily, weekly, instant
+    is_active: bool = True
+    last_alert_sent: Optional[datetime] = None
+    # Track what was already sent
+    last_checked_at: Optional[datetime] = None
+    notified_unit_ids: List[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class ContactRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -426,6 +450,17 @@ class StagingBulkReviewInput(BaseModel):
     ids: List[str]
     review_status: str  # "approved" or "rejected"
     reviewer_notes: Optional[str] = None
+
+class SavedSearchInput(BaseModel):
+    """Input model for creating/updating saved searches"""
+    name: str
+    bedrooms: Optional[int] = None
+    min_rent: Optional[float] = None
+    max_rent: Optional[float] = None
+    bathrooms: Optional[float] = None
+    state: Optional[str] = None
+    neighborhood: Optional[str] = None
+    alert_frequency: str = "daily"  # daily, weekly, instant
 
 # ============ AUTH HELPERS ============
 
@@ -1467,6 +1502,166 @@ async def remove_favorite(unit_id: str, user: User = Depends(require_auth)):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Favorite not found")
     return {'message': 'Removed from favorites'}
+
+# ============ SAVED SEARCHES ROUTES ============
+
+@api_router.get("/saved-searches")
+async def get_saved_searches(user: User = Depends(require_auth)):
+    """Get user's saved searches"""
+    searches = await db.saved_searches.find(
+        {'user_id': user.id},
+        {"_id": 0}
+    ).sort('created_at', -1).to_list(100)
+    return searches
+
+@api_router.post("/saved-searches")
+async def create_saved_search(input: SavedSearchInput, user: User = Depends(require_auth)):
+    """Create a new saved search for email alerts"""
+    # Check if user already has a similar search
+    existing_count = await db.saved_searches.count_documents({'user_id': user.id})
+    if existing_count >= 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 saved searches allowed")
+    
+    saved_search = SavedSearch(
+        user_id=user.id,
+        user_email=user.email,
+        name=input.name,
+        bedrooms=input.bedrooms,
+        min_rent=input.min_rent,
+        max_rent=input.max_rent,
+        bathrooms=input.bathrooms,
+        state=input.state,
+        neighborhood=input.neighborhood,
+        alert_frequency=input.alert_frequency
+    )
+    
+    search_dict = saved_search.model_dump()
+    search_dict['created_at'] = search_dict['created_at'].isoformat()
+    search_dict['updated_at'] = search_dict['updated_at'].isoformat()
+    await db.saved_searches.insert_one(search_dict)
+    
+    logger.info(f"Saved search created for user {user.email}: {input.name}")
+    
+    return {
+        'message': 'Search saved! You will receive email alerts for matching listings.',
+        'search': {
+            'id': saved_search.id,
+            'name': saved_search.name,
+            'alert_frequency': saved_search.alert_frequency
+        }
+    }
+
+@api_router.put("/saved-searches/{search_id}")
+async def update_saved_search(search_id: str, input: SavedSearchInput, user: User = Depends(require_auth)):
+    """Update a saved search"""
+    existing = await db.saved_searches.find_one({'id': search_id, 'user_id': user.id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Saved search not found")
+    
+    update_data = input.model_dump()
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.saved_searches.update_one(
+        {'id': search_id},
+        {'$set': update_data}
+    )
+    
+    return {'message': 'Saved search updated'}
+
+@api_router.delete("/saved-searches/{search_id}")
+async def delete_saved_search(search_id: str, user: User = Depends(require_auth)):
+    """Delete a saved search"""
+    result = await db.saved_searches.delete_one({'id': search_id, 'user_id': user.id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Saved search not found")
+    return {'message': 'Saved search deleted'}
+
+@api_router.put("/saved-searches/{search_id}/toggle")
+async def toggle_saved_search(search_id: str, user: User = Depends(require_auth)):
+    """Toggle saved search active/inactive"""
+    existing = await db.saved_searches.find_one({'id': search_id, 'user_id': user.id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Saved search not found")
+    
+    new_active = not existing.get('is_active', True)
+    await db.saved_searches.update_one(
+        {'id': search_id},
+        {'$set': {'is_active': new_active, 'updated_at': datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {'message': f'Search alerts {"enabled" if new_active else "disabled"}', 'is_active': new_active}
+
+@api_router.post("/admin/trigger-search-alerts")
+async def trigger_search_alerts(user: User = Depends(require_admin)):
+    """Manually trigger saved search alerts (admin only)"""
+    try:
+        alerts_sent = await process_saved_search_alerts()
+        return {
+            'message': f'Saved search alerts processed. {alerts_sent} alerts sent.',
+            'alerts_sent': alerts_sent
+        }
+    except Exception as e:
+        logger.error(f"Error triggering search alerts: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ SOCIAL PROOF ROUTES ============
+
+@api_router.get("/social-proof")
+async def get_social_proof():
+    """Get social proof data for landing page"""
+    try:
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_ago = now - timedelta(days=7)
+        
+        # Count users who signed up today
+        signups_today = await db.users.count_documents({
+            'created_at': {'$gte': today_start.isoformat()}
+        })
+        
+        # Count users who signed up this week
+        signups_this_week = await db.users.count_documents({
+            'created_at': {'$gte': week_ago.isoformat()}
+        })
+        
+        # Total users
+        total_users = await db.users.count_documents({})
+        
+        # Recent inquiries (contact requests)
+        inquiries_today = await db.contact_requests.count_documents({
+            'created_at': {'$gte': today_start.isoformat()}
+        })
+        
+        # Active saved searches
+        active_searches = await db.saved_searches.count_documents({'is_active': True})
+        
+        # Total units
+        total_units = await db.units.count_documents({'is_available': True})
+        
+        # Total subscribers
+        total_subscribers = await db.email_subscribers.count_documents({'active': True})
+        
+        return {
+            'signups_today': signups_today,
+            'signups_this_week': signups_this_week,
+            'total_users': total_users,
+            'inquiries_today': inquiries_today,
+            'active_searches': active_searches,
+            'total_units': total_units,
+            'total_subscribers': total_subscribers,
+            'generated_at': now.isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting social proof data: {e}")
+        return {
+            'signups_today': 0,
+            'signups_this_week': 0,
+            'total_users': 0,
+            'inquiries_today': 0,
+            'active_searches': 0,
+            'total_units': 180,
+            'total_subscribers': 0
+        }
 
 # ============ CONTACT ROUTES ============
 
@@ -5473,6 +5668,143 @@ def scheduled_stale_check_job():
     except Exception as e:
         logger.error(f"Scheduled stale check error: {e}")
 
+async def process_saved_search_alerts():
+    """Process saved search alerts and send email notifications"""
+    from smtp_email_service import send_saved_search_alert_email
+    
+    logger.info("Processing saved search alerts...")
+    
+    try:
+        # Get all active saved searches
+        searches = await db.saved_searches.find({
+            'is_active': True
+        }).to_list(1000)
+        
+        alerts_sent = 0
+        
+        for search in searches:
+            try:
+                # Build query for matching units
+                query = {'is_available': True}
+                
+                if search.get('bedrooms') is not None:
+                    query['bedrooms'] = search['bedrooms']
+                if search.get('min_rent'):
+                    query['rent'] = query.get('rent', {})
+                    query['rent']['$gte'] = search['min_rent']
+                if search.get('max_rent'):
+                    query['rent'] = query.get('rent', {})
+                    query['rent']['$lte'] = search['max_rent']
+                if search.get('bathrooms'):
+                    query['bathrooms'] = search['bathrooms']
+                
+                # Get units created since last check
+                last_checked = search.get('last_checked_at')
+                if last_checked:
+                    if isinstance(last_checked, str):
+                        last_checked_dt = datetime.fromisoformat(last_checked)
+                    else:
+                        last_checked_dt = last_checked
+                    query['created_at'] = {'$gt': last_checked_dt.isoformat()}
+                else:
+                    # First time - only get units from last 24 hours
+                    yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
+                    query['created_at'] = {'$gt': yesterday.isoformat()}
+                
+                # Get matching units excluding already notified
+                notified_ids = search.get('notified_unit_ids', [])
+                if notified_ids:
+                    query['id'] = {'$nin': notified_ids}
+                
+                units = await db.units.find(query, {"_id": 0}).limit(20).to_list(20)
+                
+                # Filter by state/neighborhood if specified (requires building lookup)
+                if search.get('state') or search.get('neighborhood'):
+                    building_query = {}
+                    if search.get('state'):
+                        building_query['state'] = search['state']
+                    if search.get('neighborhood'):
+                        building_query['neighborhood'] = {'$regex': search['neighborhood'], '$options': 'i'}
+                    
+                    if building_query:
+                        buildings = await db.buildings.find(building_query, {"_id": 0}).to_list(1000)
+                        building_ids = {b['id'] for b in buildings}
+                        units = [u for u in units if u.get('building_id') in building_ids]
+                
+                if units:
+                    # Enrich units with building data
+                    for unit in units:
+                        building = await db.buildings.find_one(
+                            {'id': unit.get('building_id')}, 
+                            {"_id": 0}
+                        )
+                        unit['building'] = building
+                    
+                    # Get user info
+                    user = await db.users.find_one({'id': search['user_id']})
+                    user_name = user.get('name', 'Apartment Hunter') if user else 'Apartment Hunter'
+                    
+                    # Send email
+                    search_criteria = {
+                        'bedrooms': search.get('bedrooms'),
+                        'min_rent': search.get('min_rent'),
+                        'max_rent': search.get('max_rent'),
+                        'state': search.get('state'),
+                        'neighborhood': search.get('neighborhood')
+                    }
+                    
+                    email_sent = send_saved_search_alert_email(
+                        user_email=search['user_email'],
+                        user_name=user_name,
+                        search_name=search['name'],
+                        matching_units=units,
+                        search_criteria=search_criteria
+                    )
+                    
+                    if email_sent:
+                        alerts_sent += 1
+                        # Update search with notified units
+                        new_notified_ids = notified_ids + [u['id'] for u in units]
+                        await db.saved_searches.update_one(
+                            {'id': search['id']},
+                            {
+                                '$set': {
+                                    'last_checked_at': datetime.now(timezone.utc).isoformat(),
+                                    'last_alert_sent': datetime.now(timezone.utc).isoformat(),
+                                    'notified_unit_ids': new_notified_ids[-100]  # Keep last 100
+                                }
+                            }
+                        )
+                        logger.info(f"Alert sent to {search['user_email']} for search '{search['name']}' with {len(units)} units")
+                else:
+                    # No new matches, just update last_checked
+                    await db.saved_searches.update_one(
+                        {'id': search['id']},
+                        {'$set': {'last_checked_at': datetime.now(timezone.utc).isoformat()}}
+                    )
+            
+            except Exception as e:
+                logger.error(f"Error processing search {search.get('id')}: {e}")
+                continue
+        
+        logger.info(f"Saved search alerts completed: {alerts_sent} alerts sent")
+        return alerts_sent
+    
+    except Exception as e:
+        logger.error(f"Error in saved search alerts job: {e}")
+        return 0
+
+def scheduled_saved_search_alerts_job():
+    """Run saved search alerts daily"""
+    import asyncio
+    
+    logger.info("Starting scheduled saved search alerts...")
+    try:
+        alerts_sent = asyncio.run(process_saved_search_alerts())
+        logger.info(f"Scheduled saved search alerts completed: {alerts_sent} alerts sent")
+    except Exception as e:
+        logger.error(f"Scheduled saved search alerts error: {e}")
+
 # Schedule crawl every 48 hours
 scheduler.add_job(
     scheduled_crawl_job,
@@ -5489,10 +5821,18 @@ scheduler.add_job(
     replace_existing=True
 )
 
+# Schedule saved search alerts every 6 hours
+scheduler.add_job(
+    scheduled_saved_search_alerts_job,
+    trigger=IntervalTrigger(hours=6),
+    id='saved_search_alerts_job',
+    replace_existing=True
+)
+
 @app.on_event("startup")
 async def startup_event():
     scheduler.start()
-    logger.info("Scheduler started - crawling every 48 hours, stale check daily")
+    logger.info("Scheduler started - crawling every 48 hours, stale check daily, saved search alerts every 6 hours")
 
 @app.on_event("shutdown")
 async def shutdown_event():

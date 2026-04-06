@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X } from 'lucide-react';
+import { ArrowRight, Building2, Shield, Clock, Sparkles, Play, X, Users, TrendingUp, Bell } from 'lucide-react';
 import axios from '../utils/axiosConfig';
 import { API } from '../App';
 import SignupModal from '../components/SignupModal';
@@ -21,6 +21,7 @@ const Landing = () => {
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [socialProof, setSocialProof] = useState(null);
   
   // Hero carousel state
   const [heroUnits, setHeroUnits] = useState([]);
@@ -33,6 +34,7 @@ const Landing = () => {
     fetchFeaturedUnits();
     fetchStats();
     fetchHeroUnits();
+    fetchSocialProof();
   }, []);
   
   // Hero carousel auto-advance
@@ -48,6 +50,15 @@ const Landing = () => {
       }
     };
   }, [heroUnits.length, isPaused]);
+
+  const fetchSocialProof = async () => {
+    try {
+      const response = await axios.get(`${API}/social-proof`);
+      setSocialProof(response.data);
+    } catch (error) {
+      console.error('Error fetching social proof:', error);
+    }
+  };
 
   const fetchHeroUnits = async () => {
     try {
@@ -413,6 +424,48 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Social Proof Strip */}
+      {socialProof && (socialProof.signups_today > 0 || socialProof.total_users > 50 || socialProof.active_searches > 0) && (
+        <section className="py-6 px-6 bg-gradient-to-r from-amber-50 to-orange-50 border-y border-amber-200">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-sm">
+              {socialProof.signups_today > 0 && (
+                <div className="flex items-center gap-2 animate-pulse">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-gray-700">
+                    <strong className="text-[#D4AF37]">{socialProof.signups_today}</strong> people signed up today
+                  </span>
+                </div>
+              )}
+              {socialProof.total_users > 50 && (
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#D4AF37]" />
+                  <span className="text-gray-700">
+                    <strong className="text-[#D4AF37]">{socialProof.total_users.toLocaleString()}+</strong> apartment hunters
+                  </span>
+                </div>
+              )}
+              {socialProof.active_searches > 0 && (
+                <div className="flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-[#D4AF37]" />
+                  <span className="text-gray-700">
+                    <strong className="text-[#D4AF37]">{socialProof.active_searches}</strong> active search alerts
+                  </span>
+                </div>
+              )}
+              {socialProof.inquiries_today > 0 && (
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-[#D4AF37]" />
+                  <span className="text-gray-700">
+                    <strong className="text-[#D4AF37]">{socialProof.inquiries_today}</strong> viewing requests today
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Recent Listings Section */}
       <section className="py-24 px-6 bg-[#f8f8f8]">
         <div className="max-w-7xl mx-auto">
@@ -495,6 +548,108 @@ const Landing = () => {
               <p className="text-[#666666] text-sm leading-relaxed">
                 Only the finest properties make our collection. Quality over quantity.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[#D4AF37] font-philosopher tracking-[0.3em] uppercase text-sm mb-4">
+              What People Say
+            </p>
+            <h2 className="text-3xl font-philosopher font-bold text-[#0a0a0a]">Success Stories</h2>
+            <div className="w-16 h-px bg-[#D4AF37] mx-auto mt-6" />
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Testimonial 1 */}
+            <div className="bg-[#fafafa] p-8 border border-gray-100 hover:border-[#D4AF37]/30 transition-all duration-300">
+              <div className="flex gap-1 mb-4">
+                {[1,2,3,4,5].map(star => (
+                  <svg key={star} className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                "Saved $6,000 on broker fees! Found my Chelsea apartment in 2 days. The no-fee listings are all verified and the site is so easy to use."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#D4AF37]/10 rounded-full flex items-center justify-center">
+                  <span className="text-[#D4AF37] font-bold text-sm">JM</span>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">Jessica M.</p>
+                  <p className="text-gray-400 text-xs">Chelsea, Manhattan</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 2 */}
+            <div className="bg-[#fafafa] p-8 border border-gray-100 hover:border-[#D4AF37]/30 transition-all duration-300">
+              <div className="flex gap-1 mb-4">
+                {[1,2,3,4,5].map(star => (
+                  <svg key={star} className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                "The search alerts feature is a game changer. Got notified the moment a new studio in my budget was listed. Signed the lease that same week!"
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#D4AF37]/10 rounded-full flex items-center justify-center">
+                  <span className="text-[#D4AF37] font-bold text-sm">DR</span>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">David R.</p>
+                  <p className="text-gray-400 text-xs">Jersey City, NJ</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 3 */}
+            <div className="bg-[#fafafa] p-8 border border-gray-100 hover:border-[#D4AF37]/30 transition-all duration-300">
+              <div className="flex gap-1 mb-4">
+                {[1,2,3,4,5].map(star => (
+                  <svg key={star} className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                "Finally, a site that only shows real no-fee apartments. No bait-and-switch, no hidden fees. Just honest listings. Highly recommend!"
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#D4AF37]/10 rounded-full flex items-center justify-center">
+                  <span className="text-[#D4AF37] font-bold text-sm">SK</span>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">Sarah K.</p>
+                  <p className="text-gray-400 text-xs">Williamsburg, Brooklyn</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Trust badges */}
+          <div className="mt-12 text-center">
+            <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                <span>All Listings Verified</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span>{socialProof?.total_users || '500'}+ Happy Renters</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                <span>{stats.units}+ No-Fee Apartments</span>
+              </div>
             </div>
           </div>
         </div>

@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings, Eye, Share2, Map, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Building2, BedDouble, Bath, DollarSign, Heart, LogOut, User, Settings, Eye, Share2, Map, SlidersHorizontal, X, ChevronDown, Bell, BellRing } from 'lucide-react';
 import Logo from '@/components/Logo';
 import ShareDialog from '@/components/ShareDialog';
 import SEO from '@/components/SEO';
 import ApartmentMap from '@/components/ApartmentMap';
 import ListingCard from '@/components/ListingCard';
+import SavedSearchModal from '@/components/SavedSearchModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { trackApartmentView, trackApartmentFavorite, trackMapView, trackFilterUsage } from '../utils/analytics';
 import useAuthStore from '../store/authStore';
@@ -31,6 +32,8 @@ const Dashboard = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
+  const [savedSearchModalOpen, setSavedSearchModalOpen] = useState(false);
+  const [savedSearchCount, setSavedSearchCount] = useState(0);
   
   // Track map view when it changes
   useEffect(() => {
@@ -57,7 +60,17 @@ const Dashboard = () => {
     fetchUnits();
     fetchFavorites();
     fetchRecommendations();
+    fetchSavedSearchCount();
   }, [bedrooms, minRent, maxRent, bathrooms, state]);
+
+  const fetchSavedSearchCount = async () => {
+    try {
+      const response = await axios.get(`${API}/saved-searches`, { withCredentials: true });
+      setSavedSearchCount(response.data.length);
+    } catch (error) {
+      console.error('Error fetching saved search count:', error);
+    }
+  };
 
   const fetchRecommendations = async () => {
     try {
@@ -416,6 +429,19 @@ const Dashboard = () => {
                 </Button>
               </>
             )}
+            
+            {/* Save Search Button */}
+            <div className="w-px h-6 bg-gray-300" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSavedSearchModalOpen(true)}
+              data-testid="save-search-btn"
+              className="h-9 px-4 border-amber-400 text-amber-600 hover:bg-amber-50 hover:border-amber-500 flex items-center gap-2"
+            >
+              <Bell className="w-4 h-4" />
+              {savedSearchCount > 0 ? `Alerts (${savedSearchCount})` : 'Save Search'}
+            </Button>
           </div>
 
           {/* Mobile Filter Bar - Light Theme */}
@@ -938,6 +964,20 @@ const Dashboard = () => {
           building={selectedUnit.building}
         />
       )}
+
+      {/* Saved Search Modal */}
+      <SavedSearchModal
+        open={savedSearchModalOpen}
+        onOpenChange={setSavedSearchModalOpen}
+        currentFilters={{
+          bedrooms,
+          minRent,
+          maxRent,
+          bathrooms,
+          state
+        }}
+        onSearchSaved={fetchSavedSearchCount}
+      />
     </div>
   );
 };

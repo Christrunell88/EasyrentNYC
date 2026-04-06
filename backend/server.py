@@ -3839,6 +3839,57 @@ async def reject_batch_staging_units(
         "reason": reason
     }
 
+
+class BulkDeleteInput(BaseModel):
+    """Input model for bulk delete operations"""
+    ids: List[str]
+
+
+@api_router.post("/admin/staging/units/bulk-delete")
+async def bulk_delete_staging_units(
+    input: BulkDeleteInput,
+    user: User = Depends(require_admin)
+):
+    """
+    Bulk delete staging units.
+    """
+    if not input.ids:
+        raise HTTPException(status_code=400, detail="No unit IDs provided")
+    
+    result = await db.units_staging.delete_many({"id": {"$in": input.ids}})
+    
+    logger.info(f"Admin {user.email} bulk deleted {result.deleted_count} staging units")
+    
+    return {
+        "message": f"{result.deleted_count} staging unit(s) deleted",
+        "deleted_count": result.deleted_count
+    }
+
+
+@api_router.post("/admin/units/bulk-delete")
+async def bulk_delete_production_units(
+    input: BulkDeleteInput,
+    user: User = Depends(require_admin)
+):
+    """
+    Bulk delete production units.
+    """
+    if not input.ids:
+        raise HTTPException(status_code=400, detail="No unit IDs provided")
+    
+    # Delete units
+    result = await db.units.delete_many({"id": {"$in": input.ids}})
+    
+    # Also delete any associated favorites
+    await db.favorites.delete_many({"unit_id": {"$in": input.ids}})
+    
+    logger.info(f"Admin {user.email} bulk deleted {result.deleted_count} production units")
+    
+    return {
+        "message": f"{result.deleted_count} unit(s) deleted from production",
+        "deleted_count": result.deleted_count
+    }
+
 # ============ PROMOTION SERVICE ENDPOINTS ============
 
 @api_router.post("/staging/promote/{unit_id}")

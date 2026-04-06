@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail, ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertTriangle, Edit, Clock, ExternalLink, Image as ImageIcon, Upload, X, RotateCcw, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -74,6 +75,14 @@ const AdminPanel = () => {
   // Rejected Staging Units State
   const [rejectedStagingUnits, setRejectedStagingUnits] = useState([]);
   const [rejectedStagingLoading, setRejectedStagingLoading] = useState(false);
+
+  // Bulk Selection State for Staging
+  const [selectedStagingUnits, setSelectedStagingUnits] = useState(new Set());
+  const [bulkDeletingStaging, setBulkDeletingStaging] = useState(false);
+
+  // Bulk Selection State for Approved/Production Units
+  const [selectedProductionUnits, setSelectedProductionUnits] = useState(new Set());
+  const [bulkDeletingProduction, setBulkDeletingProduction] = useState(false);
 
   // Property Import State
   const [propertySearchQuery, setPropertySearchQuery] = useState('');
@@ -442,6 +451,98 @@ const AdminPanel = () => {
     } catch (error) {
       console.error('Error rejecting unit:', error);
       toast.error(error.response?.data?.detail || 'Failed to reject unit');
+    }
+  };
+
+  // Toggle staging unit selection for bulk operations
+  const toggleStagingSelection = (unitId) => {
+    setSelectedStagingUnits(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(unitId)) {
+        newSet.delete(unitId);
+      } else {
+        newSet.add(unitId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select/Deselect all staging units
+  const toggleAllStagingSelection = () => {
+    if (selectedStagingUnits.size === stagingUnits.length) {
+      setSelectedStagingUnits(new Set());
+    } else {
+      setSelectedStagingUnits(new Set(stagingUnits.map(u => u.id)));
+    }
+  };
+
+  // Bulk delete staging units
+  const handleBulkDeleteStaging = async () => {
+    if (selectedStagingUnits.size === 0) return;
+    
+    if (!confirm(`Are you sure you want to delete ${selectedStagingUnits.size} staging unit(s)? This cannot be undone.`)) {
+      return;
+    }
+    
+    setBulkDeletingStaging(true);
+    try {
+      const ids = Array.from(selectedStagingUnits);
+      await axios.post(`${API}/admin/staging/units/bulk-delete`, { ids }, { withCredentials: true });
+      toast.success(`${ids.length} staging unit(s) deleted`);
+      setSelectedStagingUnits(new Set());
+      fetchStagingUnits();
+      fetchStagingStats();
+    } catch (error) {
+      console.error('Error bulk deleting staging units:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete staging units');
+    } finally {
+      setBulkDeletingStaging(false);
+    }
+  };
+
+  // Toggle production unit selection for bulk operations
+  const toggleProductionSelection = (unitId) => {
+    setSelectedProductionUnits(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(unitId)) {
+        newSet.delete(unitId);
+      } else {
+        newSet.add(unitId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select/Deselect all production units on current page
+  const toggleAllProductionSelection = () => {
+    const currentPageUnits = paginatedUnits();
+    if (selectedProductionUnits.size === currentPageUnits.length) {
+      setSelectedProductionUnits(new Set());
+    } else {
+      setSelectedProductionUnits(new Set(currentPageUnits.map(u => u.id)));
+    }
+  };
+
+  // Bulk delete production units
+  const handleBulkDeleteProduction = async () => {
+    if (selectedProductionUnits.size === 0) return;
+    
+    if (!confirm(`Are you sure you want to delete ${selectedProductionUnits.size} approved unit(s)? This will remove them from the live site and cannot be undone.`)) {
+      return;
+    }
+    
+    setBulkDeletingProduction(true);
+    try {
+      const ids = Array.from(selectedProductionUnits);
+      await axios.post(`${API}/admin/units/bulk-delete`, { ids }, { withCredentials: true });
+      toast.success(`${ids.length} unit(s) deleted from production`);
+      setSelectedProductionUnits(new Set());
+      fetchData();
+    } catch (error) {
+      console.error('Error bulk deleting production units:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete units');
+    } finally {
+      setBulkDeletingProduction(false);
     }
   };
 
@@ -1315,9 +1416,50 @@ const AdminPanel = () => {
 
                   {/* Units Table */}
                   <div className="overflow-x-auto">
+                    {/* Bulk Actions Bar for Production Units */}
+                    {selectedProductionUnits.size > 0 && (
+                      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center justify-between">
+                        <span className="text-red-400 font-medium">
+                          {selectedProductionUnits.size} approved unit(s) selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedProductionUnits(new Set())}
+                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                          >
+                            Clear Selection
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleBulkDeleteProduction}
+                            disabled={bulkDeletingProduction}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            {bulkDeletingProduction ? 'Deleting...' : `Delete ${selectedProductionUnits.size} Unit(s)`}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     <Table>
                       <TableHeader>
                         <TableRow className="border-slate-700">
+                          <TableHead className="w-12">
+                            <Checkbox 
+                              checked={units.length > 0 && selectedProductionUnits.size === units.length}
+                              onCheckedChange={() => {
+                                if (selectedProductionUnits.size === units.length) {
+                                  setSelectedProductionUnits(new Set());
+                                } else {
+                                  setSelectedProductionUnits(new Set(units.map(u => u.id)));
+                                }
+                              }}
+                              className="border-slate-500"
+                            />
+                          </TableHead>
                           <TableHead className="text-slate-300">Building</TableHead>
                           <TableHead className="text-slate-300">Address</TableHead>
                           <TableHead className="text-slate-300">Unit #</TableHead>
@@ -1333,7 +1475,14 @@ const AdminPanel = () => {
                         {units.map((unit) => {
                           const building = buildings.find(b => b.id === unit.building_id);
                           return (
-                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
+                            <TableRow key={unit.id} className={`border-slate-700 hover:bg-slate-700/30 ${selectedProductionUnits.has(unit.id) ? 'bg-red-500/10' : ''}`}>
+                              <TableCell>
+                                <Checkbox 
+                                  checked={selectedProductionUnits.has(unit.id)}
+                                  onCheckedChange={() => toggleProductionSelection(unit.id)}
+                                  className="border-slate-500"
+                                />
+                              </TableCell>
                               <TableCell className="font-medium text-slate-100">
                                 {building?.name || 'Unknown'}
                               </TableCell>
@@ -1454,9 +1603,44 @@ const AdminPanel = () => {
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
+                      {/* Bulk Actions Bar */}
+                      {selectedStagingUnits.size > 0 && (
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-4 flex items-center justify-between">
+                          <span className="text-amber-400 font-medium">
+                            {selectedStagingUnits.size} unit(s) selected
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedStagingUnits(new Set())}
+                              className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                            >
+                              Clear Selection
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleBulkDeleteStaging}
+                              disabled={bulkDeletingStaging}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              {bulkDeletingStaging ? 'Deleting...' : `Delete ${selectedStagingUnits.size} Unit(s)`}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                       <Table>
                         <TableHeader>
                           <TableRow className="border-b border-amber-500/20">
+                            <TableHead className="w-12">
+                              <Checkbox 
+                                checked={stagingUnits.length > 0 && selectedStagingUnits.size === stagingUnits.length}
+                                onCheckedChange={toggleAllStagingSelection}
+                                className="border-slate-500"
+                              />
+                            </TableHead>
                             <TableHead className="text-slate-300">Building / Unit</TableHead>
                             <TableHead className="text-slate-300">Price</TableHead>
                             <TableHead className="text-slate-300">Beds/Baths</TableHead>
@@ -1470,7 +1654,14 @@ const AdminPanel = () => {
                         </TableHeader>
                         <TableBody>
                           {stagingUnits.map((unit) => (
-                            <TableRow key={unit.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                            <TableRow key={unit.id} className={`border-b border-slate-700/50 hover:bg-slate-700/30 ${selectedStagingUnits.has(unit.id) ? 'bg-amber-500/10' : ''}`}>
+                              <TableCell>
+                                <Checkbox 
+                                  checked={selectedStagingUnits.has(unit.id)}
+                                  onCheckedChange={() => toggleStagingSelection(unit.id)}
+                                  className="border-slate-500"
+                                />
+                              </TableCell>
                               <TableCell className="text-slate-200">
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">

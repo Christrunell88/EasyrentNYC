@@ -100,6 +100,18 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [x] **The Greenpoint Building** - Added to staging (10 units with images)
 - [x] **Theme Switch (Dark→Light)** - Landing page has dark theme, all logged-in pages (Dashboard, Favorites, Unit Details, FeeFreeFinds) now use clean white/light theme with amber accents
 
+### Recent Work (2026-04-06)
+- **Social Proof & Email Alerts - COMPLETED**:
+  - **Social Proof Strip** - Dynamic strip below hero showing: signups today, total users, active search alerts, viewing requests today
+  - **Testimonials Section** - 3 testimonial cards with 5-star ratings, user avatars, and locations
+  - **Trust Badges** - "All Listings Verified", "X+ Happy Renters", "X+ No-Fee Apartments"
+  - **Saved Searches System** - Full CRUD API for saved searches
+  - **Email Alerts** - Scheduled job every 6 hours checks for new listings matching saved searches and sends email notifications
+  - **SavedSearchModal** - New modal component on Dashboard for saving current filters with custom name and alert frequency
+  - Backend endpoints: `/api/social-proof`, `/api/saved-searches`, `/api/saved-searches/{id}/toggle`, `/api/admin/trigger-search-alerts`
+  - New collection: `saved_searches` (user_id, email, search criteria, alert_frequency, is_active)
+  - Testing: 100% backend (11/11 tests), 100% frontend UI verified
+
 ### Recent Work (2026-04-02)
 - **Property Import Feature - COMPLETED** (Admin Panel):
   - Added "Import" tab to Admin Panel (first position, green highlight)
@@ -380,6 +392,7 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - **Fixed CORS configuration**: Changed from `*` to explicit origins list (required for withCredentials)
 
 ### 🟡 Upcoming Tasks (P1-P2)
+- [ ] Virtual tour support (add `virtual_tour_url` to DB and unit details UI)
 - [ ] Complete #FeeFreeFinds branding (badges, social sharing)
 - [ ] SEO Optimization (location pages, blog content)
 - [ ] Add "Admin" link back to UI
@@ -391,10 +404,13 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - [ ] Google Business Profile
 - [ ] Apartment comparison feature
 - [ ] Google/Facebook Ad campaigns
+- [ ] Blog for long-form SEO content
 
 ## Known Issues
 1. **BACKEND_URL duplication** - Constant duplicated in App.js and authStore.js
 2. **crawler.py size** - Consider modularizing into /scrapers/ directory
+3. **Instagram direct posting** - BLOCKED (awaiting user Facebook Page admin permissions)
+4. **Dynamic OG tags** - CSR limitation, social crawlers don't see React Helmet tags
 
 ## 3rd Party Integrations
 | Service | Status | Purpose |
@@ -403,6 +419,8 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 | Facebook Graph API | Active | Social integration |
 | Google Analytics | Active | Event tracking |
 | Playwright | Active | Web crawler |
+| SerpApi | Active | Google search for AI agent |
+| SMTP (Gmail) | Active | Email alerts & notifications |
 
 ## API Endpoints (Key)
 - `POST /api/auth/login` - User login
@@ -412,3 +430,8 @@ Build a web application called "NoFeesApts.com" that functions similarly to nofe
 - `POST /api/admin/crawl-all` - Trigger crawler
 - `POST /api/lifecycle/stale-check` - Check stale units
 - `GET /api/lifecycle/report` - Lifecycle status report
+- `GET /api/social-proof` - Get social proof data for landing page
+- `GET /api/saved-searches` - Get user's saved searches
+- `POST /api/saved-searches` - Create new saved search
+- `DELETE /api/saved-searches/{id}` - Delete saved search
+- `PUT /api/saved-searches/{id}/toggle` - Toggle search alerts

@@ -1,767 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
-import { toast } from 'sonner';
-import { API } from '../App';
+import { useAuth, API } from '../App';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Building2, Plus, Trash2, RefreshCw, Users, Home, Download, Eye, MapPin, DollarSign, BedDouble, Bath, Maximize, LogIn, Mail, ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertTriangle, Edit, Clock, ExternalLink, Image as ImageIcon, Upload, X, RotateCcw, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import {
+  Building2, Home, Plus, Trash2, RefreshCw, Users,
+  MapPin, BedDouble, Bath, Maximize, Download, ChevronLeft, ChevronRight,
+  LogIn, Mail
+} from 'lucide-react';
+
+// Extracted tab components
+import ImportTab from '../components/admin/ImportTab';
+import StagingTab from '../components/admin/StagingTab';
+import UnavailabilityTab from '../components/admin/UnavailabilityTab';
+import RentedTab from '../components/admin/RentedTab';
+import RejectedTab from '../components/admin/RejectedTab';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Shared data state
   const [buildings, setBuildings] = useState([]);
   const [units, setUnits] = useState([]);
-  const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Badge count state (updated by child components)
+  const [stagingStats, setStagingStats] = useState({ pending: 0 });
+  const [unavailStats, setUnavailStats] = useState({ pending: 0 });
+
+  // Admin data state
+  const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
-  const [analyticsData, setAnalyticsData] = useState({
-    totalVisitors: 0,
-    totalSignups: 0,
-    totalSignins: 0,
-    todayVisitors: 0,
-    todaySignups: 0,
-    todaySignins: 0
-  });
-  const [loading, setLoading] = useState(true);
+
+  // Units pagination
+  const [unitsPage, setUnitsPage] = useState(1);
+  const unitsPerPage = 50;
+
+  // Production unit selection
+  const [selectedProductionUnits, setSelectedProductionUnits] = useState(new Set());
+  const [bulkDeletingProduction, setBulkDeletingProduction] = useState(false);
+
+  // Dialog state
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
   const [unitDialogOpen, setUnitDialogOpen] = useState(false);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
-  const [crawling, setCrawling] = useState(false);
-  const [unitsPage, setUnitsPage] = useState(1);
-  const unitsPerPage = 25;
-
-  // Staging Review State
-  const [stagingUnits, setStagingUnits] = useState([]);
-  const [stagingStats, setStagingStats] = useState({ pending: 0, approved: 0, rejected: 0 });
-  const [stagingLoading, setStagingLoading] = useState(false);
-  const [editStagingDialogOpen, setEditStagingDialogOpen] = useState(false);
-  const [selectedStagingUnit, setSelectedStagingUnit] = useState(null);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const [stagingUnitImages, setStagingUnitImages] = useState([]);
-  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
-  const [previewImages, setPreviewImages] = useState([]);
-
-  // Unavailability Review State
-  const [unavailReviews, setUnavailReviews] = useState([]);
-  const [unavailStats, setUnavailStats] = useState({ pending: 0, confirmed: 0, false_positive: 0 });
-  const [unavailLoading, setUnavailLoading] = useState(false);
-  const [selectedUnavailReviews, setSelectedUnavailReviews] = useState([]);
-  const [unavailReviewDialogOpen, setUnavailReviewDialogOpen] = useState(false);
-  const [selectedUnavailUnit, setSelectedUnavailUnit] = useState(null);
-  const [unavailReviewNotes, setUnavailReviewNotes] = useState('');
-
-  // Unavailable Units State (for re-listing)
-  const [unavailableUnits, setUnavailableUnits] = useState([]);
-  const [unavailableUnitsLoading, setUnavailableUnitsLoading] = useState(false);
-  const [selectedUnavailableUnits, setSelectedUnavailableUnits] = useState([]);
-  const [relistDialogOpen, setRelistDialogOpen] = useState(false);
-  const [selectedRelistUnit, setSelectedRelistUnit] = useState(null);
-  const [relistRent, setRelistRent] = useState('');
-  const [relistNotes, setRelistNotes] = useState('');
-
-  // Rejected Staging Units State
-  const [rejectedStagingUnits, setRejectedStagingUnits] = useState([]);
-  const [rejectedStagingLoading, setRejectedStagingLoading] = useState(false);
-
-  // Bulk Selection State for Staging
-  const [selectedStagingUnits, setSelectedStagingUnits] = useState(new Set());
-  const [bulkDeletingStaging, setBulkDeletingStaging] = useState(false);
-  const [bulkApprovingStaging, setBulkApprovingStaging] = useState(false);
-
-  // Bulk Selection State for Approved/Production Units
-  const [selectedProductionUnits, setSelectedProductionUnits] = useState(new Set());
-  const [bulkDeletingProduction, setBulkDeletingProduction] = useState(false);
-
-  // Property Import State
-  const [propertySearchQuery, setPropertySearchQuery] = useState('');
-  const [propertySearchResults, setPropertySearchResults] = useState([]);
-  const [propertySearching, setPropertySearching] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [crawledData, setCrawledData] = useState(null);
-  const [crawlingProperty, setCrawlingProperty] = useState(false);
-  const [importPreviewOpen, setImportPreviewOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [managementCompanies, setManagementCompanies] = useState([]);
-  const [discoveryArea, setDiscoveryArea] = useState('all');
-  const [discovering, setDiscovering] = useState(false);
 
   useEffect(() => {
+    if (!user?.is_admin) { navigate('/'); return; }
     fetchData();
-    fetchStagingStats();
-    fetchUnavailStats();
-    fetchManagementCompanies();
-  }, []);
+    fetchStats();
+    fetchUsers();
+    fetchContacts();
+    fetchSubscribers();
+  }, [user, navigate]);
 
-  // Fetch management companies list
-  const fetchManagementCompanies = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/admin/management-companies`, { withCredentials: true });
-      setManagementCompanies(response.data.companies || []);
-    } catch (error) {
-      console.error('Error fetching management companies:', error);
-    }
-  };
-
-  // Fetch just the staging stats (for badge count)
-  const fetchStagingStats = async () => {
-    try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/staging/units?status=pending&limit=1&_t=${timestamp}`, { withCredentials: true });
-      setStagingStats({
-        pending: response.data.pending || 0,
-        approved: response.data.approved || 0,
-        rejected: response.data.rejected || 0,
-        total: response.data.total || 0
-      });
-    } catch (error) {
-      console.error('Error fetching staging stats:', error);
-    }
-  };
-
-  // Fetch unavailability review stats (for badge count)
-  const fetchUnavailStats = async () => {
-    try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/unavailability-reviews/stats?_t=${timestamp}`, { withCredentials: true });
-      setUnavailStats({
-        pending: response.data.total_pending || 0,
-        confirmed: response.data.total_confirmed || 0,
-        false_positive: response.data.total_false_positive || 0,
-        high_priority: response.data.high_priority_count || 0
-      });
-    } catch (error) {
-      console.error('Error fetching unavailability stats:', error);
-    }
-  };
-
-  // Fetch unavailability reviews for review tab
-  const fetchUnavailReviews = async () => {
-    setUnavailLoading(true);
-    try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/unavailability-reviews?status=pending&limit=100&_t=${timestamp}`, { withCredentials: true });
-      setUnavailReviews(response.data.items || []);
-      setSelectedUnavailReviews([]);
-    } catch (error) {
-      console.error('Error fetching unavailability reviews:', error);
-      toast.error('Failed to load unavailability reviews');
-    } finally {
-      setUnavailLoading(false);
-    }
-  };
-
-  // Handle single unavailability review
-  const handleUnavailReview = async (reviewId, status) => {
-    try {
-      await axios.put(`${API}/admin/unavailability-reviews/${reviewId}`, {
-        review_status: status,
-        reviewer_notes: unavailReviewNotes
-      }, { withCredentials: true });
-      
-      toast.success(status === 'confirmed_unavailable' 
-        ? 'Unit marked as unavailable' 
-        : 'Flag dismissed');
-      
-      setUnavailReviewDialogOpen(false);
-      setSelectedUnavailUnit(null);
-      setUnavailReviewNotes('');
-      fetchUnavailReviews();
-      fetchUnavailStats();
-      fetchData(); // Refresh main data
-    } catch (error) {
-      console.error('Error reviewing unavailability:', error);
-      toast.error(error.response?.data?.detail || 'Failed to process review');
-    }
-  };
-
-  // Handle bulk unavailability review
-  const handleBulkUnavailReview = async (status) => {
-    if (selectedUnavailReviews.length === 0) {
-      toast.error('No items selected');
-      return;
-    }
-    
-    try {
-      await axios.post(`${API}/admin/unavailability-reviews/bulk-review`, {
-        review_ids: selectedUnavailReviews,
-        review_status: status,
-        reviewer_notes: `Bulk review: ${selectedUnavailReviews.length} items`
-      }, { withCredentials: true });
-      
-      toast.success(`${selectedUnavailReviews.length} items ${status === 'confirmed_unavailable' ? 'marked unavailable' : 'dismissed'}`);
-      setSelectedUnavailReviews([]);
-      fetchUnavailReviews();
-      fetchUnavailStats();
-      fetchData();
-    } catch (error) {
-      console.error('Error bulk reviewing:', error);
-      toast.error(error.response?.data?.detail || 'Failed to process bulk review');
-    }
-  };
-
-  // Toggle selection for bulk actions
-  const toggleUnavailSelection = (reviewId) => {
-    setSelectedUnavailReviews(prev => 
-      prev.includes(reviewId) 
-        ? prev.filter(id => id !== reviewId)
-        : [...prev, reviewId]
-    );
-  };
-
-  // Select/deselect all unavailability reviews
-  const toggleSelectAllUnavail = () => {
-    if (selectedUnavailReviews.length === unavailReviews.length) {
-      setSelectedUnavailReviews([]);
-    } else {
-      setSelectedUnavailReviews(unavailReviews.map(r => r.id));
-    }
-  };
-
-  // Fetch unavailable units (for re-listing)
-  const fetchUnavailableUnits = async () => {
-    setUnavailableUnitsLoading(true);
-    try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/units/unavailable?limit=100&_t=${timestamp}`, { withCredentials: true });
-      setUnavailableUnits(response.data.items || []);
-      setSelectedUnavailableUnits([]);
-    } catch (error) {
-      console.error('Error fetching unavailable units:', error);
-      toast.error('Failed to load unavailable units');
-    } finally {
-      setUnavailableUnitsLoading(false);
-    }
-  };
-
-  // Fetch rejected staging units
-  const fetchRejectedStagingUnits = async () => {
-    setRejectedStagingLoading(true);
-    try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/staging/rejected?limit=100&_t=${timestamp}`, { withCredentials: true });
-      setRejectedStagingUnits(response.data.items || []);
-    } catch (error) {
-      console.error('Error fetching rejected staging units:', error);
-      toast.error('Failed to load rejected staging units');
-    } finally {
-      setRejectedStagingLoading(false);
-    }
-  };
-
-  // Re-list a single unavailable unit
-  const handleRelistUnit = async () => {
-    if (!selectedRelistUnit) return;
-    
-    try {
-      await axios.put(`${API}/admin/units/${selectedRelistUnit.id}/relist`, {
-        rent: relistRent ? parseInt(relistRent) : null,
-        notes: relistNotes || null
-      }, { withCredentials: true });
-      
-      toast.success(`Unit ${selectedRelistUnit.unit_number} has been re-listed!`);
-      setRelistDialogOpen(false);
-      setSelectedRelistUnit(null);
-      setRelistRent('');
-      setRelistNotes('');
-      fetchUnavailableUnits();
-      fetchData(); // Refresh main data
-    } catch (error) {
-      console.error('Error re-listing unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to re-list unit');
-    }
-  };
-
-  // Bulk re-list unavailable units
-  const handleBulkRelist = async () => {
-    if (selectedUnavailableUnits.length === 0) {
-      toast.error('No units selected');
-      return;
-    }
-    
-    try {
-      await axios.post(`${API}/admin/units/bulk-relist`, {
-        unit_ids: selectedUnavailableUnits,
-        notes: 'Bulk re-listed from admin panel'
-      }, { withCredentials: true });
-      
-      toast.success(`${selectedUnavailableUnits.length} units have been re-listed!`);
-      setSelectedUnavailableUnits([]);
-      fetchUnavailableUnits();
-      fetchData();
-    } catch (error) {
-      console.error('Error bulk re-listing:', error);
-      toast.error(error.response?.data?.detail || 'Failed to re-list units');
-    }
-  };
-
-  // Toggle selection for unavailable units
-  const toggleUnavailableSelection = (unitId) => {
-    setSelectedUnavailableUnits(prev => 
-      prev.includes(unitId) 
-        ? prev.filter(id => id !== unitId)
-        : [...prev, unitId]
-    );
-  };
-
-  // Select/deselect all unavailable units
-  const toggleSelectAllUnavailable = () => {
-    if (selectedUnavailableUnits.length === unavailableUnits.length) {
-      setSelectedUnavailableUnits([]);
-    } else {
-      setSelectedUnavailableUnits(unavailableUnits.map(u => u.id));
-    }
-  };
-
-  // Reconsider a rejected staging unit (move back to pending)
-  const handleReconsiderRejected = async (stagingId) => {
-    try {
-      await axios.put(`${API}/admin/staging/rejected/${stagingId}/reconsider`, {}, { withCredentials: true });
-      toast.success('Unit moved back to pending review');
-      fetchRejectedStagingUnits();
-      fetchStagingUnits();
-    } catch (error) {
-      console.error('Error reconsidering unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to reconsider unit');
-    }
-  };
-
-  // Approve a rejected staging unit directly to production
-  const handleApproveRejectedDirectly = async (stagingId) => {
-    try {
-      await axios.put(`${API}/admin/staging/rejected/${stagingId}/approve-direct`, {}, { withCredentials: true });
-      toast.success('Unit approved and added to production!');
-      fetchRejectedStagingUnits();
-      fetchData();
-    } catch (error) {
-      console.error('Error approving rejected unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to approve unit');
-    }
-  };
-
-  const fetchData = async () => {
-    try {
-      const timestamp = Date.now(); // Cache busting
-      const [buildingsRes, unitsRes, usersRes, statsRes, contactsRes, subscribersRes] = await Promise.all([
-        axios.get(`${API}/buildings?_t=${timestamp}`, { withCredentials: true }),
-        axios.get(`${API}/units?limit=500&_t=${timestamp}`, { withCredentials: true }),
-        axios.get(`${API}/admin/users?_t=${timestamp}`, { withCredentials: true }),
-        axios.get(`${API}/admin/stats?_t=${timestamp}`, { withCredentials: true }),
-        axios.get(`${API}/contact?_t=${timestamp}`, { withCredentials: true }),
-        axios.get(`${API}/admin/subscribers?_t=${timestamp}`, { withCredentials: true })
+      const [buildingsRes, unitsRes] = await Promise.all([
+        axios.get(`${API}/buildings`, { withCredentials: true }),
+        axios.get(`${API}/units?limit=500`, { withCredentials: true })
       ]);
-      
       setBuildings(buildingsRes.data);
-      setUnits(unitsRes.data);
-      setUsers(usersRes.data);
-      setStats(statsRes.data);
-      setContacts(contactsRes.data);
-      setSubscribers(subscribersRes.data);
-      
-      console.log(`Admin data loaded: ${buildingsRes.data.length} buildings, ${unitsRes.data.length} units`);
+      const unitsData = Array.isArray(unitsRes.data) ? unitsRes.data : (unitsRes.data.units || []);
+      setUnits(unitsData);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching admin data:', error);
-      toast.error('Failed to load admin data');
-    } finally {
+      console.error('Error fetching data:', error);
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Fetch staging units for review
-  const fetchStagingUnits = async () => {
-    setStagingLoading(true);
+  const fetchStats = async () => {
     try {
-      const timestamp = Date.now();
-      const response = await axios.get(`${API}/admin/staging/units?status=pending&_t=${timestamp}`, { withCredentials: true });
-      
-      // Sort by duplicate_score descending, then created_at descending
-      const sortedUnits = (response.data.items || []).sort((a, b) => {
-        if (b.duplicate_score !== a.duplicate_score) {
-          return b.duplicate_score - a.duplicate_score;
-        }
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
-      
-      setStagingUnits(sortedUnits);
-      setStagingStats({
-        pending: response.data.pending || sortedUnits.length,
-        approved: response.data.approved || 0,
-        rejected: response.data.rejected || 0,
-        total: response.data.total || sortedUnits.length
-      });
+      const response = await axios.get(`${API}/admin/stats`, { withCredentials: true });
+      setStats(response.data);
     } catch (error) {
-      console.error('Error fetching staging units:', error);
-      toast.error('Failed to load staging units');
-    } finally {
-      setStagingLoading(false);
+      console.error('Error fetching stats:', error);
     }
   };
 
-  // Approve a staging unit
-  const handleApproveStaging = async (unitId) => {
+  const fetchUsers = async () => {
     try {
-      const response = await axios.post(`${API}/staging/approve/${unitId}`, {}, { withCredentials: true });
-      toast.success(`Unit approved! ${response.data.action === 'updated' ? 'Production unit updated.' : 'New production unit created.'}`);
-      fetchStagingUnits();
-      fetchData(); // Refresh main data
-    } catch (error) {
-      console.error('Error approving unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to approve unit');
-    }
+      const response = await axios.get(`${API}/admin/users`, { withCredentials: true });
+      setUsers(response.data);
+    } catch (error) { console.error('Error fetching users:', error); }
   };
 
-  // Reject a staging unit
-  const handleRejectStaging = async () => {
-    if (!selectedStagingUnit || !rejectReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
-    }
-    
+  const fetchContacts = async () => {
     try {
-      await axios.post(`${API}/staging/reject/${selectedStagingUnit.id}?reason=${encodeURIComponent(rejectReason)}`, {}, { withCredentials: true });
-      toast.success('Unit rejected');
-      setRejectDialogOpen(false);
-      setSelectedStagingUnit(null);
-      setRejectReason('');
-      fetchStagingUnits();
-    } catch (error) {
-      console.error('Error rejecting unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to reject unit');
-    }
+      const response = await axios.get(`${API}/contact-requests`, { withCredentials: true });
+      setContacts(Array.isArray(response.data) ? response.data : []);
+    } catch (error) { console.error('Error fetching contacts:', error); }
   };
 
-  // Quick reject a staging unit without explanation
-  const handleQuickReject = async (stagingUnit) => {
+  const fetchSubscribers = async () => {
     try {
-      await axios.post(`${API}/staging/reject/${stagingUnit.id}?reason=Rejected`, {}, { withCredentials: true });
-      toast.success('Unit rejected');
-      fetchStagingUnits();
-      fetchStagingStats();
-    } catch (error) {
-      console.error('Error rejecting unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to reject unit');
-    }
+      const response = await axios.get(`${API}/admin/subscribers`, { withCredentials: true });
+      setSubscribers(Array.isArray(response.data) ? response.data : response.data.subscribers || []);
+    } catch (error) { console.error('Error fetching subscribers:', error); }
   };
 
-  // Toggle staging unit selection for bulk operations
-  const toggleStagingSelection = (unitId) => {
-    setSelectedStagingUnits(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(unitId)) {
-        newSet.delete(unitId);
-      } else {
-        newSet.add(unitId);
-      }
-      return newSet;
+  const exportToCSV = () => {
+    const headers = ['Building Name', 'Address', 'Neighborhood', 'City', 'State', 'Zip', 'Unit #', 'Rent', 'Bedrooms', 'Bathrooms', 'Sq Ft', 'Available', 'Contact Email', 'Contact Phone'];
+    const rows = units.map(unit => {
+      const building = buildings.find(b => b.id === unit.building_id) || {};
+      return [building.name, building.address, building.neighborhood, building.city, building.state, building.zip_code, unit.unit_number, unit.rent, unit.bedrooms, unit.bathrooms, unit.square_feet || 'N/A', unit.is_available ? 'Yes' : 'No', 'placesfirm@gmail.com', '646-408-8048'].map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
     });
-  };
-
-  // Select/Deselect all staging units
-  const toggleAllStagingSelection = () => {
-    if (selectedStagingUnits.size === stagingUnits.length) {
-      setSelectedStagingUnits(new Set());
-    } else {
-      setSelectedStagingUnits(new Set(stagingUnits.map(u => u.id)));
-    }
-  };
-
-  // Bulk delete staging units
-  const handleBulkDeleteStaging = async () => {
-    if (selectedStagingUnits.size === 0) return;
-    
-    if (!confirm(`Are you sure you want to delete ${selectedStagingUnits.size} staging unit(s)? This cannot be undone.`)) {
-      return;
-    }
-    
-    setBulkDeletingStaging(true);
-    try {
-      const ids = Array.from(selectedStagingUnits);
-      await axios.post(`${API}/admin/staging/units/bulk-delete`, { ids }, { withCredentials: true });
-      toast.success(`${ids.length} staging unit(s) deleted`);
-      setSelectedStagingUnits(new Set());
-      fetchStagingUnits();
-      fetchStagingStats();
-    } catch (error) {
-      console.error('Error bulk deleting staging units:', error);
-      toast.error(error.response?.data?.detail || 'Failed to delete staging units');
-    } finally {
-      setBulkDeletingStaging(false);
-    }
-  };
-
-  // Bulk approve staging units
-  const handleBulkApproveStaging = async () => {
-    if (selectedStagingUnits.size === 0) return;
-    
-    if (!confirm(`Are you sure you want to approve ${selectedStagingUnits.size} staging unit(s)? They will be added to the live site.`)) {
-      return;
-    }
-    
-    setBulkApprovingStaging(true);
-    try {
-      const ids = Array.from(selectedStagingUnits);
-      const response = await axios.post(`${API}/admin/staging/units/bulk-approve`, { ids }, { withCredentials: true });
-      toast.success(`${response.data.approved_count} unit(s) approved and added to production`);
-      setSelectedStagingUnits(new Set());
-      fetchStagingUnits();
-      fetchStagingStats();
-      fetchData(); // Refresh production units and stats
-      // Force refresh stats
-      try {
-        const statsRes = await axios.get(`${API}/admin/stats?_t=${Date.now()}`, { withCredentials: true });
-        setStats(statsRes.data);
-      } catch (e) { console.error('Stats refresh error:', e); }
-    } catch (error) {
-      console.error('Error bulk approving staging units:', error);
-      toast.error(error.response?.data?.detail || 'Failed to approve staging units');
-    } finally {
-      setBulkApprovingStaging(false);
-    }
-  };
-
-  // Toggle production unit selection for bulk operations
-  const toggleProductionSelection = (unitId) => {
-    setSelectedProductionUnits(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(unitId)) {
-        newSet.delete(unitId);
-      } else {
-        newSet.add(unitId);
-      }
-      return newSet;
-    });
-  };
-
-  // Select/Deselect all production units on current page
-  const toggleAllProductionSelection = () => {
-    const currentPageUnits = paginatedUnits();
-    if (selectedProductionUnits.size === currentPageUnits.length) {
-      setSelectedProductionUnits(new Set());
-    } else {
-      setSelectedProductionUnits(new Set(currentPageUnits.map(u => u.id)));
-    }
-  };
-
-  // Bulk delete production units
-  const handleBulkDeleteProduction = async () => {
-    if (selectedProductionUnits.size === 0) return;
-    
-    if (!confirm(`Are you sure you want to delete ${selectedProductionUnits.size} approved unit(s)? This will remove them from the live site and cannot be undone.`)) {
-      return;
-    }
-    
-    setBulkDeletingProduction(true);
-    try {
-      const ids = Array.from(selectedProductionUnits);
-      await axios.post(`${API}/admin/units/bulk-delete`, { ids }, { withCredentials: true });
-      toast.success(`${ids.length} unit(s) deleted from production`);
-      setSelectedProductionUnits(new Set());
-      fetchData();
-    } catch (error) {
-      console.error('Error bulk deleting production units:', error);
-      toast.error(error.response?.data?.detail || 'Failed to delete units');
-    } finally {
-      setBulkDeletingProduction(false);
-    }
-  };
-
-  // Edit staging unit before approval
-  const handleEditStagingUnit = async (e) => {
-    e.preventDefault();
-    if (!selectedStagingUnit) return;
-    
-    const formData = new FormData(e.target);
-    const building_id = formData.get('building_id');
-    
-    if (!building_id) {
-      toast.error('Please select a building');
-      return;
-    }
-    
-    try {
-      // First update the staging unit with edited data
-      await axios.put(`${API}/admin/staging/units/${selectedStagingUnit.id}/edit`, {
-        building_id: building_id,
-        unit_number: formData.get('unit_number'),
-        rent: parseFloat(formData.get('rent')),
-        bedrooms: parseInt(formData.get('bedrooms')) || 0,
-        bathrooms: parseFloat(formData.get('bathrooms')) || 1,
-        square_feet: formData.get('square_feet') ? parseInt(formData.get('square_feet')) : null
-      }, { withCredentials: true });
-      
-      // Then approve the unit
-      await axios.post(`${API}/staging/approve/${selectedStagingUnit.id}?notes=Edited%20and%20approved`, {}, { withCredentials: true });
-      
-      toast.success('Unit edited and approved!');
-      setEditStagingDialogOpen(false);
-      setSelectedStagingUnit(null);
-      fetchStagingUnits();
-      fetchData();
-    } catch (error) {
-      console.error('Error editing/approving unit:', error);
-      toast.error(error.response?.data?.detail || 'Failed to edit/approve unit');
-    }
-  };
-
-  // Open image preview
-  const handleImagePreview = (images) => {
-    setPreviewImages(images || []);
-    setImagePreviewOpen(true);
-  };
-
-  // Handle image upload for staging unit
-  const handleStagingImageUpload = async (e) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !selectedStagingUnit) return;
-    
-    setUploadingImages(true);
-    const formData = new FormData();
-    
-    for (let i = 0; i < files.length; i++) {
-      formData.append('files', files[i]);
-    }
-    
-    try {
-      const response = await axios.post(
-        `${API}/admin/staging/units/${selectedStagingUnit.id}/upload-images`,
-        formData,
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' }
-        }
-      );
-      
-      toast.success(`Uploaded ${response.data.uploaded_urls.length} images`);
-      
-      // Update local state with new images
-      setStagingUnitImages(prev => [...prev, ...response.data.uploaded_urls]);
-      
-      // Also update the selectedStagingUnit
-      setSelectedStagingUnit(prev => ({
-        ...prev,
-        images: [...(prev.images || []), ...response.data.uploaded_urls]
-      }));
-      
-      // Clear the file input
-      e.target.value = '';
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      toast.error(error.response?.data?.detail || 'Failed to upload images');
-    } finally {
-      setUploadingImages(false);
-    }
-  };
-
-  // Delete image from staging unit
-  const handleDeleteStagingImage = async (imageUrl) => {
-    if (!selectedStagingUnit) return;
-    
-    try {
-      await axios.delete(
-        `${API}/admin/staging/units/${selectedStagingUnit.id}/images`,
-        {
-          params: { image_url: imageUrl },
-          withCredentials: true
-        }
-      );
-      
-      toast.success('Image deleted');
-      
-      // Update local state
-      setStagingUnitImages(prev => prev.filter(img => img !== imageUrl));
-      setSelectedStagingUnit(prev => ({
-        ...prev,
-        images: (prev.images || []).filter(img => img !== imageUrl)
-      }));
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error(error.response?.data?.detail || 'Failed to delete image');
-    }
-  };
-
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Get duplicate score badge color
-  const getDuplicateScoreBadge = (score) => {
-    if (score >= 0.8) return 'bg-red-500/20 text-red-400 border-red-500/30';
-    if (score >= 0.5) return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    if (score >= 0.3) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    return 'bg-green-500/20 text-green-400 border-green-500/30';
-  };
-
-  // Get validation flag badge
-  const getValidationFlagBadge = (flag) => {
-    if (flag.includes('duplicate')) return 'bg-red-500/20 text-red-400';
-    if (flag.includes('missing') || flag.includes('invalid')) return 'bg-orange-500/20 text-orange-400';
-    if (flag.includes('suspicious')) return 'bg-yellow-500/20 text-yellow-400';
-    return 'bg-slate-500/20 text-slate-400';
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `nofeesapts_inventory_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+    toast.success('CSV exported successfully!');
   };
 
   const handleAddBuilding = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+    const data = Object.fromEntries(formData);
     try {
-      await axios.post(`${API}/buildings`, {
-        name: formData.get('name'),
-        address: formData.get('address'),
-        neighborhood: formData.get('neighborhood'),
-        city: formData.get('city'),
-        state: formData.get('state'),
-        zip_code: formData.get('zip_code'),
-        source_url: formData.get('source_url')
-      }, { withCredentials: true });
-      
-      toast.success('Building added successfully!');
+      await axios.post(`${API}/buildings`, data, { withCredentials: true });
+      toast.success('Building added!');
       setBuildingDialogOpen(false);
+      e.target.reset();
       fetchData();
     } catch (error) {
-      toast.error('Failed to add building');
+      toast.error(error.response?.data?.detail || 'Failed to add building');
     }
   };
 
   const handleAddUnit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+    const data = {
+      building_id: formData.get('building_id'),
+      unit_number: formData.get('unit_number'),
+      rent: parseInt(formData.get('rent')),
+      bedrooms: parseInt(formData.get('bedrooms')),
+      bathrooms: parseFloat(formData.get('bathrooms')),
+      square_feet: formData.get('square_feet') ? parseInt(formData.get('square_feet')) : null,
+      available_date: formData.get('available_date') || 'Immediate',
+      amenities: formData.get('amenities')?.split(',').map(s => s.trim()).filter(Boolean) || [],
+      images: formData.get('images')?.split(',').map(s => s.trim()).filter(Boolean) || [],
+      description: formData.get('description') || ''
+    };
     try {
-      await axios.post(`${API}/units`, {
-        building_id: formData.get('building_id'),
-        unit_number: formData.get('unit_number'),
-        rent: parseFloat(formData.get('rent')),
-        bedrooms: parseInt(formData.get('bedrooms')),
-        bathrooms: parseFloat(formData.get('bathrooms')),
-        square_feet: formData.get('square_feet') ? parseInt(formData.get('square_feet')) : null,
-        available_date: formData.get('available_date'),
-        amenities: formData.get('amenities') ? formData.get('amenities').split(',').map(a => a.trim()) : [],
-        images: formData.get('images') ? formData.get('images').split(',').map(i => i.trim()) : [],
-        description: formData.get('description')
-      }, { withCredentials: true });
-      
-      toast.success('Unit added successfully!');
+      await axios.post(`${API}/units`, data, { withCredentials: true });
+      toast.success('Unit added!');
       setUnitDialogOpen(false);
+      e.target.reset();
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to add unit');
@@ -769,441 +169,157 @@ const AdminPanel = () => {
   };
 
   const handleDeleteBuilding = async (id) => {
-    if (!window.confirm('Are you sure? This will delete all units in this building.')) return;
-    
+    if (!confirm('Delete this building and all its units?')) return;
     try {
       await axios.delete(`${API}/buildings/${id}`, { withCredentials: true });
       toast.success('Building deleted');
       fetchData();
-    } catch (error) {
-      toast.error('Failed to delete building');
-    }
+    } catch (error) { toast.error('Failed to delete building'); }
   };
 
   const handleDeleteUnit = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this unit?')) return;
-    
+    if (!confirm('Delete this unit?')) return;
     try {
       await axios.delete(`${API}/units/${id}`, { withCredentials: true });
       toast.success('Unit deleted');
       fetchData();
-    } catch (error) {
-      toast.error('Failed to delete unit');
-    }
+    } catch (error) { toast.error('Failed to delete unit'); }
   };
 
   const handleCrawlBuilding = async (id) => {
     try {
-      toast.info('Crawl started...');
+      toast.info('Crawling building...');
       await axios.post(`${API}/admin/crawl/${id}`, {}, { withCredentials: true });
-      toast.success('Crawl completed! Refreshing data...');
-      setTimeout(() => fetchData(), 2000);
+      toast.success('Crawl complete!');
+      fetchData();
+    } catch (error) { toast.error('Crawl failed'); }
+  };
+
+  const toggleProductionSelection = (unitId) => {
+    setSelectedProductionUnits(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(unitId)) newSet.delete(unitId);
+      else newSet.add(unitId);
+      return newSet;
+    });
+  };
+
+  const handleBulkDeleteProduction = async () => {
+    if (selectedProductionUnits.size === 0) return;
+    if (!confirm(`Delete ${selectedProductionUnits.size} production unit(s)? This cannot be undone.`)) return;
+    setBulkDeletingProduction(true);
+    try {
+      const ids = Array.from(selectedProductionUnits);
+      await axios.post(`${API}/admin/units/bulk-delete`, { ids }, { withCredentials: true });
+      toast.success(`${ids.length} unit(s) deleted`);
+      setSelectedProductionUnits(new Set());
+      fetchData();
     } catch (error) {
-      toast.error('Failed to crawl building');
+      toast.error(error.response?.data?.detail || 'Failed to delete units');
+    } finally {
+      setBulkDeletingProduction(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedUser || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    try {
+      await axios.post(`${API}/admin/reset-password`, {
+        user_id: selectedUser.id, new_password: newPassword
+      }, { withCredentials: true });
+      toast.success(`Password reset for ${selectedUser.email}`);
+      setResetPasswordDialogOpen(false);
+      setSelectedUser(null);
+      setNewPassword('');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to reset password');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-xl text-gray-600">Loading admin panel...</div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
       </div>
     );
   }
 
-  const handleResetPassword = async () => {
-    if (!newPassword || newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
-    try {
-      await axios.post(`${API}/admin/reset-password`, {
-        user_id: selectedUser.id,
-        new_password: newPassword
-      }, { withCredentials: true });
-      
-      toast.success(`Password reset for ${selectedUser.email}. User will receive an email.`);
-      setResetPasswordDialogOpen(false);
-      setSelectedUser(null);
-      setNewPassword('');
-    } catch (error) {
-      toast.error('Failed to reset password');
-    }
-  };
-
-  const exportToCSV = () => {
-    const headers = ['Building Name', 'Address', 'City', 'State', 'Zip', 'Neighborhood', 'Source URL', 'Contact Email', 'Contact Phone'];
-    const rows = buildings.map(b => [
-      b.name,
-      b.address,
-      b.city,
-      b.state,
-      b.zip_code,
-      b.neighborhood,
-      b.source_url,
-      'placesfirm@gmail.com',
-      '646-408-8048'
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `building-directory-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success('Building directory exported!');
-  };
-
-  const handleCrawlAll = async () => {
-    setCrawling(true);
-    try {
-      const response = await axios.post(`${API}/admin/crawl-all`, {}, { withCredentials: true });
-      toast.success('Crawling started for all buildings! This will run in the background and may take several minutes.');
-      
-      // Refresh data after a delay to show updated units
-      setTimeout(() => {
-        fetchData();
-        toast.info('Data refreshed. Check back in a few minutes for complete results.');
-      }, 30000); // Refresh after 30 seconds
-    } catch (error) {
-      console.error('Crawl error:', error);
-      toast.error('Failed to start crawl');
-    } finally {
-      setCrawling(false);
-    }
-  };
-
-  // Property Import Functions
-  const handlePropertySearch = async (searchType = "all") => {
-    if (searchType === "all" && !propertySearchQuery.trim()) {
-      toast.error('Please enter a search query');
-      return;
-    }
-    
-    setPropertySearching(true);
-    setPropertySearchResults([]);
-    
-    try {
-      const response = await axios.post(`${API}/admin/property-search`, 
-        { query: propertySearchQuery || "no fee apartments NYC", search_type: searchType },
-        { withCredentials: true }
-      );
-      setPropertySearchResults(response.data.results || []);
-      
-      if (response.data.results?.length === 0) {
-        toast.info('No building websites found. Try a different search query.');
-      } else {
-        const priorityCount = response.data.priority_count || 0;
-        if (priorityCount > 0) {
-          toast.success(`Found ${response.data.results.length} buildings (${priorityCount} from major management companies)`);
-        } else {
-          toast.success(`Found ${response.data.results.length} potential buildings`);
-        }
-      }
-    } catch (error) {
-      console.error('Property search error:', error);
-      toast.error('Search failed. Please try again.');
-    } finally {
-      setPropertySearching(false);
-    }
-  };
-
-  const handleBrowseManagementCompanies = () => {
-    // Show all management companies directly
-    setPropertySearchResults(managementCompanies.map(company => ({
-      name: company.name,
-      url: company.availability_url,
-      domain: company.website.replace("https://", "").replace("http://", ""),
-      snippet: `${company.description}. Areas: ${company.neighborhoods.join(", ")}`,
-      source: "curated_management_company",
-      is_management_company: true
-    })));
-    toast.success(`Showing ${managementCompanies.length} major management companies`);
-  };
-
-  // AI Discovery Search
-  const handleDiscoverySearch = async () => {
-    setDiscovering(true);
-    setPropertySearchResults([]);
-    
-    try {
-      const response = await axios.post(`${API}/admin/property-discovery`,
-        { 
-          area: discoveryArea, 
-          search_new_construction: true, 
-          search_net_effective: true 
-        },
-        { withCredentials: true }
-      );
-      
-      setPropertySearchResults(response.data.results || []);
-      
-      const { new_discovery_count, known_company_count, total_found } = response.data;
-      if (total_found > 0) {
-        toast.success(`Discovery found ${total_found} results: ${new_discovery_count} new sources, ${known_company_count} known companies`);
-      } else {
-        toast.info('No new sources found. Try a different area.');
-      }
-    } catch (error) {
-      console.error('Discovery error:', error);
-      toast.error('Discovery search failed. Please try again.');
-    } finally {
-      setDiscovering(false);
-    }
-  };
-
-  const handlePropertyCrawl = async (property) => {
-    setSelectedProperty(property);
-    setCrawlingProperty(true);
-    setCrawledData(null);
-    
-    try {
-      const response = await axios.post(`${API}/admin/property-crawl`,
-        { url: property.url, building_name: property.name },
-        { withCredentials: true }
-      );
-      
-      setCrawledData(response.data);
-      setImportPreviewOpen(true);
-      
-      if (response.data.units_found > 0) {
-        toast.success(`Found ${response.data.units_found} units to import`);
-      } else {
-        toast.info('Could not auto-extract units. You can add them manually.');
-      }
-    } catch (error) {
-      console.error('Property crawl error:', error);
-      toast.error('Failed to crawl website. Please try manually.');
-    } finally {
-      setCrawlingProperty(false);
-    }
-  };
-
-  const handlePropertyImport = async () => {
-    if (!crawledData) return;
-    
-    setImporting(true);
-    
-    try {
-      const response = await axios.post(`${API}/admin/property-import`,
-        { 
-          building: crawledData.building,
-          units: crawledData.units 
-        },
-        { withCredentials: true }
-      );
-      
-      toast.success(response.data.message);
-      setImportPreviewOpen(false);
-      setCrawledData(null);
-      setSelectedProperty(null);
-      
-      // Refresh staging stats
-      fetchStagingStats();
-    } catch (error) {
-      console.error('Property import error:', error);
-      toast.error('Import failed. Please try again.');
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const updateCrawledBuilding = (field, value) => {
-    setCrawledData(prev => ({
-      ...prev,
-      building: { ...prev.building, [field]: value }
-    }));
-  };
-
-  const updateCrawledUnit = (index, field, value) => {
-    setCrawledData(prev => ({
-      ...prev,
-      units: prev.units.map((u, i) => i === index ? { ...u, [field]: value } : u)
-    }));
-  };
-
-  const addCrawledUnit = () => {
-    setCrawledData(prev => ({
-      ...prev,
-      units: [...prev.units, {
-        unit_number: `Unit-${prev.units.length + 1}`,
-        rent: 0,
-        bedrooms: 1,
-        bathrooms: 1,
-        images: []
-      }]
-    }));
-  };
-
-  const removeCrawledUnit = (index) => {
-    setCrawledData(prev => ({
-      ...prev,
-      units: prev.units.filter((_, i) => i !== index)
-    }));
-  };
-
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Header */}
-      <header className="glass-window border-b border-amber-500/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate('/dashboard')} data-testid="back-dashboard-btn" className="text-slate-300 hover:text-amber-500">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6" data-testid="admin-panel">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold warm-gradient-text">Admin Panel</h1>
+            <p className="text-slate-400">NoFeesApts.com Management Dashboard</p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => { fetchStats(); fetchData(); }} variant="outline" className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10">
+              <RefreshCw className="w-4 h-4 mr-2" /> Refresh Stats
             </Button>
-            <h1 className="text-2xl font-bold warm-gradient-text">Admin Panel</h1>
-            <div className="w-32" />
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Analytics Overview */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-100 mb-4">Analytics Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <Card className="shadow-xl bg-gradient-to-br from-blue-900/50 to-blue-800/50 backdrop-blur-sm border border-blue-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-blue-200">Total Visitors</p>
-                    <p className="text-4xl font-bold text-white">{analyticsData.totalVisitors || users.length * 5}</p>
-                    <p className="text-xs text-blue-300 mt-1">Today: {analyticsData.todayVisitors || Math.floor(users.length * 0.3)}</p>
-                  </div>
-                  <Eye className="w-12 h-12 text-blue-400" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-gradient-to-br from-green-900/50 to-green-800/50 backdrop-blur-sm border border-green-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-green-200">Total Sign Ups</p>
-                    <p className="text-4xl font-bold text-white">{analyticsData.totalSignups || users.length}</p>
-                    <p className="text-xs text-green-300 mt-1">Today: {analyticsData.todaySignups || Math.floor(users.length * 0.1)}</p>
-                  </div>
-                  <Users className="w-12 h-12 text-green-400" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-gradient-to-br from-purple-900/50 to-purple-800/50 backdrop-blur-sm border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-purple-200">Total Sign Ins</p>
-                    <p className="text-4xl font-bold text-white">{analyticsData.totalSignins || users.length * 3}</p>
-                    <p className="text-xs text-purple-300 mt-1">Today: {analyticsData.todaySignins || Math.floor(users.length * 0.2)}</p>
-                  </div>
-                  <LogIn className="w-12 h-12 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
-        {/* Property Stats */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-slate-100">Property Overview</h2>
-            <div className="flex gap-2">
-              <Button 
-                onClick={async () => {
-                  try {
-                    const statsRes = await axios.get(`${API}/admin/stats?_t=${Date.now()}`, { withCredentials: true });
-                    setStats(statsRes.data);
-                    toast.success('Stats refreshed');
-                  } catch (e) {
-                    toast.error('Failed to refresh stats');
-                  }
-                }}
-                variant="outline"
-                className="border-slate-600 text-slate-300 hover:bg-slate-700"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh Stats
-              </Button>
-              <Button 
-                onClick={handleCrawlAll} 
-                disabled={crawling}
-                className="warm-gradient text-slate-900 font-semibold hover:opacity-90 transition-opacity"
-                data-testid="crawl-all-btn"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${crawling ? 'animate-spin' : ''}`} />
-                {crawling ? 'Crawling...' : 'Crawl All Buildings'}
-              </Button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Total Buildings</p>
-                    <p className="text-3xl font-bold warm-gradient-text">{stats.total_buildings || buildings.length}</p>
-                  </div>
-                  <Building2 className="w-12 h-12 text-amber-500" />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Buildings</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_buildings || buildings.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Total Units</p>
-                    <p className="text-3xl font-bold warm-gradient-text">{stats.total_units || units.length}</p>
-                  </div>
-                  <Home className="w-12 h-12 text-amber-500" />
+                <Building2 className="w-12 h-12 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Total Units</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_units || units.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Available Units</p>
-                    <p className="text-3xl font-bold warm-gradient-text">{stats.available_units || units.filter(u => u.is_available).length}</p>
-                  </div>
-                  <Badge className="warm-gradient text-slate-900 text-lg px-4 py-2">Active</Badge>
+                <Home className="w-12 h-12 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Available Units</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.available_units || units.filter(u => u.is_available).length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Total Users</p>
-                    <p className="text-3xl font-bold warm-gradient-text">{stats.total_users || users.length}</p>
-                  </div>
-                  <Users className="w-12 h-12 text-amber-500" />
+                <Badge className="warm-gradient text-slate-900 text-lg px-4 py-2">Active</Badge>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Total Users</p>
+                  <p className="text-3xl font-bold warm-gradient-text">{stats.total_users || users.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-emerald-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Email Subscribers</p>
-                    <p className="text-3xl font-bold text-emerald-400">{stats.total_subscribers || 0}</p>
-                  </div>
-                  <Mail className="w-12 h-12 text-emerald-500" />
+                <Users className="w-12 h-12 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-emerald-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Subscribers</p>
+                  <p className="text-3xl font-bold text-emerald-400">{stats.total_subscribers || 0}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <Mail className="w-12 h-12 text-emerald-500" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabs */}
@@ -1212,11 +328,10 @@ const AdminPanel = () => {
             <CardHeader>
               <TabsList className="grid w-full grid-cols-12 bg-slate-700/50">
                 <TabsTrigger value="import" data-testid="import-tab" className="data-[state=active]:bg-green-600 data-[state=active]:text-white col-span-1">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Import
+                  <Plus className="w-4 h-4 mr-1" /> Import
                 </TabsTrigger>
                 <TabsTrigger value="dashboard" data-testid="dashboard-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">All Units</TabsTrigger>
-                <TabsTrigger value="staging" data-testid="staging-tab" onClick={fetchStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500 relative">
+                <TabsTrigger value="staging" data-testid="staging-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500 relative">
                   Staging
                   {stagingStats.pending > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -1224,7 +339,7 @@ const AdminPanel = () => {
                     </span>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="unavailability" data-testid="unavailability-tab" onClick={fetchUnavailReviews} className="data-[state=active]:bg-slate-600 data-[state=active]:text-orange-400 relative">
+                <TabsTrigger value="unavailability" data-testid="unavailability-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-orange-400 relative">
                   Unavail
                   {unavailStats.pending > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -1235,205 +350,21 @@ const AdminPanel = () => {
                 <TabsTrigger value="directory" data-testid="directory-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Directory</TabsTrigger>
                 <TabsTrigger value="buildings" data-testid="buildings-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Buildings</TabsTrigger>
                 <TabsTrigger value="units" data-testid="units-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Units</TabsTrigger>
-                <TabsTrigger value="rented" data-testid="rented-tab" onClick={fetchUnavailableUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-purple-400">
-                  Rented
-                </TabsTrigger>
-                <TabsTrigger value="rejected" data-testid="rejected-tab" onClick={fetchRejectedStagingUnits} className="data-[state=active]:bg-slate-600 data-[state=active]:text-red-400">
-                  Rejected
-                </TabsTrigger>
+                <TabsTrigger value="rented" data-testid="rented-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-purple-400">Rented</TabsTrigger>
+                <TabsTrigger value="rejected" data-testid="rejected-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-red-400">Rejected</TabsTrigger>
                 <TabsTrigger value="users" data-testid="users-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Users</TabsTrigger>
                 <TabsTrigger value="contacts" data-testid="contacts-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-amber-500">Contacts</TabsTrigger>
                 <TabsTrigger value="subscribers" data-testid="subscribers-tab" className="data-[state=active]:bg-slate-600 data-[state=active]:text-emerald-500">Subscribers</TabsTrigger>
               </TabsList>
             </CardHeader>
-            
+
             <CardContent>
-              {/* Property Import Tab */}
+              {/* Import Tab (Extracted Component) */}
               <TabsContent value="import">
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-100">Import New Properties</h3>
-                      <p className="text-sm text-slate-400">Search for building websites and import listings to staging</p>
-                    </div>
-                  </div>
-
-                  {/* Management Companies Quick Access */}
-                  <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/30 rounded-lg p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <Label className="text-amber-300 font-semibold text-lg">Major Management Companies</Label>
-                        <p className="text-slate-400 text-sm mt-1">Quick access to known no-fee building operators</p>
-                      </div>
-                      <Button 
-                        onClick={handleBrowseManagementCompanies}
-                        className="bg-amber-600 hover:bg-amber-700 text-white"
-                      >
-                        <Building2 className="w-4 h-4 mr-2" /> Browse All ({managementCompanies.length})
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {managementCompanies.slice(0, 8).map((company, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handlePropertyCrawl({
-                            name: company.name,
-                            url: company.availability_url,
-                            domain: company.website.replace("https://", ""),
-                            snippet: company.description,
-                            is_management_company: true
-                          })}
-                          className="text-left p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-amber-500/50 hover:bg-slate-800 transition-all group"
-                        >
-                          <p className="text-slate-200 font-medium text-sm group-hover:text-amber-400 truncate">{company.name}</p>
-                          <p className="text-slate-500 text-xs truncate">{company.neighborhoods.join(", ")}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* AI Discovery Search */}
-                  <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg p-6">
-                    <div className="flex flex-col gap-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <Label className="text-purple-300 font-semibold text-lg">AI Discovery Search</Label>
-                          <p className="text-slate-400 text-sm mt-1">Find NEW buildings & management companies using pattern recognition</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-3 items-end">
-                        <div className="flex-1">
-                          <Label className="text-slate-400 text-xs mb-1 block">Target Area</Label>
-                          <select
-                            value={discoveryArea}
-                            onChange={(e) => setDiscoveryArea(e.target.value)}
-                            className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-3 py-2"
-                          >
-                            <option value="all">All Areas (NYC + NJ)</option>
-                            <option value="Manhattan NYC">Manhattan</option>
-                            <option value="Brooklyn NYC">Brooklyn</option>
-                            <option value="Queens NYC">Queens</option>
-                            <option value="Jersey City NJ">Jersey City</option>
-                            <option value="Hoboken NJ">Hoboken</option>
-                          </select>
-                        </div>
-                        <Button 
-                          onClick={handleDiscoverySearch}
-                          disabled={discovering}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
-                        >
-                          {discovering ? (
-                            <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Discovering...</>
-                          ) : (
-                            <><Sparkles className="w-4 h-4 mr-2" /> Discover New Sources</>
-                          )}
-                        </Button>
-                      </div>
-                      <div className="text-xs text-slate-500 space-y-1">
-                        <p>Searches for: <span className="text-purple-400">new construction</span>, <span className="text-purple-400">net effective deals</span>, <span className="text-purple-400">no fee luxury</span>, <span className="text-purple-400">management companies</span></p>
-                        <p>Pattern recognition identifies: lease-up specials, direct-from-owner, in-house leasing teams</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Manual Search Box */}
-                  <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-lg p-6">
-                    <div className="flex flex-col gap-4">
-                      <Label className="text-green-300 font-semibold">Manual Search</Label>
-                      <div className="flex gap-3">
-                        <Input
-                          placeholder="e.g., New no fee luxury buildings in Manhattan, Brooklyn and Queens"
-                          value={propertySearchQuery}
-                          onChange={(e) => setPropertySearchQuery(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && handlePropertySearch("all")}
-                          className="flex-1 bg-slate-800 border-slate-600 text-slate-100"
-                        />
-                        <Button 
-                          onClick={() => handlePropertySearch("all")}
-                          disabled={propertySearching}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          {propertySearching ? (
-                            <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Searching...</>
-                          ) : (
-                            <><RefreshCw className="w-4 h-4 mr-2" /> Search</>
-                          )}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Custom search - prioritizes major management companies and filters aggregators automatically.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Search Results */}
-                  {propertySearchResults.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-slate-200 font-semibold">Found {propertySearchResults.length} Results</h4>
-                      <div className="grid gap-4">
-                        {propertySearchResults.map((property, index) => (
-                          <div key={index} className={`bg-slate-800/50 border rounded-lg p-4 flex justify-between items-start ${
-                            property.is_management_company || property.is_known_company ? 'border-amber-500/50' : 
-                            property.source === 'discovery' ? 'border-purple-500/30' : 'border-slate-700'
-                          }`}>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <h5 className="text-slate-100 font-semibold">{property.name}</h5>
-                                {(property.is_management_company || property.is_known_company) && (
-                                  <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">Known Company</span>
-                                )}
-                                {property.source === 'discovery' && !property.is_known_company && (
-                                  <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">New Discovery</span>
-                                )}
-                                {property.pattern_score > 0 && (
-                                  <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">
-                                    Score: {property.pattern_score}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-slate-400 text-sm mb-2">{property.snippet}</p>
-                              {property.matched_patterns && property.matched_patterns.length > 0 && (
-                                <p className="text-xs text-purple-400 mb-2">
-                                  Matched: {property.matched_patterns.join(", ")}
-                                </p>
-                              )}
-                              <a href={property.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-sm hover:underline flex items-center gap-1">
-                                <ExternalLink className="w-3 h-3" /> {property.domain}
-                              </a>
-                            </div>
-                            <Button
-                              onClick={() => handlePropertyCrawl(property)}
-                              disabled={crawlingProperty}
-                              size="sm"
-                              className="bg-amber-600 hover:bg-amber-700 text-white ml-4"
-                            >
-                              {crawlingProperty && selectedProperty?.url === property.url ? (
-                                <><RefreshCw className="w-4 h-4 mr-1 animate-spin" /> Crawling...</>
-                              ) : (
-                                <><Download className="w-4 h-4 mr-1" /> Crawl & Import</>
-                              )}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quick Tips */}
-                  <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
-                    <h4 className="text-slate-300 font-semibold mb-3">Quick Tips</h4>
-                    <ul className="text-slate-400 text-sm space-y-2">
-                      <li>• <span className="text-amber-400">Start with Management Companies</span> - They have the most no-fee inventory</li>
-                      <li>• Search includes: Two Trees, Rose Associates, TF Cornerstone, Manhattan Skyline, Gotham, Related, Extell, LeFrak</li>
-                      <li>• Results automatically filter out aggregators (StreetEasy, Zillow, etc.)</li>
-                      <li>• Click any company card above for quick access to their availability</li>
-                      <li>• Imported properties go to Staging for final approval</li>
-                    </ul>
-                  </div>
-                </div>
+                <ImportTab fetchStagingStats={() => {}} />
               </TabsContent>
 
-              {/* All Units Dashboard Tab */}
+              {/* Dashboard Tab */}
               <TabsContent value="dashboard">
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-4">
@@ -1442,12 +373,10 @@ const AdminPanel = () => {
                       <p className="text-sm text-slate-400">All apartments with full details, pricing, and contact information</p>
                     </div>
                     <Button onClick={exportToCSV} className="warm-gradient text-slate-900 font-semibold" data-testid="export-units-csv-btn">
-                      <Download className="w-4 h-4 mr-2" />
-                      Export All Units
+                      <Download className="w-4 h-4 mr-2" /> Export All Units
                     </Button>
                   </div>
 
-                  {/* Contact Info Banner */}
                   <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/30 rounded-lg p-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full warm-gradient flex items-center justify-center">
@@ -1456,37 +385,20 @@ const AdminPanel = () => {
                       <div>
                         <h4 className="font-semibold text-amber-400 mb-1">Master Contact Information</h4>
                         <div className="flex gap-6 text-slate-300 text-sm">
-                          <span>📧 placesfirm@gmail.com</span>
-                          <span>📱 646-408-8048</span>
+                          <span>placesfirm@gmail.com</span>
+                          <span>646-408-8048</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Units Table */}
                   <div className="overflow-x-auto">
-                    {/* Bulk Actions Bar for Production Units */}
                     {selectedProductionUnits.size > 0 && (
                       <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center justify-between">
-                        <span className="text-red-400 font-medium">
-                          {selectedProductionUnits.size} approved unit(s) selected
-                        </span>
+                        <span className="text-red-400 font-medium">{selectedProductionUnits.size} approved unit(s) selected</span>
                         <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedProductionUnits(new Set())}
-                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                          >
-                            Clear Selection
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleBulkDeleteProduction}
-                            disabled={bulkDeletingProduction}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
+                          <Button variant="outline" size="sm" onClick={() => setSelectedProductionUnits(new Set())} className="border-slate-600 text-slate-300 hover:bg-slate-700">Clear Selection</Button>
+                          <Button variant="destructive" size="sm" onClick={handleBulkDeleteProduction} disabled={bulkDeletingProduction} className="bg-red-600 hover:bg-red-700">
                             <Trash2 className="w-4 h-4 mr-1" />
                             {bulkDeletingProduction ? 'Deleting...' : `Delete ${selectedProductionUnits.size} Unit(s)`}
                           </Button>
@@ -1497,17 +409,10 @@ const AdminPanel = () => {
                       <TableHeader>
                         <TableRow className="border-slate-700">
                           <TableHead className="w-12">
-                            <Checkbox 
-                              checked={units.length > 0 && selectedProductionUnits.size === units.length}
-                              onCheckedChange={() => {
-                                if (selectedProductionUnits.size === units.length) {
-                                  setSelectedProductionUnits(new Set());
-                                } else {
-                                  setSelectedProductionUnits(new Set(units.map(u => u.id)));
-                                }
-                              }}
-                              className="border-slate-500"
-                            />
+                            <Checkbox checked={units.length > 0 && selectedProductionUnits.size === units.length} onCheckedChange={() => {
+                              if (selectedProductionUnits.size === units.length) setSelectedProductionUnits(new Set());
+                              else setSelectedProductionUnits(new Set(units.map(u => u.id)));
+                            }} className="border-slate-500" />
                           </TableHead>
                           <TableHead className="text-slate-300">Building</TableHead>
                           <TableHead className="text-slate-300">Address</TableHead>
@@ -1515,7 +420,7 @@ const AdminPanel = () => {
                           <TableHead className="text-slate-300">Price</TableHead>
                           <TableHead className="text-slate-300">Beds</TableHead>
                           <TableHead className="text-slate-300">Baths</TableHead>
-                          <TableHead className="text-slate-300">Size (sqft)</TableHead>
+                          <TableHead className="text-slate-300">Size</TableHead>
                           <TableHead className="text-slate-300">Neighborhood</TableHead>
                           <TableHead className="text-slate-300">Available</TableHead>
                         </TableRow>
@@ -1525,51 +430,16 @@ const AdminPanel = () => {
                           const building = buildings.find(b => b.id === unit.building_id);
                           return (
                             <TableRow key={unit.id} className={`border-slate-700 hover:bg-slate-700/30 ${selectedProductionUnits.has(unit.id) ? 'bg-red-500/10' : ''}`}>
-                              <TableCell>
-                                <Checkbox 
-                                  checked={selectedProductionUnits.has(unit.id)}
-                                  onCheckedChange={() => toggleProductionSelection(unit.id)}
-                                  className="border-slate-500"
-                                />
-                              </TableCell>
-                              <TableCell className="font-medium text-slate-100">
-                                {building?.name || 'Unknown'}
-                              </TableCell>
-                              <TableCell className="text-slate-300 text-sm">
-                                {building?.address}, {building?.city}, {building?.state}
-                              </TableCell>
-                              <TableCell className="text-slate-300 font-mono">
-                                {unit.unit_number}
-                              </TableCell>
-                              <TableCell className="text-amber-500 font-bold">
-                                ${unit.rent?.toLocaleString()}
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                <div className="flex items-center gap-1">
-                                  <BedDouble className="w-4 h-4" />
-                                  {unit.bedrooms === 0 ? 'Studio' : unit.bedrooms}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                <div className="flex items-center gap-1">
-                                  <Bath className="w-4 h-4" />
-                                  {unit.bathrooms}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                <div className="flex items-center gap-1">
-                                  <Maximize className="w-4 h-4" />
-                                  {unit.square_feet || 'N/A'}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-slate-400 text-sm">
-                                {building?.neighborhood}
-                              </TableCell>
-                              <TableCell>
-                                <Badge className={unit.is_available ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}>
-                                  {unit.is_available ? 'Yes' : 'No'}
-                                </Badge>
-                              </TableCell>
+                              <TableCell><Checkbox checked={selectedProductionUnits.has(unit.id)} onCheckedChange={() => toggleProductionSelection(unit.id)} className="border-slate-500" /></TableCell>
+                              <TableCell className="font-medium text-slate-100">{building?.name || 'Unknown'}</TableCell>
+                              <TableCell className="text-slate-300 text-sm">{building?.address}, {building?.city}, {building?.state}</TableCell>
+                              <TableCell className="text-slate-300 font-mono">{unit.unit_number}</TableCell>
+                              <TableCell className="text-amber-500 font-bold">${unit.rent?.toLocaleString()}</TableCell>
+                              <TableCell className="text-slate-300"><div className="flex items-center gap-1"><BedDouble className="w-4 h-4" />{unit.bedrooms === 0 ? 'Studio' : unit.bedrooms}</div></TableCell>
+                              <TableCell className="text-slate-300"><div className="flex items-center gap-1"><Bath className="w-4 h-4" />{unit.bathrooms}</div></TableCell>
+                              <TableCell className="text-slate-300"><div className="flex items-center gap-1"><Maximize className="w-4 h-4" />{unit.square_feet || 'N/A'}</div></TableCell>
+                              <TableCell className="text-slate-400 text-sm">{building?.neighborhood}</TableCell>
+                              <TableCell><Badge className={unit.is_available ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}>{unit.is_available ? 'Yes' : 'No'}</Badge></TableCell>
                             </TableRow>
                           );
                         })}
@@ -1577,32 +447,15 @@ const AdminPanel = () => {
                     </Table>
                   </div>
 
-                  {/* Summary Stats */}
                   <div className="grid grid-cols-4 gap-4 mt-6">
-                    <Card className="bg-slate-700/50 border-slate-600">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold warm-gradient-text">
-                          {units.filter(u => u.bedrooms === 0).length}
-                        </p>
-                        <p className="text-xs text-slate-400">Studios</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-slate-700/50 border-slate-600">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold warm-gradient-text">
-                          {units.filter(u => u.bedrooms === 1).length}
-                        </p>
-                        <p className="text-xs text-slate-400">1 Bedrooms</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-slate-700/50 border-slate-600">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold warm-gradient-text">
-                          {units.filter(u => u.bedrooms === 2).length}
-                        </p>
-                        <p className="text-xs text-slate-400">2 Bedrooms</p>
-                      </CardContent>
-                    </Card>
+                    {[{ label: 'Studios', filter: u => u.bedrooms === 0 }, { label: '1 Bedrooms', filter: u => u.bedrooms === 1 }, { label: '2 Bedrooms', filter: u => u.bedrooms === 2 }].map(({ label, filter }) => (
+                      <Card key={label} className="bg-slate-700/50 border-slate-600">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold warm-gradient-text">{units.filter(filter).length}</p>
+                          <p className="text-xs text-slate-400">{label}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
                     <Card className="bg-slate-700/50 border-slate-600">
                       <CardContent className="p-4 text-center">
                         <p className="text-2xl font-bold warm-gradient-text">
@@ -1615,414 +468,17 @@ const AdminPanel = () => {
                 </div>
               </TabsContent>
 
-              {/* Staging Listings Review Tab */}
+              {/* Staging Tab (Extracted Component) */}
               <TabsContent value="staging">
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-100">Staging Listings Review</h3>
-                      <p className="text-sm text-slate-400">
-                        Review and approve crawled listings before they go live
-                        {stagingStats.pending > 0 && (
-                          <span className="ml-2 text-amber-400">({stagingStats.pending} pending)</span>
-                        )}
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={fetchStagingUnits} 
-                      variant="outline" 
-                      className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
-                      data-testid="refresh-staging-btn"
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${stagingLoading ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
-                  </div>
-
-                  {stagingLoading ? (
-                    <div className="text-center py-12 text-slate-400">
-                      <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin" />
-                      Loading staging units...
-                    </div>
-                  ) : stagingUnits.length === 0 ? (
-                    <div className="text-center py-12 text-slate-400">
-                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                      <p className="text-lg font-medium text-slate-200">All caught up!</p>
-                      <p>No pending staging listings to review.</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      {/* Bulk Actions Bar */}
-                      {selectedStagingUnits.size > 0 && (
-                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-4 flex items-center justify-between">
-                          <span className="text-amber-400 font-medium">
-                            {selectedStagingUnits.size} unit(s) selected
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedStagingUnits(new Set())}
-                              className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                            >
-                              Clear Selection
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={handleBulkApproveStaging}
-                              disabled={bulkApprovingStaging}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              {bulkApprovingStaging ? 'Approving...' : `Approve ${selectedStagingUnits.size} Unit(s)`}
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={handleBulkDeleteStaging}
-                              disabled={bulkDeletingStaging}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              {bulkDeletingStaging ? 'Deleting...' : `Delete ${selectedStagingUnits.size}`}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-b border-amber-500/20">
-                            <TableHead className="w-12">
-                              <Checkbox 
-                                checked={stagingUnits.length > 0 && selectedStagingUnits.size === stagingUnits.length}
-                                onCheckedChange={toggleAllStagingSelection}
-                                className="border-slate-500"
-                              />
-                            </TableHead>
-                            <TableHead className="text-slate-300">Building / Unit</TableHead>
-                            <TableHead className="text-slate-300">Price</TableHead>
-                            <TableHead className="text-slate-300">Beds/Baths</TableHead>
-                            <TableHead className="text-slate-300">Source</TableHead>
-                            <TableHead className="text-slate-300">Duplicate Score</TableHead>
-                            <TableHead className="text-slate-300">Flags</TableHead>
-                            <TableHead className="text-slate-300">Images</TableHead>
-                            <TableHead className="text-slate-300">Created</TableHead>
-                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {stagingUnits.map((unit) => (
-                            <TableRow key={unit.id} className={`border-b border-slate-700/50 hover:bg-slate-700/30 ${selectedStagingUnits.has(unit.id) ? 'bg-amber-500/10' : ''}`}>
-                              <TableCell>
-                                <Checkbox 
-                                  checked={selectedStagingUnits.has(unit.id)}
-                                  onCheckedChange={() => toggleStagingSelection(unit.id)}
-                                  className="border-slate-500"
-                                />
-                              </TableCell>
-                              <TableCell className="text-slate-200">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <Building2 className="w-4 h-4 text-amber-500" />
-                                    <span className="font-medium">{unit.building_name || 'Unknown Building'}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-sm text-slate-400">
-                                    <MapPin className="w-3 h-3" />
-                                    {unit.building_address || 'Address not available'}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Home className="w-3 h-3 text-slate-500" />
-                                    <span className="text-amber-400 font-semibold">Unit {unit.unit_number}</span>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-slate-200">
-                                <span className="text-lg font-bold text-green-400">${unit.rent?.toLocaleString()}</span>
-                                <span className="text-slate-400 text-sm">/mo</span>
-                              </TableCell>
-                              <TableCell className="text-slate-200">
-                                <div className="flex items-center gap-3">
-                                  <span className="flex items-center gap-1">
-                                    <BedDouble className="w-4 h-4 text-slate-500" />
-                                    {unit.bedrooms === 0 ? 'Studio' : unit.bedrooms}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Bath className="w-4 h-4 text-slate-500" />
-                                    {unit.bathrooms}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                <a 
-                                  href={`https://${unit.crawler_source}`} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm"
-                                >
-                                  {unit.crawler_source?.substring(0, 20) || 'Unknown'}
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              </TableCell>
-                              <TableCell>
-                                <Badge 
-                                  className={`${getDuplicateScoreBadge(unit.duplicate_score)} border`}
-                                >
-                                  {(unit.duplicate_score * 100).toFixed(0)}%
-                                </Badge>
-                                {unit.duplicate_score >= 0.5 && (
-                                  <AlertTriangle className="w-4 h-4 text-orange-400 inline ml-2" />
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                  {(unit.validation_flags || []).slice(0, 3).map((flag, idx) => (
-                                    <Badge 
-                                      key={idx} 
-                                      variant="outline" 
-                                      className={`${getValidationFlagBadge(flag)} text-xs`}
-                                    >
-                                      {flag.replace(/_/g, ' ')}
-                                    </Badge>
-                                  ))}
-                                  {(unit.validation_flags || []).length > 3 && (
-                                    <Badge variant="outline" className="text-xs text-slate-400">
-                                      +{unit.validation_flags.length - 3}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {unit.images && unit.images.length > 0 ? (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleImagePreview(unit.images)}
-                                    className="text-slate-300 hover:text-amber-500"
-                                  >
-                                    <ImageIcon className="w-4 h-4 mr-1" />
-                                    {unit.images.length}
-                                  </Button>
-                                ) : (
-                                  <span className="text-slate-500 text-sm">No images</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-slate-400 text-sm">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  {formatDate(unit.created_at)}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedStagingUnit(unit);
-                                      setStagingUnitImages(unit.images || []);
-                                      setEditStagingDialogOpen(true);
-                                    }}
-                                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                                    data-testid={`edit-staging-${unit.id}`}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleApproveStaging(unit.id)}
-                                    className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
-                                    data-testid={`approve-staging-${unit.id}`}
-                                  >
-                                    <CheckCircle className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleQuickReject(unit)}
-                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                    data-testid={`reject-staging-${unit.id}`}
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </div>
+                <StagingTab buildings={buildings} fetchData={fetchData} onStatsUpdate={setStagingStats} />
               </TabsContent>
 
-              {/* Unavailability Review Tab */}
+              {/* Unavailability Tab (Extracted Component) */}
               <TabsContent value="unavailability">
-                <div className="space-y-6">
-                  {/* Header with stats and bulk actions */}
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-orange-400" />
-                        Unavailability Review
-                      </h3>
-                      <p className="text-sm text-slate-400">
-                        Units not found in recent crawls - may be rented or temporarily unavailable
-                      </p>
-                      <div className="flex gap-4 mt-2 text-sm">
-                        <span className="text-orange-400">Pending: {unavailStats.pending}</span>
-                        <span className="text-red-400">Confirmed Unavailable: {unavailStats.confirmed}</span>
-                        <span className="text-green-400">False Positives: {unavailStats.false_positive}</span>
-                        {unavailStats.high_priority > 0 && (
-                          <span className="text-yellow-400 font-semibold">
-                            ⚠️ High Priority (3+ misses): {unavailStats.high_priority}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={fetchUnavailReviews} 
-                        variant="outline" 
-                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
-                        disabled={unavailLoading}
-                      >
-                        <RefreshCw className={`w-4 h-4 mr-2 ${unavailLoading ? 'animate-spin' : ''}`} />
-                        Refresh
-                      </Button>
-                      {selectedUnavailReviews.length > 0 && (
-                        <>
-                          <Button 
-                            onClick={() => handleBulkUnavailReview('false_positive')}
-                            variant="outline" 
-                            className="border-green-600 text-green-400 hover:bg-green-900/30"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Dismiss Selected ({selectedUnavailReviews.length})
-                          </Button>
-                          <Button 
-                            onClick={() => handleBulkUnavailReview('confirmed_unavailable')}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                          >
-                            <XCircle className="w-4 h-4 mr-2" />
-                            Mark Unavailable ({selectedUnavailReviews.length})
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Table of flagged units */}
-                  {unavailLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <RefreshCw className="w-8 h-8 animate-spin text-orange-400" />
-                      <span className="ml-3 text-slate-400">Loading unavailability reviews...</span>
-                    </div>
-                  ) : unavailReviews.length === 0 ? (
-                    <div className="text-center py-12 text-slate-400">
-                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                      <p className="text-lg">No pending unavailability reviews</p>
-                      <p className="text-sm mt-2">All flagged units have been reviewed</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-slate-700 hover:bg-transparent">
-                            <TableHead className="text-slate-300 w-10">
-                              <input
-                                type="checkbox"
-                                checked={selectedUnavailReviews.length === unavailReviews.length && unavailReviews.length > 0}
-                                onChange={toggleSelectAllUnavail}
-                                className="rounded border-slate-600"
-                              />
-                            </TableHead>
-                            <TableHead className="text-slate-300">Unit</TableHead>
-                            <TableHead className="text-slate-300">Building</TableHead>
-                            <TableHead className="text-slate-300">Rent</TableHead>
-                            <TableHead className="text-slate-300">Beds</TableHead>
-                            <TableHead className="text-slate-300 text-center">Misses</TableHead>
-                            <TableHead className="text-slate-300">First Detected</TableHead>
-                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {unavailReviews.map((review) => (
-                            <TableRow 
-                              key={review.id} 
-                              className={`border-slate-700 hover:bg-slate-700/30 ${
-                                review.consecutive_misses >= 3 ? 'bg-orange-900/10' : ''
-                              }`}
-                            >
-                              <TableCell>
-                                <input
-                                  type="checkbox"
-                                  checked={selectedUnavailReviews.includes(review.id)}
-                                  onChange={() => toggleUnavailSelection(review.id)}
-                                  className="rounded border-slate-600"
-                                />
-                              </TableCell>
-                              <TableCell className="text-slate-200 font-medium">
-                                #{review.unit_number}
-                              </TableCell>
-                              <TableCell>
-                                <div className="text-slate-200">{review.building_name}</div>
-                                <div className="text-xs text-slate-400">{review.building_address}</div>
-                              </TableCell>
-                              <TableCell className="text-amber-400 font-medium">
-                                ${review.rent?.toLocaleString()}/mo
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                {review.bedrooms === 0 ? 'Studio' : `${review.bedrooms} BR`}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <Badge className={`${
-                                  review.consecutive_misses >= 3 
-                                    ? 'bg-red-500/20 text-red-400 border-red-500/30' 
-                                    : review.consecutive_misses >= 2 
-                                      ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                                      : 'bg-slate-600/50 text-slate-300 border-slate-500/30'
-                                }`}>
-                                  {review.consecutive_misses}x
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-slate-400 text-sm">
-                                {new Date(review.created_at).toLocaleDateString()}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex gap-2 justify-end">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-green-600 text-green-400 hover:bg-green-900/30"
-                                    onClick={() => handleUnavailReview(review.id, 'false_positive')}
-                                    title="Dismiss - unit is still available"
-                                  >
-                                    <CheckCircle className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="bg-red-600 hover:bg-red-700"
-                                    onClick={() => {
-                                      setSelectedUnavailUnit(review);
-                                      setUnavailReviewDialogOpen(true);
-                                    }}
-                                    title="Confirm unavailable"
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </div>
+                <UnavailabilityTab fetchData={fetchData} onStatsUpdate={setUnavailStats} />
               </TabsContent>
 
-              {/* Building Directory Tab - Export to Google Sheets */}
+              {/* Directory Tab */}
               <TabsContent value="directory">
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-4">
@@ -2030,11 +486,8 @@ const AdminPanel = () => {
                       <h3 className="text-lg font-semibold text-slate-100">Complete Building Directory</h3>
                       <p className="text-sm text-slate-400">All building addresses and contact information for export</p>
                     </div>
-                    <Button onClick={exportToCSV} className="warm-gradient text-slate-900 font-semibold" data-testid="export-csv-btn">
-                      Export to CSV
-                    </Button>
+                    <Button onClick={exportToCSV} className="warm-gradient text-slate-900 font-semibold" data-testid="export-csv-btn">Export to CSV</Button>
                   </div>
-
                   <div className="bg-slate-700/50 border border-amber-500/20 rounded-lg p-4 mb-4">
                     <h4 className="font-semibold text-amber-500 mb-2">Contact Information</h4>
                     <div className="space-y-1 text-slate-300">
@@ -2042,7 +495,6 @@ const AdminPanel = () => {
                       <p>Phone: <span className="text-amber-400 font-medium">646-408-8048</span></p>
                     </div>
                   </div>
-
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -2056,19 +508,16 @@ const AdminPanel = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {buildings.map((building) => {
-                          const buildingUnits = units.filter(u => u.building_id === building.id);
-                          return (
-                            <TableRow key={building.id} className="border-slate-700">
-                              <TableCell className="font-medium text-slate-100">{building.name}</TableCell>
-                              <TableCell className="text-slate-300">{building.address}</TableCell>
-                              <TableCell className="text-slate-300">{building.neighborhood}</TableCell>
-                              <TableCell className="text-slate-300">{building.city}, {building.state}</TableCell>
-                              <TableCell className="text-slate-300">{building.zip_code}</TableCell>
-                              <TableCell className="text-amber-500 font-semibold">{buildingUnits.length}</TableCell>
-                            </TableRow>
-                          );
-                        })}
+                        {buildings.map((building) => (
+                          <TableRow key={building.id} className="border-slate-700">
+                            <TableCell className="font-medium text-slate-100">{building.name}</TableCell>
+                            <TableCell className="text-slate-300">{building.address}</TableCell>
+                            <TableCell className="text-slate-300">{building.neighborhood}</TableCell>
+                            <TableCell className="text-slate-300">{building.city}, {building.state}</TableCell>
+                            <TableCell className="text-slate-300">{building.zip_code}</TableCell>
+                            <TableCell className="text-amber-500 font-semibold">{units.filter(u => u.building_id === building.id).length}</TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -2080,10 +529,7 @@ const AdminPanel = () => {
                 <div className="mb-4">
                   <Dialog open={buildingDialogOpen} onOpenChange={setBuildingDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button data-testid="add-building-btn">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Building
-                      </Button>
+                      <Button data-testid="add-building-btn"><Plus className="w-4 h-4 mr-2" />Add Building</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
@@ -2092,41 +538,19 @@ const AdminPanel = () => {
                       </DialogHeader>
                       <form onSubmit={handleAddBuilding} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="name">Building Name</Label>
-                            <Input id="name" name="name" required data-testid="building-name-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="address">Address</Label>
-                            <Input id="address" name="address" required data-testid="building-address-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="neighborhood">Neighborhood</Label>
-                            <Input id="neighborhood" name="neighborhood" required data-testid="building-neighborhood-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="city">City</Label>
-                            <Input id="city" name="city" required data-testid="building-city-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="state">State</Label>
-                            <Input id="state" name="state" placeholder="NY" required data-testid="building-state-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="zip_code">Zip Code</Label>
-                            <Input id="zip_code" name="zip_code" required data-testid="building-zip-input" />
-                          </div>
+                          <div><Label htmlFor="name">Building Name</Label><Input id="name" name="name" required data-testid="building-name-input" /></div>
+                          <div><Label htmlFor="address">Address</Label><Input id="address" name="address" required data-testid="building-address-input" /></div>
+                          <div><Label htmlFor="neighborhood">Neighborhood</Label><Input id="neighborhood" name="neighborhood" required data-testid="building-neighborhood-input" /></div>
+                          <div><Label htmlFor="city">City</Label><Input id="city" name="city" required data-testid="building-city-input" /></div>
+                          <div><Label htmlFor="state">State</Label><Input id="state" name="state" placeholder="NY" required data-testid="building-state-input" /></div>
+                          <div><Label htmlFor="zip_code">Zip Code</Label><Input id="zip_code" name="zip_code" required data-testid="building-zip-input" /></div>
                         </div>
-                        <div>
-                          <Label htmlFor="source_url">Source URL (for crawling)</Label>
-                          <Input id="source_url" name="source_url" type="url" required data-testid="building-url-input" />
-                        </div>
+                        <div><Label htmlFor="source_url">Source URL</Label><Input id="source_url" name="source_url" type="url" required data-testid="building-url-input" /></div>
                         <Button type="submit" className="w-full" data-testid="building-submit-btn">Add Building</Button>
                       </form>
                     </DialogContent>
                   </Dialog>
                 </div>
-                
                 <Table>
                   <TableHeader>
                     <TableRow className="border-slate-700">
@@ -2143,31 +567,11 @@ const AdminPanel = () => {
                         <TableCell className="font-medium text-slate-100">{building.name}</TableCell>
                         <TableCell className="text-slate-300">{building.address}</TableCell>
                         <TableCell className="text-slate-300">{building.city}, {building.state}</TableCell>
-                        <TableCell className="text-slate-300">
-                          {building.last_crawled
-                            ? new Date(building.last_crawled).toLocaleDateString()
-                            : 'Never'}
-                        </TableCell>
+                        <TableCell className="text-slate-300">{building.last_crawled ? new Date(building.last_crawled).toLocaleDateString() : 'Never'}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleCrawlBuilding(building.id)}
-                              data-testid={`crawl-building-${building.id}`}
-                              className="border-amber-500/30 text-amber-500 hover:bg-slate-700"
-                            >
-                              <RefreshCw className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteBuilding(building.id)}
-                              data-testid={`delete-building-${building.id}`}
-                              className="bg-red-900/50 hover:bg-red-900"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleCrawlBuilding(building.id)} data-testid={`crawl-building-${building.id}`} className="border-amber-500/30 text-amber-500 hover:bg-slate-700"><RefreshCw className="w-4 h-4" /></Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDeleteBuilding(building.id)} data-testid={`delete-building-${building.id}`} className="bg-red-900/50 hover:bg-red-900"><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -2181,10 +585,7 @@ const AdminPanel = () => {
                 <div className="mb-4">
                   <Dialog open={unitDialogOpen} onOpenChange={setUnitDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button data-testid="add-unit-btn">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Unit
-                      </Button>
+                      <Button data-testid="add-unit-btn"><Plus className="w-4 h-4 mr-2" />Add Unit</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
@@ -2194,63 +595,27 @@ const AdminPanel = () => {
                       <form onSubmit={handleAddUnit} className="space-y-4">
                         <div>
                           <Label htmlFor="building_id">Building</Label>
-                          <select
-                            id="building_id"
-                            name="building_id"
-                            required
-                            className="w-full px-3 py-2 border rounded-md"
-                            data-testid="unit-building-select"
-                          >
+                          <select id="building_id" name="building_id" required className="w-full px-3 py-2 border rounded-md" data-testid="unit-building-select">
                             <option value="">Select building...</option>
-                            {buildings.map(b => (
-                              <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
+                            {buildings.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}
                           </select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="unit_number">Unit Number</Label>
-                            <Input id="unit_number" name="unit_number" required data-testid="unit-number-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="rent">Rent ($)</Label>
-                            <Input id="rent" name="rent" type="number" required data-testid="unit-rent-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="bedrooms">Bedrooms (0 = Studio)</Label>
-                            <Input id="bedrooms" name="bedrooms" type="number" min="0" required data-testid="unit-bedrooms-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="bathrooms">Bathrooms</Label>
-                            <Input id="bathrooms" name="bathrooms" type="number" step="0.5" required data-testid="unit-bathrooms-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="square_feet">Square Feet (Optional)</Label>
-                            <Input id="square_feet" name="square_feet" type="number" data-testid="unit-sqft-input" />
-                          </div>
-                          <div>
-                            <Label htmlFor="available_date">Available Date</Label>
-                            <Input id="available_date" name="available_date" placeholder="Immediate" data-testid="unit-date-input" />
-                          </div>
+                          <div><Label>Unit Number</Label><Input name="unit_number" required data-testid="unit-number-input" /></div>
+                          <div><Label>Rent ($)</Label><Input name="rent" type="number" required data-testid="unit-rent-input" /></div>
+                          <div><Label>Bedrooms (0 = Studio)</Label><Input name="bedrooms" type="number" min="0" required data-testid="unit-bedrooms-input" /></div>
+                          <div><Label>Bathrooms</Label><Input name="bathrooms" type="number" step="0.5" required data-testid="unit-bathrooms-input" /></div>
+                          <div><Label>Square Feet</Label><Input name="square_feet" type="number" data-testid="unit-sqft-input" /></div>
+                          <div><Label>Available Date</Label><Input name="available_date" placeholder="Immediate" data-testid="unit-date-input" /></div>
                         </div>
-                        <div>
-                          <Label htmlFor="amenities">Amenities (comma-separated)</Label>
-                          <Input id="amenities" name="amenities" placeholder="Gym, Pool, Parking" data-testid="unit-amenities-input" />
-                        </div>
-                        <div>
-                          <Label htmlFor="images">Image URLs (comma-separated)</Label>
-                          <Input id="images" name="images" placeholder="https://example.com/img1.jpg, ..." data-testid="unit-images-input" />
-                        </div>
-                        <div>
-                          <Label htmlFor="description">Description</Label>
-                          <Input id="description" name="description" data-testid="unit-description-input" />
-                        </div>
+                        <div><Label>Amenities (comma-separated)</Label><Input name="amenities" placeholder="Gym, Pool, Parking" data-testid="unit-amenities-input" /></div>
+                        <div><Label>Image URLs (comma-separated)</Label><Input name="images" data-testid="unit-images-input" /></div>
+                        <div><Label>Description</Label><Input name="description" data-testid="unit-description-input" /></div>
                         <Button type="submit" className="w-full" data-testid="unit-submit-btn">Add Unit</Button>
                       </form>
                     </DialogContent>
                   </Dialog>
                 </div>
-                
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -2262,301 +627,35 @@ const AdminPanel = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {units
-                      .slice((unitsPage - 1) * unitsPerPage, unitsPage * unitsPerPage)
-                      .map((unit) => (
+                    {units.slice((unitsPage - 1) * unitsPerPage, unitsPage * unitsPerPage).map((unit) => (
                       <TableRow key={unit.id}>
                         <TableCell>{unit.building?.name}</TableCell>
                         <TableCell>{unit.unit_number}</TableCell>
                         <TableCell>{unit.bedrooms}BR / {unit.bathrooms}BA</TableCell>
-                        <TableCell>${unit.rent.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteUnit(unit.id)}
-                            data-testid={`delete-unit-${unit.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
+                        <TableCell>${unit.rent?.toLocaleString()}</TableCell>
+                        <TableCell><Button size="sm" variant="destructive" onClick={() => handleDeleteUnit(unit.id)} data-testid={`delete-unit-${unit.id}`}><Trash2 className="w-4 h-4" /></Button></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-                
-                {/* Pagination Controls */}
                 <div className="flex items-center justify-between mt-4 px-2">
-                  <p className="text-sm text-gray-400">
-                    Showing {((unitsPage - 1) * unitsPerPage) + 1} - {Math.min(unitsPage * unitsPerPage, units.length)} of {units.length} units
-                  </p>
+                  <p className="text-sm text-gray-400">Showing {((unitsPage - 1) * unitsPerPage) + 1} - {Math.min(unitsPage * unitsPerPage, units.length)} of {units.length} units</p>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUnitsPage(p => Math.max(1, p - 1))}
-                      disabled={unitsPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Previous
-                    </Button>
-                    <span className="text-sm px-3">
-                      Page {unitsPage} of {Math.ceil(units.length / unitsPerPage)}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUnitsPage(p => Math.min(Math.ceil(units.length / unitsPerPage), p + 1))}
-                      disabled={unitsPage >= Math.ceil(units.length / unitsPerPage)}
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setUnitsPage(p => Math.max(1, p - 1))} disabled={unitsPage === 1}><ChevronLeft className="w-4 h-4" />Previous</Button>
+                    <span className="text-sm px-3">Page {unitsPage} of {Math.ceil(units.length / unitsPerPage)}</span>
+                    <Button variant="outline" size="sm" onClick={() => setUnitsPage(p => Math.min(Math.ceil(units.length / unitsPerPage), p + 1))} disabled={unitsPage >= Math.ceil(units.length / unitsPerPage)}>Next<ChevronRight className="w-4 h-4" /></Button>
                   </div>
                 </div>
               </TabsContent>
 
-              {/* Rented/Unavailable Units Tab (for Re-listing) */}
+              {/* Rented Tab (Extracted Component) */}
               <TabsContent value="rented">
-                <div className="space-y-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-                        <Home className="w-5 h-5 text-purple-400" />
-                        Rented / Unavailable Units
-                      </h3>
-                      <p className="text-sm text-slate-400">
-                        Units currently marked as rented or unavailable. Re-list them when they become available again.
-                      </p>
-                      <p className="text-sm text-purple-400 mt-1">
-                        Total: {unavailableUnits.length} units
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={fetchUnavailableUnits} 
-                        variant="outline" 
-                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
-                        disabled={unavailableUnitsLoading}
-                      >
-                        <RefreshCw className={`w-4 h-4 mr-2 ${unavailableUnitsLoading ? 'animate-spin' : ''}`} />
-                        Refresh
-                      </Button>
-                      {selectedUnavailableUnits.length > 0 && (
-                        <Button 
-                          onClick={handleBulkRelist}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <RotateCcw className="w-4 h-4 mr-2" />
-                          Re-list Selected ({selectedUnavailableUnits.length})
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {unavailableUnitsLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <RefreshCw className="w-8 h-8 animate-spin text-purple-400" />
-                      <span className="ml-3 text-slate-400">Loading unavailable units...</span>
-                    </div>
-                  ) : unavailableUnits.length === 0 ? (
-                    <div className="text-center py-12 text-slate-400">
-                      <Home className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-                      <p className="text-lg">No unavailable units</p>
-                      <p className="text-sm mt-2">All units are currently listed as available</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-slate-700 hover:bg-transparent">
-                            <TableHead className="text-slate-300 w-10">
-                              <input
-                                type="checkbox"
-                                checked={selectedUnavailableUnits.length === unavailableUnits.length && unavailableUnits.length > 0}
-                                onChange={toggleSelectAllUnavailable}
-                                className="rounded border-slate-600"
-                              />
-                            </TableHead>
-                            <TableHead className="text-slate-300">Unit</TableHead>
-                            <TableHead className="text-slate-300">Building</TableHead>
-                            <TableHead className="text-slate-300">Rent</TableHead>
-                            <TableHead className="text-slate-300">Beds</TableHead>
-                            <TableHead className="text-slate-300">Status</TableHead>
-                            <TableHead className="text-slate-300">Marked Off</TableHead>
-                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {unavailableUnits.map((unit) => (
-                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
-                              <TableCell>
-                                <input
-                                  type="checkbox"
-                                  checked={selectedUnavailableUnits.includes(unit.id)}
-                                  onChange={() => toggleUnavailableSelection(unit.id)}
-                                  className="rounded border-slate-600"
-                                />
-                              </TableCell>
-                              <TableCell className="text-slate-200 font-medium">
-                                #{unit.unit_number}
-                              </TableCell>
-                              <TableCell>
-                                <div className="text-slate-200">{unit.building_name}</div>
-                                <div className="text-xs text-slate-400">{unit.building_address}</div>
-                              </TableCell>
-                              <TableCell className="text-amber-400 font-medium">
-                                ${unit.rent?.toLocaleString()}/mo
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}
-                              </TableCell>
-                              <TableCell>
-                                <Badge className={`${
-                                  unit.lifecycle_status === 'rented' 
-                                    ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                                    : 'bg-red-500/20 text-red-400 border-red-500/30'
-                                }`}>
-                                  {unit.lifecycle_status || 'unavailable'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-slate-400 text-sm">
-                                {unit.unavailable_confirmed_at 
-                                  ? new Date(unit.unavailable_confirmed_at).toLocaleDateString()
-                                  : unit.updated_at 
-                                    ? new Date(unit.updated_at).toLocaleDateString()
-                                    : 'Unknown'}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700"
-                                  onClick={() => {
-                                    setSelectedRelistUnit(unit);
-                                    setRelistRent(unit.rent?.toString() || '');
-                                    setRelistDialogOpen(true);
-                                  }}
-                                  title="Re-list this unit"
-                                >
-                                  <RotateCcw className="w-4 h-4 mr-1" />
-                                  Re-list
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </div>
+                <RentedTab fetchData={fetchData} />
               </TabsContent>
 
-              {/* Rejected Staging Units Tab */}
+              {/* Rejected Tab (Extracted Component) */}
               <TabsContent value="rejected">
-                <div className="space-y-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-                        <XCircle className="w-5 h-5 text-red-400" />
-                        Rejected Staging Units
-                      </h3>
-                      <p className="text-sm text-slate-400">
-                        Units rejected during staging review. You can reconsider or approve them later.
-                      </p>
-                      <p className="text-sm text-red-400 mt-1">
-                        Total: {rejectedStagingUnits.length} rejected units
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={fetchRejectedStagingUnits} 
-                      variant="outline" 
-                      className="border-slate-600 text-slate-200 hover:bg-slate-700"
-                      disabled={rejectedStagingLoading}
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${rejectedStagingLoading ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
-                  </div>
-
-                  {rejectedStagingLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <RefreshCw className="w-8 h-8 animate-spin text-red-400" />
-                      <span className="ml-3 text-slate-400">Loading rejected units...</span>
-                    </div>
-                  ) : rejectedStagingUnits.length === 0 ? (
-                    <div className="text-center py-12 text-slate-400">
-                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                      <p className="text-lg">No rejected units</p>
-                      <p className="text-sm mt-2">All staging units have been processed</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-slate-700 hover:bg-transparent">
-                            <TableHead className="text-slate-300">Unit</TableHead>
-                            <TableHead className="text-slate-300">Building</TableHead>
-                            <TableHead className="text-slate-300">Rent</TableHead>
-                            <TableHead className="text-slate-300">Beds</TableHead>
-                            <TableHead className="text-slate-300">Rejection Reason</TableHead>
-                            <TableHead className="text-slate-300">Rejected On</TableHead>
-                            <TableHead className="text-slate-300 text-right">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {rejectedStagingUnits.map((unit) => (
-                            <TableRow key={unit.id} className="border-slate-700 hover:bg-slate-700/30">
-                              <TableCell className="text-slate-200 font-medium">
-                                #{unit.unit_number}
-                              </TableCell>
-                              <TableCell>
-                                <div className="text-slate-200">{unit.building_name}</div>
-                                <div className="text-xs text-slate-400">{unit.building_address}</div>
-                              </TableCell>
-                              <TableCell className="text-amber-400 font-medium">
-                                ${unit.rent?.toLocaleString()}/mo
-                              </TableCell>
-                              <TableCell className="text-slate-300">
-                                {unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} BR`}
-                              </TableCell>
-                              <TableCell className="text-red-400 text-sm max-w-[200px] truncate">
-                                {unit.rejection_reason || 'No reason provided'}
-                              </TableCell>
-                              <TableCell className="text-slate-400 text-sm">
-                                {unit.rejected_at 
-                                  ? new Date(unit.rejected_at).toLocaleDateString()
-                                  : 'Unknown'}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex gap-2 justify-end">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
-                                    onClick={() => handleReconsiderRejected(unit.id)}
-                                    title="Move back to pending review"
-                                  >
-                                    <RotateCcw className="w-4 h-4 mr-1" />
-                                    Reconsider
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700"
-                                    onClick={() => handleApproveRejectedDirectly(unit.id)}
-                                    title="Approve directly to production"
-                                  >
-                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                    Approve
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </div>
+                <RejectedTab fetchData={fetchData} />
               </TabsContent>
 
               {/* Users Tab */}
@@ -2576,25 +675,11 @@ const AdminPanel = () => {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.is_admin && <Badge>Admin</Badge>}</TableCell>
+                        <TableCell>{user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</TableCell>
                         <TableCell>
-                          {user.is_admin && <Badge>Admin</Badge>}
-                        </TableCell>
-                        <TableCell>
-                          {user.created_at
-                            ? new Date(user.created_at).toLocaleDateString()
-                            : 'N/A'}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setResetPasswordDialogOpen(true);
-                            }}
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
-                          >
-                            <LogIn className="w-4 h-4 mr-1" />
-                            Reset Password
+                          <Button size="sm" onClick={() => { setSelectedUser(user); setResetPasswordDialogOpen(true); }} className="bg-amber-600 hover:bg-amber-700 text-white">
+                            <LogIn className="w-4 h-4 mr-1" /> Reset Password
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -2622,9 +707,7 @@ const AdminPanel = () => {
                         <TableCell>{contact.email}</TableCell>
                         <TableCell>{contact.phone || 'N/A'}</TableCell>
                         <TableCell className="max-w-xs truncate">{contact.message}</TableCell>
-                        <TableCell>
-                          {new Date(contact.created_at).toLocaleDateString()}
-                        </TableCell>
+                        <TableCell>{new Date(contact.created_at).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -2639,9 +722,7 @@ const AdminPanel = () => {
                       <h3 className="text-lg font-semibold text-slate-100">Email Subscribers</h3>
                       <p className="text-sm text-slate-400">Users who signed up for apartment updates</p>
                     </div>
-                    <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1">
-                      {subscribers.length} subscribers
-                    </Badge>
+                    <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1">{subscribers.length} subscribers</Badge>
                   </div>
                   <Table>
                     <TableHeader>
@@ -2655,41 +736,14 @@ const AdminPanel = () => {
                     <TableBody>
                       {subscribers.map((subscriber) => (
                         <TableRow key={subscriber.id}>
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-4 h-4 text-emerald-500" />
-                              {subscriber.email}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-slate-300 border-slate-600">
-                              {subscriber.source || 'landing_page'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {subscriber.active ? (
-                              <Badge className="bg-emerald-500/20 text-emerald-400">Active</Badge>
-                            ) : (
-                              <Badge className="bg-red-500/20 text-red-400">Inactive</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(subscriber.subscribed_at).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </TableCell>
+                          <TableCell className="font-medium"><div className="flex items-center gap-2"><Mail className="w-4 h-4 text-emerald-500" />{subscriber.email}</div></TableCell>
+                          <TableCell><Badge variant="outline" className="text-slate-300 border-slate-600">{subscriber.source || 'landing_page'}</Badge></TableCell>
+                          <TableCell>{subscriber.active ? <Badge className="bg-emerald-500/20 text-emerald-400">Active</Badge> : <Badge className="bg-red-500/20 text-red-400">Inactive</Badge>}</TableCell>
+                          <TableCell>{new Date(subscriber.subscribed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
                         </TableRow>
                       ))}
                       {subscribers.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center text-slate-400 py-8">
-                            No subscribers yet. They will appear here when users sign up for updates.
-                          </TableCell>
-                        </TableRow>
+                        <TableRow><TableCell colSpan={4} className="text-center text-slate-400 py-8">No subscribers yet.</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -2704,714 +758,18 @@ const AdminPanel = () => {
           <DialogContent className="bg-slate-800 border-amber-500/20 text-slate-100">
             <DialogHeader>
               <DialogTitle className="text-slate-100">Reset User Password</DialogTitle>
-              <DialogDescription className="text-slate-300">
-                Set a new password for {selectedUser?.email}. The user will receive an email with their new password.
-              </DialogDescription>
+              <DialogDescription className="text-slate-300">Set a new password for {selectedUser?.email}.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-slate-200">New Password</Label>
-                <Input
-                  id="new-password"
-                  type="text"
-                  placeholder="Enter new password (min 6 characters)"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400"
-                />
+                <Input id="new-password" type="text" placeholder="Enter new password (min 6 characters)" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-slate-400" />
               </div>
               <div className="flex gap-3">
-                <Button
-                  onClick={() => {
-                    setResetPasswordDialogOpen(false);
-                    setSelectedUser(null);
-                    setNewPassword('');
-                  }}
-                  variant="outline"
-                  className="flex-1 border-slate-600 text-slate-200 hover:bg-slate-700"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleResetPassword}
-                  className="flex-1 warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold"
-                >
-                  Reset Password
-                </Button>
+                <Button onClick={() => { setResetPasswordDialogOpen(false); setSelectedUser(null); setNewPassword(''); }} variant="outline" className="flex-1 border-slate-600 text-slate-200 hover:bg-slate-700">Cancel</Button>
+                <Button onClick={handleResetPassword} className="flex-1 warm-gradient hover:shadow-lg hover:shadow-amber-500/30 text-slate-900 font-semibold">Reset Password</Button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Reject Staging Unit Dialog */}
-        <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-          <DialogContent className="bg-slate-800 border-red-500/30">
-            <DialogHeader>
-              <DialogTitle className="text-slate-100 flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-500" />
-                Reject Staging Unit
-              </DialogTitle>
-              <DialogDescription className="text-slate-400">
-                {selectedStagingUnit && (
-                  <>Rejecting unit <span className="text-amber-400">{selectedStagingUnit.unit_number}</span> at {selectedStagingUnit.building_name}</>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="reject-reason" className="text-slate-200">Rejection Reason *</Label>
-                <Textarea
-                  id="reject-reason"
-                  placeholder="Enter reason for rejection..."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[100px]"
-                  data-testid="reject-reason-input"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setRejectDialogOpen(false);
-                  setSelectedStagingUnit(null);
-                  setRejectReason('');
-                }}
-                className="border-slate-600 text-slate-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleRejectStaging}
-                disabled={!rejectReason.trim()}
-                className="bg-red-600 hover:bg-red-700 text-white"
-                data-testid="confirm-reject-btn"
-              >
-                Reject Unit
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Staging Unit Dialog */}
-        <Dialog open={editStagingDialogOpen} onOpenChange={setEditStagingDialogOpen}>
-          <DialogContent className="bg-slate-800 border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-slate-100 flex items-center gap-2">
-                <Edit className="w-5 h-5 text-amber-500" />
-                Review & Edit Before Approval
-              </DialogTitle>
-              <DialogDescription className="text-slate-400">
-                Review the unit details and make any necessary changes before approving.
-              </DialogDescription>
-            </DialogHeader>
-            {selectedStagingUnit && (
-              <form onSubmit={handleEditStagingUnit} className="space-y-4 py-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-building" className="text-slate-200">Building *</Label>
-                    <select
-                      id="edit-building"
-                      name="building_id"
-                      defaultValue={selectedStagingUnit.building_id || ''}
-                      className="w-full bg-slate-700/50 border border-slate-600 text-slate-100 rounded-md px-3 py-2"
-                      required
-                    >
-                      <option value="">-- Select Building --</option>
-                      {buildings.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name} - {b.address}, {b.city}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-slate-500">Select the building this unit belongs to</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-unit-number" className="text-slate-200">Unit Number *</Label>
-                    <Input
-                      id="edit-unit-number"
-                      name="unit_number"
-                      defaultValue={selectedStagingUnit.unit_number}
-                      required
-                      className="bg-slate-700/50 border-slate-600 text-slate-100"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-rent" className="text-slate-200">Rent ($) *</Label>
-                    <Input
-                      id="edit-rent"
-                      name="rent"
-                      type="number"
-                      defaultValue={selectedStagingUnit.rent}
-                      required
-                      className="bg-slate-700/50 border-slate-600 text-slate-100"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-bedrooms" className="text-slate-200">Bedrooms</Label>
-                    <Input
-                      id="edit-bedrooms"
-                      name="bedrooms"
-                      type="number"
-                      defaultValue={selectedStagingUnit.bedrooms}
-                      className="bg-slate-700/50 border-slate-600 text-slate-100"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-bathrooms" className="text-slate-200">Bathrooms</Label>
-                    <Input
-                      id="edit-bathrooms"
-                      name="bathrooms"
-                      type="number"
-                      step="0.5"
-                      defaultValue={selectedStagingUnit.bathrooms}
-                      className="bg-slate-700/50 border-slate-600 text-slate-100"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-sqft" className="text-slate-200">Square Feet</Label>
-                    <Input
-                      id="edit-sqft"
-                      name="square_feet"
-                      type="number"
-                      defaultValue={selectedStagingUnit.square_feet || ''}
-                      className="bg-slate-700/50 border-slate-600 text-slate-100"
-                    />
-                  </div>
-                </div>
-
-                {/* Metadata Display */}
-                <div className="bg-slate-700/30 p-4 rounded-lg space-y-2">
-                  <h4 className="text-sm font-medium text-slate-300">Crawl Metadata</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-slate-500">Source:</span>{' '}
-                      <span className="text-slate-300">{selectedStagingUnit.crawler_source}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Duplicate Score:</span>{' '}
-                      <Badge className={getDuplicateScoreBadge(selectedStagingUnit.duplicate_score)}>
-                        {(selectedStagingUnit.duplicate_score * 100).toFixed(0)}%
-                      </Badge>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-slate-500">Flags:</span>{' '}
-                      <span className="text-slate-300">
-                        {selectedStagingUnit.validation_flags?.join(', ') || 'None'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Images Section with Upload */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-slate-200 flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-amber-500" />
-                      Images ({selectedStagingUnit.images?.length || 0})
-                    </Label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleStagingImageUpload}
-                        className="hidden"
-                        disabled={uploadingImages}
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
-                        disabled={uploadingImages}
-                        asChild
-                      >
-                        <span>
-                          {uploadingImages ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Upload Images
-                            </>
-                          )}
-                        </span>
-                      </Button>
-                    </label>
-                  </div>
-                  
-                  {/* Images Grid */}
-                  {selectedStagingUnit.images && selectedStagingUnit.images.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 bg-slate-700/30 rounded-lg">
-                      {selectedStagingUnit.images.map((img, idx) => (
-                        <div key={idx} className="relative group">
-                          <img
-                            src={img.startsWith('/api') ? `${API.replace('/api', '')}${img}` : img}
-                            alt={`Unit image ${idx + 1}`}
-                            className="w-full h-20 object-cover rounded border border-slate-600"
-                            onError={(e) => {
-                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="%23666"><rect width="80" height="80"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="10">No Image</text></svg>';
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteStagingImage(img)}
-                            className="absolute -top-1 -right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-slate-700/30 rounded-lg p-6 text-center">
-                      <ImageIcon className="w-10 h-10 text-slate-500 mx-auto mb-2" />
-                      <p className="text-slate-400 text-sm">No images yet</p>
-                      <p className="text-slate-500 text-xs mt-1">Click "Upload Images" to add photos</p>
-                    </div>
-                  )}
-                </div>
-
-                <DialogFooter className="pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setEditStagingDialogOpen(false);
-                      setSelectedStagingUnit(null);
-                    }}
-                    className="border-slate-600 text-slate-300"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => {
-                      handleQuickReject(selectedStagingUnit);
-                      setEditStagingDialogOpen(false);
-                    }}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Reject Instead
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => handleApproveStaging(selectedStagingUnit.id)}
-                    className="warm-gradient text-slate-900 font-semibold"
-                    data-testid="approve-from-edit-btn"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Approve Unit
-                  </Button>
-                </DialogFooter>
-              </form>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Image Preview Dialog */}
-        <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-          <DialogContent className="bg-slate-800 border-amber-500/30 max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-slate-100 flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-amber-500" />
-                Unit Images ({previewImages.length})
-              </DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4">
-              {previewImages.map((img, idx) => (
-                <div key={idx} className="relative aspect-video">
-                  <img
-                    src={img}
-                    alt={`Unit image ${idx + 1}`}
-                    className="w-full h-full object-cover rounded-lg border border-slate-600"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
-                    }}
-                  />
-                  <a
-                    href={img}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-2 right-2 p-1 bg-slate-900/70 rounded hover:bg-slate-800"
-                  >
-                    <ExternalLink className="w-4 h-4 text-slate-300" />
-                  </a>
-                </div>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Confirm Unavailability Dialog */}
-        <Dialog open={unavailReviewDialogOpen} onOpenChange={setUnavailReviewDialogOpen}>
-          <DialogContent className="bg-slate-800 border-orange-500/30">
-            <DialogHeader>
-              <DialogTitle className="text-slate-100 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-orange-500" />
-                Confirm Unit Unavailable
-              </DialogTitle>
-              <DialogDescription className="text-slate-400">
-                {selectedUnavailUnit && (
-                  <>
-                    Mark unit <span className="text-amber-400">#{selectedUnavailUnit.unit_number}</span> at{' '}
-                    <span className="text-slate-200">{selectedUnavailUnit.building_name}</span> as unavailable?
-                    <br />
-                    <span className="text-orange-400">
-                      This unit was not found in {selectedUnavailUnit.consecutive_misses} consecutive crawl(s).
-                    </span>
-                  </>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {selectedUnavailUnit && (
-                <div className="bg-slate-700/30 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Rent:</span>
-                    <span className="text-amber-400 font-medium">${selectedUnavailUnit.rent?.toLocaleString()}/mo</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Bedrooms:</span>
-                    <span className="text-slate-200">
-                      {selectedUnavailUnit.bedrooms === 0 ? 'Studio' : `${selectedUnavailUnit.bedrooms} BR`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">First Detected:</span>
-                    <span className="text-slate-200">
-                      {selectedUnavailUnit.created_at && new Date(selectedUnavailUnit.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="unavail-notes" className="text-slate-200">Notes (optional)</Label>
-                <Textarea
-                  id="unavail-notes"
-                  placeholder="Add any notes about why this unit is unavailable..."
-                  value={unavailReviewNotes}
-                  onChange={(e) => setUnavailReviewNotes(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[80px]"
-                />
-              </div>
-            </div>
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setUnavailReviewDialogOpen(false);
-                  setSelectedUnavailUnit(null);
-                  setUnavailReviewNotes('');
-                }}
-                className="border-slate-600 text-slate-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (selectedUnavailUnit) {
-                    handleUnavailReview(selectedUnavailUnit.id, 'false_positive');
-                  }
-                }}
-                className="border-green-600 text-green-400 hover:bg-green-900/30"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Dismiss Flag
-              </Button>
-              <Button
-                onClick={() => {
-                  if (selectedUnavailUnit) {
-                    handleUnavailReview(selectedUnavailUnit.id, 'confirmed_unavailable');
-                  }
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Confirm Unavailable
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Re-list Unit Dialog */}
-        <Dialog open={relistDialogOpen} onOpenChange={setRelistDialogOpen}>
-          <DialogContent className="bg-slate-800 border-green-500/30">
-            <DialogHeader>
-              <DialogTitle className="text-slate-100 flex items-center gap-2">
-                <RotateCcw className="w-5 h-5 text-green-500" />
-                Re-list Unit
-              </DialogTitle>
-              <DialogDescription className="text-slate-400">
-                {selectedRelistUnit && (
-                  <>
-                    Re-list unit <span className="text-amber-400">#{selectedRelistUnit.unit_number}</span> at{' '}
-                    <span className="text-slate-200">{selectedRelistUnit.building_name}</span>
-                  </>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {selectedRelistUnit && (
-                <div className="bg-slate-700/30 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Current Status:</span>
-                    <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                      {selectedRelistUnit.lifecycle_status || 'unavailable'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Bedrooms:</span>
-                    <span className="text-slate-200">
-                      {selectedRelistUnit.bedrooms === 0 ? 'Studio' : `${selectedRelistUnit.bedrooms} BR`}
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="relist-rent" className="text-slate-200">New Rent Price (optional)</Label>
-                <Input
-                  id="relist-rent"
-                  type="number"
-                  placeholder="Leave empty to keep current rent"
-                  value={relistRent}
-                  onChange={(e) => setRelistRent(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100"
-                />
-                <p className="text-xs text-slate-400">
-                  Current rent: ${selectedRelistUnit?.rent?.toLocaleString()}/mo
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="relist-notes" className="text-slate-200">Notes (optional)</Label>
-                <Textarea
-                  id="relist-notes"
-                  placeholder="Add any notes about re-listing this unit..."
-                  value={relistNotes}
-                  onChange={(e) => setRelistNotes(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600 text-slate-100 min-h-[80px]"
-                />
-              </div>
-            </div>
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setRelistDialogOpen(false);
-                  setSelectedRelistUnit(null);
-                  setRelistRent('');
-                  setRelistNotes('');
-                }}
-                className="border-slate-600 text-slate-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleRelistUnit}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Re-list Unit
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Property Import Preview Dialog */}
-        <Dialog open={importPreviewOpen} onOpenChange={setImportPreviewOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
-            <DialogHeader>
-              <DialogTitle className="text-xl text-slate-100">Import Preview</DialogTitle>
-              <DialogDescription className="text-slate-400">
-                Review and edit the extracted data before importing to staging
-              </DialogDescription>
-            </DialogHeader>
-
-            {crawledData && (
-              <div className="space-y-6 mt-4">
-                {/* Building Info */}
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                  <h4 className="text-amber-400 font-semibold mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5" /> Building Information
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-slate-400 text-sm">Building Name</Label>
-                      <Input
-                        value={crawledData.building.name || ''}
-                        onChange={(e) => updateCrawledBuilding('name', e.target.value)}
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-slate-400 text-sm">Address</Label>
-                      <Input
-                        value={crawledData.building.address || ''}
-                        onChange={(e) => updateCrawledBuilding('address', e.target.value)}
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-slate-400 text-sm">Neighborhood</Label>
-                      <Input
-                        value={crawledData.building.neighborhood || ''}
-                        onChange={(e) => updateCrawledBuilding('neighborhood', e.target.value)}
-                        placeholder="e.g., Chelsea, DUMBO, etc."
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-slate-400 text-sm">City</Label>
-                      <Input
-                        value={crawledData.building.city || ''}
-                        onChange={(e) => updateCrawledBuilding('city', e.target.value)}
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-slate-400 text-sm">State</Label>
-                      <Input
-                        value={crawledData.building.state || ''}
-                        onChange={(e) => updateCrawledBuilding('state', e.target.value)}
-                        placeholder="NY, NJ, PA"
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-slate-400 text-sm">Source URL</Label>
-                      <Input
-                        value={crawledData.building.source_url || ''}
-                        onChange={(e) => updateCrawledBuilding('source_url', e.target.value)}
-                        className="bg-slate-800 border-slate-600 text-slate-100 mt-1"
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Units */}
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-amber-400 font-semibold flex items-center gap-2">
-                      <Home className="w-5 h-5" /> Units ({crawledData.units.length})
-                    </h4>
-                    <Button onClick={addCrawledUnit} size="sm" variant="outline" className="border-green-500 text-green-400 hover:bg-green-500/20">
-                      <Plus className="w-4 h-4 mr-1" /> Add Unit
-                    </Button>
-                  </div>
-                  
-                  {crawledData.units.length === 0 ? (
-                    <p className="text-slate-500 text-sm">No units extracted. Click "Add Unit" to manually add units.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {crawledData.units.map((unit, index) => (
-                        <div key={index} className="bg-slate-800 border border-slate-600 rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-3">
-                            <span className="text-slate-300 font-medium">Unit {index + 1}</span>
-                            <Button 
-                              onClick={() => removeCrawledUnit(index)} 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-8 w-8 p-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <div className="grid grid-cols-4 gap-3">
-                            <div>
-                              <Label className="text-slate-500 text-xs">Unit #</Label>
-                              <Input
-                                value={unit.unit_number || ''}
-                                onChange={(e) => updateCrawledUnit(index, 'unit_number', e.target.value)}
-                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-slate-500 text-xs">Rent ($)</Label>
-                              <Input
-                                type="number"
-                                value={unit.rent || ''}
-                                onChange={(e) => updateCrawledUnit(index, 'rent', parseInt(e.target.value) || 0)}
-                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-slate-500 text-xs">Beds</Label>
-                              <Input
-                                type="number"
-                                value={unit.bedrooms ?? ''}
-                                onChange={(e) => updateCrawledUnit(index, 'bedrooms', parseInt(e.target.value) || 0)}
-                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-slate-500 text-xs">Baths</Label>
-                              <Input
-                                type="number"
-                                value={unit.bathrooms || ''}
-                                onChange={(e) => updateCrawledUnit(index, 'bathrooms', parseInt(e.target.value) || 0)}
-                                className="bg-slate-700 border-slate-600 text-slate-100 text-sm h-9 mt-1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Images Preview */}
-                {crawledData.raw_images && crawledData.raw_images.length > 0 && (
-                  <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                    <h4 className="text-amber-400 font-semibold mb-3">Found Images ({crawledData.raw_images.length})</h4>
-                    <div className="grid grid-cols-5 gap-2">
-                      {crawledData.raw_images.slice(0, 10).map((img, index) => (
-                        <div key={index} className="aspect-square bg-slate-700 rounded overflow-hidden">
-                          <img src={img} alt={`Property ${index + 1}`} className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-slate-500 text-xs mt-2">First 10 images shown. All will be imported.</p>
-                  </div>
-                )}
-
-                {crawledData.error && (
-                  <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4">
-                    <p className="text-yellow-400 text-sm"><AlertTriangle className="w-4 h-4 inline mr-2" />{crawledData.message || crawledData.error}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <DialogFooter className="mt-6">
-              <Button variant="outline" onClick={() => setImportPreviewOpen(false)} className="border-slate-600 text-slate-300">
-                Cancel
-              </Button>
-              <Button 
-                onClick={handlePropertyImport} 
-                disabled={importing || !crawledData?.building?.name}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                {importing ? (
-                  <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Importing...</>
-                ) : (
-                  <><Upload className="w-4 h-4 mr-2" /> Import to Staging</>
-                )}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

@@ -12,7 +12,7 @@ const AISearchAgent = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! 👋 I'm Chris. Ask me anything — apartment searches, market prices, neighborhood insights, or rental tips!"
+      content: "Hi! 👋 I'm Kiri, your AI expert leasing agent. I'll help you find the exact apartment you're searching for — just tell me what you need!"
     }
   ]);
   const [input, setInput] = useState('');
@@ -143,7 +143,7 @@ const AISearchAgent = () => {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         {!isOpen && (
           <span className="bg-slate-800/90 text-[#7EB8DA] text-sm px-3 py-1.5 rounded-full shadow-lg animate-pulse font-philosopher tracking-wide">
-            Ask Chris
+            Ask Kiri
           </span>
         )}
         <button
@@ -176,7 +176,7 @@ const AISearchAgent = () => {
                 <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B8960C] flex items-center justify-center text-slate-900 font-bold text-xs">
                   C
                 </div>
-                <span className="text-white font-medium text-sm">Chris</span>
+                <span className="text-white font-medium text-sm">Kiri</span>
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               </div>
               <div className="flex items-center gap-2">
@@ -203,9 +203,9 @@ const AISearchAgent = () => {
               <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
                 <Lock className="w-8 h-8 text-[#D4AF37]" />
               </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Sign In to Chat with Chris</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Sign In to Chat with Kiri</h3>
               <p className="text-slate-400 text-sm mb-6">
-                Create a free account to get personalized apartment recommendations from Chris.
+                Create a free account to get personalized apartment recommendations from Kiri, your AI expert leasing agent.
               </p>
               <Button
                 onClick={() => {
@@ -217,7 +217,7 @@ const AISearchAgent = () => {
                 Sign In / Sign Up Free
               </Button>
               <p className="text-slate-500 text-xs mt-4">
-                Or call Chris: <a href="tel:6464088048" className="text-[#D4AF37]">(646) 408-8048</a>
+                Or call Kiri: <a href="tel:6464088048" className="text-[#D4AF37]">(646) 408-8048</a>
               </p>
             </div>
           ) : (
@@ -292,7 +292,7 @@ const AISearchAgent = () => {
               {/* Contact Info */}
               <div className="px-4 py-2 bg-slate-800/50 border-t border-slate-700">
                 <p className="text-xs text-slate-400 text-center">
-                  Need more help? Call Chris: 
+                  Need more help? Call Kiri: 
                   <a href="tel:6464088048" className="text-[#D4AF37] hover:underline ml-1">
                     <Phone className="w-3 h-3 inline" /> (646) 408-8048
                   </a>
@@ -307,7 +307,7 @@ const AISearchAgent = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask Chris about apartments..."
+                    placeholder="Ask Kiri about apartments..."
                     className="flex-1 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-[#D4AF37] focus:ring-[#D4AF37]/20"
                     disabled={isLoading}
                     data-testid="ai-chat-input"

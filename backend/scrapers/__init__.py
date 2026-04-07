@@ -21,6 +21,7 @@ Supported websites:
     - 7w21.com (7 West 21st)
     - rentrivercourtnyc.com (Rivercourt)
     - themelar.com (The Melar)
+    - trulia.com (Trulia listings)
     - Generic sites (fallback parser)
 """
 
@@ -34,6 +35,7 @@ from . import harrison_yards
 from . import seven_w21
 from . import rivercourt
 from . import melar
+from . import trulia
 from . import generic
 from .base import create_unit_template, normalize_unit_number
 
@@ -49,6 +51,7 @@ SCRAPER_REGISTRY = {
     'rentrivercourtnyc': rivercourt,
     'melar': melar,
     'themelar': melar,
+    'trulia.com': trulia,
 }
 
 

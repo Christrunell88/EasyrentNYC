@@ -4934,8 +4934,8 @@ async def property_search(request: PropertySearchRequest, user: User = Depends(r
         # Filter and structure results
         seen_domains = set()
         
-        # Skip aggregators and non-building sites
-        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
+        # Skip aggregators and non-building sites (Trulia removed - we now have a dedicated scraper)
+        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'realtor', 
                       'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
                       'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia', 'craigslist',
                       'reddit', 'pinterest', 'glassdoor', 'indeed', 'nytimes', 'curbed']
@@ -5039,8 +5039,8 @@ async def property_discovery(request: DiscoverySearchRequest, user: User = Depen
             # Query 3: Management company search
             discovery_queries.append(f"luxury apartment management company {area} availability rentals")
         
-        # Skip aggregators
-        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'trulia', 'realtor', 
+        # Skip aggregators (Trulia removed - we now have a dedicated scraper)
+        skip_domains = ['streeteasy', 'zillow', 'apartments.com', 'realtor', 
                       'apartmentguide', 'rent.com', 'hotpads', 'facebook', 'instagram',
                       'youtube', 'twitter', 'linkedin', 'yelp', 'wikipedia', 'craigslist',
                       'reddit', 'pinterest', 'nytimes', 'curbed', 'timeout', 'thrillist']

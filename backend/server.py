@@ -3890,6 +3890,120 @@ async def bulk_delete_production_units(
         "deleted_count": result.deleted_count
     }
 
+
+@api_router.post("/admin/staging/units/bulk-approve")
+async def bulk_approve_staging_units(
+    input: BulkDeleteInput,  # Reusing the same input model (just needs ids)
+    user: User = Depends(require_admin)
+):
+    """
+    Bulk approve staging units and promote them to production.
+    """
+    if not input.ids:
+        raise HTTPException(status_code=400, detail="No unit IDs provided")
+    
+    approved_count = 0
+    errors = []
+    
+    for unit_id in input.ids:
+        try:
+            # Get the staged unit
+            staged_unit = await db.units_staging.find_one({"id": unit_id}, {"_id": 0})
+            if not staged_unit:
+                errors.append(f"Unit {unit_id} not found")
+                continue
+            
+            if staged_unit.get("review_status") == "approved":
+                errors.append(f"Unit {unit_id} already approved")
+                continue
+            
+            # Get or create building
+            building_id = staged_unit.get('building_id')
+            if not building_id:
+                # Try to find or create building from staging data
+                building_name = staged_unit.get('building_name', 'Unknown Building')
+                building_address = staged_unit.get('building_address', '')
+                
+                existing_building = await db.buildings.find_one({
+                    '$or': [
+                        {'name': building_name},
+                        {'address': building_address}
+                    ]
+                }, {"_id": 0})
+                
+                if existing_building:
+                    building_id = existing_building['id']
+                else:
+                    # Create new building
+                    import uuid
+                    building_id = str(uuid.uuid4())
+                    new_building = {
+                        'id': building_id,
+                        'name': building_name,
+                        'address': building_address,
+                        'neighborhood': staged_unit.get('neighborhood', ''),
+                        'city': staged_unit.get('city', 'New York'),
+                        'state': staged_unit.get('state', 'NY'),
+                        'images': staged_unit.get('building_images', []),
+                        'amenities': staged_unit.get('amenities', []),
+                        'created_at': datetime.now(timezone.utc).isoformat()
+                    }
+                    await db.buildings.insert_one(new_building)
+                    logger.info(f"Created new building: {building_name} ({building_id})")
+            
+            # Create production unit
+            import uuid
+            production_unit = {
+                'id': str(uuid.uuid4()),
+                'building_id': building_id,
+                'unit_number': staged_unit.get('unit_number', 'N/A'),
+                'rent': staged_unit.get('rent', 0),
+                'bedrooms': staged_unit.get('bedrooms', 0),
+                'bathrooms': staged_unit.get('bathrooms', 1),
+                'sqft': staged_unit.get('sqft'),
+                'images': staged_unit.get('images', []),
+                'amenities': staged_unit.get('amenities', []),
+                'is_available': True,
+                'available_date': staged_unit.get('available_date'),
+                'description': staged_unit.get('description', ''),
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat(),
+                'promoted_from_staging': unit_id,
+                'promoted_by': user.email,
+                'promoted_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.units.insert_one(production_unit)
+            
+            # Mark staging unit as approved
+            await db.units_staging.update_one(
+                {"id": unit_id},
+                {
+                    "$set": {
+                        "review_status": "approved",
+                        "reviewed_by": user.email,
+                        "reviewed_at": datetime.now(timezone.utc).isoformat(),
+                        "production_unit_id": production_unit['id']
+                    }
+                }
+            )
+            
+            approved_count += 1
+            logger.info(f"Bulk approved unit {unit_id} -> production {production_unit['id']}")
+            
+        except Exception as e:
+            logger.error(f"Error approving unit {unit_id}: {e}")
+            errors.append(f"Unit {unit_id}: {str(e)}")
+            continue
+    
+    logger.info(f"Admin {user.email} bulk approved {approved_count} staging units")
+    
+    return {
+        "message": f"{approved_count} unit(s) approved and added to production",
+        "approved_count": approved_count,
+        "errors": errors if errors else None
+    }
+
 # ============ PROMOTION SERVICE ENDPOINTS ============
 
 @api_router.post("/staging/promote/{unit_id}")

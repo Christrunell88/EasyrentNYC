@@ -79,6 +79,7 @@ const AdminPanel = () => {
   // Bulk Selection State for Staging
   const [selectedStagingUnits, setSelectedStagingUnits] = useState(new Set());
   const [bulkDeletingStaging, setBulkDeletingStaging] = useState(false);
+  const [bulkApprovingStaging, setBulkApprovingStaging] = useState(false);
 
   // Bulk Selection State for Approved/Production Units
   const [selectedProductionUnits, setSelectedProductionUnits] = useState(new Set());
@@ -497,6 +498,31 @@ const AdminPanel = () => {
       toast.error(error.response?.data?.detail || 'Failed to delete staging units');
     } finally {
       setBulkDeletingStaging(false);
+    }
+  };
+
+  // Bulk approve staging units
+  const handleBulkApproveStaging = async () => {
+    if (selectedStagingUnits.size === 0) return;
+    
+    if (!confirm(`Are you sure you want to approve ${selectedStagingUnits.size} staging unit(s)? They will be added to the live site.`)) {
+      return;
+    }
+    
+    setBulkApprovingStaging(true);
+    try {
+      const ids = Array.from(selectedStagingUnits);
+      const response = await axios.post(`${API}/admin/staging/units/bulk-approve`, { ids }, { withCredentials: true });
+      toast.success(`${response.data.approved_count} unit(s) approved and added to production`);
+      setSelectedStagingUnits(new Set());
+      fetchStagingUnits();
+      fetchStagingStats();
+      fetchData(); // Refresh production units
+    } catch (error) {
+      console.error('Error bulk approving staging units:', error);
+      toast.error(error.response?.data?.detail || 'Failed to approve staging units');
+    } finally {
+      setBulkApprovingStaging(false);
     }
   };
 
@@ -1619,6 +1645,15 @@ const AdminPanel = () => {
                               Clear Selection
                             </Button>
                             <Button
+                              size="sm"
+                              onClick={handleBulkApproveStaging}
+                              disabled={bulkApprovingStaging}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              {bulkApprovingStaging ? 'Approving...' : `Approve ${selectedStagingUnits.size} Unit(s)`}
+                            </Button>
+                            <Button
                               variant="destructive"
                               size="sm"
                               onClick={handleBulkDeleteStaging}
@@ -1626,7 +1661,7 @@ const AdminPanel = () => {
                               className="bg-red-600 hover:bg-red-700"
                             >
                               <Trash2 className="w-4 h-4 mr-1" />
-                              {bulkDeletingStaging ? 'Deleting...' : `Delete ${selectedStagingUnits.size} Unit(s)`}
+                              {bulkDeletingStaging ? 'Deleting...' : `Delete ${selectedStagingUnits.size}`}
                             </Button>
                           </div>
                         </div>

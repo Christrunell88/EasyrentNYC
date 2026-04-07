@@ -517,7 +517,12 @@ const AdminPanel = () => {
       setSelectedStagingUnits(new Set());
       fetchStagingUnits();
       fetchStagingStats();
-      fetchData(); // Refresh production units
+      fetchData(); // Refresh production units and stats
+      // Force refresh stats
+      try {
+        const statsRes = await axios.get(`${API}/admin/stats?_t=${Date.now()}`, { withCredentials: true });
+        setStats(statsRes.data);
+      } catch (e) { console.error('Stats refresh error:', e); }
     } catch (error) {
       console.error('Error bulk approving staging units:', error);
       toast.error(error.response?.data?.detail || 'Failed to approve staging units');
@@ -1110,15 +1115,33 @@ const AdminPanel = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-slate-100">Property Overview</h2>
-            <Button 
-              onClick={handleCrawlAll} 
-              disabled={crawling}
-              className="warm-gradient text-slate-900 font-semibold hover:opacity-90 transition-opacity"
-              data-testid="crawl-all-btn"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${crawling ? 'animate-spin' : ''}`} />
-              {crawling ? 'Crawling...' : 'Crawl All Buildings'}
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={async () => {
+                  try {
+                    const statsRes = await axios.get(`${API}/admin/stats?_t=${Date.now()}`, { withCredentials: true });
+                    setStats(statsRes.data);
+                    toast.success('Stats refreshed');
+                  } catch (e) {
+                    toast.error('Failed to refresh stats');
+                  }
+                }}
+                variant="outline"
+                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Stats
+              </Button>
+              <Button 
+                onClick={handleCrawlAll} 
+                disabled={crawling}
+                className="warm-gradient text-slate-900 font-semibold hover:opacity-90 transition-opacity"
+                data-testid="crawl-all-btn"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${crawling ? 'animate-spin' : ''}`} />
+                {crawling ? 'Crawling...' : 'Crawl All Buildings'}
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="shadow-xl bg-slate-800/50 backdrop-blur-sm border border-amber-500/20">

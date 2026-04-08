@@ -95,7 +95,7 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 - **Modular architecture**: server.py split into route modules, AdminPanel.jsx split into tab components (Apr 2026)
 - **Batch Crawl All**: One-click crawl of all 29 management companies with real-time progress tracking, cancel support, and auto-import to staging (Apr 2026)
 - **Image upload fix**: Fixed path mismatch between file save directory and static file mount (Apr 2026)
-- **Dynamic OG Meta Tags**: Social media crawlers (Facebook, Twitter, LinkedIn, WhatsApp, Discord, Slack, etc.) now receive pre-rendered HTML with dynamic OG tags for unit listings, borough pages, neighborhood pages, and the landing page. Regular users get the normal React SPA. Implemented via frontend proxy middleware + backend OG renderer. (Apr 2026)
+- **Dynamic OG Meta Tags**: Social media crawlers (Facebook, Twitter, LinkedIn, WhatsApp, Discord, Slack, etc.) now receive pre-rendered HTML with dynamic OG tags for unit listings, borough pages, neighborhood pages, and the landing page. Regular users get the normal React SPA. Works in both dev (`setupProxy.js`) and production (`server.js` Express server). Includes admin preview endpoint at `/api/og-preview?path=...`. (Apr 2026)
 
 ## Backlog
 

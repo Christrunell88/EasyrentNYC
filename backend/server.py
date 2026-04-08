@@ -81,6 +81,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# OG Meta Tags Middleware — serves pre-rendered HTML to social media crawlers
+from starlette.middleware.base import BaseHTTPMiddleware
+from routes.og_tags import handle_crawler_request
+
+class OGTagsMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        # Only intercept non-API paths (frontend routes)
+        path = request.url.path
+        if not path.startswith("/api"):
+            og_response = await handle_crawler_request(request)
+            if og_response:
+                return og_response
+        return await call_next(request)
+
+app.add_middleware(OGTagsMiddleware)
+
 # API router with /api prefix
 api_router = APIRouter(prefix="/api")
 
@@ -128,6 +145,20 @@ Disallow: /admin
 Disallow: /api/
 """
     return PlainTextResponse(content=robots_content, media_type="text/plain")
+
+
+@app.get("/api/og-preview")
+async def og_preview(path: str = "/"):
+    """Preview what social media crawlers see for a given path. Usage: /api/og-preview?path=/unit/abc123"""
+    from routes.og_tags import ROUTE_HANDLERS
+    import re
+    for pattern, handler in ROUTE_HANDLERS:
+        match = pattern.match(path)
+        if match:
+            result = await handler(match)
+            if result:
+                return result
+    return {"message": f"No OG handler matched for path: {path}"}
 
 
 # ============ STARTUP / SHUTDOWN EVENTS ============

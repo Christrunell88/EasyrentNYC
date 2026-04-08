@@ -1,10 +1,11 @@
 """Admin property import routes - search, discovery, crawl, import."""
-from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from typing import List, Optional, Dict
 from datetime import datetime, timezone
 import uuid
 import os
 import logging
+import asyncio
 
 from database import db
 from models import User, PropertySearchRequest, PropertyCrawlRequest, PropertyImportRequest, DiscoverySearchRequest
@@ -12,6 +13,9 @@ from auth_utils import require_admin
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# In-memory batch crawl job tracker
+_batch_jobs: Dict[str, dict] = {}
 
 # Known management companies with their property/availability URLs
 MANAGEMENT_COMPANIES = [
@@ -901,6 +905,318 @@ async def property_import(request: PropertyImportRequest, user: User = Depends(r
     except Exception as e:
         logger.error(f"Property import error: {e}")
         raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+
+
+# ============ BATCH CRAWL ============
+
+async def _crawl_single_company(company: dict) -> dict:
+    """Crawl a single management company and return structured data."""
+    from bs4 import BeautifulSoup
+    from scrapers.base import get_browser
+    from scrapers.generic import _parse_tables, _parse_divs
+    import re
+    from urllib.parse import urlparse
+
+    url = company['availability_url']
+    name = company['name']
+    result = {'name': name, 'url': url, 'status': 'error', 'units_found': 0, 'buildings_created': 0, 'error': None}
+
+    try:
+        p, browser = await get_browser()
+        html = ""
+        try:
+            page = await browser.new_page()
+            await page.goto(url, wait_until='networkidle', timeout=45000)
+            await page.wait_for_timeout(5000)
+            await page.evaluate("""
+                async () => {
+                    const delay = ms => new Promise(r => setTimeout(r, ms));
+                    for (let i = 0; i < 5; i++) { window.scrollBy(0, window.innerHeight); await delay(800); }
+                    window.scrollTo(0, 0);
+                }
+            """)
+            await page.wait_for_timeout(2000)
+            frames = page.frames
+            iframe_content = None
+            for frame in frames:
+                if frame.url != 'about:blank' and 'google' not in frame.url and frame.url != url:
+                    try:
+                        iframe_content = await frame.content()
+                        break
+                    except Exception:
+                        continue
+            html = iframe_content if iframe_content else await page.content()
+            await browser.close()
+        finally:
+            await p.stop()
+
+        if not html:
+            result['error'] = 'Could not load page'
+            return result
+
+        soup = BeautifulSoup(html, 'html.parser')
+        parsed_url = urlparse(url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        full_text = soup.get_text(separator='\n')
+
+        # Extract addresses
+        address_pattern = r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Place|Pl|Drive|Dr|Lane|Ln|Way)[\w\s,]*(?:NY|NJ|PA|New York|New Jersey|Pennsylvania)?[\s,]*\d{5}?'
+        address_positions = []
+        seen_addr = set()
+        for match in re.finditer(address_pattern, full_text, re.IGNORECASE):
+            addr = match.group().strip()
+            norm = re.sub(r'\s+', ' ', addr).lower()
+            if norm not in seen_addr:
+                seen_addr.add(norm)
+                address_positions.append((match.start(), addr))
+        address = address_positions[0][1] if address_positions else ""
+        is_multi = len(address_positions) > 1
+
+        # Extract images
+        images = []
+        for img in soup.find_all('img'):
+            src = img.get('src', '') or img.get('data-src', '') or img.get('data-lazy-src', '')
+            if src and not any(skip in src.lower() for skip in ['logo', 'icon', 'button', 'arrow', 'sprite', 'tracking', 'pixel', 'blank', '1x1']):
+                if src.startswith('//'): src = 'https:' + src
+                elif src.startswith('/'): src = base_url + src
+                elif not src.startswith('http'):
+                    from urllib.parse import urljoin
+                    src = urljoin(url, src)
+                if src not in images:
+                    images.append(src)
+
+        # Extract units
+        units = _parse_tables(soup, base_url)
+        if not units:
+            units = _parse_divs(soup, base_url)
+        if not units:
+            text = soup.get_text(separator=' ')
+            price_matches = list(re.finditer(r'\$\s*([\d,]+)', text))
+            bed_matches = list(re.finditer(r'(\d+)\s*(?:bed(?:room)?s?|br)\b|(?:studio)', text, re.IGNORECASE))
+            unit_matches = list(re.finditer(r'(?:unit|apt|apartment|#|suite)\s*([A-Za-z0-9-]+)', text, re.IGNORECASE))
+            bath_matches = list(re.finditer(r'(\d+(?:\.\d+)?)\s*(?:bath(?:room)?s?|ba)\b', text, re.IGNORECASE))
+            sqft_matches = list(re.finditer(r'([\d,]+)\s*(?:sq\.?\s*ft|sf|sqft)', text, re.IGNORECASE))
+            for i, pm in enumerate(price_matches):
+                rent = int(pm.group(1).replace(',', ''))
+                if rent < 800 or rent > 50000:
+                    continue
+                bedrooms = 1
+                if i < len(bed_matches):
+                    bm = bed_matches[i]
+                    if 'studio' in bm.group(0).lower(): bedrooms = 0
+                    elif bm.group(1): bedrooms = int(bm.group(1))
+                bathrooms = 1.0
+                if i < len(bath_matches): bathrooms = float(bath_matches[i].group(1))
+                sqft = None
+                if i < len(sqft_matches): sqft = int(sqft_matches[i].group(1).replace(',', ''))
+                unit_num = f"Unit-{len(units)+1}"
+                if i < len(unit_matches): unit_num = unit_matches[i].group(1)
+                units.append({'unit_number': unit_num, 'rent': rent, 'bedrooms': bedrooms, 'bathrooms': bathrooms, 'square_feet': sqft, 'images': images[i*2:(i+1)*2] if images else []})
+
+        # Deduplicate
+        seen_keys = set()
+        unique_units = []
+        for u in units:
+            key = (u['rent'], u['bedrooms'], u.get('unit_number', ''))
+            if key not in seen_keys:
+                seen_keys.add(key)
+                unique_units.append(u)
+        units = unique_units
+
+        # Assign per-unit addresses on multi-building pages
+        if is_multi and units and address_positions:
+            for unit in units:
+                raw = unit.get('raw_data', '')
+                if raw:
+                    snippet = BeautifulSoup(raw, 'html.parser').get_text()[:80]
+                    unit_pos = full_text.find(snippet) if snippet.strip() else -1
+                else:
+                    unit_pos = -1
+                if unit_pos >= 0:
+                    nearest = address_positions[0][1]
+                    for pos, addr in address_positions:
+                        if pos <= unit_pos: nearest = addr
+                        else: break
+                    unit['building_address'] = nearest
+                else:
+                    unit['building_address'] = address
+
+        if not units:
+            result['status'] = 'no_units'
+            return result
+
+        # Determine city/state
+        city, state = 'New York', 'NY'
+        combined = (address + ' ' + full_text[:2000]).upper()
+        if any(x in combined for x in ['JERSEY CITY', 'HOBOKEN', 'WEEHAWKEN', 'HARRISON, NJ', 'NEW JERSEY']):
+            state = 'NJ'
+            city = 'Jersey City' if 'JERSEY CITY' in combined else 'Hoboken' if 'HOBOKEN' in combined else 'New Jersey'
+        elif any(x in combined for x in [' NJ ', ', NJ', 'NJ 07']): state, city = 'NJ', 'New Jersey'
+        elif any(x in combined for x in ['BROOKLYN', 'DUMBO', 'WILLIAMSBURG']): city = 'Brooklyn'
+        elif any(x in combined for x in ['QUEENS', 'LONG ISLAND CITY', 'LIC', 'ASTORIA']): city = 'Queens'
+        elif any(x in combined for x in ['BRONX']): city = 'Bronx'
+
+        # Import to staging - group by building_address
+        batch_id = f"batch-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
+        building_groups = {}
+        for unit in units:
+            addr = unit.get('building_address', '') or address
+            if addr not in building_groups:
+                building_groups[addr] = []
+            building_groups[addr].append(unit)
+
+        buildings_created = 0
+        total_units = 0
+        for group_addr, group_units in building_groups.items():
+            bldg_name = group_addr or name
+            building_data = {
+                'id': str(uuid.uuid4()),
+                'name': bldg_name, 'address': group_addr,
+                'neighborhood': ', '.join(company.get('neighborhoods', [])),
+                'city': city, 'state': state, 'zip_code': '',
+                'source_url': url, 'images': images[:10],
+                'crawler_source': url, 'crawler_batch_id': batch_id,
+                'review_status': 'pending',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.buildings_staging.insert_one(building_data)
+            buildings_created += 1
+
+            for i, unit in enumerate(group_units):
+                unit_images = unit.get('images', [])
+                if not unit_images and images:
+                    si = (i * 2) % len(images)
+                    unit_images = images[si:si+2]
+                unit_data = {
+                    'id': str(uuid.uuid4()),
+                    'building_id': building_data['id'],
+                    'building_name': bldg_name, 'building_address': group_addr,
+                    'unit_number': unit.get('unit_number', f"Unit-{total_units+1}"),
+                    'rent': unit.get('rent', 0), 'bedrooms': unit.get('bedrooms', 0),
+                    'bathrooms': unit.get('bathrooms', 1), 'square_feet': unit.get('square_feet'),
+                    'amenities': [], 'images': unit_images, 'description': '',
+                    'is_available': True, 'crawler_source': url, 'crawler_batch_id': batch_id,
+                    'review_status': 'pending', 'validation_flags': [], 'duplicate_score': 0.0,
+                    'created_at': datetime.now(timezone.utc).isoformat(),
+                    'updated_at': datetime.now(timezone.utc).isoformat()
+                }
+                await db.units_staging.insert_one(unit_data)
+                total_units += 1
+
+        result['status'] = 'success'
+        result['units_found'] = total_units
+        result['buildings_created'] = buildings_created
+        return result
+
+    except Exception as e:
+        logger.error(f"Batch crawl error for {name}: {e}", exc_info=True)
+        result['error'] = str(e)[:200]
+        return result
+
+
+async def _run_batch_crawl(job_id: str, companies: list):
+    """Background task: crawl companies sequentially."""
+    job = _batch_jobs[job_id]
+    job['status'] = 'running'
+    job['started_at'] = datetime.now(timezone.utc).isoformat()
+
+    for i, company in enumerate(companies):
+        if job.get('cancelled'):
+            job['status'] = 'cancelled'
+            return
+        job['current_index'] = i
+        job['current_company'] = company['name']
+        logger.info(f"Batch crawl [{i+1}/{len(companies)}]: {company['name']}")
+        try:
+            result = await _crawl_single_company(company)
+            job['results'].append(result)
+            if result['status'] == 'success':
+                job['total_units'] += result['units_found']
+                job['total_buildings'] += result['buildings_created']
+                job['successful'] += 1
+            elif result['status'] == 'no_units':
+                job['no_units'] += 1
+            else:
+                job['failed'] += 1
+        except Exception as e:
+            logger.error(f"Batch crawl exception for {company['name']}: {e}")
+            job['results'].append({'name': company['name'], 'url': company['availability_url'], 'status': 'error', 'units_found': 0, 'buildings_created': 0, 'error': str(e)[:200]})
+            job['failed'] += 1
+        job['completed'] = i + 1
+
+    job['status'] = 'completed'
+    job['finished_at'] = datetime.now(timezone.utc).isoformat()
+    logger.info(f"Batch crawl {job_id} complete: {job['successful']} succeeded, {job['failed']} failed, {job['no_units']} no units, {job['total_units']} total units")
+
+
+@router.post("/admin/batch-crawl/start")
+async def start_batch_crawl(user: User = Depends(require_admin)):
+    """Start a batch crawl of all management companies. Returns job_id for polling."""
+    # Check if there's already a running job
+    for jid, j in _batch_jobs.items():
+        if j['status'] == 'running':
+            raise HTTPException(status_code=409, detail=f"Batch crawl already in progress (job: {jid})")
+
+    job_id = f"batch-{uuid.uuid4().hex[:8]}"
+    companies = MANAGEMENT_COMPANIES.copy()
+    _batch_jobs[job_id] = {
+        'status': 'queued',
+        'total': len(companies),
+        'completed': 0,
+        'current_index': -1,
+        'current_company': None,
+        'successful': 0,
+        'failed': 0,
+        'no_units': 0,
+        'total_units': 0,
+        'total_buildings': 0,
+        'results': [],
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'started_at': None,
+        'finished_at': None,
+        'cancelled': False
+    }
+
+    asyncio.create_task(_run_batch_crawl(job_id, companies))
+
+    return {'job_id': job_id, 'total_companies': len(companies), 'message': f'Batch crawl started for {len(companies)} management companies'}
+
+
+@router.get("/admin/batch-crawl/status/{job_id}")
+async def get_batch_crawl_status(job_id: str, user: User = Depends(require_admin)):
+    """Poll batch crawl progress."""
+    job = _batch_jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Batch crawl job not found")
+    return {
+        'job_id': job_id,
+        'status': job['status'],
+        'total': job['total'],
+        'completed': job['completed'],
+        'current_company': job['current_company'],
+        'successful': job['successful'],
+        'failed': job['failed'],
+        'no_units': job['no_units'],
+        'total_units': job['total_units'],
+        'total_buildings': job['total_buildings'],
+        'results': job['results'],
+        'started_at': job.get('started_at'),
+        'finished_at': job.get('finished_at')
+    }
+
+
+@router.post("/admin/batch-crawl/cancel/{job_id}")
+async def cancel_batch_crawl(job_id: str, user: User = Depends(require_admin)):
+    """Cancel a running batch crawl."""
+    job = _batch_jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Batch crawl job not found")
+    if job['status'] != 'running':
+        raise HTTPException(status_code=400, detail=f"Job is not running (status: {job['status']})")
+    job['cancelled'] = True
+    return {'message': 'Cancellation requested', 'job_id': job_id}
+
 
 # Note: Router is included after all routes are defined (see below)
 

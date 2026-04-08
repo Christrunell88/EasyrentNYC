@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from '../../utils/axiosConfig';
 import { API } from '../../App';
 import { toast } from 'sonner';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Building2, Plus, RefreshCw, Download, ExternalLink, Sparkles, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Building2, Plus, RefreshCw, Download, ExternalLink, Sparkles, Trash2, Image as ImageIcon, Zap, XCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const ImportTab = ({ fetchStagingStats }) => {
   const [propertySearchQuery, setPropertySearchQuery] = useState('');
@@ -26,8 +26,14 @@ const ImportTab = ({ fetchStagingStats }) => {
   const [crawledImages, setCrawledImages] = useState([]);
   const [importing, setImporting] = useState(false);
 
+  // Batch crawl state
+  const [batchJobId, setBatchJobId] = useState(null);
+  const [batchStatus, setBatchStatus] = useState(null);
+  const batchPollRef = useRef(null);
+
   useEffect(() => {
     fetchManagementCompanies();
+    return () => { if (batchPollRef.current) clearInterval(batchPollRef.current); };
   }, []);
 
   const fetchManagementCompanies = async () => {
@@ -36,6 +42,45 @@ const ImportTab = ({ fetchStagingStats }) => {
       setManagementCompanies(response.data.companies || []);
     } catch (error) {
       console.error('Error fetching management companies:', error);
+    }
+  };
+
+  const pollBatchStatus = useCallback(async (jobId) => {
+    try {
+      const response = await axios.get(`${API}/admin/batch-crawl/status/${jobId}`, { withCredentials: true });
+      setBatchStatus(response.data);
+      if (response.data.status === 'completed' || response.data.status === 'cancelled') {
+        if (batchPollRef.current) clearInterval(batchPollRef.current);
+        batchPollRef.current = null;
+        fetchStagingStats();
+        toast.success(`Batch crawl finished: ${response.data.total_units} units from ${response.data.total_buildings} buildings`);
+      }
+    } catch (error) {
+      console.error('Error polling batch status:', error);
+    }
+  }, [fetchStagingStats]);
+
+  const handleStartBatchCrawl = async () => {
+    try {
+      const response = await axios.post(`${API}/admin/batch-crawl/start`, {}, { withCredentials: true });
+      const jobId = response.data.job_id;
+      setBatchJobId(jobId);
+      setBatchStatus({ status: 'queued', total: response.data.total_companies, completed: 0, results: [] });
+      toast.success(`Batch crawl started for ${response.data.total_companies} companies`);
+      batchPollRef.current = setInterval(() => pollBatchStatus(jobId), 4000);
+    } catch (error) {
+      console.error('Batch crawl error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to start batch crawl');
+    }
+  };
+
+  const handleCancelBatchCrawl = async () => {
+    if (!batchJobId) return;
+    try {
+      await axios.post(`${API}/admin/batch-crawl/cancel/${batchJobId}`, {}, { withCredentials: true });
+      toast.info('Batch crawl cancellation requested');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to cancel');
     }
   };
 
@@ -266,9 +311,19 @@ const ImportTab = ({ fetchStagingStats }) => {
               <Label className="text-amber-300 font-semibold text-lg">Major Management Companies</Label>
               <p className="text-slate-400 text-sm mt-1">Quick access to known no-fee building operators</p>
             </div>
-            <Button onClick={handleBrowseManagementCompanies} className="bg-amber-600 hover:bg-amber-700 text-white">
-              <Building2 className="w-4 h-4 mr-2" /> Browse All ({managementCompanies.length})
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleStartBatchCrawl}
+                disabled={crawlingProperty || (batchStatus && batchStatus.status === 'running')}
+                className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold"
+                data-testid="batch-crawl-btn"
+              >
+                <Zap className="w-4 h-4 mr-2" /> Batch Crawl All ({managementCompanies.length})
+              </Button>
+              <Button onClick={handleBrowseManagementCompanies} className="bg-amber-600 hover:bg-amber-700 text-white">
+                <Building2 className="w-4 h-4 mr-2" /> Browse All ({managementCompanies.length})
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {managementCompanies.slice(0, 8).map((company, index) => (
@@ -290,6 +345,101 @@ const ImportTab = ({ fetchStagingStats }) => {
             ))}
           </div>
         </div>
+
+        {/* Batch Crawl Progress Panel */}
+        {batchStatus && (batchStatus.status === 'running' || batchStatus.status === 'queued' || batchStatus.status === 'completed' || batchStatus.status === 'cancelled') && (
+          <div className={`border rounded-lg p-6 ${
+            batchStatus.status === 'completed' ? 'bg-green-900/20 border-green-500/30' :
+            batchStatus.status === 'cancelled' ? 'bg-slate-800/50 border-slate-600' :
+            'bg-gradient-to-r from-red-900/20 to-orange-900/20 border-orange-500/30'
+          }`} data-testid="batch-crawl-panel">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                {(batchStatus.status === 'running' || batchStatus.status === 'queued') && (
+                  <RefreshCw className="w-5 h-5 text-orange-400 animate-spin" />
+                )}
+                {batchStatus.status === 'completed' && <CheckCircle2 className="w-5 h-5 text-green-400" />}
+                {batchStatus.status === 'cancelled' && <XCircle className="w-5 h-5 text-slate-400" />}
+                <div>
+                  <h4 className="text-slate-100 font-semibold">
+                    Batch Crawl {batchStatus.status === 'completed' ? 'Complete' : batchStatus.status === 'cancelled' ? 'Cancelled' : 'In Progress'}
+                  </h4>
+                  {batchStatus.current_company && batchStatus.status === 'running' && (
+                    <p className="text-orange-300 text-sm">Currently crawling: {batchStatus.current_company}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-300 text-sm font-mono">{batchStatus.completed}/{batchStatus.total}</span>
+                {(batchStatus.status === 'running' || batchStatus.status === 'queued') && (
+                  <Button size="sm" variant="outline" onClick={handleCancelBatchCrawl} className="border-red-500/50 text-red-400 hover:bg-red-500/10" data-testid="batch-cancel-btn">
+                    <XCircle className="w-4 h-4 mr-1" /> Cancel
+                  </Button>
+                )}
+                {(batchStatus.status === 'completed' || batchStatus.status === 'cancelled') && (
+                  <Button size="sm" variant="ghost" onClick={() => { setBatchStatus(null); setBatchJobId(null); }} className="text-slate-400 hover:text-slate-200">
+                    Dismiss
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full bg-slate-700/50 rounded-full h-2.5 mb-4">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 ${batchStatus.status === 'completed' ? 'bg-green-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
+                style={{ width: `${batchStatus.total > 0 ? (batchStatus.completed / batchStatus.total) * 100 : 0}%` }}
+              />
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-5 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-400">{batchStatus.successful}</p>
+                <p className="text-xs text-slate-400">Successful</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-red-400">{batchStatus.failed}</p>
+                <p className="text-xs text-slate-400">Failed</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-yellow-400">{batchStatus.no_units || 0}</p>
+                <p className="text-xs text-slate-400">No Units</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-400">{batchStatus.total_units}</p>
+                <p className="text-xs text-slate-400">Units Found</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-amber-400">{batchStatus.total_buildings}</p>
+                <p className="text-xs text-slate-400">Buildings</p>
+              </div>
+            </div>
+
+            {/* Results log */}
+            {batchStatus.results && batchStatus.results.length > 0 && (
+              <div className="max-h-48 overflow-y-auto space-y-1 bg-slate-900/50 rounded-lg p-3">
+                {batchStatus.results.map((r, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-slate-800 last:border-0">
+                    <div className="flex items-center gap-2">
+                      {r.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />}
+                      {r.status === 'error' && <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />}
+                      {r.status === 'no_units' && <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />}
+                      <span className="text-slate-300 truncate max-w-[200px]">{r.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs">
+                      {r.status === 'success' && (
+                        <span className="text-green-400">{r.units_found} units / {r.buildings_created} bldg</span>
+                      )}
+                      {r.status === 'no_units' && <span className="text-yellow-400">No units found</span>}
+                      {r.status === 'error' && <span className="text-red-400 truncate max-w-[200px]">{r.error || 'Error'}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* AI Discovery Search */}
         <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg p-6">

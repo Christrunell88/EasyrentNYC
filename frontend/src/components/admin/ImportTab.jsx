@@ -117,6 +117,7 @@ const ImportTab = ({ fetchStagingStats }) => {
       const building = response.data.building || {};
       const units = response.data.units || [];
       const images = response.data.raw_images || [];
+      const isMultiBuilding = response.data.is_multi_building || false;
 
       // Always show preview dialog - let user review/edit/add units manually
       setCrawledBuilding({
@@ -127,7 +128,8 @@ const ImportTab = ({ fetchStagingStats }) => {
         state: building.state || 'NY',
         zip_code: building.zip_code || '',
         source_url: property.url,
-        images: images
+        images: images,
+        is_multi_building: isMultiBuilding
       });
       setCrawledUnits(units.map((u, i) => ({
         ...u,
@@ -137,7 +139,8 @@ const ImportTab = ({ fetchStagingStats }) => {
         bedrooms: u.bedrooms ?? 1,
         bathrooms: u.bathrooms ?? 1,
         square_feet: u.square_feet || null,
-        images: u.images || []
+        images: u.images || [],
+        building_address: u.building_address || building.address || ''
       })));
       setCrawledImages(images);
       setPreviewOpen(true);
@@ -227,7 +230,8 @@ const ImportTab = ({ fetchStagingStats }) => {
           bedrooms: Number(u.bedrooms),
           bathrooms: Number(u.bathrooms),
           square_feet: u.square_feet ? Number(u.square_feet) : null,
-          images: u.images || []
+          images: u.images || [],
+          building_address: u.building_address || ''
         }))
       }, { withCredentials: true });
 
@@ -479,6 +483,11 @@ const ImportTab = ({ fetchStagingStats }) => {
                 <div className="flex justify-between items-center">
                   <h4 className="text-sm font-semibold text-amber-400 uppercase tracking-wider">
                     Units ({crawledUnits.length})
+                    {crawledBuilding?.is_multi_building && (
+                      <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded normal-case font-normal">
+                        Multi-building detected — units grouped by address
+                      </span>
+                    )}
                   </h4>
                   <Button size="sm" onClick={addCrawledUnit} className="bg-green-600 hover:bg-green-700 text-white" data-testid="add-unit-manually-btn">
                     <Plus className="w-4 h-4 mr-1" /> Add Unit Manually
@@ -493,45 +502,77 @@ const ImportTab = ({ fetchStagingStats }) => {
                   </div>
                 )}
 
-                {crawledUnits.map((unit, index) => (
-                  <div key={unit._key} className="bg-slate-700/30 border border-slate-600 rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-300 font-medium text-sm">Unit {index + 1}</span>
-                      <Button size="sm" variant="ghost" onClick={() => removeCrawledUnit(index)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-7 w-7 p-0">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                {/* Group units by building_address for display */}
+                {(() => {
+                  const grouped = {};
+                  crawledUnits.forEach((unit, index) => {
+                    const addr = unit.building_address || crawledBuilding?.address || 'Unknown Address';
+                    if (!grouped[addr]) grouped[addr] = [];
+                    grouped[addr].push({ ...unit, _originalIndex: index });
+                  });
+                  const addresses = Object.keys(grouped);
+                  const showGroupHeaders = addresses.length > 1;
+
+                  return addresses.map((addr) => (
+                    <div key={addr}>
+                      {showGroupHeaders && (
+                        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg px-4 py-2 mt-4 mb-2 flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-blue-400" />
+                          <span className="text-blue-300 font-medium text-sm">{addr}</span>
+                          <span className="text-slate-500 text-xs">({grouped[addr].length} units)</span>
+                        </div>
+                      )}
+                      {grouped[addr].map((unit) => {
+                        const index = unit._originalIndex;
+                        return (
+                          <div key={unit._key} className="bg-slate-700/30 border border-slate-600 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-300 font-medium text-sm">Unit {index + 1}</span>
+                              <Button size="sm" variant="ghost" onClick={() => removeCrawledUnit(index)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-7 w-7 p-0">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-6 gap-3">
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Unit # *</Label>
+                                <Input value={unit.unit_number} onChange={(e) => updateCrawledUnit(index, 'unit_number', e.target.value)}
+                                  placeholder="e.g., 12A" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9"
+                                  data-testid={`import-unit-number-${index}`} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Rent ($) *</Label>
+                                <Input type="number" value={unit.rent || ''} onChange={(e) => updateCrawledUnit(index, 'rent', e.target.value)}
+                                  placeholder="3500" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9"
+                                  data-testid={`import-unit-rent-${index}`} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Beds (0=Studio)</Label>
+                                <Input type="number" min="0" value={unit.bedrooms} onChange={(e) => updateCrawledUnit(index, 'bedrooms', e.target.value)}
+                                  className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Baths</Label>
+                                <Input type="number" min="1" step="0.5" value={unit.bathrooms} onChange={(e) => updateCrawledUnit(index, 'bathrooms', e.target.value)}
+                                  className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Sq Ft</Label>
+                                <Input type="number" value={unit.square_feet || ''} onChange={(e) => updateCrawledUnit(index, 'square_feet', e.target.value)}
+                                  placeholder="opt" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-slate-400 text-xs">Address</Label>
+                                <Input value={unit.building_address || ''} onChange={(e) => updateCrawledUnit(index, 'building_address', e.target.value)}
+                                  placeholder="Address" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9 text-xs"
+                                  data-testid={`import-unit-address-${index}`} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="grid grid-cols-5 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-slate-400 text-xs">Unit # *</Label>
-                        <Input value={unit.unit_number} onChange={(e) => updateCrawledUnit(index, 'unit_number', e.target.value)}
-                          placeholder="e.g., 12A" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9"
-                          data-testid={`import-unit-number-${index}`} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-slate-400 text-xs">Rent ($) *</Label>
-                        <Input type="number" value={unit.rent || ''} onChange={(e) => updateCrawledUnit(index, 'rent', e.target.value)}
-                          placeholder="3500" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9"
-                          data-testid={`import-unit-rent-${index}`} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-slate-400 text-xs">Beds (0=Studio)</Label>
-                        <Input type="number" min="0" value={unit.bedrooms} onChange={(e) => updateCrawledUnit(index, 'bedrooms', e.target.value)}
-                          className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-slate-400 text-xs">Baths</Label>
-                        <Input type="number" min="1" step="0.5" value={unit.bathrooms} onChange={(e) => updateCrawledUnit(index, 'bathrooms', e.target.value)}
-                          className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-slate-400 text-xs">Sq Ft</Label>
-                        <Input type="number" value={unit.square_feet || ''} onChange={(e) => updateCrawledUnit(index, 'square_feet', e.target.value)}
-                          placeholder="opt" className="bg-slate-800/50 border-slate-600 text-slate-100 h-9" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
           )}

@@ -590,10 +590,21 @@ async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(req
         title = soup.find('title')
         title_text = title.get_text().strip() if title else ""
         
-        # Extract address from page
+        # Extract ALL addresses from page (for multi-building detection)
         address_pattern = r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Place|Pl|Drive|Dr|Lane|Ln|Way)[\w\s,]*(?:NY|NJ|PA|New York|New Jersey|Pennsylvania)?[\s,]*\d{5}?'
-        address_matches = re.findall(address_pattern, soup.get_text(), re.IGNORECASE)
-        address = address_matches[0].strip() if address_matches else ""
+        full_text = soup.get_text(separator='\n')
+        address_positions = []
+        seen_addr_normalized = set()
+        for match in re.finditer(address_pattern, full_text, re.IGNORECASE):
+            addr = match.group().strip()
+            addr_norm = re.sub(r'\s+', ' ', addr).lower()
+            if addr_norm not in seen_addr_normalized:
+                seen_addr_normalized.add(addr_norm)
+                address_positions.append((match.start(), addr))
+        
+        address = address_positions[0][1] if address_positions else ""
+        is_multi_building = len(address_positions) > 1
+        logger.info(f"Found {len(address_positions)} unique addresses on page: {[a[1] for a in address_positions[:10]]}")
         
         # Extract neighborhood
         neighborhood_patterns = [
@@ -694,6 +705,29 @@ async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(req
                 unique_units.append(u)
         units = unique_units
         
+        # Assign per-unit building addresses on multi-building pages
+        if is_multi_building and units and address_positions:
+            for unit in units:
+                raw = unit.get('raw_data', '')
+                if raw:
+                    unit_text_snippet = BeautifulSoup(raw, 'html.parser').get_text()[:80]
+                    unit_pos = full_text.find(unit_text_snippet) if unit_text_snippet.strip() else -1
+                else:
+                    unit_pos = -1
+                
+                if unit_pos >= 0:
+                    nearest_addr = address_positions[0][1]
+                    for pos, addr in address_positions:
+                        if pos <= unit_pos:
+                            nearest_addr = addr
+                        else:
+                            break
+                    unit['building_address'] = nearest_addr
+                else:
+                    unit['building_address'] = address
+            
+            logger.info(f"Multi-building page: assigned per-unit addresses for {len(units)} units")
+        
         # Determine city/state from address or URL
         city = 'New York'
         state = 'NY'
@@ -735,6 +769,8 @@ async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(req
             'raw_images': images[:20],
             'crawl_status': 'success' if units else 'no_units',
             'units_found': len(units),
+            'is_multi_building': is_multi_building,
+            'unique_addresses': [a[1] for a in address_positions] if is_multi_building else [],
             'message': None if units else 'No units auto-extracted. You can add units manually below.'
         }
         
@@ -760,78 +796,106 @@ async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(req
 async def property_import(request: PropertyImportRequest, user: User = Depends(require_admin)):
     """
     Import crawled property data to staging for review.
+    Groups units by building_address if provided, creating separate staging buildings.
     """
     try:
         batch_id = f"import-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
-        building_name = request.building.get('name', 'Unknown Building')
-        building_address = request.building.get('address', '')
         source_url = request.building.get('source_url', '')
         building_images = request.building.get('images', [])
+        default_building_name = request.building.get('name', 'Unknown Building')
+        default_address = request.building.get('address', '')
+        default_neighborhood = request.building.get('neighborhood', '')
+        default_city = request.building.get('city', 'New York')
+        default_state = request.building.get('state', 'NY')
+        default_zip = request.building.get('zip_code', '')
         
-        # Create staging building
-        building_data = {
-            'id': str(uuid.uuid4()),
-            'name': building_name,
-            'address': building_address,
-            'neighborhood': request.building.get('neighborhood', ''),
-            'city': request.building.get('city', 'New York'),
-            'state': request.building.get('state', 'NY'),
-            'zip_code': request.building.get('zip_code', ''),
-            'source_url': source_url,
-            'images': building_images,
-            'crawler_source': source_url,
-            'crawler_batch_id': batch_id,
-            'review_status': 'pending',
-            'created_at': datetime.now(timezone.utc).isoformat(),
-            'updated_at': datetime.now(timezone.utc).isoformat()
-        }
+        # Group units by building_address (for multi-building management company pages)
+        building_groups = {}
+        for unit in request.units:
+            addr = unit.get('building_address', '') or default_address
+            bname = unit.get('building_name', '') or default_building_name
+            key = addr.strip() if addr.strip() else default_address
+            if key not in building_groups:
+                building_groups[key] = {'name': bname, 'address': key, 'units': []}
+            building_groups[key]['units'].append(unit)
         
-        await db.buildings_staging.insert_one(building_data)
+        # If only one group, use the top-level building info
+        if len(building_groups) <= 1:
+            building_groups = {default_address: {
+                'name': default_building_name,
+                'address': default_address,
+                'units': list(request.units)
+            }}
         
-        # Create staging units
-        units_created = 0
-        for i, unit in enumerate(request.units):
-            # Assign building images to units that have no images
-            unit_images = unit.get('images', [])
-            if not unit_images and building_images:
-                # Distribute building images across units (2-3 per unit)
-                imgs_per_unit = max(1, min(3, len(building_images) // max(len(request.units), 1)))
-                start_idx = (i * imgs_per_unit) % len(building_images)
-                unit_images = building_images[start_idx:start_idx + imgs_per_unit]
+        total_units_created = 0
+        buildings_created = []
+        
+        for group_addr, group in building_groups.items():
+            building_name = group['name'] if group['name'] != default_building_name and len(building_groups) > 1 else (group['address'] or default_building_name)
+            building_address = group['address']
             
-            unit_data = {
+            building_data = {
                 'id': str(uuid.uuid4()),
-                'building_id': building_data['id'],
-                'building_name': building_name,
-                'building_address': building_address,
-                'unit_number': unit.get('unit_number', f"Unit-{units_created+1}"),
-                'rent': unit.get('rent', 0),
-                'bedrooms': unit.get('bedrooms', 0),
-                'bathrooms': unit.get('bathrooms', 1),
-                'square_feet': unit.get('square_feet'),
-                'amenities': unit.get('amenities', []),
-                'images': unit_images,
-                'description': unit.get('description', ''),
-                'is_available': True,
+                'name': building_name,
+                'address': building_address,
+                'neighborhood': default_neighborhood,
+                'city': default_city,
+                'state': default_state,
+                'zip_code': default_zip,
+                'source_url': source_url,
+                'images': building_images,
                 'crawler_source': source_url,
                 'crawler_batch_id': batch_id,
                 'review_status': 'pending',
-                'validation_flags': [],
-                'duplicate_score': 0.0,
                 'created_at': datetime.now(timezone.utc).isoformat(),
                 'updated_at': datetime.now(timezone.utc).isoformat()
             }
-            await db.units_staging.insert_one(unit_data)
-            units_created += 1
+            
+            await db.buildings_staging.insert_one(building_data)
+            buildings_created.append(building_name)
+            
+            for i, unit in enumerate(group['units']):
+                unit_images = unit.get('images', [])
+                if not unit_images and building_images:
+                    imgs_per_unit = max(1, min(3, len(building_images) // max(len(group['units']), 1)))
+                    start_idx = (i * imgs_per_unit) % len(building_images)
+                    unit_images = building_images[start_idx:start_idx + imgs_per_unit]
+                
+                unit_data = {
+                    'id': str(uuid.uuid4()),
+                    'building_id': building_data['id'],
+                    'building_name': building_name,
+                    'building_address': building_address,
+                    'unit_number': unit.get('unit_number', f"Unit-{total_units_created+1}"),
+                    'rent': unit.get('rent', 0),
+                    'bedrooms': unit.get('bedrooms', 0),
+                    'bathrooms': unit.get('bathrooms', 1),
+                    'square_feet': unit.get('square_feet'),
+                    'amenities': unit.get('amenities', []),
+                    'images': unit_images,
+                    'description': unit.get('description', ''),
+                    'is_available': True,
+                    'crawler_source': source_url,
+                    'crawler_batch_id': batch_id,
+                    'review_status': 'pending',
+                    'validation_flags': [],
+                    'duplicate_score': 0.0,
+                    'created_at': datetime.now(timezone.utc).isoformat(),
+                    'updated_at': datetime.now(timezone.utc).isoformat()
+                }
+                await db.units_staging.insert_one(unit_data)
+                total_units_created += 1
         
-        logger.info(f"Imported {units_created} units from {building_name} (batch: {batch_id})")
+        bldg_summary = ', '.join(buildings_created) if len(buildings_created) > 1 else buildings_created[0]
+        logger.info(f"Imported {total_units_created} units across {len(buildings_created)} buildings from batch {batch_id}")
         
         return {
             'success': True,
-            'building_id': building_data['id'],
-            'units_created': units_created,
+            'buildings_created': len(buildings_created),
+            'building_names': buildings_created,
+            'units_created': total_units_created,
             'batch_id': batch_id,
-            'message': f'Successfully imported {units_created} units from {building_name} to staging for review'
+            'message': f'Successfully imported {total_units_created} units across {len(buildings_created)} building(s) ({bldg_summary}) to staging for review'
         }
         
     except Exception as e:

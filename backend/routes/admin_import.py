@@ -763,21 +763,25 @@ async def property_import(request: PropertyImportRequest, user: User = Depends(r
     """
     try:
         batch_id = f"import-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+        building_name = request.building.get('name', 'Unknown Building')
+        building_address = request.building.get('address', '')
+        source_url = request.building.get('source_url', '')
+        building_images = request.building.get('images', [])
         
         # Create staging building
         building_data = {
             'id': str(uuid.uuid4()),
-            'name': request.building['name'],
-            'address': request.building.get('address', ''),
+            'name': building_name,
+            'address': building_address,
             'neighborhood': request.building.get('neighborhood', ''),
             'city': request.building.get('city', 'New York'),
             'state': request.building.get('state', 'NY'),
             'zip_code': request.building.get('zip_code', ''),
-            'source_url': request.building.get('source_url', ''),
-            'images': request.building.get('images', []),
-            'crawler_source': request.building.get('source_url', ''),
+            'source_url': source_url,
+            'images': building_images,
+            'crawler_source': source_url,
             'crawler_batch_id': batch_id,
-            'status': 'pending',
+            'review_status': 'pending',
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
@@ -786,34 +790,48 @@ async def property_import(request: PropertyImportRequest, user: User = Depends(r
         
         # Create staging units
         units_created = 0
-        for unit in request.units:
+        for i, unit in enumerate(request.units):
+            # Assign building images to units that have no images
+            unit_images = unit.get('images', [])
+            if not unit_images and building_images:
+                # Distribute building images across units (2-3 per unit)
+                imgs_per_unit = max(1, min(3, len(building_images) // max(len(request.units), 1)))
+                start_idx = (i * imgs_per_unit) % len(building_images)
+                unit_images = building_images[start_idx:start_idx + imgs_per_unit]
+            
             unit_data = {
                 'id': str(uuid.uuid4()),
                 'building_id': building_data['id'],
+                'building_name': building_name,
+                'building_address': building_address,
                 'unit_number': unit.get('unit_number', f"Unit-{units_created+1}"),
                 'rent': unit.get('rent', 0),
                 'bedrooms': unit.get('bedrooms', 0),
                 'bathrooms': unit.get('bathrooms', 1),
                 'square_feet': unit.get('square_feet'),
                 'amenities': unit.get('amenities', []),
-                'images': unit.get('images', []),
+                'images': unit_images,
                 'description': unit.get('description', ''),
                 'is_available': True,
-                'crawler_source': request.building.get('source_url', ''),
+                'crawler_source': source_url,
                 'crawler_batch_id': batch_id,
-                'status': 'pending',
+                'review_status': 'pending',
+                'validation_flags': [],
+                'duplicate_score': 0.0,
                 'created_at': datetime.now(timezone.utc).isoformat(),
                 'updated_at': datetime.now(timezone.utc).isoformat()
             }
             await db.units_staging.insert_one(unit_data)
             units_created += 1
         
+        logger.info(f"Imported {units_created} units from {building_name} (batch: {batch_id})")
+        
         return {
             'success': True,
             'building_id': building_data['id'],
             'units_created': units_created,
             'batch_id': batch_id,
-            'message': f"Successfully imported {building_data['name']} with {units_created} units to staging."
+            'message': f'Successfully imported {units_created} units from {building_name} to staging for review'
         }
         
     except Exception as e:

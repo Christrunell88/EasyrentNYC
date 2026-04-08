@@ -126,7 +126,8 @@ const ImportTab = ({ fetchStagingStats }) => {
         city: building.city || 'New York',
         state: building.state || 'NY',
         zip_code: building.zip_code || '',
-        source_url: property.url
+        source_url: property.url,
+        images: images
       });
       setCrawledUnits(units.map((u, i) => ({
         ...u,

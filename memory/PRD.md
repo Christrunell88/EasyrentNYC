@@ -93,6 +93,8 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 - Google Search Console verification
 - **Multi-building crawler support**: Crawler detects per-unit addresses on management company pages with multiple buildings, groups units by address, creates separate staging buildings per unique address (Apr 2026)
 - **Modular architecture**: server.py split into route modules, AdminPanel.jsx split into tab components (Apr 2026)
+- **Batch Crawl All**: One-click crawl of all 29 management companies with real-time progress tracking, cancel support, and auto-import to staging (Apr 2026)
+- **Image upload fix**: Fixed path mismatch between file save directory and static file mount (Apr 2026)
 
 ## Backlog
 
@@ -109,21 +111,6 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 - Dynamic Open Graph meta tags (requires SSR/pre-rendering)
 - Blog for long-form SEO content
 - Scheduled weekly discovery searches for Admin crawler
-- JWT + Google OAuth authentication
-- Admin staging/approval pipeline with bulk operations
-- AI Search Agent "Kiri" with real-time web search (SerpApi)
-- Saved searches with email/SMS alerts
-- Google Calendar OAuth for scheduling viewings
-- SEO landing pages (Bronx, Hoboken, Jersey City)
-- Sitemap generation
-- Hero carousel with featured units
-- Email subscribers
-- Social proof metrics
-- Trulia-specific scraper
-- Unit lifecycle management (available → stale → rented)
-- Facebook sharing integration
-- CSV export for admin inventory
-- Password reset (admin + user-initiated)
 
 ### Refactoring Completed (April 2026)
 - **Backend**: server.py split from 6315 lines → 282 lines + 16 modular route files + 4 shared modules

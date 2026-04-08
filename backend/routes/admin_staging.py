@@ -338,7 +338,7 @@ async def upload_staging_unit_images(
         raise HTTPException(status_code=404, detail="Staging unit not found")
     
     uploaded_urls = []
-    upload_dir = Path(__file__).parent / "uploads" / unit_id
+    upload_dir = Path(__file__).parent.parent / "uploads" / unit_id
     upload_dir.mkdir(parents=True, exist_ok=True)
     
     for file in files:
@@ -404,7 +404,7 @@ async def delete_staging_unit_image(
     
     # Delete file if it's a local upload
     if image_url.startswith("/api/uploads/"):
-        file_path = Path(__file__).parent / "uploads" / image_url.replace("/api/uploads/", "")
+        file_path = Path(__file__).parent.parent / "uploads" / image_url.replace("/api/uploads/", "")
         if file_path.exists():
             file_path.unlink()
     

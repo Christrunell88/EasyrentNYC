@@ -519,146 +519,241 @@ async def get_discovery_areas(user: User = Depends(require_admin)):
 @router.post("/admin/property-crawl")
 async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(require_admin)):
     """
-    Crawl a building website to extract property data.
+    Crawl a building website to extract property data using Playwright.
+    Uses headless browser to render JS-heavy management company sites.
     Returns structured building and unit information for preview.
     """
-    import httpx
     from bs4 import BeautifulSoup
+    from scrapers.base import get_browser
+    from scrapers.generic import crawl as generic_crawl
     import re
+    from urllib.parse import urlparse
     
     try:
-        # Fetch the page
-        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        logger.info(f"Crawling property URL with Playwright: {request.url}")
+        
+        # Use Playwright to render the full page (handles JS-heavy sites)
+        p, browser = await get_browser()
+        html = ""
+        images = []
+        title_text = ""
+        address = ""
+        neighborhood = ""
+        
+        try:
+            page = await browser.new_page()
+            await page.goto(request.url, wait_until='networkidle', timeout=45000)
+            await page.wait_for_timeout(5000)
+            
+            # Auto-scroll to trigger lazy-loaded content
+            await page.evaluate("""
+                async () => {
+                    const delay = ms => new Promise(r => setTimeout(r, ms));
+                    for (let i = 0; i < 5; i++) {
+                        window.scrollBy(0, window.innerHeight);
+                        await delay(800);
+                    }
+                    window.scrollTo(0, 0);
+                }
+            """)
+            await page.wait_for_timeout(2000)
+            
+            # Check for iframes (some sites embed availability in iframes)
+            frames = page.frames
+            iframe_content = None
+            for frame in frames:
+                if frame.url != 'about:blank' and 'google' not in frame.url and frame.url != request.url:
+                    try:
+                        iframe_content = await frame.content()
+                        logger.info(f"Found iframe with potential content: {frame.url}")
+                        break
+                    except Exception:
+                        continue
+            
+            html = iframe_content if iframe_content else await page.content()
+            await browser.close()
+        finally:
+            await p.stop()
+        
+        if not html:
+            return {
+                'building': {'name': request.building_name or 'Unknown Building', 'source_url': request.url},
+                'units': [], 'crawl_status': 'error', 'units_found': 0,
+                'message': 'Could not load page content.'
             }
-            response = await client.get(request.url, headers=headers)
-            response.raise_for_status()
-            html = response.text
         
         soup = BeautifulSoup(html, 'html.parser')
+        parsed_url = urlparse(request.url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
         
-        # Extract building info
+        # Extract page title
         title = soup.find('title')
         title_text = title.get_text().strip() if title else ""
         
-        # Look for address patterns
+        # Extract address from page
         address_pattern = r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Place|Pl|Drive|Dr|Lane|Ln|Way)[\w\s,]*(?:NY|NJ|PA|New York|New Jersey|Pennsylvania)?[\s,]*\d{5}?'
         address_matches = re.findall(address_pattern, soup.get_text(), re.IGNORECASE)
-        address = address_matches[0] if address_matches else ""
+        address = address_matches[0].strip() if address_matches else ""
         
-        # Extract neighborhood from common patterns
-        neighborhood = ""
-        neighborhood_patterns = ['Chelsea', 'Tribeca', 'DUMBO', 'Williamsburg', 'Long Island City', 
-                                'Financial District', 'Midtown', 'Upper West Side', 'Upper East Side',
-                                'Brooklyn Heights', 'Fort Greene', 'Astoria', 'Jersey City', 'Hoboken',
-                                'Harrison', 'SoHo', 'West Village', 'East Village', 'Harlem', 'Murray Hill']
-        page_text = soup.get_text().lower()
+        # Extract neighborhood
+        neighborhood_patterns = [
+            'Chelsea', 'Tribeca', 'TriBeCa', 'DUMBO', 'Williamsburg', 'Long Island City', 'LIC',
+            'Financial District', 'FiDi', 'Midtown', 'Upper West Side', 'UWS', 'Upper East Side', 'UES',
+            'Brooklyn Heights', 'Fort Greene', 'Astoria', 'Jersey City', 'Hoboken',
+            'Harrison', 'SoHo', 'West Village', 'East Village', 'Harlem', 'Murray Hill',
+            'Battery Park', 'Greenpoint', 'Bushwick', 'Crown Heights', 'Prospect Heights',
+            'Kips Bay', 'Gramercy', 'NoMad', 'Flatiron', 'Hudson Yards', 'Hell\'s Kitchen',
+            'Prospect Park', 'Park Slope', 'Downtown Brooklyn', 'Boerum Hill',
+            'Weehawken', 'Union City', 'North Bergen', 'Edgewater'
+        ]
+        page_text = soup.get_text()
         for n in neighborhood_patterns:
-            if n.lower() in page_text:
+            if n.lower() in page_text.lower():
                 neighborhood = n
                 break
         
         # Extract images
-        images = []
         for img in soup.find_all('img'):
-            src = img.get('src', '') or img.get('data-src', '')
-            if src and not any(skip in src.lower() for skip in ['logo', 'icon', 'button', 'arrow', 'sprite']):
-                # Make absolute URL
+            src = img.get('src', '') or img.get('data-src', '') or img.get('data-lazy-src', '') or img.get('data-original', '')
+            if src and not any(skip in src.lower() for skip in ['logo', 'icon', 'button', 'arrow', 'sprite', 'tracking', 'pixel', 'blank', '1x1']):
                 if src.startswith('//'):
                     src = 'https:' + src
                 elif src.startswith('/'):
-                    from urllib.parse import urlparse
-                    parsed = urlparse(request.url)
-                    src = f"{parsed.scheme}://{parsed.netloc}{src}"
+                    src = base_url + src
                 elif not src.startswith('http'):
                     from urllib.parse import urljoin
                     src = urljoin(request.url, src)
-                
                 if src not in images:
                     images.append(src)
         
-        # Extract units/apartments info
+        # Use the generic scraper's parsing logic on the rendered content
         units = []
         
-        # Look for pricing patterns
-        price_pattern = r'\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:/mo|/month)?'
-        prices = re.findall(price_pattern, soup.get_text())
+        # Strategy 1: Parse HTML tables
+        from scrapers.generic import _parse_tables, _parse_divs
+        units = _parse_tables(soup, base_url)
         
-        # Look for bedroom patterns
-        bed_pattern = r'(\d+)\s*(?:bed|bedroom|br)|studio'
-        beds = re.findall(bed_pattern, soup.get_text(), re.IGNORECASE)
+        # Strategy 2: Parse div-based listings
+        if not units:
+            units = _parse_divs(soup, base_url)
         
-        # Look for unit numbers
-        unit_pattern = r'(?:unit|apt|apartment|#)\s*([A-Za-z0-9-]+)'
-        unit_nums = re.findall(unit_pattern, soup.get_text(), re.IGNORECASE)
-        
-        # Try to find availability tables or listings
-        tables = soup.find_all('table')
-        for table in tables:
-            rows = table.find_all('tr')
-            for row in rows:
-                cells = row.find_all(['td', 'th'])
-                row_text = ' '.join(cell.get_text() for cell in cells)
+        # Strategy 3: Regex fallback on full page text for prices + bedrooms
+        if not units:
+            logger.info("Table/div parsing found no units, trying regex extraction...")
+            text = soup.get_text(separator=' ')
+            
+            # Find all price mentions
+            price_matches = list(re.finditer(r'\$\s*([\d,]+)', text))
+            bed_matches = list(re.finditer(r'(\d+)\s*(?:bed(?:room)?s?|br)\b|(?:studio)', text, re.IGNORECASE))
+            unit_matches = list(re.finditer(r'(?:unit|apt|apartment|#|suite)\s*([A-Za-z0-9-]+)', text, re.IGNORECASE))
+            bath_matches = list(re.finditer(r'(\d+(?:\.\d+)?)\s*(?:bath(?:room)?s?|ba)\b', text, re.IGNORECASE))
+            sqft_matches = list(re.finditer(r'([\d,]+)\s*(?:sq\.?\s*ft|sf|sqft)', text, re.IGNORECASE))
+            
+            # Try to pair prices with bedroom info
+            for i, pm in enumerate(price_matches):
+                rent = int(pm.group(1).replace(',', ''))
+                if rent < 800 or rent > 50000:
+                    continue
                 
-                # Check if row contains apartment info
-                if any(term in row_text.lower() for term in ['bed', 'studio', 'rent', '$']):
-                    price_match = re.search(r'\$[\d,]+', row_text)
-                    bed_match = re.search(r'(\d+)\s*(?:bed|br)|studio', row_text, re.IGNORECASE)
-                    unit_match = re.search(r'(?:unit|apt|#)?\s*([A-Za-z0-9-]+)', row_text, re.IGNORECASE)
-                    
-                    if price_match:
-                        unit_data = {
-                            'unit_number': unit_match.group(1) if unit_match else f"Unit-{len(units)+1}",
-                            'rent': int(price_match.group().replace('$', '').replace(',', '')),
-                            'bedrooms': int(bed_match.group(1)) if bed_match and bed_match.group(1) else 0,
-                            'bathrooms': 1,
-                            'images': images[:5] if images else []
-                        }
-                        units.append(unit_data)
+                bedrooms = 1
+                if i < len(bed_matches):
+                    bm = bed_matches[i]
+                    if 'studio' in bm.group(0).lower():
+                        bedrooms = 0
+                    elif bm.group(1):
+                        bedrooms = int(bm.group(1))
+                
+                bathrooms = 1.0
+                if i < len(bath_matches):
+                    bathrooms = float(bath_matches[i].group(1))
+                
+                sqft = None
+                if i < len(sqft_matches):
+                    sqft = int(sqft_matches[i].group(1).replace(',', ''))
+                
+                unit_num = f"Unit-{len(units)+1}"
+                if i < len(unit_matches):
+                    unit_num = unit_matches[i].group(1)
+                
+                units.append({
+                    'unit_number': unit_num,
+                    'rent': rent,
+                    'bedrooms': bedrooms,
+                    'bathrooms': bathrooms,
+                    'square_feet': sqft,
+                    'images': images[i*2:(i+1)*2] if images else []
+                })
         
-        # If no units found from tables, create sample units from extracted prices
-        if not units and prices:
-            for i, price in enumerate(prices[:5]):
-                price_clean = int(re.sub(r'[^\d]', '', price.split('-')[0].split('/')[0]))
-                if 1000 < price_clean < 50000:  # Reasonable rent range
-                    units.append({
-                        'unit_number': f"Unit-{i+1}",
-                        'rent': price_clean,
-                        'bedrooms': int(beds[i]) if i < len(beds) and beds[i].isdigit() else 1,
-                        'bathrooms': 1,
-                        'images': images[i*2:(i+1)*2] if images else []
-                    })
+        # Deduplicate units by rent + bedrooms combo
+        seen = set()
+        unique_units = []
+        for u in units:
+            key = (u['rent'], u['bedrooms'], u.get('unit_number', ''))
+            if key not in seen:
+                seen.add(key)
+                unique_units.append(u)
+        units = unique_units
+        
+        # Determine city/state from address or URL
+        city = 'New York'
+        state = 'NY'
+        combined_text = (address + ' ' + page_text[:2000]).upper()
+        if any(x in combined_text for x in ['JERSEY CITY', 'HOBOKEN', 'WEEHAWKEN', 'HARRISON, NJ', 'NEW JERSEY']):
+            state = 'NJ'
+            city = 'Jersey City' if 'JERSEY CITY' in combined_text else 'Hoboken' if 'HOBOKEN' in combined_text else 'New Jersey'
+        elif any(x in combined_text for x in [' NJ ', ', NJ', 'NJ 07']):
+            state = 'NJ'
+            city = 'New Jersey'
+        elif any(x in combined_text for x in ['PENNSYLVANIA', ', PA ', 'PA 1']):
+            state = 'PA'
+            city = 'Pennsylvania'
+        elif any(x in combined_text for x in ['BROOKLYN', 'DUMBO', 'WILLIAMSBURG', 'BUSHWICK', 'CROWN HEIGHTS', 'FORT GREENE']):
+            city = 'Brooklyn'
+            state = 'NY'
+        elif any(x in combined_text for x in ['QUEENS', 'LONG ISLAND CITY', 'LIC', 'ASTORIA']):
+            city = 'Queens'
+            state = 'NY'
+        elif any(x in combined_text for x in ['BRONX']):
+            city = 'Bronx'
+            state = 'NY'
         
         building_data = {
-            'name': request.building_name or title_text.split('|')[0].split('-')[0].strip(),
+            'name': request.building_name or title_text.split('|')[0].split('-')[0].strip() or 'Unknown Building',
             'address': address,
             'neighborhood': neighborhood,
-            'city': 'New York' if 'NY' in address.upper() else 'Unknown',
-            'state': 'NY' if 'NY' in address.upper() else ('NJ' if 'NJ' in address.upper() else 'Unknown'),
+            'city': city,
+            'state': state,
             'source_url': request.url,
             'images': images[:10]
         }
+        
+        logger.info(f"Crawl complete: {len(units)} units found from {request.url}")
         
         return {
             'building': building_data,
             'units': units,
             'raw_images': images[:20],
-            'crawl_status': 'success',
-            'units_found': len(units)
+            'crawl_status': 'success' if units else 'no_units',
+            'units_found': len(units),
+            'message': None if units else 'No units auto-extracted. You can add units manually below.'
         }
         
     except Exception as e:
-        logger.error(f"Property crawl error: {e}")
+        logger.error(f"Property crawl error for {request.url}: {e}", exc_info=True)
         return {
             'building': {
                 'name': request.building_name or 'Unknown Building',
-                'source_url': request.url
+                'source_url': request.url,
+                'address': '',
+                'neighborhood': '',
+                'city': 'New York',
+                'state': 'NY'
             },
             'units': [],
-            'crawl_status': 'partial',
+            'crawl_status': 'error',
+            'units_found': 0,
             'error': str(e),
-            'message': 'Could not automatically extract data. Please enter manually.'
+            'message': 'Crawl failed. You can add the building and units manually below.'
         }
 
 @router.post("/admin/property-import")

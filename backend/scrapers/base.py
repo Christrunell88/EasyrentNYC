@@ -10,7 +10,12 @@ This module provides common utilities used by all scrapers:
 import re
 import asyncio
 import logging
+import os
 from typing import List, Dict, Any, Optional, Tuple
+
+# MUST be set before playwright import
+os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 

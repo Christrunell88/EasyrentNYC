@@ -4,7 +4,7 @@
 Build a web application called "NoFeesApts.com" to crawl publicly available real estate websites for no-fee apartment listings in NYC, Northern New Jersey, and PA.
 
 ## Core Requirements
-- Crawl websites for apartment data
+- Crawl websites for apartment data using Playwright for JS-heavy sites
 - MongoDB data storage
 - JWT and Google Auth
 - Admin staging and review pipeline
@@ -19,31 +19,32 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 ### Backend (FastAPI + MongoDB)
 ```
 /app/backend/
-├── server.py              # Slim app entry (282 lines) - CORS, router includes, scheduler
+├── server.py              # Slim app entry (~282 lines) - CORS, router includes, scheduler
 ├── database.py            # MongoDB connection module
-├── models.py              # All Pydantic models (424 lines)
-├── auth_utils.py          # Auth dependencies (62 lines)
-├── services.py            # External service availability flags (118 lines)
-├── alert_tasks.py         # Scheduled alert task functions (145 lines)
+├── models.py              # All Pydantic models (~425 lines)
+├── auth_utils.py          # Auth dependencies
+├── services.py            # External service availability flags
+├── alert_tasks.py         # Scheduled alert task functions
 ├── routes/
-│   ├── auth.py            # Auth routes - signup, login, logout, OAuth (362 lines)
-│   ├── buildings.py       # Buildings CRUD (75 lines)
-│   ├── units.py           # Units CRUD + hero/recent/recommendations (644 lines)
-│   ├── favorites.py       # Favorites CRUD (69 lines)
-│   ├── saved_searches.py  # Saved searches + social proof (197 lines)
-│   ├── calendar.py        # Calendar OAuth + viewings (226 lines)
-│   ├── contact.py         # Contact + subscribe + share (285 lines)
-│   ├── admin_staging.py   # Staging CRUD + bulk operations (1312 lines)
-│   ├── admin_operations.py # Unavailability + relisting + rejected (568 lines)
-│   ├── admin_general.py   # Stats + users + crawl + neighborhoods (303 lines)
-│   ├── ai_search.py       # AI search + analytics (324 lines)
-│   ├── admin_import.py    # Property search/discovery/crawl/import (731 lines)
-│   ├── lifecycle.py       # Lifecycle management (206 lines)
-│   ├── seo.py             # Sitemap (43 lines)
-│   └── social.py          # Facebook posting (224 lines)
+│   ├── auth.py            # Auth routes - signup, login, logout, OAuth
+│   ├── buildings.py       # Buildings CRUD
+│   ├── units.py           # Units CRUD + hero/recent/recommendations
+│   ├── favorites.py       # Favorites CRUD
+│   ├── saved_searches.py  # Saved searches + social proof
+│   ├── calendar.py        # Calendar OAuth + viewings
+│   ├── contact.py         # Contact + subscribe + share
+│   ├── admin_staging.py   # Staging CRUD + bulk operations
+│   ├── admin_operations.py # Unavailability + relisting + rejected
+│   ├── admin_general.py   # Stats + users + crawl + neighborhoods
+│   ├── ai_search.py       # AI search + analytics
+│   ├── admin_import.py    # Property search/discovery/crawl/import (multi-building support)
+│   ├── lifecycle.py       # Lifecycle management
+│   ├── seo.py             # Sitemap
+│   └── social.py          # Facebook posting
 ├── scrapers/
-│   ├── generic.py
-│   └── trulia.py
+│   ├── base.py            # Playwright browser config
+│   ├── generic.py         # Generic Playwright scraper
+│   └── trulia.py          # Trulia-specific scraper
 ├── smtp_email_service.py
 ├── twilio_sms_service.py
 ├── google_calendar_service.py
@@ -56,17 +57,17 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 /app/frontend/src/
 ├── components/
 │   ├── admin/
-│   │   ├── ImportTab.jsx          # Property import tab (311 lines)
-│   │   ├── StagingTab.jsx         # Staging review tab (477 lines)
-│   │   ├── UnavailabilityTab.jsx  # Unavailability review tab (214 lines)
-│   │   ├── RentedTab.jsx          # Rented/unavailable units tab (175 lines)
-│   │   └── RejectedTab.jsx        # Rejected staging units tab (112 lines)
+│   │   ├── ImportTab.jsx          # Property import with multi-building grouped preview
+│   │   ├── StagingTab.jsx         # Staging review tab
+│   │   ├── UnavailabilityTab.jsx  # Unavailability review tab
+│   │   ├── RentedTab.jsx          # Rented/unavailable units tab
+│   │   └── RejectedTab.jsx        # Rejected staging units tab
 │   ├── SavedSearchModal.jsx
 │   └── AISearchAgent.jsx
 ├── pages/
 │   ├── Landing.jsx
 │   ├── Dashboard.jsx
-│   ├── AdminPanel.jsx    # Slim parent (780 lines, down from 3423)
+│   ├── AdminPanel.jsx    # Slim parent (~780 lines)
 │   ├── UnitDetails.jsx
 │   ├── BronxPage.jsx
 │   ├── HobokenPage.jsx
@@ -78,6 +79,36 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 
 ### Completed Features
 - Full CRUD for buildings and units
+- JWT authentication + Google Auth
+- Admin staging/review pipeline with bulk operations
+- AI Search Agent "Kiri" with web search
+- SEO landing pages (Bronx, Hoboken, Jersey City)
+- Saved Searches with email alerts
+- Google Calendar OAuth for scheduling viewings
+- Hero Carousel on landing page
+- Playwright-based web crawler for management company sites
+- Trulia-specific scraper
+- Facebook sharing integration
+- Email alerts via SMTP
+- Google Search Console verification
+- **Multi-building crawler support**: Crawler detects per-unit addresses on management company pages with multiple buildings, groups units by address, creates separate staging buildings per unique address (Apr 2026)
+- **Modular architecture**: server.py split into route modules, AdminPanel.jsx split into tab components (Apr 2026)
+
+## Backlog
+
+### P0 (Blocked)
+- Twilio SMS Alerts — awaiting user credentials (Account SID, Auth Token, Phone Number)
+
+### P1
+- Add 111 Worth Street building and vacant units
+- Implement virtual tour support (virtual_tour_url in DB and unit details UI)
+- Instagram direct posting (blocked on Facebook Page admin permissions)
+
+### P2
+- Create Staten Island SEO landing page
+- Dynamic Open Graph meta tags (requires SSR/pre-rendering)
+- Blog for long-form SEO content
+- Scheduled weekly discovery searches for Admin crawler
 - JWT + Google OAuth authentication
 - Admin staging/approval pipeline with bulk operations
 - AI Search Agent "Kiri" with real-time web search (SerpApi)

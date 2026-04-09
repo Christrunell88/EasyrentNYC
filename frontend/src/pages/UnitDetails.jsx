@@ -16,6 +16,7 @@ import SEO from '@/components/SEO';
 import GoogleMapEmbed from '@/components/GoogleMapEmbed';
 import Footer from '@/components/Footer';
 import { trackApartmentView } from '../utils/analytics';
+import { useAuth } from '../App';
 
 // Generate Google Calendar URL
 const generateGoogleCalendarUrl = (unit, date, time) => {
@@ -109,10 +110,13 @@ const formatDescription = (description, unit) => {
 const UnitDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [unit, setUnit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -260,6 +264,28 @@ const UnitDetails = () => {
       setSuccessOpen(true);
     } catch (error) {
       toast.error('Failed to submit request');
+    }
+  };
+
+  const handleEmailAgent = async (e) => {
+    e.preventDefault();
+    setEmailSending(true);
+    const formData = new FormData(e.target);
+    try {
+      await axios.post(`${API}/contact`, {
+        unit_id: id,
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone') || '',
+        message: formData.get('message'),
+      }, { withCredentials: true });
+      toast.success('Message sent! We\'ll get back to you shortly.');
+      setEmailOpen(false);
+      e.target.reset();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send message. Please try again.');
+    } finally {
+      setEmailSending(false);
     }
   };
 
@@ -744,13 +770,68 @@ const UnitDetails = () => {
 
               {/* Direct Contact Buttons */}
               <div className="flex gap-3 mb-4">
-                <Button
-                  onClick={() => window.location.href = 'mailto:placesfirm@gmail.com?subject=Inquiry about ' + (unit?.building?.address || 'Apartment') + ' #' + (unit?.unit_number || '')}
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-4 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide"
-                >
-                  <Mail className="w-4 h-4" />
-                  Email Agent
-                </Button>
+                <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="flex-1 bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] py-4 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide"
+                      data-testid="email-agent-btn"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Email Agent
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#1a1a1a] border border-[#D4AF37]/30 text-white max-w-md rounded-none">
+                    <DialogHeader>
+                      <DialogTitle className="text-[#D4AF37] font-philosopher text-xl">Email Agent</DialogTitle>
+                      <DialogDescription className="text-gray-400 font-philosopher">
+                        {unit?.building?.address} {unit?.unit_number && `#${unit.unit_number}`} &mdash; ${unit?.rent?.toLocaleString()}/mo
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleEmailAgent} className="space-y-3 mt-2">
+                      <Input
+                        name="name"
+                        placeholder="Your Name *"
+                        required
+                        defaultValue={user?.full_name || ''}
+                        className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37] rounded-none"
+                        data-testid="email-agent-name"
+                      />
+                      <Input
+                        name="email"
+                        type="email"
+                        placeholder="Your Email *"
+                        required
+                        defaultValue={user?.email || ''}
+                        className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37] rounded-none"
+                        data-testid="email-agent-email"
+                      />
+                      <Input
+                        name="phone"
+                        type="tel"
+                        placeholder="Phone (optional)"
+                        className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37] rounded-none"
+                        data-testid="email-agent-phone"
+                      />
+                      <Textarea
+                        name="message"
+                        placeholder="Your message *"
+                        required
+                        rows={3}
+                        defaultValue={`Hi, I'm interested in the ${unit?.bedrooms === 0 ? 'studio' : `${unit?.bedrooms} bedroom`} at ${unit?.building?.address || 'this building'}${unit?.unit_number ? ` #${unit.unit_number}` : ''}. Is it still available?`}
+                        className="bg-[#0a0a0a] border-[#D4AF37]/30 text-white placeholder:text-gray-500 focus:border-[#D4AF37] rounded-none resize-none"
+                        data-testid="email-agent-message"
+                      />
+                      <Button
+                        type="submit"
+                        disabled={emailSending}
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-[#0a0a0a] font-philosopher font-bold rounded-none py-3"
+                        data-testid="email-agent-submit"
+                      >
+                        {emailSending ? 'Sending...' : 'Send Message'}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 <a
                   href="tel:646-408-8048"
                   className="flex-1 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 py-4 font-philosopher font-bold flex items-center justify-center gap-2 rounded-none tracking-wide transition-colors"

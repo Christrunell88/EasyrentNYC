@@ -48,20 +48,46 @@ const Dashboard = () => {
   const [maxRent, setMaxRent] = useState('');
   const [bathrooms, setBathrooms] = useState('');
   const [state, setState] = useState('');
+  const [neighborhood, setNeighborhood] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('');
   const [recommendations, setRecommendations] = useState([]);
   const [activeRecommendation, setActiveRecommendation] = useState('');
 
   // Count active filters
-  const activeFilterCount = [bedrooms, minRent, maxRent, bathrooms, state].filter(Boolean).length;
+  const activeFilterCount = [bedrooms, minRent, maxRent, bathrooms, state, neighborhood].filter(Boolean).length;
+
+  // Price preset options ($0 to $15,000 in $500 increments)
+  const priceOptions = [
+    { label: 'No Min', value: '' },
+    { label: '$0', value: '0' },
+    ...Array.from({ length: 30 }, (_, i) => {
+      const price = (i + 2) * 500;
+      return { label: `$${price.toLocaleString()}`, value: String(price) };
+    }),
+  ];
+  const maxPriceOptions = [
+    { label: 'No Max', value: '' },
+    ...Array.from({ length: 30 }, (_, i) => {
+      const price = (i + 2) * 500;
+      return { label: `$${price.toLocaleString()}`, value: String(price) };
+    }),
+  ];
+
+  // NYC neighborhoods grouped by borough
+  const neighborhoodOptions = [
+    { group: 'Manhattan', items: ['Chelsea', 'East Village', 'Financial District', 'Flatiron District', 'Harlem', 'Hudson Yards', 'Kips Bay', 'Midtown West', 'Murray Hill', 'SoHo', 'Tribeca', 'Turtle Bay', 'Upper East Side', 'Upper West Side', 'West Village'] },
+    { group: 'Brooklyn', items: ['Brooklyn Heights', 'Carroll Gardens', 'DUMBO', 'Fort Greene', 'Gowanus', 'Prospect Heights', 'Williamsburg'] },
+    { group: 'Queens', items: ['Jamaica', 'Long Island City'] },
+    { group: 'New Jersey', items: ['Harrison', 'Jersey City'] },
+  ];
 
   useEffect(() => {
     fetchUnits();
     fetchFavorites();
     fetchRecommendations();
     fetchSavedSearchCount();
-  }, [bedrooms, minRent, maxRent, bathrooms, state]);
+  }, [bedrooms, minRent, maxRent, bathrooms, state, neighborhood]);
 
   const fetchSavedSearchCount = async () => {
     try {
@@ -105,6 +131,7 @@ const Dashboard = () => {
       if (maxRent) params.append('max_rent', maxRent);
       if (bathrooms) params.append('bathrooms', bathrooms);
       if (state) params.append('state', state);
+      if (neighborhood) params.append('neighborhood', neighborhood);
       
       const response = await axios.get(`${API}/units?limit=500&${params.toString()}`, { withCredentials: true });
       
@@ -214,6 +241,7 @@ const Dashboard = () => {
     setMaxRent('');
     setBathrooms('');
     setState('');
+    setNeighborhood('');
     setSortBy('');
     setActiveRecommendation('');
   };
@@ -342,7 +370,7 @@ const Dashboard = () => {
             {/* Location */}
             <div className="flex items-center gap-2">
               <Map className="w-4 h-4 text-amber-600" />
-              <Select value={state || "any"} onValueChange={(val) => setState(val === "any" ? "" : val)}>
+              <Select value={state || "any"} onValueChange={(val) => { setState(val === "any" ? "" : val); if (val === "any") setNeighborhood(''); }}>
                 <SelectTrigger data-testid="state-filter" className="w-[130px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
                   <SelectValue placeholder="All Areas" />
                 </SelectTrigger>
@@ -354,6 +382,26 @@ const Dashboard = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Neighborhood */}
+            <Select value={neighborhood || "any-hood"} onValueChange={(val) => setNeighborhood(val === "any-hood" ? "" : val)}>
+              <SelectTrigger data-testid="neighborhood-filter" className="w-[160px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
+                <SelectValue placeholder="Neighborhood" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-gray-200 max-h-[300px]">
+                <SelectItem value="any-hood" className="text-gray-900">All Neighborhoods</SelectItem>
+                {neighborhoodOptions.map(group => (
+                  <React.Fragment key={group.group}>
+                    <SelectItem value={`__group_${group.group}`} disabled className="text-xs font-bold text-amber-600 uppercase tracking-wider pt-2">
+                      {group.group}
+                    </SelectItem>
+                    {group.items.map(hood => (
+                      <SelectItem key={hood} value={hood} className="text-gray-900 pl-4">{hood}</SelectItem>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </SelectContent>
+            </Select>
             
             <div className="w-px h-6 bg-gray-300" />
             
@@ -392,30 +440,34 @@ const Dashboard = () => {
             
             <div className="w-px h-6 bg-gray-300" />
             
-            {/* Price Range */}
+            {/* Price Range - Dropdowns */}
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-amber-600" />
-              <Input
-                type="number"
-                placeholder="Min"
-                value={minRent}
-                onChange={(e) => setMinRent(e.target.value)}
-                data-testid="min-rent-filter"
-                className="w-[90px] h-9 bg-white border-gray-300 text-gray-900 text-sm placeholder:text-gray-400"
-              />
+              <Select value={minRent || "no-min"} onValueChange={(val) => setMinRent(val === "no-min" ? "" : val)}>
+                <SelectTrigger data-testid="min-rent-filter" className="w-[110px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
+                  <SelectValue placeholder="No Min" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-gray-200 max-h-[300px]">
+                  {priceOptions.map(opt => (
+                    <SelectItem key={`min-${opt.value || 'none'}`} value={opt.value || "no-min"} className="text-gray-900">{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <span className="text-gray-400">—</span>
-              <Input
-                type="number"
-                placeholder="Max"
-                value={maxRent}
-                onChange={(e) => setMaxRent(e.target.value)}
-                data-testid="max-rent-filter"
-                className="w-[90px] h-9 bg-white border-gray-300 text-gray-900 text-sm placeholder:text-gray-400"
-              />
+              <Select value={maxRent || "no-max"} onValueChange={(val) => setMaxRent(val === "no-max" ? "" : val)}>
+                <SelectTrigger data-testid="max-rent-filter" className="w-[110px] h-9 bg-white border-gray-300 text-gray-900 text-sm">
+                  <SelectValue placeholder="No Max" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-gray-200 max-h-[300px]">
+                  {maxPriceOptions.map(opt => (
+                    <SelectItem key={`max-${opt.value || 'none'}`} value={opt.value || "no-max"} className="text-gray-900">{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             {/* Clear Filters */}
-            {(bedrooms || minRent || maxRent || bathrooms || state) && (
+            {(bedrooms || minRent || maxRent || bathrooms || state || neighborhood) && (
               <>
                 <div className="w-px h-6 bg-gray-300" />
                 <Button 
@@ -490,23 +542,29 @@ const Dashboard = () => {
                       </label>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
-                          <Input
-                            type="number"
-                            placeholder="Min price"
-                            value={minRent}
-                            onChange={(e) => setMinRent(e.target.value)}
-                            className="h-12 bg-white border-gray-300 text-gray-900 text-base placeholder:text-gray-400"
-                          />
+                          <Select value={minRent || "no-min"} onValueChange={(val) => setMinRent(val === "no-min" ? "" : val)}>
+                            <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900 text-base">
+                              <SelectValue placeholder="No Min" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-gray-200 max-h-[250px]">
+                              {priceOptions.map(opt => (
+                                <SelectItem key={`mob-min-${opt.value || 'none'}`} value={opt.value || "no-min"} className="text-gray-900">{opt.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <span className="text-gray-400">to</span>
                         <div className="flex-1">
-                          <Input
-                            type="number"
-                            placeholder="Max price"
-                            value={maxRent}
-                            onChange={(e) => setMaxRent(e.target.value)}
-                            className="h-12 bg-white border-gray-300 text-gray-900 text-base placeholder:text-gray-400"
-                          />
+                          <Select value={maxRent || "no-max"} onValueChange={(val) => setMaxRent(val === "no-max" ? "" : val)}>
+                            <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900 text-base">
+                              <SelectValue placeholder="No Max" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-gray-200 max-h-[250px]">
+                              {maxPriceOptions.map(opt => (
+                                <SelectItem key={`mob-max-${opt.value || 'none'}`} value={opt.value || "no-max"} className="text-gray-900">{opt.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                       {/* Quick Price Presets */}
@@ -583,7 +641,7 @@ const Dashboard = () => {
                           <Button
                             key={option.label}
                             variant="outline"
-                            onClick={() => setState(option.value)}
+                            onClick={() => { setState(option.value); if (!option.value) setNeighborhood(''); }}
                             className={`h-11 px-5 rounded-lg ${
                               state === option.value
                                 ? 'bg-amber-500 text-white border-amber-500'
@@ -594,6 +652,32 @@ const Dashboard = () => {
                           </Button>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Neighborhood */}
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 text-gray-900 font-medium">
+                        <Map className="w-5 h-5 text-amber-600" />
+                        Neighborhood
+                      </label>
+                      <Select value={neighborhood || "any-hood"} onValueChange={(val) => setNeighborhood(val === "any-hood" ? "" : val)}>
+                        <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900 text-base">
+                          <SelectValue placeholder="All Neighborhoods" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-gray-200 max-h-[250px]">
+                          <SelectItem value="any-hood" className="text-gray-900">All Neighborhoods</SelectItem>
+                          {neighborhoodOptions.map(group => (
+                            <React.Fragment key={group.group}>
+                              <SelectItem value={`__group_${group.group}`} disabled className="text-xs font-bold text-amber-600 uppercase tracking-wider pt-2">
+                                {group.group}
+                              </SelectItem>
+                              {group.items.map(hood => (
+                                <SelectItem key={hood} value={hood} className="text-gray-900 pl-4">{hood}</SelectItem>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {/* Bathrooms */}

@@ -400,7 +400,7 @@ const StagingTab = ({ buildings, fetchData, onStatsUpdate }) => {
                   <Label htmlFor="edit-building" className="text-slate-200">Building *</Label>
                   <select id="edit-building" name="building_id" defaultValue={selectedStagingUnit.building_id || ''} className="w-full bg-slate-700/50 border border-slate-600 text-slate-100 rounded-md px-3 py-2" required>
                     <option value="">-- Select Building --</option>
-                    {buildings.map((b) => (<option key={b.id} value={b.id}>{b.name} - {b.address}, {b.city}</option>))}
+                    {[...buildings].sort((a, b) => (a.address || a.name).localeCompare(b.address || b.name)).map((b) => (<option key={b.id} value={b.id}>{b.name} — {b.address}, {b.city}</option>))}
                   </select>
                 </div>
               </div>

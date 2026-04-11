@@ -51,6 +51,7 @@ const AdminPanel = () => {
   // Production unit selection
   const [selectedProductionUnits, setSelectedProductionUnits] = useState(new Set());
   const [bulkDeletingProduction, setBulkDeletingProduction] = useState(false);
+  const [filterBuildingId, setFilterBuildingId] = useState('');
 
   // Dialog state
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
@@ -393,6 +394,26 @@ const AdminPanel = () => {
                   </div>
 
                   <div className="overflow-x-auto">
+                    {/* Building/Address filter */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <select
+                        value={filterBuildingId}
+                        onChange={(e) => setFilterBuildingId(e.target.value)}
+                        className="px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-slate-200 text-sm max-w-xs"
+                        data-testid="all-units-building-filter"
+                      >
+                        <option value="">All Buildings ({buildings.length})</option>
+                        {[...buildings].sort((a, b) => (a.address || a.name).localeCompare(b.address || b.name)).map(b => (
+                          <option key={b.id} value={b.id}>{b.name} — {b.address}</option>
+                        ))}
+                      </select>
+                      {filterBuildingId && (
+                        <Button variant="ghost" size="sm" onClick={() => setFilterBuildingId('')} className="text-slate-400 hover:text-amber-400 h-8">Clear</Button>
+                      )}
+                      <span className="text-slate-500 text-sm ml-auto">
+                        {filterBuildingId ? units.filter(u => u.building_id === filterBuildingId).length : units.length} units
+                      </span>
+                    </div>
                     {selectedProductionUnits.size > 0 && (
                       <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center justify-between">
                         <span className="text-red-400 font-medium">{selectedProductionUnits.size} approved unit(s) selected</span>
@@ -426,7 +447,7 @@ const AdminPanel = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {units.map((unit) => {
+                        {(filterBuildingId ? units.filter(u => u.building_id === filterBuildingId) : units).map((unit) => {
                           const building = buildings.find(b => b.id === unit.building_id);
                           return (
                             <TableRow key={unit.id} className={`border-slate-700 hover:bg-slate-700/30 ${selectedProductionUnits.has(unit.id) ? 'bg-red-500/10' : ''}`}>
@@ -597,7 +618,7 @@ const AdminPanel = () => {
                           <Label htmlFor="building_id">Building</Label>
                           <select id="building_id" name="building_id" required className="w-full px-3 py-2 border rounded-md" data-testid="unit-building-select">
                             <option value="">Select building...</option>
-                            {buildings.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}
+                            {[...buildings].sort((a, b) => (a.address || a.name).localeCompare(b.address || b.name)).map(b => (<option key={b.id} value={b.id}>{b.name} — {b.address}</option>))}
                           </select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">

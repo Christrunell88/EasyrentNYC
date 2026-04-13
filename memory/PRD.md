@@ -1,7 +1,20 @@
 # NoFeesApts.com - Product Requirements Document
 
+**Last Updated**: 2026-04-13
+
 ## Original Problem Statement
 Build a web application called "NoFeesApts.com" to crawl publicly available real estate websites for no-fee apartment listings in NYC, Northern New Jersey, and PA.
+
+## Recent Changes (2026-04-13)
+- Fixed Kiri AI assistant crash: Added missing `uuid` and `timedelta` imports in `ai_search.py`
+- Added "The Greenpoint" building (21 India Street, Brooklyn) with 15 units (8 Studios + 7 1BRs)
+- Database: 51 buildings, 260 units
+
+## Known Issues
+- Kiri AI responses blocked by depleted Universal Key budget (user needs to top up)
+- "45 Main Street" duplicates in production DB (user confirmed deletion, pending execution)
+- Twilio SMS not configured (awaiting user credentials)
+- Instagram posting blocked (awaiting Facebook Page admin permissions)
 
 ## Core Requirements
 - Crawl websites for apartment data using Playwright for JS-heavy sites

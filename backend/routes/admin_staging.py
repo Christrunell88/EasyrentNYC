@@ -1312,6 +1312,74 @@ async def promote_batch_staging_units(
 
 
 
+@router.post("/admin/cleanup/duplicate-buildings")
+async def cleanup_duplicate_buildings(user: User = Depends(require_admin)):
+    """
+    Find and remove duplicate buildings by address. Keeps the first (oldest) entry
+    and deletes duplicates along with their associated units.
+    Special handling: Removes all '45 Main Street' entries as they were
+    created by a buggy Two Trees crawler run.
+    """
+    results = {'deleted_buildings': 0, 'deleted_units': 0, 'details': []}
+    
+    # Step 1: Delete all "45 Main Street" buildings and their units (known bad data)
+    bad_buildings = await db.buildings.find({
+        '$or': [
+            {'address': {'$regex': '45 Main', '$options': 'i'}},
+            {'name': {'$regex': '45 Main', '$options': 'i'}}
+        ]
+    }, {'_id': 0, 'id': 1, 'name': 1, 'address': 1}).to_list(100)
+    
+    for b in bad_buildings:
+        unit_del = await db.units.delete_many({'building_id': b['id']})
+        await db.buildings.delete_one({'id': b['id']})
+        results['deleted_buildings'] += 1
+        results['deleted_units'] += unit_del.deleted_count
+        results['details'].append(f"Deleted '{b.get('name', '')}' ({b.get('address', '')}) + {unit_del.deleted_count} units")
+    
+    # Step 2: Find other duplicate addresses and keep only the first
+    pipeline = [
+        {'$group': {'_id': '$address', 'count': {'$sum': 1}, 'ids': {'$push': '$id'}}},
+        {'$match': {'count': {'$gt': 1}, '_id': {'$ne': '', '$ne': None}}}
+    ]
+    duplicates = await db.buildings.aggregate(pipeline).to_list(100)
+    
+    for dup in duplicates:
+        # Keep the first, delete the rest
+        ids_to_delete = dup['ids'][1:]
+        for bid in ids_to_delete:
+            unit_del = await db.units.delete_many({'building_id': bid})
+            await db.buildings.delete_one({'id': bid})
+            results['deleted_buildings'] += 1
+            results['deleted_units'] += unit_del.deleted_count
+            results['details'].append(f"Deleted duplicate '{dup['_id']}' (building {bid}) + {unit_del.deleted_count} units")
+    
+    # Also clean staging
+    bad_staging = await db.buildings_staging.find({
+        '$or': [
+            {'address': {'$regex': '45 Main', '$options': 'i'}},
+            {'name': {'$regex': '45 Main', '$options': 'i'}}
+        ]
+    }, {'_id': 0, 'id': 1}).to_list(100)
+    
+    for b in bad_staging:
+        await db.units_staging.delete_many({'building_id': b['id']})
+        await db.buildings_staging.delete_one({'id': b['id']})
+        results['details'].append(f"Deleted staging '45 Main' entry")
+    
+    remaining = await db.buildings.count_documents({})
+    remaining_units = await db.units.count_documents({})
+    
+    return {
+        'message': f"Cleanup complete: removed {results['deleted_buildings']} buildings and {results['deleted_units']} units",
+        'deleted_buildings': results['deleted_buildings'],
+        'deleted_units': results['deleted_units'],
+        'details': results['details'],
+        'remaining_buildings': remaining,
+        'remaining_units': remaining_units
+    }
+
+
 @router.post("/admin/staging/backfill-addresses")
 async def backfill_staging_addresses(user: User = Depends(require_admin)):
     """

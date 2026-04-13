@@ -1,9 +1,10 @@
 """AI search agent routes for NoFeesApts."""
 from fastapi import APIRouter, HTTPException, Request, Depends, Query
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import logging
+import uuid
 
 from database import db
 from models import User, AISearchRequest

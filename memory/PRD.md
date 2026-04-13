@@ -9,7 +9,9 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 - Fixed Kiri AI assistant crash: Added missing `uuid` and `timedelta` imports in `ai_search.py`
 - Added "The Greenpoint" building (21 India Street, Brooklyn) with 15 units (8 Studios + 7 1BRs)
 - **Neighborhood Price Breakdown**: Enhanced neighborhood pages with avg prices by Studio/1BR/2BR, with doorman vs without, with elevator vs without. Backend returns `price_breakdown` object from `/api/neighborhoods/{slug}`. Frontend renders 3-column card layout with premium/savings indicators.
-- Database: 51 buildings, 260 units
+- **Staging Address Backfill**: Fixed 133 staging units missing addresses by looking up parent buildings. Added `POST /api/admin/staging/backfill-addresses` endpoint for production use.
+- **Avalon Willoughby Square**: Crawled from AvalonBay website, added to staging with 6 units (1BR, $4,218-$5,781/mo) at 214 Duffield Street, Brooklyn.
+- Database: 51 buildings, 260 units live. 19 staging buildings, 182 staging units.
 
 ## Known Issues
 - Kiri AI responses blocked by depleted Universal Key budget (user needs to top up)

@@ -1310,3 +1310,58 @@ async def promote_batch_staging_units(
         "details": results["details"]
     }
 
+
+
+@router.post("/admin/staging/backfill-addresses")
+async def backfill_staging_addresses(user: User = Depends(require_admin)):
+    """
+    Backfill missing addresses on staging units by looking up their parent building.
+    Checks both staging buildings and live buildings collections.
+    """
+    # Get all live buildings
+    live_buildings = await db.buildings.find({}, {'_id': 0, 'id': 1, 'name': 1, 'address': 1}).to_list(500)
+    live_map = {b['id']: b for b in live_buildings}
+    
+    # Get all staging buildings
+    staging_buildings = await db.buildings_staging.find({}, {'_id': 0, 'id': 1, 'name': 1, 'address': 1}).to_list(500)
+    staging_map = {b['id']: b for b in staging_buildings}
+    
+    # Find staging units missing addresses
+    missing_units = await db.units_staging.find({
+        '$or': [
+            {'building_address': ''},
+            {'building_address': None},
+            {'building_address': {'$exists': False}}
+        ]
+    }, {'_id': 0, 'id': 1, 'building_id': 1, 'building_name': 1}).to_list(5000)
+    
+    fixed = 0
+    still_missing = 0
+    
+    for u in missing_units:
+        bid = u.get('building_id', '')
+        addr = None
+        name = None
+        
+        if bid in live_map and live_map[bid].get('address'):
+            addr = live_map[bid]['address']
+            name = live_map[bid].get('name', '')
+        elif bid in staging_map and staging_map[bid].get('address'):
+            addr = staging_map[bid]['address']
+            name = staging_map[bid].get('name', '')
+        
+        if addr:
+            update_fields = {'building_address': addr}
+            if name and not u.get('building_name'):
+                update_fields['building_name'] = name
+            await db.units_staging.update_one({'id': u['id']}, {'$set': update_fields})
+            fixed += 1
+        else:
+            still_missing += 1
+    
+    return {
+        'message': f'Backfilled {fixed} staging units with addresses. {still_missing} still missing (no parent building address found).',
+        'total_checked': len(missing_units),
+        'fixed': fixed,
+        'still_missing': still_missing
+    }

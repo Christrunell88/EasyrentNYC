@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, Building2, BedDouble, Bath, Heart, ArrowLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { MapPin, Building2, BedDouble, Bath, Heart, ArrowLeft, ChevronRight, ArrowRight, ShieldCheck, ArrowUpDown } from 'lucide-react';
 import { API } from '../config/api';
 
 // Related neighborhoods mapping for internal linking
@@ -495,6 +495,152 @@ const NeighborhoodPage = () => {
           </div>
         </div>
 
+        {/* Price Breakdown Section */}
+        {data.price_breakdown && (
+          <div className="bg-white border-b border-gray-200 py-10" data-testid="price-breakdown-section">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-gray-900 md:text-xl">
+                  Average Rent in {data.name}
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Pricing by apartment type{(data.stats.total_doorman > 0 || data.stats.total_elevator > 0) ? ', with doorman & elevator comparisons' : ''}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { key: 'studio', label: 'Studio', icon: '○' },
+                  { key: 'one_bed', label: '1 Bedroom', icon: '◑' },
+                  { key: 'two_bed', label: '2 Bedroom', icon: '●' }
+                ].map(({ key, label, icon }) => {
+                  const bd = data.price_breakdown[key];
+                  if (!bd || bd.count === 0) return (
+                    <div key={key} className="bg-gray-50 rounded-lg border border-gray-200 p-5 opacity-60" data-testid={`price-card-${key}`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-lg">{icon}</span>
+                        <h3 className="font-semibold text-gray-900 text-sm">{label}</h3>
+                      </div>
+                      <p className="text-gray-400 text-sm">No listings available</p>
+                    </div>
+                  );
+                  
+                  const hasDoormanData = bd.doorman.count > 0 && bd.no_doorman.count > 0;
+                  const hasElevatorData = bd.elevator.count > 0 && bd.no_elevator.count > 0;
+                  
+                  return (
+                    <div key={key} className="bg-gray-50 rounded-lg border border-gray-200 p-5 hover:border-amber-300 transition-colors" data-testid={`price-card-${key}`}>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{icon}</span>
+                          <h3 className="font-semibold text-gray-900 text-sm">{label}</h3>
+                        </div>
+                        <span className="text-xs text-gray-400">{bd.count} listing{bd.count !== 1 ? 's' : ''}</span>
+                      </div>
+                      
+                      {/* Average Price - Primary */}
+                      <div className="mb-4">
+                        <p className="text-2xl font-bold text-gray-900" data-testid={`avg-rent-${key}`}>
+                          ${bd.avg_rent.toLocaleString()}<span className="text-sm font-normal text-gray-400">/mo</span>
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          ${bd.min_rent.toLocaleString()} – ${bd.max_rent.toLocaleString()} range
+                        </p>
+                      </div>
+
+                      {/* Doorman Comparison */}
+                      {(bd.doorman.count > 0 || bd.no_doorman.count > 0) && (
+                        <div className="border-t border-gray-200 pt-3 mb-3">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" /> Doorman
+                          </p>
+                          <div className="space-y-1.5">
+                            {bd.doorman.count > 0 && (
+                              <div className="flex items-center justify-between" data-testid={`doorman-rent-${key}`}>
+                                <span className="text-xs text-gray-600">With doorman</span>
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ${bd.doorman.avg_rent.toLocaleString()}/mo
+                                  <span className="text-xs text-gray-400 ml-1">({bd.doorman.count})</span>
+                                </span>
+                              </div>
+                            )}
+                            {bd.no_doorman.count > 0 && (
+                              <div className="flex items-center justify-between" data-testid={`no-doorman-rent-${key}`}>
+                                <span className="text-xs text-gray-600">Without doorman</span>
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ${bd.no_doorman.avg_rent.toLocaleString()}/mo
+                                  <span className="text-xs text-gray-400 ml-1">({bd.no_doorman.count})</span>
+                                </span>
+                              </div>
+                            )}
+                            {hasDoormanData && (
+                              <div className="flex items-center justify-end">
+                                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                                  bd.doorman.avg_rent > bd.no_doorman.avg_rent 
+                                    ? 'bg-red-50 text-red-600' 
+                                    : 'bg-green-50 text-green-600'
+                                }`}>
+                                  {bd.doorman.avg_rent > bd.no_doorman.avg_rent ? '+' : '-'}
+                                  ${Math.abs(bd.doorman.avg_rent - bd.no_doorman.avg_rent).toLocaleString()} premium
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Elevator Comparison */}
+                      {(bd.elevator.count > 0 || bd.no_elevator.count > 0) && (
+                        <div className="border-t border-gray-200 pt-3">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <ArrowUpDown className="w-3 h-3" /> Elevator
+                          </p>
+                          <div className="space-y-1.5">
+                            {bd.elevator.count > 0 && (
+                              <div className="flex items-center justify-between" data-testid={`elevator-rent-${key}`}>
+                                <span className="text-xs text-gray-600">With elevator</span>
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ${bd.elevator.avg_rent.toLocaleString()}/mo
+                                  <span className="text-xs text-gray-400 ml-1">({bd.elevator.count})</span>
+                                </span>
+                              </div>
+                            )}
+                            {bd.no_elevator.count > 0 && (
+                              <div className="flex items-center justify-between" data-testid={`no-elevator-rent-${key}`}>
+                                <span className="text-xs text-gray-600">Without elevator</span>
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ${bd.no_elevator.avg_rent.toLocaleString()}/mo
+                                  <span className="text-xs text-gray-400 ml-1">({bd.no_elevator.count})</span>
+                                </span>
+                              </div>
+                            )}
+                            {hasElevatorData && (
+                              <div className="flex items-center justify-end">
+                                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                                  bd.elevator.avg_rent > bd.no_elevator.avg_rent 
+                                    ? 'bg-red-50 text-red-600' 
+                                    : 'bg-green-50 text-green-600'
+                                }`}>
+                                  {bd.elevator.avg_rent > bd.no_elevator.avg_rent ? '+' : '-'}
+                                  ${Math.abs(bd.elevator.avg_rent - bd.no_elevator.avg_rent).toLocaleString()} premium
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs text-gray-400 mt-4">
+                Based on {data.stats.total_units} verified no-fee listings in {data.name}. Prices updated {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Listings Grid */}
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -592,10 +738,28 @@ const NeighborhoodPage = () => {
               </p>
               <h3>What's Available in {data.name}?</h3>
               <ul>
-                {data.stats.studios > 0 && <li><strong>{data.stats.studios} Studios</strong> available</li>}
-                {data.stats.one_beds > 0 && <li><strong>{data.stats.one_beds} One-bedroom</strong> apartments</li>}
-                {data.stats.two_plus_beds > 0 && <li><strong>{data.stats.two_plus_beds} Two+ bedroom</strong> apartments</li>}
+                {data.stats.studios > 0 && <li><strong>{data.stats.studios} Studios</strong> — avg. ${data.price_breakdown?.studio?.avg_rent?.toLocaleString() || 'N/A'}/mo</li>}
+                {data.stats.one_beds > 0 && <li><strong>{data.stats.one_beds} One-bedroom</strong> apartments — avg. ${data.price_breakdown?.one_bed?.avg_rent?.toLocaleString() || 'N/A'}/mo</li>}
+                {data.stats.two_plus_beds > 0 && <li><strong>{data.stats.two_plus_beds} Two+ bedroom</strong> apartments — avg. ${data.price_breakdown?.two_bed?.avg_rent?.toLocaleString() || 'N/A'}/mo</li>}
               </ul>
+              {(data.stats.total_doorman > 0 || data.stats.total_elevator > 0) && (
+                <>
+                  <h3>Doorman & Elevator Buildings in {data.name}</h3>
+                  <p>
+                    {data.stats.total_doorman > 0 && (
+                      <>{data.stats.total_doorman} of our listings in {data.name} feature doorman service. </>
+                    )}
+                    {data.stats.total_elevator > 0 && (
+                      <>{data.stats.total_elevator} listings include elevator access. </>
+                    )}
+                    {data.price_breakdown?.one_bed?.doorman?.count > 0 && data.price_breakdown?.one_bed?.no_doorman?.count > 0 && (
+                      <>For 1-bedrooms, doorman buildings average ${data.price_breakdown.one_bed.doorman.avg_rent.toLocaleString()}/mo 
+                      compared to ${data.price_breakdown.one_bed.no_doorman.avg_rent.toLocaleString()}/mo without doorman 
+                      — a ${Math.abs(data.price_breakdown.one_bed.doorman.avg_rent - data.price_breakdown.one_bed.no_doorman.avg_rent).toLocaleString()} monthly difference.</>
+                    )}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

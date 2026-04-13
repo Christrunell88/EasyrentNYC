@@ -181,6 +181,42 @@ async def get_neighborhood_detail(slug: str):
     one_beds = len([u for u in units if u.get('bedrooms') == 1])
     two_plus = len([u for u in units if u.get('bedrooms', 0) >= 2])
     
+    # Price breakdown by bedroom type and amenities (doorman/elevator)
+    doorman_keywords = {'Doorman', 'Full-Time Doorman', '24 Hour Concierge', 'Concierge'}
+    
+    def calc_avg(unit_list):
+        rents_list = [u['rent'] for u in unit_list if u.get('rent')]
+        return round(sum(rents_list) / len(rents_list)) if rents_list else 0
+    
+    def has_doorman(u):
+        return bool(set(u.get('amenities') or []) & doorman_keywords)
+    
+    def has_elevator(u):
+        return 'Elevator' in (u.get('amenities') or [])
+    
+    price_breakdown = {}
+    for br_val, br_key in [(0, 'studio'), (1, 'one_bed'), (2, 'two_bed')]:
+        br_units = [u for u in units if u.get('bedrooms') == br_val and u.get('rent')]
+        br_doorman = [u for u in br_units if has_doorman(u)]
+        br_no_doorman = [u for u in br_units if not has_doorman(u)]
+        br_elevator = [u for u in br_units if has_elevator(u)]
+        br_no_elevator = [u for u in br_units if not has_elevator(u)]
+        
+        price_breakdown[br_key] = {
+            'count': len(br_units),
+            'avg_rent': calc_avg(br_units),
+            'min_rent': min((u['rent'] for u in br_units), default=0),
+            'max_rent': max((u['rent'] for u in br_units), default=0),
+            'doorman': {'count': len(br_doorman), 'avg_rent': calc_avg(br_doorman)},
+            'no_doorman': {'count': len(br_no_doorman), 'avg_rent': calc_avg(br_no_doorman)},
+            'elevator': {'count': len(br_elevator), 'avg_rent': calc_avg(br_elevator)},
+            'no_elevator': {'count': len(br_no_elevator), 'avg_rent': calc_avg(br_no_elevator)},
+        }
+    
+    # Overall doorman/elevator counts
+    total_doorman = len([u for u in units if has_doorman(u)])
+    total_elevator = len([u for u in units if has_elevator(u)])
+    
     return {
         "name": neighborhood_name,
         "slug": slug,
@@ -194,8 +230,11 @@ async def get_neighborhood_detail(slug: str):
             "max_rent": max(rents) if rents else 0,
             "studios": studios,
             "one_beds": one_beds,
-            "two_plus_beds": two_plus
+            "two_plus_beds": two_plus,
+            "total_doorman": total_doorman,
+            "total_elevator": total_elevator
         },
+        "price_breakdown": price_breakdown,
         "units": units,
         "buildings": buildings
     }

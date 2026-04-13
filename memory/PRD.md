@@ -8,6 +8,7 @@ Build a web application called "NoFeesApts.com" to crawl publicly available real
 ## Recent Changes (2026-04-13)
 - Fixed Kiri AI assistant crash: Added missing `uuid` and `timedelta` imports in `ai_search.py`
 - Added "The Greenpoint" building (21 India Street, Brooklyn) with 15 units (8 Studios + 7 1BRs)
+- **Neighborhood Price Breakdown**: Enhanced neighborhood pages with avg prices by Studio/1BR/2BR, with doorman vs without, with elevator vs without. Backend returns `price_breakdown` object from `/api/neighborhoods/{slug}`. Frontend renders 3-column card layout with premium/savings indicators.
 - Database: 51 buildings, 260 units
 
 ## Known Issues

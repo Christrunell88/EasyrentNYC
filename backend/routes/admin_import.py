@@ -599,9 +599,19 @@ async def property_crawl(request: PropertyCrawlRequest, user: User = Depends(req
         full_text = soup.get_text(separator='\n')
         address_positions = []
         seen_addr_normalized = set()
+        
+        # Known management company office addresses to exclude (not actual apartment buildings)
+        office_addresses = [
+            '45 main st', '45 main street',  # Two Trees office
+        ]
+        
         for match in re.finditer(address_pattern, full_text, re.IGNORECASE):
             addr = match.group().strip()
             addr_norm = re.sub(r'\s+', ' ', addr).lower()
+            # Skip known office/HQ addresses
+            if any(office in addr_norm for office in office_addresses):
+                logger.info(f"Skipping known office address: {addr}")
+                continue
             if addr_norm not in seen_addr_normalized:
                 seen_addr_normalized.add(addr_norm)
                 address_positions.append((match.start(), addr))
@@ -963,9 +973,13 @@ async def _crawl_single_company(company: dict) -> dict:
         address_pattern = r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Place|Pl|Drive|Dr|Lane|Ln|Way)[\w\s,]*(?:NY|NJ|PA|New York|New Jersey|Pennsylvania)?[\s,]*\d{5}?'
         address_positions = []
         seen_addr = set()
+        # Known management company office addresses to exclude
+        office_addresses = ['45 main st', '45 main street']
         for match in re.finditer(address_pattern, full_text, re.IGNORECASE):
             addr = match.group().strip()
             norm = re.sub(r'\s+', ' ', addr).lower()
+            if any(office in norm for office in office_addresses):
+                continue
             if norm not in seen_addr:
                 seen_addr.add(norm)
                 address_positions.append((match.start(), addr))
